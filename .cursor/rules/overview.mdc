@@ -1,0 +1,20 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+You are creating an app that helps the user build their CV on the front end.
+
+The cv will have sections such as -
+
+Introduction
+Work experience
+Projects
+Professional memberships
+Intersts and activities
+Certifications
+Professional qualification equivilance
+Education
+Skills
+
+Each section will then come together to make the full cv which the user will be able to display as a website or print out as a pdf.
