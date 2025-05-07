@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
 import type { Database } from './database.types';
+import { browser } from '$app/environment';
 
 console.log('SUPABASE_URL:', PUBLIC_SUPABASE_URL);
 console.log('SUPABASE_ANON_KEY:', PUBLIC_SUPABASE_ANON_KEY);
@@ -17,8 +18,7 @@ export const supabase = createClient<Database>(PUBLIC_SUPABASE_URL, PUBLIC_SUPAB
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: true,
-        // Instead of a custom cookie implementation, rely on Supabase's storage
-        // This ensures compatibility between client and server
-        storageKey: 'sb-authstate',
+        storageKey: 'sb-auth-token',
+        flowType: 'pkce'
     }
 });

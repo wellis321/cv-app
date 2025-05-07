@@ -9,95 +9,65 @@ export async function requireAuth(event: RequestEvent) {
     const { locals } = event;
 
     try {
-        // First, check if session exists in locals (populated by hooks)
+        // Check if we have a session in locals (set by the hooks)
         if (!locals.session) {
-            // If no session in locals, try to get one directly
-            const { data: { session }, error } = await locals.supabase.auth.getSession();
-
-            if (error) {
-                console.error('Error getting session in requireAuth:', error.message);
-                throw redirect(303, '/?error=session');
-            }
+            // Try to get a fresh session directly
+            const { data: { session } } = await locals.supabase.auth.getSession();
 
             if (!session) {
                 console.log('No valid session found, redirecting to login');
                 throw redirect(303, '/');
             }
 
-            // If we found a session that wasn't in locals, update locals
+            // Store the session in locals for future use
             locals.session = session;
-
-            // Wait a short time for session to propagate
-            await new Promise(resolve => setTimeout(resolve, 100));
         }
 
-        // At this point we have a session, now verify the user exists
+        // Ensure the user has a profile
         try {
-            const { data: profile, error } = await locals.supabase
+            // Check if profile exists
+            const { data: profile } = await locals.supabase
                 .from('profiles')
-                .select('id')
+                .select('id, email')
                 .eq('id', locals.session.user.id)
                 .maybeSingle();
 
-            if (error) {
-                console.error('Error verifying user:', error);
-                // If there's a database error, we'll still proceed if non-critical
-                if (error.code === 'PGRST116') {
-                    // This is just a not found error, which is critical
-                    await locals.supabase.auth.signOut();
-                    throw redirect(303, '/?error=profile');
-                }
-            } else if (!profile) {
-                console.error('User profile not found, creating profile');
-
-                // Instead of failing, try to create a profile for the user
-                try {
-                    const newProfile = {
+            if (!profile) {
+                // Create a profile for the user
+                const { error: insertError } = await locals.supabase
+                    .from('profiles')
+                    .insert({
                         id: locals.session.user.id,
                         email: locals.session.user.email,
                         updated_at: new Date().toISOString()
-                    };
+                    });
 
-                    const { error: insertError } = await locals.supabase
-                        .from('profiles')
-                        .insert(newProfile);
-
-                    if (insertError) {
-                        console.error('Error creating profile:', insertError);
-                        // Critical error, redirect to login
-                        await locals.supabase.auth.signOut();
-                        throw redirect(303, '/?error=create-profile');
-                    }
-
-                    // Profile created successfully
-                    console.log('Profile created for user:', locals.session.user.id);
-                } catch (profileErr) {
-                    console.error('Unexpected error creating profile:', profileErr);
-                    await locals.supabase.auth.signOut();
-                    throw redirect(303, '/?error=unexpected');
+                if (insertError) {
+                    console.error('Error creating profile:', insertError);
                 }
             }
-        } catch (verifyErr) {
-            // Only throw redirect if it's not already a redirect
-            if (!(verifyErr instanceof Response)) {
-                console.error('Error during user verification:', verifyErr);
-                throw redirect(303, '/?error=verification');
-            }
-            throw verifyErr;
+
+            // Return user data
+            return {
+                userId: locals.session.user.id,
+                email: locals.session.user.email
+            };
+        } catch (err) {
+            console.error('Error verifying profile:', err);
+
+            // Continue anyway with basic user data
+            return {
+                userId: locals.session.user.id,
+                email: locals.session.user.email
+            };
+        }
+    } catch (err) {
+        // Pass through redirects
+        if (err instanceof Response) {
+            throw err;
         }
 
-        // If we reach here, the user is authenticated
-        return {
-            userId: locals.session.user.id,
-            email: locals.session.user.email
-        };
-    } catch (error) {
-        if (error instanceof Response) {
-            // This is a redirect - pass it through
-            throw error;
-        }
-
-        console.error('Unexpected error in requireAuth:', error);
-        throw redirect(303, '/?error=auth');
+        console.error('Unexpected error in requireAuth:', err);
+        throw redirect(303, '/');
     }
 }
