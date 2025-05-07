@@ -48,7 +48,7 @@
 
 		try {
 			const date = Temporal.PlainDate.from(dateStr);
-			return date.toLocaleString('en-GB', { month: 'short', year: 'numeric' });
+			return date.toLocaleString('en-GB', { month: 'long', year: 'numeric' });
 		} catch (err) {
 			console.error('Error formatting date:', err);
 			return dateStr;
@@ -187,6 +187,11 @@
 				// Hide the form after successful submission
 				showAddForm = false;
 
+				// Update section status
+				await import('$lib/cv-sections').then((module) => {
+					module.updateSectionStatus();
+				});
+
 				// Clear success message after 3 seconds
 				setTimeout(() => {
 					success = '';
@@ -264,6 +269,11 @@
 				// Reset the delete confirmation
 				deleteConfirmId = null;
 
+				// Update section status
+				await import('$lib/cv-sections').then((module) => {
+					module.updateSectionStatus();
+				});
+
 				// Clear success message after 3 seconds
 				setTimeout(() => {
 					success = '';
@@ -295,20 +305,25 @@
 			console.log('Loading certifications for user:', sessionData.session.user.id);
 
 			// Fetch certifications
-			const { data: certsData, error: certsError } = await supabase
+			const { data: certificationsData, error: certificationsError } = await supabase
 				.from('certifications')
 				.select('*')
 				.eq('profile_id', sessionData.session.user.id)
 				.order('date_obtained', { ascending: false });
 
-			if (certsError) {
-				console.error('Error fetching certifications from client:', certsError);
-				error = certsError.message;
+			if (certificationsError) {
+				console.error('Error fetching certifications from client:', certificationsError);
+				error = certificationsError.message;
 				return;
 			}
 
-			console.log('Client-side load successful:', certsData?.length, 'certifications');
-			certifications = certsData || [];
+			console.log('Client-side load successful:', certificationsData?.length, 'certifications');
+			certifications = sortCertifications(certificationsData || []);
+
+			// Update section status
+			await import('$lib/cv-sections').then((module) => {
+				module.updateSectionStatus();
+			});
 		} catch (err) {
 			console.error('Unexpected error loading certifications from client:', err);
 			error = 'Failed to load certifications. Please try refreshing the page.';
@@ -335,6 +350,11 @@
 				const url = new URL(window.location.href);
 				url.searchParams.delete('success');
 				history.replaceState({}, document.title, url.toString());
+
+				// Update section status
+				await import('$lib/cv-sections').then((module) => {
+					module.updateSectionStatus();
+				});
 
 				// Clear success message after 3 seconds
 				setTimeout(() => {

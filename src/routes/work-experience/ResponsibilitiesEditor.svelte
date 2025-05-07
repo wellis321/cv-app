@@ -277,13 +277,13 @@
 	export function getFormattedText(): string {
 		if (categories.length === 0) return '';
 
-		let text = 'Key Responsibilities:\n';
+		let text = '';
 
 		categories.forEach((category, catIndex) => {
-			text += `${catIndex + 1}. ${category.name}:\n`;
+			text += `${category.name}:\n`;
 
 			category.items.forEach((item, itemIndex) => {
-				text += `${item.content}\n`;
+				text += `- ${item.content}\n`;
 			});
 
 			if (catIndex < categories.length - 1) {
@@ -308,53 +308,74 @@
 	</div>
 {:else}
 	<div class="mt-6">
-		<h3 class="mb-4 text-lg font-semibold text-gray-800">Key Responsibilities</h3>
+		<!-- Conditional heading for editing mode vs read-only mode -->
+		{#if !readOnly}
+			<h3 class="mb-4 text-lg font-semibold text-gray-800">Key Responsibilities</h3>
+		{:else if categories.length > 0}
+			<h3 class="text-md mb-2 border-b border-gray-200 pb-2 font-medium text-gray-700">
+				Key Responsibilities
+			</h3>
+		{/if}
 
 		{#if categories.length === 0}
-			<p class="mb-4 text-gray-500 italic">No responsibilities added yet.</p>
+			{#if !readOnly}
+				<p class="mb-4 text-gray-500 italic">No responsibilities added yet.</p>
+			{/if}
 		{:else}
 			<div class="space-y-4">
 				{#each categories as category (category.id)}
-					<div class="overflow-hidden rounded-md border bg-white">
-						<!-- Category header -->
-						<div class="flex items-center justify-between bg-gray-50 p-3">
-							{#if editingCategoryId === category.id}
-								<input
-									type="text"
-									bind:value={editCategoryValue}
-									class="mr-2 flex-1 rounded-md border-gray-300"
-									placeholder="Category name"
-									autofocus
-								/>
-								<div class="flex space-x-2">
+					{#if readOnly}
+						<!-- Read-only compact display -->
+						<div class="mb-2">
+							<h4 class="font-medium text-gray-800">{category.name}</h4>
+							{#if category.items.length > 0}
+								<ul class="mt-1 list-disc space-y-1 pl-5">
+									{#each category.items as item (item.id)}
+										<li class="text-sm text-gray-700">{item.content}</li>
+									{/each}
+								</ul>
+							{/if}
+						</div>
+					{:else}
+						<!-- Editable view -->
+						<div class="overflow-hidden rounded-md border bg-white">
+							<!-- Category header -->
+							<div class="flex items-center justify-between bg-gray-50 p-3">
+								{#if editingCategoryId === category.id}
+									<input
+										type="text"
+										bind:value={editCategoryValue}
+										class="mr-2 flex-1 rounded-md border-gray-300"
+										placeholder="Category name"
+									/>
+									<div class="flex space-x-2">
+										<button
+											onclick={() => saveEditCategory(category.id)}
+											class="rounded bg-green-600 px-2 py-1 text-xs text-white hover:bg-green-700"
+											disabled={!editCategoryValue.trim()}
+										>
+											Save
+										</button>
+										<button
+											onclick={cancelEditCategory}
+											class="rounded bg-gray-200 px-2 py-1 text-xs text-gray-700 hover:bg-gray-300"
+										>
+											Cancel
+										</button>
+									</div>
+								{:else}
 									<button
-										onclick={() => saveEditCategory(category.id)}
-										class="rounded bg-green-600 px-2 py-1 text-xs text-white hover:bg-green-700"
-										disabled={!editCategoryValue.trim()}
+										onclick={() => toggleCategory(category.id)}
+										class="flex flex-1 items-center text-left font-medium text-gray-800"
 									>
-										Save
+										<span
+											class="mr-2 transform transition-transform duration-200"
+											class:rotate-90={expandedCategories[category.id]}
+										>
+											▶
+										</span>
+										{category.name}
 									</button>
-									<button
-										onclick={cancelEditCategory}
-										class="rounded bg-gray-200 px-2 py-1 text-xs text-gray-700 hover:bg-gray-300"
-									>
-										Cancel
-									</button>
-								</div>
-							{:else}
-								<button
-									onclick={() => toggleCategory(category.id)}
-									class="flex flex-1 items-center text-left font-medium text-gray-800"
-								>
-									<span
-										class="mr-2 transform transition-transform duration-200"
-										class:rotate-90={expandedCategories[category.id]}
-									>
-										▶
-									</span>
-									{category.name}
-								</button>
-								{#if !readOnly}
 									<div class="flex space-x-2">
 										<button
 											onclick={() => startEditCategory(category)}
@@ -370,45 +391,42 @@
 										</button>
 									</div>
 								{/if}
-							{/if}
-						</div>
+							</div>
 
-						<!-- Category content - items -->
-						{#if expandedCategories[category.id]}
-							<div class="p-3">
-								{#if category.items.length === 0}
-									<p class="text-gray-500 italic">No items in this category yet.</p>
-								{:else}
-									<ul class="list-disc space-y-2 pl-6">
-										{#each category.items as item (item.id)}
-											<li>
-												{#if editingItemId === item.id}
-													<div class="mt-1 flex items-center">
-														<input
-															type="text"
-															bind:value={editItemValue}
-															class="mr-2 flex-1 rounded-md border-gray-300"
-															placeholder="Item content"
-															autofocus
-														/>
-														<button
-															onclick={() => saveEditItem(item.id)}
-															class="mr-1 rounded bg-green-600 px-2 py-1 text-xs text-white hover:bg-green-700"
-															disabled={!editItemValue.trim()}
-														>
-															Save
-														</button>
-														<button
-															onclick={cancelEditItem}
-															class="rounded bg-gray-200 px-2 py-1 text-xs text-gray-700 hover:bg-gray-300"
-														>
-															Cancel
-														</button>
-													</div>
-												{:else}
-													<div class="group flex items-start">
-														<span class="flex-1">{item.content}</span>
-														{#if !readOnly}
+							<!-- Category content - items -->
+							{#if expandedCategories[category.id]}
+								<div class="p-3">
+									{#if category.items.length === 0}
+										<p class="text-gray-500 italic">No items in this category yet.</p>
+									{:else}
+										<ul class="list-disc space-y-2 pl-6">
+											{#each category.items as item (item.id)}
+												<li>
+													{#if editingItemId === item.id}
+														<div class="mt-1 flex items-center">
+															<input
+																type="text"
+																bind:value={editItemValue}
+																class="mr-2 flex-1 rounded-md border-gray-300"
+																placeholder="Item content"
+															/>
+															<button
+																onclick={() => saveEditItem(item.id)}
+																class="mr-1 rounded bg-green-600 px-2 py-1 text-xs text-white hover:bg-green-700"
+																disabled={!editItemValue.trim()}
+															>
+																Save
+															</button>
+															<button
+																onclick={cancelEditItem}
+																class="rounded bg-gray-200 px-2 py-1 text-xs text-gray-700 hover:bg-gray-300"
+															>
+																Cancel
+															</button>
+														</div>
+													{:else}
+														<div class="group flex items-start">
+															<span class="flex-1">{item.content}</span>
 															<div class="ml-2 hidden space-x-2 group-hover:flex">
 																<button
 																	onclick={() => startEditItem(item)}
@@ -423,15 +441,13 @@
 																	Delete
 																</button>
 															</div>
-														{/if}
-													</div>
-												{/if}
-											</li>
-										{/each}
-									</ul>
-								{/if}
+														</div>
+													{/if}
+												</li>
+											{/each}
+										</ul>
+									{/if}
 
-								{#if !readOnly}
 									<div class="mt-4">
 										<div class="flex items-center">
 											<input
@@ -450,10 +466,10 @@
 											</button>
 										</div>
 									</div>
-								{/if}
-							</div>
-						{/if}
-					</div>
+								</div>
+							{/if}
+						</div>
+					{/if}
 				{/each}
 			</div>
 		{/if}

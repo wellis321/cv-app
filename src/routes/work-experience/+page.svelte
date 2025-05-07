@@ -194,6 +194,11 @@
 							error = 'Error loading work experiences. Please try again.';
 						} else if (experienceData && experienceData.length > 0) {
 							workExperiences = sortExperiences(experienceData);
+
+							// Update section status after loading experiences
+							await import('$lib/cv-sections').then((module) => {
+								module.updateSectionStatus();
+							});
 						}
 					}
 				}
@@ -240,7 +245,7 @@
 		editingExperience = exp;
 		editingResponsibilities = false;
 
-		// Parse description to separate out key responsibilities
+		// Extract description and responsibilities
 		let descriptionText = exp.description || '';
 
 		// Check if the description contains the "Key Responsibilities:" section
@@ -249,7 +254,17 @@
 		if (keyResponsibilitiesIndex !== -1) {
 			// Split the description at the key responsibilities section
 			description = descriptionText.substring(0, keyResponsibilitiesIndex).trim();
-			// The responsibilities will be loaded by the component from the database
+
+			// Get the responsibilities text for potential migration
+			const responsibilitiesText = descriptionText.substring(keyResponsibilitiesIndex).trim();
+
+			// Schedule migration of old-format responsibilities to new format
+			// This will run after the responsibilities component is mounted
+			setTimeout(() => {
+				if (editResponsibilitiesEditor) {
+					migrateResponsibilitiesFromText(responsibilitiesText, exp.id);
+				}
+			}, 1000);
 		} else {
 			description = descriptionText;
 		}
@@ -265,6 +280,54 @@
 			setTimeout(() => {
 				document.getElementById('experienceForm')?.scrollIntoView({ behavior: 'smooth' });
 			}, 100);
+		}
+	}
+
+	// Function to migrate old-style responsibilities text to structured categories
+	async function migrateResponsibilitiesFromText(text: string, experienceId: string) {
+		if (!text.startsWith('Key Responsibilities:')) return;
+
+		// Get existing categories
+		const existingCategories = await getResponsibilitiesForExperience(experienceId);
+
+		// Only migrate if there are no existing categories
+		if (existingCategories.length > 0) return;
+
+		// Parse the text to extract numbered categories and items
+		const lines = text.split('\n').filter((line) => line.trim());
+
+		// Remove the "Key Responsibilities:" header
+		lines.shift();
+
+		let currentCategory: any = null;
+
+		// Process each line
+		for (const line of lines) {
+			// Check if this is a numbered category line (e.g., "1. Strategic Leadership:")
+			const categoryMatch = line.match(/^\d+\.\s+(.*?):/);
+
+			if (categoryMatch) {
+				// It's a new category
+				const categoryName = categoryMatch[1].trim();
+				currentCategory = await addCategory(experienceId, categoryName);
+			} else if (currentCategory && line.trim()) {
+				// It's an item in the current category, add it
+				// Remove any leading bullets or dashes
+				const content = line.replace(/^[-•*]\s*/, '').trim();
+				if (content) {
+					await addItem(currentCategory.id, content);
+				}
+			}
+		}
+
+		// Signal that we're done editing responsibilities
+		editingResponsibilities = true;
+
+		// Reload the editor
+		if (editResponsibilitiesEditor) {
+			setTimeout(() => {
+				editResponsibilitiesEditor.loadResponsibilities();
+			}, 500);
 		}
 	}
 
@@ -311,6 +374,11 @@
 
 				// Reset the delete confirmation
 				deleteConfirmId = null;
+
+				// Update section status
+				await import('$lib/cv-sections').then((module) => {
+					module.updateSectionStatus();
+				});
 
 				// Clear success message after 3 seconds
 				setTimeout(() => {
@@ -407,13 +475,6 @@
 				return;
 			}
 
-			// Get formatted responsibilities text if available
-			const responsibilitiesText = editResponsibilitiesEditor?.getFormattedText?.() || '';
-
-			// If we have responsibilities text, append it to the description
-			const fullDescription =
-				description + (responsibilitiesText ? '\n\n' + responsibilitiesText : '');
-
 			let result;
 
 			if (isEditing && editingExperience) {
@@ -425,7 +486,7 @@
 						position,
 						start_date: startDate,
 						end_date: endDate || null,
-						description: fullDescription
+						description: description // Only store the description, not the responsibilities
 					})
 					.eq('id', editingExperience.id)
 					.select();
@@ -439,7 +500,7 @@
 						position,
 						start_date: startDate,
 						end_date: endDate || null,
-						description: fullDescription
+						description: description // Only store the description, not the responsibilities
 					})
 					.select();
 			}
@@ -500,6 +561,11 @@
 						}
 					}
 				}
+
+				// Update section status
+				await import('$lib/cv-sections').then((module) => {
+					module.updateSectionStatus();
+				});
 
 				// Clear success message after 3 seconds
 				setTimeout(() => {
@@ -725,8 +791,19 @@
 							</button>
 						</div>
 					</div>
-					{#if exp.description}
-						<div class="mt-2 text-gray-700">{exp.description}</div>
+
+					<!-- Description section (if exists) -->
+					{#if exp.description && exp.description.trim()}
+						<div class="mt-2">
+							<h4 class="mb-1 text-sm font-medium text-gray-700">Description</h4>
+							<div class="whitespace-pre-line text-gray-700">
+								{#if exp.description.includes('Key Responsibilities:')}
+									{exp.description.split('Key Responsibilities:')[0].trim()}
+								{:else}
+									{exp.description}
+								{/if}
+							</div>
+						</div>
 					{/if}
 
 					<!-- Show responsibilities in read-only view -->

@@ -60,6 +60,13 @@ export const CV_SECTIONS: CVSection[] = [
         dataTable: 'certifications'
     },
     {
+        id: 'qualification-equivalence',
+        name: 'Professional Qualification Equivalence',
+        path: '/qualification-equivalence',
+        description: 'Show how international and other qualifications are equivalent to local standards',
+        dataTable: 'professional_qualification_equivalence'
+    },
+    {
         id: 'memberships',
         name: 'Professional Memberships',
         path: '/memberships',

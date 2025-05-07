@@ -44,11 +44,11 @@
 
 	// Format dates for display
 	function formatDate(dateStr: string | null | undefined): string {
-		if (!dateStr) return '';
+		if (!dateStr) return 'Present';
 
 		try {
 			const date = Temporal.PlainDate.from(dateStr);
-			return date.toLocaleString('en-GB', { month: 'short', year: 'numeric' });
+			return date.toLocaleString('en-GB', { month: 'long', year: 'numeric' });
 		} catch (err) {
 			console.error('Error formatting date:', err);
 			return dateStr;
@@ -188,6 +188,11 @@
 				// Hide the form after successful submission
 				showAddForm = false;
 
+				// Update section status
+				await import('$lib/cv-sections').then((module) => {
+					module.updateSectionStatus();
+				});
+
 				// Clear success message after 3 seconds
 				setTimeout(() => {
 					success = '';
@@ -263,10 +268,15 @@
 				success = 'Membership deleted successfully!';
 
 				// Remove the membership from the list
-				memberships = memberships.filter((mem) => mem.id !== id);
+				memberships = memberships.filter((membership) => membership.id !== id);
 
 				// Reset the delete confirmation
 				deleteConfirmId = null;
+
+				// Update section status
+				await import('$lib/cv-sections').then((module) => {
+					module.updateSectionStatus();
+				});
 
 				// Clear success message after 3 seconds
 				setTimeout(() => {
@@ -299,20 +309,25 @@
 			console.log('Loading memberships for user:', sessionData.session.user.id);
 
 			// Fetch memberships
-			const { data: memsData, error: memsError } = await supabase
+			const { data: membershipsData, error: membershipsError } = await supabase
 				.from('professional_memberships')
 				.select('*')
 				.eq('profile_id', sessionData.session.user.id)
 				.order('start_date', { ascending: false });
 
-			if (memsError) {
-				console.error('Error fetching memberships from client:', memsError);
-				error = memsError.message;
+			if (membershipsError) {
+				console.error('Error fetching memberships from client:', membershipsError);
+				error = membershipsError.message;
 				return;
 			}
 
-			console.log('Client-side load successful:', memsData?.length, 'memberships');
-			memberships = memsData || [];
+			console.log('Client-side load successful:', membershipsData?.length, 'memberships');
+			memberships = sortMemberships(membershipsData || []);
+
+			// Update the section status after successfully loading memberships
+			await import('$lib/cv-sections').then((module) => {
+				module.updateSectionStatus();
+			});
 		} catch (err) {
 			console.error('Unexpected error loading memberships from client:', err);
 			error = 'Failed to load memberships. Please try refreshing the page.';
@@ -339,6 +354,11 @@
 				const url = new URL(window.location.href);
 				url.searchParams.delete('success');
 				history.replaceState({}, document.title, url.toString());
+
+				// Update section status
+				await import('$lib/cv-sections').then((module) => {
+					module.updateSectionStatus();
+				});
 
 				// Clear success message after 3 seconds
 				setTimeout(() => {

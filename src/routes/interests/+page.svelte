@@ -149,6 +149,11 @@
 				// Hide the form after successful submission
 				showAddForm = false;
 
+				// Update section status
+				await import('$lib/cv-sections').then((module) => {
+					module.updateSectionStatus();
+				});
+
 				// Clear success message after 3 seconds
 				setTimeout(() => {
 					success = '';
@@ -224,6 +229,11 @@
 				// Reset the delete confirmation
 				deleteConfirmId = null;
 
+				// Update section status
+				await import('$lib/cv-sections').then((module) => {
+					module.updateSectionStatus();
+				});
+
 				// Clear success message after 3 seconds
 				setTimeout(() => {
 					success = '';
@@ -269,6 +279,11 @@
 
 			console.log('Client-side load successful:', interestsData?.length, 'interests');
 			interests = interestsData || [];
+
+			// Update section status
+			await import('$lib/cv-sections').then((module) => {
+				module.updateSectionStatus();
+			});
 		} catch (err) {
 			console.error('Unexpected error loading interests from client:', err);
 			error = 'Failed to load interests. Please try refreshing the page.';
@@ -295,6 +310,11 @@
 				const url = new URL(window.location.href);
 				url.searchParams.delete('success');
 				history.replaceState({}, document.title, url.toString());
+
+				// Update section status
+				await import('$lib/cv-sections').then((module) => {
+					module.updateSectionStatus();
+				});
 
 				// Clear success message after 3 seconds
 				setTimeout(() => {
