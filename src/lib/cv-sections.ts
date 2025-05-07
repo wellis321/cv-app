@@ -64,7 +64,7 @@ export const CV_SECTIONS: CVSection[] = [
         name: 'Professional Memberships',
         path: '/memberships',
         description: 'Professional organisations and memberships',
-        dataTable: 'memberships'
+        dataTable: 'professional_memberships'
     },
     {
         id: 'interests',
