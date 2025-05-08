@@ -50,8 +50,6 @@
 	let addColumnStatus = $state('');
 	let updateDataStatus = $state('');
 	let isLoading = $state(false);
-	let displayIssueDetected = $state(false);
-	let fixingDisplayIssue = $state(false);
 
 	// Session from store
 	const session = $authSession;
@@ -149,7 +147,7 @@
 					.from('education')
 					.update({
 						institution,
-						degree: qualification,
+						qualification,
 						field_of_study: fieldOfStudy || null,
 						start_date: startDate,
 						end_date: endDate || null
@@ -163,7 +161,7 @@
 					.insert({
 						profile_id: sessionData.session.user.id,
 						institution,
-						degree: qualification,
+						qualification,
 						field_of_study: fieldOfStudy || null,
 						start_date: startDate,
 						end_date: endDate || null
@@ -301,117 +299,7 @@
 		}
 	}
 
-	// Check for display issues
-	function checkForDisplayIssues() {
-		if (educationList && educationList.length > 0) {
-			// Check if any education entries have degree but not qualification or vice versa
-			for (const edu of educationList) {
-				if (
-					(edu.degree && (!edu.qualification || edu.qualification === null)) ||
-					(edu.qualification && (!edu.degree || edu.degree === null))
-				) {
-					displayIssueDetected = true;
-					break;
-				}
-			}
-		}
-	}
-
-	// Add this new function to directly fix education data issues
-	async function fixEducationDataIssues() {
-		if (!session) {
-			error = 'You need to be logged in to fix your data.';
-			return;
-		}
-
-		loading = true;
-		error = undefined;
-		success = '';
-
-		try {
-			// Step 1: Fetch all education entries for the user
-			const { data: educationData, error: fetchError } = await supabase
-				.from('education')
-				.select('*')
-				.eq('profile_id', session.user.id);
-
-			if (fetchError) {
-				throw new Error('Error fetching education data: ' + fetchError.message);
-			}
-
-			// Step 2: Update education entries that need fixing
-			let updatedCount = 0;
-			let errorCount = 0;
-
-			for (const edu of educationData || []) {
-				let updateData: Record<string, string> = {};
-				let needsUpdate = false;
-
-				// If education has degree but not qualification
-				if (edu.degree && (!edu.qualification || edu.qualification === null)) {
-					updateData.qualification = edu.degree;
-					needsUpdate = true;
-				}
-
-				// If education has qualification but not degree
-				if (edu.qualification && (!edu.degree || edu.degree === null)) {
-					updateData.degree = edu.qualification;
-					needsUpdate = true;
-				}
-
-				if (needsUpdate) {
-					const { error: updateError } = await supabase
-						.from('education')
-						.update(updateData)
-						.eq('id', edu.id);
-
-					if (updateError) {
-						errorCount++;
-						console.error('Error updating education:', updateError);
-					} else {
-						updatedCount++;
-					}
-				}
-			}
-
-			// Step 3: Show success message and reload education data
-			if (updatedCount > 0) {
-				success = `Successfully fixed ${updatedCount} education entries!`;
-
-				// Reload the education entries to reflect the changes
-				const { data: refreshedData } = await supabase
-					.from('education')
-					.select('*')
-					.eq('profile_id', session.user.id)
-					.order('start_date', { ascending: false });
-
-				if (refreshedData) {
-					educationList = refreshedData;
-				}
-
-				// Clear display issue flag now that it's fixed
-				displayIssueDetected = false;
-			} else if (errorCount > 0) {
-				error = `Failed to update ${errorCount} education entries. Please try again.`;
-			} else {
-				success = 'No education updates were needed.';
-				displayIssueDetected = false;
-			}
-
-			// Clear success message after 3 seconds
-			setTimeout(() => {
-				success = '';
-			}, 3000);
-		} catch (err) {
-			console.error('Error fixing education data:', err);
-			error = `Failed to fix education data: ${err instanceof Error ? err.message : String(err)}`;
-		} finally {
-			loading = false;
-		}
-	}
-
-	// Add this function near the fixEducationDataIssues function
-	// Check for success message in URL params
+	// Update the onMount function to remove display issue check
 	onMount(async () => {
 		if (browser) {
 			// Check URL params for success message
@@ -436,9 +324,6 @@
 				}, 3000);
 			}
 
-			// Check for display issues
-			checkForDisplayIssues();
-
 			// If data was loaded properly on the server, we'll have education entries
 			// Otherwise, try to load them directly from client
 			if (session && (!educationList || educationList.length === 0)) {
@@ -448,7 +333,7 @@
 		}
 	});
 
-	// Client-side fallback to load education entries directly
+	// Update the loadEducationFromClient function to remove display issue check
 	async function loadEducationFromClient() {
 		loadingEducation = true;
 		error = undefined;
@@ -480,9 +365,6 @@
 
 			console.log('Client-side load successful:', educationData?.length, 'education entries');
 			educationList = educationData || [];
-
-			// Check for display issues after loading
-			checkForDisplayIssues();
 		} catch (err) {
 			console.error('Unexpected error loading education from client:', err);
 			error = 'Failed to load education. Please try refreshing the page.';
@@ -502,14 +384,6 @@
 			>
 				{showAddForm ? 'Cancel' : 'Add Education'}
 			</button>
-			<button
-				onclick={fixEducationDataIssues}
-				class="flex items-center rounded bg-yellow-200 px-2 py-1 text-xs font-medium text-yellow-800 hover:bg-yellow-300"
-				title="Fix Display Issues"
-				disabled={loading}
-			>
-				Fix Display Issues
-			</button>
 		</div>
 	</div>
 
@@ -519,22 +393,6 @@
 
 	{#if success}
 		<div class="mb-4 rounded bg-green-100 p-4 text-green-700">{success}</div>
-	{/if}
-
-	{#if displayIssueDetected}
-		<div class="mb-4 rounded bg-yellow-100 p-4 text-yellow-800">
-			<p class="mb-2 font-medium">Display issue detected!</p>
-			<p class="mb-2 text-sm">
-				Some of your education entries may not be displaying correctly due to a recent update.
-			</p>
-			<button
-				onclick={fixEducationDataIssues}
-				class="inline-block rounded bg-yellow-500 px-3 py-1 text-sm font-medium text-white hover:bg-yellow-600"
-				disabled={loading}
-			>
-				{loading ? 'Fixing...' : 'Fix Now'}
-			</button>
-		</div>
 	{/if}
 
 	<!-- Add/Edit form -->

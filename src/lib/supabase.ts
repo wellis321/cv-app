@@ -1,24 +1,30 @@
 import { createClient } from '@supabase/supabase-js';
-import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
 import type { Database } from './database.types';
-import { browser } from '$app/environment';
+import config, { safeLog } from './config';
 
-console.log('SUPABASE_URL:', PUBLIC_SUPABASE_URL);
-console.log('SUPABASE_ANON_KEY:', PUBLIC_SUPABASE_ANON_KEY);
-
-if (!PUBLIC_SUPABASE_URL || !PUBLIC_SUPABASE_ANON_KEY) {
-    throw new Error('Missing Supabase environment variables');
-}
-
-// Check if window is defined (browser environment)
-const isClient = typeof window !== 'undefined';
-
-export const supabase = createClient<Database>(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY, {
-    auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true,
-        storageKey: 'sb-auth-token',
-        flowType: 'pkce'
+// Create the Supabase client with configuration from config file
+export const supabase = createClient<Database>(
+    config.supabase.url,
+    config.supabase.anonKey,
+    {
+        auth: {
+            persistSession: true,
+            autoRefreshToken: true,
+            detectSessionInUrl: true,
+            storageKey: 'sb-auth-token',
+            flowType: 'pkce'
+        }
     }
-});
+);
+
+// Initialize and validate the Supabase client on startup
+try {
+    safeLog('debug', 'Supabase client initialized', {
+        environment: config.environment,
+        // Do NOT log credentials here
+    });
+} catch (error) {
+    safeLog('error', 'Failed to initialize Supabase client', error);
+    // Re-throw critical initialization errors to prevent app from starting with invalid config
+    throw error;
+}

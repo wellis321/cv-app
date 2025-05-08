@@ -60,9 +60,12 @@
 					</div>
 				</div>
 				<div class="flex items-center gap-4">
+					<a href="/security-review-client" class="text-sm text-indigo-600 hover:text-indigo-800"
+						>Security Review</a
+					>
 					{#if $session}
-						<button onclick={signOut} class="text-gray-600 hover:text-gray-900">Sign Out</button>
 						<a href="/profile" class="text-gray-600 hover:text-gray-900">Profile</a>
+						<button on:click={signOut} class="text-gray-600 hover:text-gray-900">Sign Out</button>
 					{/if}
 				</div>
 			</div>

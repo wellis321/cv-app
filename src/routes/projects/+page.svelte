@@ -50,7 +50,6 @@
 	let isEditing = $state(false);
 	let editingProject = $state<Project | null>(null);
 	let deleteConfirmId = $state<string | null>(null);
-	let displayIssueDetected = $state(false);
 
 	// Session from store
 	const session = $authSession;
@@ -142,7 +141,6 @@
 					.from('projects')
 					.update({
 						title,
-						name: title, // Also update the name field
 						description,
 						start_date: startDate || null,
 						end_date: endDate || null,
@@ -157,7 +155,6 @@
 					.insert({
 						profile_id: sessionData.session.user.id,
 						title,
-						name: title, // Also set the name field
 						description,
 						start_date: startDate || null,
 						end_date: endDate || null,
@@ -186,8 +183,10 @@
 					if (isEditing) {
 						// Update project in the list
 						projects = projects.map((proj) => (proj.id === savedProject.id ? savedProject : proj));
+						// Re-sort the entire list to maintain correct order
+						projects = sortProjects(projects);
 					} else {
-						// Add new project to the list
+						// Add new project and ensure sorting
 						projects = sortProjects([savedProject, ...projects]);
 					}
 				}
@@ -293,22 +292,6 @@
 		}
 	}
 
-	// Check for display issues
-	function checkForDisplayIssues() {
-		if (projects && projects.length > 0) {
-			// Check if any projects have title but not name or vice versa
-			for (const project of projects) {
-				if (
-					(project.title && (!project.name || project.name === null)) ||
-					(project.name && (!project.title || project.title === null))
-				) {
-					displayIssueDetected = true;
-					break;
-				}
-			}
-		}
-	}
-
 	// Check for success message in URL params and data loading
 	onMount(async () => {
 		if (browser) {
@@ -333,9 +316,6 @@
 					success = '';
 				}, 3000);
 			}
-
-			// Check for display issues
-			checkForDisplayIssues();
 
 			// If data was loaded properly on the server, we'll have projects
 			// Otherwise, try to load them directly from client
@@ -363,7 +343,7 @@
 
 			console.log('Loading projects for user:', sessionData.session.user.id);
 
-			// Fetch projects
+			// Fetch projects with explicit ordering (newest first)
 			const { data: projectsData, error: projectsError } = await supabase
 				.from('projects')
 				.select('*')
@@ -378,9 +358,6 @@
 
 			console.log('Client-side load successful:', projectsData?.length, 'projects');
 			projects = projectsData || [];
-
-			// Check for display issues after loading
-			checkForDisplayIssues();
 		} catch (err) {
 			console.error('Unexpected error loading projects from client:', err);
 			error = 'Failed to load projects. Please try refreshing the page.';
@@ -388,95 +365,6 @@
 			loadingProjects = false;
 		}
 	}
-
-	// Add this new function to directly fix projects data issues
-	async function fixProjectsDataIssues() {
-		if (!session) {
-			error = 'You need to be logged in to fix your data.';
-			return;
-		}
-
-		loading = true;
-		error = undefined;
-		success = '';
-
-		try {
-			// Step 1: Fetch all projects for the user
-			const { data: projectsData, error: fetchError } = await supabase
-				.from('projects')
-				.select('*')
-				.eq('profile_id', session.user.id);
-
-			if (fetchError) {
-				throw new Error('Error fetching projects: ' + fetchError.message);
-			}
-
-			// Step 2: Update projects that have title but not name or vice versa
-			let updatedCount = 0;
-			let errorCount = 0;
-
-			for (const project of projectsData || []) {
-				let needsUpdate = false;
-				let updateData: Record<string, string> = {};
-
-				// If project has title but not name
-				if (project.title && (!project.name || project.name === null)) {
-					updateData.name = project.title;
-					needsUpdate = true;
-				}
-
-				// If project has name but not title
-				if (project.name && (!project.title || project.title === null)) {
-					updateData.title = project.name;
-					needsUpdate = true;
-				}
-
-				if (needsUpdate) {
-					const { error: updateError } = await supabase
-						.from('projects')
-						.update(updateData)
-						.eq('id', project.id);
-
-					if (updateError) {
-						errorCount++;
-						console.error('Error updating project:', updateError);
-					} else {
-						updatedCount++;
-					}
-				}
-			}
-
-			// Step 3: Show success message and reload projects
-			if (updatedCount > 0) {
-				success = `Successfully fixed ${updatedCount} projects!`;
-
-				// Reload the projects to reflect the changes
-				await loadProjectsFromClient();
-
-				// Clear display issue flag now that it's fixed
-				displayIssueDetected = false;
-			} else if (errorCount > 0) {
-				error = `Failed to update ${errorCount} projects. Please try again.`;
-			} else {
-				success = 'No project updates were needed.';
-				displayIssueDetected = false;
-			}
-
-			// Clear success message after 3 seconds
-			setTimeout(() => {
-				success = '';
-			}, 3000);
-		} catch (err) {
-			console.error('Error fixing project data:', err);
-			error = `Failed to fix projects: ${err instanceof Error ? err.message : String(err)}`;
-		} finally {
-			loading = false;
-		}
-	}
-
-	// Let's first check the current interface for projects
-	// Looking for any signs of column name changes or field handling
-	// that might be causing display issues
 </script>
 
 <div class="mx-auto max-w-xl">
@@ -489,14 +377,6 @@
 			>
 				{showAddForm ? 'Cancel' : 'Add Project'}
 			</button>
-			<button
-				onclick={fixProjectsDataIssues}
-				class="flex items-center rounded bg-yellow-200 px-2 py-1 text-xs font-medium text-yellow-800 hover:bg-yellow-300"
-				title="Fix Display Issues"
-				disabled={loading}
-			>
-				Fix Display Issues
-			</button>
 		</div>
 	</div>
 
@@ -506,22 +386,6 @@
 
 	{#if success}
 		<div class="mb-4 rounded bg-green-100 p-4 text-green-700">{success}</div>
-	{/if}
-
-	{#if displayIssueDetected}
-		<div class="mb-4 rounded bg-yellow-100 p-4 text-yellow-800">
-			<p class="mb-2 font-medium">Display issue detected!</p>
-			<p class="mb-2 text-sm">
-				Some of your projects may not be displaying correctly due to a recent update.
-			</p>
-			<button
-				class="inline-block rounded bg-yellow-500 px-3 py-1 text-sm font-medium text-white hover:bg-yellow-600"
-				onclick={fixProjectsDataIssues}
-				disabled={loading}
-			>
-				{loading ? 'Fixing...' : 'Fix Now'}
-			</button>
-		</div>
 	{/if}
 
 	<!-- Add/Edit form -->
