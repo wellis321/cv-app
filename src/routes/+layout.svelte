@@ -65,6 +65,7 @@
 					>
 					{#if $session}
 						<a href="/profile" class="text-gray-600 hover:text-gray-900">Profile</a>
+						<a href="/preview-cv" class="text-gray-600 hover:text-gray-900">Preview CV</a>
 						<button on:click={signOut} class="text-gray-600 hover:text-gray-900">Sign Out</button>
 					{/if}
 				</div>

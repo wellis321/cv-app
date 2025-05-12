@@ -79,6 +79,12 @@ export const CV_SECTIONS: CVSection[] = [
         path: '/interests',
         description: 'Your hobbies and personal interests',
         dataTable: 'interests'
+    },
+    {
+        id: 'preview-cv',
+        name: 'Preview & Share CV',
+        path: '/preview-cv',
+        description: 'Preview, download and share your CV',
     }
 ];
 
