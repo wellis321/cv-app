@@ -9,6 +9,7 @@
 	import { page } from '$app/stores';
 	import SectionNavigation from '$lib/components/SectionNavigation.svelte';
 	import ResponsibilitiesEditor from './ResponsibilitiesEditor.svelte';
+	import { getResponsibilitiesForExperience, addCategory, addItem } from './responsibilities';
 
 	// Define type for form values
 	type FormValues = {
@@ -64,6 +65,8 @@
 	let editResponsibilitiesEditor = $state<any>(null);
 	let displayResponsibilitiesEditors = $state<Record<string, any>>({});
 	let editingResponsibilities = $state(false);
+	let warning = $state<string | null>(null);
+	let loadingResponsibilities = $state(false);
 
 	// Function to format dates with Temporal
 	function formatDate(dateString: string | null): string {
@@ -122,9 +125,10 @@
 
 	// Reset messages when form values change
 	$effect(() => {
-		// Clear error/success when form values change
+		// Clear error/success/warning when form values change
 		if (companyName || position || startDate || endDate || description) {
 			error = null;
+			warning = null;
 		}
 	});
 
@@ -422,6 +426,7 @@
 		// Clear all status messages first
 		error = null;
 		success = null;
+		warning = null;
 
 		// Check authentication first
 		if (!$session) {
@@ -458,8 +463,10 @@
 
 		// Check for date overlaps (excluding the current experience being edited)
 		if (hasDateOverlap(startDate, endDate, isEditing ? editingExperience?.id : undefined)) {
-			error = 'This experience overlaps with another job. Please adjust the dates.';
-			return;
+			// Show as warning instead of error, but allow the form to submit
+			warning =
+				'This experience overlaps with another job. This is allowed, but please make sure this is intended.';
+			// Continue with form submission - don't return
 		}
 
 		loading = true;
@@ -573,10 +580,8 @@
 				}, 3000);
 			}
 		} catch (err) {
-			console.error('Unexpected error during form submission:', err);
-			// Ensure error is properly set and success is cleared
-			success = null;
-			error = 'An unexpected error occurred. Please try again.';
+			console.error('Error in handleSubmit:', err);
+			error = 'An unexpected error occurred. Please try again later.';
 		} finally {
 			loading = false;
 		}
@@ -600,6 +605,10 @@
 
 	{#if success}
 		<div class="mb-4 rounded bg-green-100 p-4 text-green-700">{success}</div>
+	{/if}
+
+	{#if warning}
+		<div class="mb-4 rounded bg-yellow-100 p-4 text-yellow-700">{warning}</div>
 	{/if}
 
 	<!-- Add/Edit form moved to the top and toggleable -->

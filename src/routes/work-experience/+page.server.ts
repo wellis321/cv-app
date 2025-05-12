@@ -125,10 +125,8 @@ export const actions: Actions = {
                 });
 
                 if (hasOverlap) {
-                    return fail(400, {
-                        error: 'This experience overlaps with another job. Please adjust the dates.',
-                        values: { companyName, position, startDate, endDate, description }
-                    });
+                    // Instead of failing, continue but include a warning in the response
+                    console.log('Overlapping dates detected, but allowing as requested');
                 }
             }
 
