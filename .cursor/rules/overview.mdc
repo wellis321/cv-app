@@ -7,14 +7,30 @@ You are creating an app that helps the user build their CV on the front end.
 
 The cv will have sections such as -
 
-Introduction
-Work experience
+--Personal Profile
+In this section the person will be able to display their -
+    first name, middle name and last name as their full name
+    their email
+    their phone
+    their location
+    their photo of themeselves
+All of these will be optional except for their first name and last name
+
+--Work experience
+This section will display where they've worked in descending date order. Each experience will be able to display -
+    experience title
+    experience start date
+    experience end date
+    description
+    key responsibilities - these will be catagories that they can create and edit within eac of with they can create a list of responsibilities
+Education
 Projects
-Professional memberships
-Intersts and activities
+Skills
 Certifications
 Professional qualification equivilance
-Education
-Skills
+Professional memberships
+Intersts and activities
+
+
 
 Each section will then come together to make the full cv which the user will be able to display as a website or print out as a pdf.
