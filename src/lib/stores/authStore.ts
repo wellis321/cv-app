@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store';
+import { writable, get } from 'svelte/store';
 import { supabase, isSessionExpiringSoon, clearAllSessionData } from '$lib/supabase';
 import type { Session } from '@supabase/supabase-js';
 import { browser } from '$app/environment';
@@ -219,6 +219,10 @@ export const login = async (email: string, password: string) => {
             throw error;
         }
 
+        if (!data?.session?.access_token) {
+            safeLog('warn', 'Login successful but missing access_token in session');
+        }
+
         session.set(data.session);
         authError.set(null);
 
@@ -324,9 +328,26 @@ export const createProfile = async (userId: string, email: string) => {
 // Update a profile - now with CSRF protection
 export const updateProfile = async (profileData: any) => {
     try {
-        return await api.post('/api/update-profile', profileData);
+        // Get the current session
+        const currentSession = get(session);
+        if (!currentSession) {
+            safeLog('error', 'Error updating profile: No active session');
+            return { success: false, error: 'Authentication required' };
+        }
+
+        // Add Authorization header with the token if available
+        const headers: Record<string, string> = {};
+        if (currentSession?.access_token) {
+            headers['Authorization'] = `Bearer ${currentSession.access_token}`;
+        }
+
+        // Call the API with the auth headers
+        const result = await api.post('/api/update-profile', profileData, { headers });
+
+        // Return success
+        return result;
     } catch (err) {
         safeLog('error', 'Error updating profile', err);
-        throw err;
+        return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
     }
 };

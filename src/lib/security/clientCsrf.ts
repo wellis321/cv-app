@@ -57,17 +57,58 @@ export const api = {
     },
 
     post: async <T>(url: string, data: any, config: RequestInit = {}): Promise<T> => {
-        const response = await fetchWithCsrf(url, {
-            ...config,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                ...config.headers
-            },
-            body: JSON.stringify(data)
-        });
-        if (!response.ok) throw new Error(`API error: ${response.status}`);
-        return response.json();
+        try {
+            // Debug log the request details (remove in production)
+            if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+                console.debug('API Request:', {
+                    url,
+                    method: 'POST',
+                    contentType: 'application/json',
+                    hasToken: config.headers && 'Authorization' in (config.headers as any),
+                    hasCsrf: getCsrfTokenFromDocument() !== null
+                });
+            }
+
+            const response = await fetchWithCsrf(url, {
+                ...config,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...config.headers
+                },
+                body: JSON.stringify(data)
+            });
+
+            // If response is not OK, try to get more detailed error info
+            if (!response.ok) {
+                const errorText = await response.text();
+                let errorMessage = `API error: ${response.status}`;
+
+                try {
+                    // Try to parse error as JSON
+                    const errorJson = JSON.parse(errorText);
+                    if (errorJson.error) {
+                        errorMessage = errorJson.error;
+                        // Also check for more detailed message field
+                        if (errorJson.message) {
+                            errorMessage += `: ${errorJson.message}`;
+                        }
+                    }
+                } catch (e) {
+                    // If the error text can't be parsed as JSON, use the raw text if available
+                    if (errorText) {
+                        errorMessage = `${errorMessage} - ${errorText}`;
+                    }
+                }
+
+                throw new Error(errorMessage);
+            }
+
+            return response.json();
+        } catch (error) {
+            console.error('API POST request failed:', error);
+            throw error;
+        }
     },
 
     put: async <T>(url: string, data: any, config: RequestInit = {}): Promise<T> => {

@@ -27,11 +27,21 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
         safeLog('debug', `[${requestId}] Update profile endpoint session check`, {
             hasSession: !!serverSession,
-            userId: serverSession?.user?.id || 'none'
+            userId: serverSession?.user?.id || 'none',
+            hasSessionError: !!sessionError
         });
+
+        if (sessionError) {
+            safeLog('warn', `[${requestId}] Session error from server:`, {
+                code: sessionError.code,
+                message: sessionError.message
+            });
+        }
 
         // Extract auth token from header if present - with secure parsing
         const authHeader = request.headers.get('Authorization');
+        safeLog('debug', `[${requestId}] Auth header present: ${!!authHeader}`);
+
         let clientToken = null;
 
         if (authHeader) {
@@ -98,7 +108,14 @@ export const POST: RequestHandler = async ({ request, locals }) => {
         // Parse profile data from request with error handling
         let profileData;
         try {
-            profileData = await request.json();
+            const rawBody = await request.text();
+            safeLog('debug', `[${requestId}] Raw request body:`, {
+                body: rawBody.substring(0, 500),
+                length: rawBody.length
+            });
+
+            // Parse the raw text
+            profileData = JSON.parse(rawBody);
         } catch (parseError) {
             safeLog('error', `[${requestId}] Invalid JSON in request body`, { error: parseError });
             return json({ success: false, error: 'Invalid request format' }, { status: 400 });
@@ -106,7 +123,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
         safeLog('info', `[${requestId}] Processing profile update`, {
             userId: session.user.id,
-            hasData: !!profileData
+            profileData: JSON.stringify(profileData).substring(0, 500)
         });
 
         // Ensure the user can only update their own profile
@@ -121,6 +138,15 @@ export const POST: RequestHandler = async ({ request, locals }) => {
         // Add updated_at timestamp
         profileData.updated_at = new Date().toISOString();
 
+        // Sanitize the photo_url value
+        if ('photo_url' in profileData) {
+            // Ensure photo_url is either a valid string or null
+            if (profileData.photo_url !== null && typeof profileData.photo_url !== 'string') {
+                safeLog('warn', `[${requestId}] Invalid photo_url type: ${typeof profileData.photo_url}, value: ${String(profileData.photo_url).substring(0, 100)}`);
+                profileData.photo_url = null;
+            }
+        }
+
         // First try with the user's session (this should work if RLS is correct)
         safeLog('debug', `[${requestId}] Attempting profile update with user session`);
 
@@ -134,63 +160,219 @@ export const POST: RequestHandler = async ({ request, locals }) => {
         if (checkError) {
             safeLog('error', `[${requestId}] Error checking if profile exists`, {
                 userId: session.user.id,
-                errorCode: checkError.code
+                errorCode: checkError.code,
+                errorMessage: checkError.message
+            });
+        } else {
+            safeLog('debug', `[${requestId}] Profile exists check:`, {
+                exists: !!existingProfile,
+                profile: existingProfile
             });
         }
 
         // Use upsert instead of update to create the profile if it doesn't exist
-        const { data: updatedData, error: updateError } = await supabaseClient
-            .from('profiles')
-            .upsert(profileData, {
-                onConflict: 'id'
-            })
-            .select();
+        try {
+            // Log the exact data we're trying to save
+            const simplifiedData = {
+                id: profileData.id,
+                updated_at: profileData.updated_at
+            };
 
-        if (updateError) {
-            safeLog('error', `[${requestId}] Error updating profile with user session`, {
-                errorCode: updateError.code
-            });
+            // If photo_url is included, add it safely
+            if ('photo_url' in profileData) {
+                if (profileData.photo_url === null) {
+                    (simplifiedData as any).photo_url = null;
+                    safeLog('debug', `[${requestId}] Setting photo_url to null`);
+                } else if (typeof profileData.photo_url === 'string') {
+                    // Validate URL structure
+                    try {
+                        // Check for common issues with Supabase storage URLs
+                        const photoUrl = profileData.photo_url;
 
-            // If the error is related to RLS, try with admin role
-            // This is a fallback that should be replaced with proper RLS policies
-            if (updateError.code === 'PGRST301' || updateError.code === '42501') {
-                safeLog('warn', `[${requestId}] RLS error detected, using admin client as fallback`);
+                        // Log URL components for debugging
+                        safeLog('debug', `[${requestId}] Examining photo URL:`, {
+                            url: photoUrl,
+                            length: photoUrl.length,
+                            containsSupabase: photoUrl.includes('supabase'),
+                            containsStoragePath: photoUrl.includes('/storage/v1/object'),
+                            containsBucketName: photoUrl.includes('profile-photos'),
+                            containsSpecialChars: /[<>"'%\{\}\[\]\\^`]/.test(photoUrl)
+                        });
 
-                // Double-check user identity before using admin client
-                if (profileData.id !== session.user.id) {
-                    safeLog('error', `[${requestId}] Security check failed: ID mismatch`);
-                    return json({ success: false, error: 'Security verification failed' }, { status: 403 });
+                        new URL(photoUrl);
+                        (simplifiedData as any).photo_url = photoUrl;
+                    } catch (urlError) {
+                        safeLog('warn', `[${requestId}] Invalid URL, not including photo_url:`, {
+                            error: urlError instanceof Error ? urlError.message : 'Unknown error',
+                            url: profileData.photo_url
+                        });
+                        // Set to null instead of keeping an invalid URL
+                        (simplifiedData as any).photo_url = null;
+                    }
+                } else {
+                    safeLog('warn', `[${requestId}] photo_url is not a string or null, type: ${typeof profileData.photo_url}`);
                 }
-
-                const { data: adminData, error: adminError } = await supabaseAdmin
-                    .from('profiles')
-                    .upsert(profileData, {
-                        onConflict: 'id'
-                    })
-                    .select();
-
-                if (adminError) {
-                    safeLog('error', `[${requestId}] Error updating profile with admin client`, {
-                        errorCode: adminError.code
-                    });
-                    return json({ success: false, error: 'Failed to update profile' }, { status: 500 });
-                }
-
-                safeLog('info', `[${requestId}] Profile updated with admin client`, {
-                    userId: session.user.id
-                });
-                return json({ success: true, profile: adminData });
             }
 
-            return json({ success: false, error: 'Failed to update profile' }, { status: 500 });
+            safeLog('debug', `[${requestId}] Attempting upsert with simplified data:`, {
+                profileData: simplifiedData
+            });
+
+            // Use the simplified data for the update
+            const { data: updatedData, error: updateError } = await supabaseClient
+                .from('profiles')
+                .upsert(simplifiedData, {
+                    onConflict: 'id'
+                })
+                .select();
+
+            if (updateError) {
+                safeLog('error', `[${requestId}] Error updating profile with user session`, {
+                    errorCode: updateError.code,
+                    errorMessage: updateError.message,
+                    errorDetails: updateError.details
+                });
+
+                // If the error is related to RLS, try with admin role
+                // This is a fallback that should be replaced with proper RLS policies
+                if (updateError.code === 'PGRST301' || updateError.code === '42501') {
+                    safeLog('warn', `[${requestId}] RLS error detected, using admin client as fallback`);
+
+                    // Double-check user identity before using admin client
+                    if (profileData.id !== session.user.id) {
+                        safeLog('error', `[${requestId}] Security check failed: ID mismatch`);
+                        return json({ success: false, error: 'Security verification failed' }, { status: 403 });
+                    }
+
+                    try {
+                        safeLog('debug', `[${requestId}] Attempting profile update with admin client using simplified data:`, {
+                            data: simplifiedData
+                        });
+
+                        const { data: adminData, error: adminError } = await supabaseAdmin
+                            .from('profiles')
+                            .upsert(simplifiedData, {
+                                onConflict: 'id'
+                            })
+                            .select();
+
+                        if (adminError) {
+                            safeLog('error', `[${requestId}] Error updating profile with admin client`, {
+                                errorCode: adminError.code,
+                                errorMessage: adminError.message,
+                                errorDetails: adminError.details
+                            });
+                            return json({
+                                success: false,
+                                error: 'Failed to update profile',
+                                message: adminError.message,
+                                code: adminError.code,
+                                requestId
+                            }, { status: 500 });
+                        }
+
+                        safeLog('info', `[${requestId}] Profile updated with admin client`, {
+                            userId: session.user.id,
+                            result: adminData
+                        });
+                        return json({ success: true, profile: adminData });
+                    } catch (adminCatchErr) {
+                        safeLog('error', `[${requestId}] Exception in admin update`, {
+                            error: adminCatchErr instanceof Error ? adminCatchErr.message : adminCatchErr
+                        });
+                        return json({
+                            success: false,
+                            error: 'Server error during admin update',
+                            message: adminCatchErr instanceof Error ? adminCatchErr.message : 'Unknown error',
+                            requestId
+                        }, { status: 500 });
+                    }
+                }
+
+                return json({
+                    success: false,
+                    error: 'Failed to update profile',
+                    message: updateError.message,
+                    code: updateError.code,
+                    requestId
+                }, { status: 500 });
+            }
+
+            safeLog('info', `[${requestId}] Profile updated successfully`, {
+                userId: session.user.id,
+                result: updatedData
+            });
+            return json({ success: true, profile: updatedData });
+        } catch (error) {
+            safeLog('error', `[${requestId}] Error in upsert operation`, {
+                error: error instanceof Error ? error.message : error,
+                stack: error instanceof Error ? error.stack : undefined
+            });
+            return json({
+                success: false,
+                error: 'Server error',
+                message: error instanceof Error ? error.message : 'Unknown error',
+                requestId
+            }, { status: 500 });
+        }
+    } catch (error) {
+        // More detailed error logging with full error information
+        const errorDetail = error instanceof Error
+            ? { message: error.message, stack: error.stack }
+            : { error };
+
+        safeLog('error', `[${requestId}] Unexpected error in update-profile endpoint`, errorDetail);
+
+        // Add more context to the error response
+        return json({
+            success: false,
+            error: 'Server error',
+            message: error instanceof Error ? error.message : 'Unknown error',
+            requestId
+        }, { status: 500 });
+    }
+};
+
+// Add a simple GET endpoint for testing database connectivity
+export const GET: RequestHandler = async ({ locals }) => {
+    const requestId = crypto.randomUUID();
+
+    try {
+        // Test simple database access
+        const { data, error } = await locals.supabase
+            .from('profiles')
+            .select('count')
+            .limit(1);
+
+        if (error) {
+            safeLog('error', `[${requestId}] Database test failed:`, {
+                errorCode: error.code,
+                errorMessage: error.message
+            });
+
+            return json({
+                success: false,
+                error: 'Database test failed',
+                details: error.message,
+                code: error.code
+            });
         }
 
-        safeLog('info', `[${requestId}] Profile updated successfully`, {
-            userId: session.user.id
+        return json({
+            success: true,
+            message: 'Database connection test successful',
+            testId: requestId
         });
-        return json({ success: true, profile: updatedData });
     } catch (error) {
-        safeLog('error', `[${requestId}] Unexpected error in update-profile endpoint`, { error });
-        return json({ success: false, error: 'Server error' }, { status: 500 });
+        safeLog('error', `[${requestId}] Unexpected error in test endpoint:`, {
+            error: error instanceof Error ? error.message : error
+        });
+
+        return json({
+            success: false,
+            error: 'Test endpoint error',
+            message: error instanceof Error ? error.message : 'Unknown error',
+            requestId
+        });
     }
 };

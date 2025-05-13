@@ -4,9 +4,12 @@
 	import { browser } from '$app/environment';
 	import { session, updateProfile } from '$lib/stores/authStore';
 	import { supabase } from '$lib/supabase';
-	import { uploadFile, deleteFile, getPathFromUrl } from '$lib/fileUpload';
+	import { uploadFile, deleteFile, getPathFromUrl, fileExists } from '$lib/fileUpload';
 	import SectionNavigation from '$lib/components/SectionNavigation.svelte';
 	import { updateSectionStatus } from '$lib/cv-sections';
+	import CameraCapture from '$lib/components/CameraCapture.svelte';
+	import PhotoFallback from '$lib/components/PhotoFallback.svelte';
+	import { fetchWithCsrf } from '$lib/security/clientCsrf';
 
 	let { data, form } = $props();
 	let fullName = $state(data.profile?.full_name ?? '');
@@ -14,38 +17,39 @@
 	let phone = $state(data.profile?.phone ?? '');
 	let location = $state(data.profile?.location ?? '');
 	let photoUrl = $state(data.profile?.photo_url ?? '');
-	let error = $state<string | null>(null); // Don't initialize with server error
+	let error = $state<string | null>(null);
 	let success = $state<string | null>(null);
 	let loading = $state(false);
 	let uploadingPhoto = $state(false);
 	let photoError = $state<string | null>(null);
 	let initialCheckDone = $state(false);
-	let loadingProfile = $state(true); // Add loading state for profile
+	let loadingProfile = $state(true);
 	let photoInputEl = $state<HTMLInputElement | null>(null);
+	let showCamera = $state(false);
+	let storageAvailable = $state(true);
+	let cameraStatus = $state('Not initialized');
 
 	// File validation constants
 	const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 	const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 	// Storage bucket name
-	const PROFILE_PHOTOS_BUCKET = 'profile_photos';
+	const PROFILE_PHOTOS_BUCKET = 'profile-photos';
+	const DEFAULT_PROFILE_PHOTO = '/images/default-profile.svg';
 
 	// Fix updateProfile return type
 	interface ProfileUpdateResult {
 		success: boolean;
 		profile?: any;
 		error?: string;
+		message?: string;
+		requestId?: string;
 	}
 
 	// Check authentication on mount and try to initialize data
 	onMount(async () => {
-		console.log('Profile page mounted');
-		console.log('Store session:', $session ? `User ID: ${$session.user.id}` : 'Missing');
-		console.log('Data session:', data.session ? `User ID: ${data.session.user.id}` : 'Missing');
-
 		// Check for authentication
 		if (!data.session && !$session) {
-			console.log('No session found on profile page mount');
 			error = 'Not authenticated. Please login first.';
 			loadingProfile = false;
 
@@ -59,30 +63,19 @@
 			// We have a session, try to load profile if it wasn't loaded from server
 			if ((!data.profile || data.error) && ($session || data.session)) {
 				try {
-					console.log('Trying to load profile from client');
 					const userId = $session?.user.id || data.session?.user.id;
 
 					if (userId) {
-						console.log('Fetching profile for user ID:', userId);
-
 						// Create a proper query with explicit headers
 						const { data: profileData, error: profileError } = await supabase
 							.from('profiles')
 							.select('*')
 							.eq('id', userId)
-							.maybeSingle(); // Use maybeSingle instead of single to avoid 406 errors
-
-						console.log(
-							'Profile fetch result:',
-							profileData || 'No data',
-							profileError || 'No error'
-						);
+							.maybeSingle();
 
 						if (profileError) {
 							// Check if it's just a "no rows" error, which is expected for new users
 							if (profileError.code === 'PGRST116') {
-								console.log('No profile found for user - this is normal for new users');
-
 								// Set email from session if available
 								if ($session?.user?.email) {
 									email = $session.user.email;
@@ -92,7 +85,6 @@
 								error = 'Error loading profile. Please try again.';
 							}
 						} else if (profileData) {
-							console.log('Profile loaded from client:', profileData);
 							// Update form fields with profile data
 							fullName = profileData.full_name || '';
 							email = profileData.email || '';
@@ -102,7 +94,6 @@
 							// Clear any error
 							error = null;
 						} else {
-							console.log('No profile data found, but no error either');
 							// Set email from session if available
 							if ($session?.user?.email) {
 								email = $session.user.email;
@@ -124,21 +115,60 @@
 			}
 		}
 
+		// Check bucket accessibility
+		await checkBucketAccessibility();
+
 		initialCheckDone = true;
+
+		// Check if the photo URL is valid
+		if (photoUrl) {
+			const isValid = await validatePhotoUrl(photoUrl);
+			if (!isValid) {
+				console.warn('Photo URL validation failed, using default image');
+			}
+		}
 	});
 
-	// Handle file upload
-	async function handlePhotoUpload(e: Event) {
+	// Handle captured photo from camera
+	function handleCameraCapture(blob: Blob, url: string) {
+		try {
+			// Close camera
+			showCamera = false;
+
+			// Prepare the file with a proper name and format
+			const file = new File([blob], `camera_capture_${Date.now()}.jpg`, { type: 'image/jpeg' });
+
+			// Process the file
+			uploadProfilePhoto(file);
+		} catch (err) {
+			console.error('Error processing camera capture:', err);
+			photoError = `Error processing photo: ${err instanceof Error ? err.message : 'Unknown error'}`;
+		}
+	}
+
+	// Handle camera errors
+	function handleCameraError(error: string) {
+		photoError = error;
+		cameraStatus = `Error: ${error}`;
+		console.error('Camera error:', error);
+	}
+
+	// Handle camera close
+	function handleCameraClose() {
+		showCamera = false;
+		cameraStatus = 'Camera closed';
+	}
+
+	// Common photo upload function (used by both file input and camera)
+	async function uploadProfilePhoto(file: File) {
 		if (!$session) {
 			photoError = 'You need to be logged in to upload a photo.';
 			return;
 		}
 
-		const input = e.target as HTMLInputElement;
-		const file = input.files?.[0];
-
-		if (!file) {
-			photoError = 'No file selected.';
+		if (!storageAvailable) {
+			photoError =
+				'Storage is not available. Please contact the administrator to set up the profile-photos bucket.';
 			return;
 		}
 
@@ -175,28 +205,45 @@
 			const result = await uploadFile($session.user.id, file, PROFILE_PHOTOS_BUCKET);
 
 			if (!result.success) {
-				photoError = result.error || 'Failed to upload photo.';
+				// Check for specific error types
+				if (result.error?.includes('bucket') || result.error?.includes('storage')) {
+					console.error('Storage bucket error:', result.error);
+					photoError =
+						'Storage is not available. Please contact the administrator to set up the profile-photos bucket.';
+					storageAvailable = false; // Mark storage as unavailable
+				} else {
+					photoError = result.error || 'Failed to upload photo.';
+				}
 				return;
 			}
 
-			// Update the photo URL
+			// Update the photo URL - use the direct Supabase URL for storage, but display via proxy
 			photoUrl = result.url || '';
 
 			// Save the profile with the new photo URL
 			const userId = $session.user.id;
 
-			// Prepare profile data
+			// Prepare profile data - ensure photo_url is a string or null
 			const profileData = {
 				id: userId,
-				photo_url: photoUrl
+				photo_url: typeof photoUrl === 'string' ? photoUrl : null
 			};
 
 			// Use the updateProfile helper from authStore with proper typing
 			const updateResult = (await updateProfile(profileData)) as ProfileUpdateResult;
 
 			if (!updateResult.success) {
-				photoError = updateResult.error || 'Failed to update profile with new photo.';
-				console.error('Error saving profile photo:', updateResult.error);
+				// Extract and display a more helpful error message
+				let errorMessage = updateResult.error || 'Failed to update profile with new photo.';
+				if (updateResult.message) {
+					errorMessage += `: ${updateResult.message}`;
+				}
+				if (updateResult.requestId) {
+					errorMessage += ` (Request ID: ${updateResult.requestId})`;
+				}
+
+				photoError = errorMessage;
+				console.error('Error saving profile photo:', errorMessage);
 			} else {
 				success = 'Photo uploaded successfully!';
 
@@ -206,18 +253,35 @@
 				}, 3000);
 			}
 		} catch (err) {
-			console.error('Error handling photo upload:', err);
-			photoError = 'An unexpected error occurred while uploading your photo.';
+			console.error('Error uploading photo:', err);
+			photoError = `Upload error: ${err instanceof Error ? err.message : 'Unknown error'}`;
 		} finally {
 			uploadingPhoto = false;
-			// Reset input
-			if (photoInputEl) photoInputEl.value = '';
 		}
+	}
+
+	// Handle file upload
+	async function handlePhotoUpload(e: Event) {
+		const input = e.target as HTMLInputElement;
+		const file = input.files?.[0];
+
+		if (!file) {
+			photoError = 'No file selected.';
+			return;
+		}
+
+		await uploadProfilePhoto(file);
 	}
 
 	// Delete profile photo
 	async function deleteProfilePhoto() {
 		if (!$session || !photoUrl) {
+			return;
+		}
+
+		if (!storageAvailable) {
+			photoError =
+				'Storage is not available. Please contact the administrator to set up the profile-photos bucket.';
 			return;
 		}
 
@@ -273,7 +337,6 @@
 
 		// If session changes after initial check, update UI accordingly
 		if (!$session) {
-			console.log('Session lost during profile page lifecycle');
 			error = 'Session lost. Please login again.';
 			if (browser) {
 				setTimeout(() => {
@@ -281,7 +344,6 @@
 				}, 2000);
 			}
 		} else {
-			console.log('Session available during profile page lifecycle');
 			// Clear error if it was auth-related
 			if (
 				error === 'Not authenticated. Please login first.' ||
@@ -326,27 +388,17 @@
 				photo_url: photoUrl
 			};
 
-			console.log('Saving profile data:', profileData);
-
-			// Use the updateProfile helper from authStore with proper typing
-			const result = (await updateProfile(profileData)) as ProfileUpdateResult;
+			// Use our direct updateMinimalProfile function instead of authStore's updateProfile
+			const result = await updateMinimalProfile(profileData);
 
 			if (!result.success) {
 				error = result.error || 'Failed to save profile';
 				console.error('Error saving profile:', result.error);
 			} else {
-				success = 'Profile saved successfully!';
-				console.log('Profile saved successfully:', result.profile);
+				// Refresh profile data to ensure everything is in sync
+				await refreshProfileData();
 
-				// Update local state with the returned profile data
-				if (result.profile && result.profile.length > 0) {
-					const savedProfile = result.profile[0];
-					fullName = savedProfile.full_name || fullName;
-					email = savedProfile.email || email;
-					phone = savedProfile.phone || phone;
-					location = savedProfile.location || location;
-					photoUrl = savedProfile.photo_url || photoUrl;
-				}
+				success = 'Profile saved successfully!';
 
 				// Update section status to reflect the profile completion
 				await updateSectionStatus();
@@ -356,6 +408,144 @@
 			error = 'An unexpected error occurred';
 		} finally {
 			loading = false;
+		}
+	}
+
+	// Function to update profile with simplified structure
+	async function updateMinimalProfile(partialData: Record<string, any>) {
+		if (!$session) {
+			return { success: false, error: 'Not authenticated' };
+		}
+
+		// Ensure we only include fields that definitely exist in the profiles table
+		const profileData = {
+			id: $session.user.id,
+			...partialData,
+			updated_at: new Date().toISOString()
+		};
+
+		// Use direct fetch to bypass authStore if needed
+		try {
+			// Use fetchWithCsrf to ensure CSRF token is included
+			const response = await fetchWithCsrf('/api/update-profile', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${$session.access_token}`
+				},
+				body: JSON.stringify(profileData)
+			});
+
+			// Parse response as JSON
+			let result;
+			try {
+				result = await response.json();
+			} catch (jsonError) {
+				console.error('Error parsing response as JSON:', jsonError);
+				return {
+					success: false,
+					error: 'Failed to parse response from server'
+				};
+			}
+
+			return result;
+		} catch (error) {
+			console.error('Error in minimal profile update:', error);
+			return {
+				success: false,
+				error: error instanceof Error ? error.message : 'Unknown error in profile update'
+			};
+		}
+	}
+
+	// Function to refresh profile data from server
+	async function refreshProfileData() {
+		if (!$session) return;
+
+		try {
+			const { data: profileData, error: profileError } = await supabase
+				.from('profiles')
+				.select('*')
+				.eq('id', $session.user.id)
+				.maybeSingle();
+
+			if (profileError) {
+				console.error('Error refreshing profile:', profileError);
+			} else if (profileData) {
+				// Update local state
+				fullName = profileData.full_name || fullName;
+				email = profileData.email || email;
+				phone = profileData.phone || phone;
+				location = profileData.location || location;
+				photoUrl = profileData.photo_url || photoUrl;
+			}
+		} catch (err) {
+			console.error('Exception refreshing profile:', err);
+		}
+	}
+
+	// Function to validate photo URL and handle errors
+	async function validatePhotoUrl(url: string | null): Promise<boolean> {
+		if (!url) return false;
+
+		// Check if URL is a valid Supabase URL
+		if (url.includes('supabase.co/storage') && url.includes(PROFILE_PHOTOS_BUCKET)) {
+			const path = getPathFromUrl(url, PROFILE_PHOTOS_BUCKET);
+			if (!path) return false;
+
+			try {
+				// Test accessing the file through our proxy
+				const proxyUrl = `/api/storage-proxy?bucket=${PROFILE_PHOTOS_BUCKET}&path=${encodeURIComponent(path)}&t=${Date.now()}`;
+				const response = await fetch(proxyUrl, { method: 'HEAD' });
+				return response.ok;
+			} catch (error) {
+				console.error('Error validating photo URL via proxy:', error);
+				// Fall back to fileExists if proxy fails
+				return await fileExists(PROFILE_PHOTOS_BUCKET, path);
+			}
+		}
+
+		return false;
+	}
+
+	// Function to get path from a Supabase URL for use with the proxy
+	function getProxiedPhotoUrl(url: string | null): string {
+		if (!url) return DEFAULT_PROFILE_PHOTO;
+
+		// Check if URL is a valid Supabase URL
+		if (url.includes('supabase.co/storage') && url.includes(PROFILE_PHOTOS_BUCKET)) {
+			// Extract path from the URL
+			const path = getPathFromUrl(url, PROFILE_PHOTOS_BUCKET);
+			if (!path) return DEFAULT_PROFILE_PHOTO;
+
+			// Use the server-side proxy to avoid CORS issues
+			return `/api/storage-proxy?bucket=${PROFILE_PHOTOS_BUCKET}&path=${encodeURIComponent(path)}&t=${Date.now()}`;
+		}
+
+		return url;
+	}
+
+	// Function to check if a bucket is accessible
+	async function checkBucketAccessibility() {
+		try {
+			const { data, error } = await supabase.storage.from(PROFILE_PHOTOS_BUCKET).list();
+
+			if (error) {
+				storageAvailable = false;
+
+				// Check if this is specifically a "bucket not found" error
+				if (error.message?.includes('bucket') || error.message?.includes('not found')) {
+					photoError = `The storage bucket "${PROFILE_PHOTOS_BUCKET}" doesn't exist. Profile photos will not be available until an administrator creates this bucket.`;
+				}
+				return false;
+			}
+
+			storageAvailable = true;
+			return true;
+		} catch (err) {
+			console.error('Exception checking bucket:', err);
+			storageAvailable = false;
+			return false;
 		}
 	}
 </script>
@@ -392,58 +582,81 @@
 		</div>
 	{:else}
 		<!-- Profile Photo Section -->
-		<div class="mb-6 flex flex-col items-center">
-			<div class="mb-4 h-32 w-32 overflow-hidden rounded-full bg-gray-200">
-				{#if photoUrl}
-					<img src={photoUrl} alt="Profile" class="h-full w-full object-cover" />
-				{:else}
-					<div class="flex h-full w-full items-center justify-center bg-gray-200 text-gray-500">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							class="h-16 w-16"
-							fill="none"
-							viewBox="0 0 24 24"
-							stroke="currentColor"
+		<div class="mt-6 space-y-4">
+			<label class="block text-lg font-medium text-gray-700">Profile Photo</label>
+
+			<div class="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+				<!-- Photo Display -->
+				<div class="relative h-24 w-24 overflow-hidden rounded-full">
+					{#if photoUrl && photoUrl !== DEFAULT_PROFILE_PHOTO && !photoError}
+						<img
+							src={getProxiedPhotoUrl(photoUrl)}
+							alt={fullName || 'User profile'}
+							class="h-full w-full object-cover"
+							onerror={() => {
+								console.error('Error loading profile photo, fallback to default');
+								photoError = 'Unable to load photo';
+							}}
+						/>
+					{:else}
+						<PhotoFallback photoUrl={null} defaultImage={DEFAULT_PROFILE_PHOTO} size="lg" />
+					{/if}
+				</div>
+
+				<!-- Upload Controls -->
+				<div class="flex flex-col gap-2">
+					<div class="flex flex-wrap gap-2">
+						<!-- File Upload Button -->
+						<label
+							for="photo-upload"
+							class="cursor-pointer rounded bg-blue-500 px-4 py-2 text-white shadow hover:bg-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
 						>
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-							/>
-						</svg>
+							Choose File
+						</label>
+						<input
+							type="file"
+							id="photo-upload"
+							accept="image/jpeg,image/png,image/webp"
+							class="hidden"
+							onchange={handlePhotoUpload}
+							bind:this={photoInputEl}
+						/>
+
+						<!-- Camera Button -->
+						<button
+							type="button"
+							class="rounded bg-blue-500 px-4 py-2 text-white shadow hover:bg-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+							onclick={() => {
+								showCamera = true;
+								cameraStatus = 'Opening camera...';
+								photoError = null;
+							}}
+						>
+							Use Camera
+						</button>
+
+						{#if photoUrl && photoUrl !== DEFAULT_PROFILE_PHOTO}
+							<!-- Delete Photo Button -->
+							<button
+								type="button"
+								class="rounded bg-red-500 px-4 py-2 text-white shadow hover:bg-red-600 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none"
+								onclick={deleteProfilePhoto}
+								disabled={uploadingPhoto}
+							>
+								Delete Photo
+							</button>
+						{/if}
 					</div>
-				{/if}
+
+					{#if photoError}
+						<p class="text-sm text-red-600">{photoError}</p>
+					{/if}
+
+					{#if uploadingPhoto}
+						<p class="text-sm">Uploading... Please wait</p>
+					{/if}
+				</div>
 			</div>
-
-			<div class="flex gap-2">
-				<label
-					class="cursor-pointer rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
-				>
-					{uploadingPhoto ? 'Uploading...' : 'Upload Photo'}
-					<input
-						type="file"
-						accept="image/jpeg,image/png,image/webp"
-						class="hidden"
-						bind:this={photoInputEl}
-						onchange={handlePhotoUpload}
-						disabled={uploadingPhoto}
-					/>
-				</label>
-
-				{#if photoUrl}
-					<button
-						type="button"
-						onclick={deleteProfilePhoto}
-						disabled={uploadingPhoto}
-						class="rounded-md bg-red-100 px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-200 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none"
-					>
-						{uploadingPhoto ? 'Deleting...' : 'Remove'}
-					</button>
-				{/if}
-			</div>
-
-			<p class="mt-2 text-xs text-gray-500">Max 2MB. JPEG, PNG, or WebP.</p>
 		</div>
 
 		<form onsubmit={saveProfile} class="space-y-6">
@@ -503,3 +716,11 @@
 
 	<SectionNavigation />
 </div>
+
+{#if showCamera}
+	<CameraCapture
+		oncapture={handleCameraCapture}
+		onerror={handleCameraError}
+		onclose={handleCameraClose}
+	/>
+{/if}

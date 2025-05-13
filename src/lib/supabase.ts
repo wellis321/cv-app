@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './database.types';
 import config, { safeLog } from './config';
+import { browser } from '$app/environment';
 
 // Create the Supabase client with configuration from config file
 export const supabase = createClient<Database>(
@@ -13,9 +14,49 @@ export const supabase = createClient<Database>(
             detectSessionInUrl: true,
             storageKey: 'sb-auth-token',
             flowType: 'pkce'
+        },
+        global: {
+            fetch: customFetch
         }
     }
 );
+
+// Custom fetch function with retry logic for network errors
+async function customFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+    const MAX_RETRIES = 3;
+    let retries = 0;
+    let lastError: Error = new Error('Unknown error');
+
+    while (retries < MAX_RETRIES) {
+        try {
+            const response = await fetch(input, init);
+            return response;
+        } catch (error) {
+            lastError = error as Error;
+            retries++;
+
+            // Only log if in browser to avoid SSR issues
+            if (browser) {
+                safeLog('warn', `Fetch error (attempt ${retries}/${MAX_RETRIES})`, {
+                    url: typeof input === 'string' ? input : input.toString(),
+                    error: lastError.message
+                });
+            }
+
+            // If it's a network error, wait before retrying
+            if (lastError.message.includes('NetworkError') ||
+                lastError.message.includes('Failed to fetch')) {
+                await new Promise(resolve => setTimeout(resolve, 1000 * retries));
+            } else {
+                // For non-network errors, don't retry
+                break;
+            }
+        }
+    }
+
+    // After max retries, throw the last error
+    throw lastError;
+}
 
 // Function to check if current token is about to expire (within 5 minutes)
 export const isSessionExpiringSoon = async (): Promise<boolean> => {
@@ -66,6 +107,26 @@ export const clearAllSessionData = (): void => {
         safeLog('error', 'Error clearing session data', error);
     }
 };
+
+// Test connection and authentication during initialization
+if (browser) {
+    (async function checkConnection() {
+        try {
+            const { data, error } = await supabase.auth.getSession();
+
+            if (error) {
+                safeLog('warn', 'Supabase session check failed', { error: error.message });
+            } else {
+                safeLog('debug', 'Supabase connection test successful', {
+                    hasSession: !!data.session,
+                    environment: config.environment
+                });
+            }
+        } catch (error) {
+            safeLog('error', 'Failed to connect to Supabase', error);
+        }
+    })();
+}
 
 // Initialize and validate the Supabase client on startup
 try {
