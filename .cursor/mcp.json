@@ -20,7 +20,7 @@
             "command": "npx",
             "args": [
                 "mcp-remote",
-                "https://your-vercel-name.vercel.app/sse"
+                "https://cv-app-git-main-william-ellis-projects-69da8b96.vercel.app"
             ]
         }
     }
