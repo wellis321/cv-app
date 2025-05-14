@@ -78,4 +78,28 @@ The app provides a customizable PDF export feature that allows you to select whi
 
 ## Deployment
 
-The app can be deployed to any platform that supports SvelteKit applications. For more information, see the [SvelteKit deployment documentation](https://kit.svelte.dev/docs/deployment).
+The app is configured for deployment on Vercel with a Supabase backend. Follow these steps to deploy:
+
+### Production Setup
+
+1. Create a new Supabase project for production
+2. Apply the database schema from `supabase/schema.sql` to your production Supabase project
+3. Get your Supabase URL and anon key from the project settings
+
+### Deploying to Vercel
+
+1. Push your code to GitHub
+2. Connect your repository to Vercel
+3. Set the following environment variables in your Vercel project settings:
+   - `PUBLIC_SUPABASE_URL`: Your production Supabase URL
+   - `PUBLIC_SUPABASE_ANON_KEY`: Your production Supabase anon key
+   - `NODE_ENV`: Set to `production`
+4. Deploy your project
+
+### Optimizations
+
+The app has been optimized for production:
+- Uses `@sveltejs/adapter-vercel` for optimal deployment on Vercel
+- Implements caching strategies for public CV routes
+- Configures security headers via `vercel.json`
+- Sets optimal cache durations for static assets

@@ -7,7 +7,12 @@ import { error } from '@sveltejs/kit';
 // We'll use a minimal server-side load function since we're now loading data
 // client-side with the CV data store. This is just to handle basic routing
 // and username validation.
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, setHeaders }) => {
+    // Set cache headers - cache for 5 minutes on the edge
+    setHeaders({
+        'Cache-Control': 'max-age=0, s-maxage=300'
+    });
+
     const { username } = params;
 
     if (!username) {

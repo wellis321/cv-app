@@ -3,7 +3,12 @@ import { createClient } from '@supabase/supabase-js';
 import config from '$lib/config';
 import type { Database } from '$lib/database.types';
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, setHeaders }) => {
+    // Set cache headers - cache for 5 minutes on the edge
+    setHeaders({
+        'Cache-Control': 'max-age=0, s-maxage=300'
+    });
+
     const { userId } = params;
 
     // Create a new Supabase client just for this request to bypass auth
