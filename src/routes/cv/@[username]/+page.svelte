@@ -210,10 +210,6 @@
 					<div class="order-2 flex-1 md:order-1">
 						<h1 class="text-4xl font-bold">{cvData.profile.full_name || 'Professional CV'}</h1>
 
-						{#if cvData.profile.username}
-							<p class="mt-2 text-indigo-200">@{cvData.profile.username}</p>
-						{/if}
-
 						<div class="mt-6 space-y-2">
 							{#if cvData.profile.location}
 								<div class="flex items-center gap-2">

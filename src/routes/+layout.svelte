@@ -6,6 +6,9 @@
 	import { session, initializeSession, setupAuthListener, logout } from '$lib/stores/authStore';
 	import { browser } from '$app/environment';
 
+	// State for storing the current user's username
+	let username = $state<string | null>(null);
+
 	// Setup auth on mount
 	onMount(() => {
 		console.log('Layout mounted, initializing session...');
@@ -22,6 +25,7 @@
 			initializeSession()
 				.then(() => {
 					console.log('Session initialized in layout:', $session ? 'Present' : 'None');
+					fetchUsername();
 				})
 				.catch((err) => {
 					console.error('Error initializing session in layout:', err);
@@ -30,6 +34,34 @@
 			// Set up auth listener and return cleanup function
 			const unsubscribe = setupAuthListener();
 			return unsubscribe;
+		}
+	});
+
+	// Fetch the current user's username
+	async function fetchUsername() {
+		if ($session?.user?.id) {
+			try {
+				// Import supabase only when needed to avoid issues with SSR
+				const { supabase } = await import('$lib/supabase');
+				const { data } = await supabase
+					.from('profiles')
+					.select('username')
+					.eq('id', $session.user.id)
+					.single();
+
+				username = data?.username || null;
+			} catch (err) {
+				console.error('Error fetching username:', err);
+			}
+		}
+	}
+
+	// Update username when session changes
+	$effect(() => {
+		if ($session?.user?.id) {
+			fetchUsername();
+		} else {
+			username = null;
 		}
 	});
 
@@ -66,6 +98,9 @@
 					{#if $session}
 						<a href="/profile" class="text-gray-600 hover:text-gray-900">Profile</a>
 						<a href="/preview-cv" class="text-gray-600 hover:text-gray-900">Preview CV</a>
+						{#if username}
+							<a href="/cv/@{username}" class="text-gray-600 hover:text-gray-900">Public CV</a>
+						{/if}
 						<button on:click={signOut} class="text-gray-600 hover:text-gray-900">Sign Out</button>
 					{/if}
 				</div>
