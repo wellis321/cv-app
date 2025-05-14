@@ -222,9 +222,12 @@ export const POST: RequestHandler = async ({ request, locals }) => {
                     simplifiedData.email = profileData.email;
                 }
             } else if (session.user.email) {
-                // If no email provided but we have one in the session, use that
+                // If no email provided but we have it in session, use that
                 simplifiedData.email = session.user.email;
-                safeLog('info', `[${requestId}] Adding missing email from session: ${session.user.email}`);
+            }
+
+            if ('username' in profileData && profileData.username !== undefined) {
+                simplifiedData.username = profileData.username;
             }
 
             if ('phone' in profileData && profileData.phone !== undefined) {
@@ -270,6 +273,9 @@ export const POST: RequestHandler = async ({ request, locals }) => {
                     safeLog('warn', `[${requestId}] photo_url is not a string or null, type: ${typeof profileData.photo_url}`);
                 }
             }
+
+            // Always update the updated_at field
+            simplifiedData.updated_at = new Date().toISOString();
 
             safeLog('debug', `[${requestId}] Attempting upsert with simplified data:`, {
                 profileData: simplifiedData

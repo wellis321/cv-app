@@ -95,7 +95,8 @@
 							email = profileData.email || '';
 							phone = profileData.phone || '';
 							location = profileData.location || '';
-							photoUrl = profileData.photo_url || '';
+							// Use either photo_url or profile_photo_url for compatibility
+							photoUrl = profileData.photo_url || profileData.profile_photo_url || '';
 							// Clear any error
 							error = null;
 						} else {
@@ -455,10 +456,13 @@
 				id: userId,
 				full_name: fullName,
 				username,
-				email: authEmail || email, // Prioritize auth email
+				// Prioritize auth email if available
+				email: authEmail || email,
 				phone,
 				location,
-				photo_url: photoUrl
+				photo_url: photoUrl,
+				// Also include profile_photo_url for compatibility with production
+				profile_photo_url: photoUrl
 			};
 
 			// Use our direct updateMinimalProfile function instead of authStore's updateProfile
@@ -561,7 +565,8 @@
 				email = profileData.email || email;
 				phone = profileData.phone || phone;
 				location = profileData.location || location;
-				photoUrl = profileData.photo_url || photoUrl;
+				// Use either photo_url or profile_photo_url for compatibility
+				photoUrl = profileData.photo_url || profileData.profile_photo_url || '';
 			}
 		} catch (err) {
 			console.error('Exception refreshing profile:', err);
