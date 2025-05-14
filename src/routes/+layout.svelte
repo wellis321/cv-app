@@ -5,6 +5,7 @@
 	import { onMount } from 'svelte';
 	import { session, initializeSession, setupAuthListener, logout } from '$lib/stores/authStore';
 	import { browser } from '$app/environment';
+	import ErrorBoundary from '$lib/components/ErrorBoundary.svelte';
 
 	// State for storing the current user's username
 	let username = $state<string | null>(null);
@@ -113,7 +114,9 @@
 		{#if !$session}
 			<AuthForm />
 		{:else}
-			<slot></slot>
+			<ErrorBoundary>
+				<slot></slot>
+			</ErrorBoundary>
 		{/if}
 	</main>
 </div>

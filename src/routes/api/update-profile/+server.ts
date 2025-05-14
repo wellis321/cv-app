@@ -3,6 +3,24 @@ import { createClient } from '@supabase/supabase-js';
 import type { RequestHandler } from './$types';
 import type { Database } from '$lib/database.types';
 import config, { safeLog } from '$lib/config';
+import { createValidator, validators, sanitizeInput, checkForXss } from '$lib/validation';
+
+// Define a validation schema for profile data
+const validateProfileData = createValidator({
+    id: [validators.required('User ID')],
+    full_name: [validators.maxLength('Full name', 100)],
+    email: [validators.email('Email')],
+    phone: [validators.phone('Phone number')],
+    location: [validators.maxLength('Location', 100)],
+    username: [
+        validators.minLength('Username', 3),
+        validators.maxLength('Username', 50),
+        validators.custom('Username',
+            value => /^[a-z0-9][a-z0-9\-_]+$/.test(value),
+            'Username can only contain lowercase letters, numbers, hyphens, and underscores, and must start with a letter or number'
+        )
+    ]
+});
 
 // Create an admin client that ignores RLS - but only for this specific endpoint
 // and with strict validation of user ownership
@@ -133,6 +151,40 @@ export const POST: RequestHandler = async ({ request, locals }) => {
                 sessionUserId: session.user.id
             });
             return json({ success: false, error: 'You can only update your own profile' }, { status: 403 });
+        }
+
+        // Validate the profile data with our schema
+        const validationResult = validateProfileData(profileData);
+        if (!validationResult.success) {
+            safeLog('warn', `[${requestId}] Validation failed for profile data`, {
+                errors: validationResult.errors
+            });
+            return json({
+                success: false,
+                error: 'Validation failed',
+                validationErrors: validationResult.errors
+            }, { status: 400 });
+        }
+
+        // Check for potential XSS in text fields
+        for (const field of ['full_name', 'location', 'username']) {
+            if (typeof profileData[field] === 'string' && checkForXss(profileData[field])) {
+                safeLog('warn', `[${requestId}] Potential XSS detected in ${field}`, {
+                    value: profileData[field].substring(0, 100)
+                });
+                return json({
+                    success: false,
+                    error: `Invalid content in ${field}`
+                }, { status: 400 });
+            }
+        }
+
+        // Sanitize text inputs
+        if (typeof profileData.full_name === 'string') {
+            profileData.full_name = sanitizeInput(profileData.full_name);
+        }
+        if (typeof profileData.location === 'string') {
+            profileData.location = sanitizeInput(profileData.location);
         }
 
         // Add updated_at timestamp

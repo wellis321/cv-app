@@ -3,6 +3,7 @@ import config, { safeLog } from '$lib/config';
 import type { Handle } from '@sveltejs/kit';
 import { redirect, error } from '@sveltejs/kit';
 import { getCsrfToken, validateCsrfToken, requiresCsrfCheck } from '$lib/security/csrf';
+import { rateLimit, applyAuthRateLimit } from '$lib/security/rateLimit';
 
 // List of public routes that don't require authentication
 const publicRoutes = ['/', '/login', '/signup', '/security-review-client'];
@@ -20,6 +21,32 @@ export const handle: Handle = async ({ event, resolve }) => {
 
         // Use safeLog instead of console.log for secure logging
         safeLog('debug', `[${requestId}] Processing request`, { path });
+
+        // Apply rate limiting for authentication and API endpoints
+        if (path.startsWith('/api/')) {
+            const rateLimitResponse = await rateLimit({
+                max: 60, // 60 requests per minute
+                windowMs: 60 * 1000, // 1 minute window
+                keyGenerator: (req) => {
+                    const ip = req.headers.get('x-forwarded-for') || 'unknown';
+                    // Group similar API endpoints (e.g., /api/profiles/123 and /api/profiles/456)
+                    const pathSegments = path.split('/').slice(0, 3).join('/');
+                    return `api:${ip}:${pathSegments}`;
+                }
+            })(event.request, event.locals);
+
+            if (rateLimitResponse) {
+                return rateLimitResponse;
+            }
+        }
+
+        // Apply stricter rate limiting for authentication endpoints
+        if (path.startsWith('/auth/') || path === '/login' || path === '/signup') {
+            const authRateLimitResponse = await applyAuthRateLimit(event.request, event.locals);
+            if (authRateLimitResponse) {
+                return authRateLimitResponse;
+            }
+        }
 
         // Create a Supabase client specifically for this request
         event.locals.supabase = createSupabaseServerClient({
@@ -172,6 +199,35 @@ export const handle: Handle = async ({ event, resolve }) => {
         response.headers.set('X-Frame-Options', 'DENY');
         response.headers.set('X-XSS-Protection', '1; mode=block');
         response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+
+        // Add CORS headers for API routes in production
+        if (event.url.pathname.startsWith('/api')) {
+            // In production, only allow requests from our domain
+            if (config.isProduction) {
+                const allowedOrigin = new URL(event.request.headers.get('origin') || '').hostname === new URL(config.appUrl || '').hostname
+                    ? event.request.headers.get('origin')
+                    : config.appUrl;
+
+                response.headers.set('Access-Control-Allow-Origin', allowedOrigin || '');
+                response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+                response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-CSRF-Token');
+                response.headers.set('Access-Control-Allow-Credentials', 'true');
+                response.headers.set('Access-Control-Max-Age', '3600');
+            } else {
+                // In development, be more permissive
+                response.headers.set('Access-Control-Allow-Origin', '*');
+                response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+                response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-CSRF-Token');
+            }
+
+            // Handle preflight requests
+            if (event.request.method === 'OPTIONS') {
+                return new Response(null, {
+                    status: 204,
+                    headers: response.headers
+                });
+            }
+        }
 
         // Only set in production - in dev we need to allow inline scripts for HMR
         if (config.isProduction) {

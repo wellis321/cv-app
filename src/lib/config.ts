@@ -12,6 +12,7 @@ interface Config {
     isProduction: boolean;
     isTest: boolean;
     debug: boolean;
+    appUrl: string;
     logging: {
         level: 'debug' | 'info' | 'warn' | 'error' | 'none';
         sanitize: boolean;
@@ -42,6 +43,7 @@ const defaultConfig: Config = {
     isProduction: false,
     isTest: false,
     debug: false,
+    appUrl: 'https://cv-app.vercel.app',
     logging: {
         level: 'info',
         sanitize: true
@@ -62,6 +64,7 @@ defaultConfig.isTest = defaultConfig.environment === 'test';
 const envConfigs: Record<string, Partial<Config>> = {
     development: {
         debug: true,
+        appUrl: 'http://localhost:5173',
         logging: {
             level: 'debug',
             sanitize: true
