@@ -902,20 +902,6 @@
 					class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
 				/>
 			</div>
-			<div class="mt-4 text-sm text-gray-600">
-				<p>Having trouble with your profile data?</p>
-				<a href="/admin/fix-profile" class="text-indigo-600 hover:text-indigo-800">
-					Run Profile Repair Tool
-				</a>
-				<span class="mx-2">|</span>
-				<a
-					href="/api/profile-diagnostics"
-					target="_blank"
-					class="text-indigo-600 hover:text-indigo-800"
-				>
-					View Profile Diagnostics
-				</a>
-			</div>
 			<div>
 				<button
 					type="submit"
