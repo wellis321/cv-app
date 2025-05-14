@@ -15,6 +15,13 @@
                 "-y",
                 "@agentdeskai/browser-tools-mcp@latest"
             ]
+        },
+        "VercelMCP": {
+            "command": "npx",
+            "args": [
+                "mcp-remote",
+                "https://your-vercel-name.vercel.app/sse"
+            ]
         }
     }
 }
