@@ -92,34 +92,51 @@
 	// Group skills by category
 	let categorizedSkills = $state<{ category: string; skills: Skill[] }[]>([]);
 
-	// Process skills by category
+	// Process skills by category - with safeguards to prevent infinite loops
 	$effect(() => {
-		if (cvData.skills && cvData.skills.length > 0) {
-			// Group skills by category
-			const skillsByCategory = cvData.skills.reduce<Record<string, Skill[]>>((acc, skill) => {
-				const category = skill.category || 'Other';
-				if (!acc[category]) {
-					acc[category] = [];
-				}
-				acc[category].push(skill as Skill);
-				return acc;
-			}, {});
+		// Skip if there are no skills or if CV data isn't loaded yet
+		if (!cvData || !cvData.skills || !Array.isArray(cvData.skills)) {
+			categorizedSkills = [];
+			return;
+		}
 
-			// Sort skills in each category
-			Object.keys(skillsByCategory).forEach((category) => {
-				skillsByCategory[category].sort((a: Skill, b: Skill) => a.name.localeCompare(b.name));
+		// Skip unnecessary processing for empty arrays
+		if (cvData.skills.length === 0) {
+			categorizedSkills = [];
+			return;
+		}
+
+		// Group skills by category
+		const skillsByCategory = cvData.skills.reduce<Record<string, Skill[]>>((acc, skill) => {
+			const category = skill.category || 'Other';
+			if (!acc[category]) {
+				acc[category] = [];
+			}
+			acc[category].push(skill as Skill);
+			return acc;
+		}, {});
+
+		// Sort skills in each category
+		Object.keys(skillsByCategory).forEach((category) => {
+			skillsByCategory[category].sort((a: Skill, b: Skill) => a.name.localeCompare(b.name));
+		});
+
+		// Update categorized skills - only if different from current state
+		const newSkills: { category: string; skills: Skill[] }[] = [];
+		Object.keys(skillsByCategory)
+			.sort()
+			.forEach((category) => {
+				newSkills.push({
+					category,
+					skills: skillsByCategory[category]
+				});
 			});
 
-			// Update categorized skills
-			categorizedSkills = [];
-			Object.keys(skillsByCategory)
-				.sort()
-				.forEach((category) => {
-					categorizedSkills.push({
-						category,
-						skills: skillsByCategory[category]
-					});
-				});
+		// Only update state if actually different
+		const currentJson = JSON.stringify(categorizedSkills);
+		const newJson = JSON.stringify(newSkills);
+		if (currentJson !== newJson) {
+			categorizedSkills = newSkills;
 		}
 	});
 
@@ -128,12 +145,16 @@
 		activeTab = tab;
 	}
 
-	// Subscribe to CV store changes - only set the value when it actually changes
+	// Subscribe to CV store changes - avoid infinite loops with careful comparison
+	let previousStoreJson = $state('');
 	$effect(() => {
-		// Only update cvData if the store content has actually changed
-		// This prevents unnecessary re-renders
+		// Skip if there's no actual data change
 		const storeValue = $cvStore;
-		if (JSON.stringify(storeValue) !== JSON.stringify(cvData)) {
+		const storeJson = JSON.stringify(storeValue);
+
+		// Only update if the store content has actually changed
+		if (storeJson !== previousStoreJson) {
+			previousStoreJson = storeJson;
 			cvData = storeValue;
 		}
 	});

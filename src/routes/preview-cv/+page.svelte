@@ -590,7 +590,7 @@
 							<div>
 								<div class="flex justify-between">
 									<div>
-										<h3 class="font-semibold">{edu.degree || edu.course}</h3>
+										<h3 class="font-semibold">{edu.qualification || edu.degree}</h3>
 										<h4 class="text-gray-700">{edu.institution}</h4>
 									</div>
 									<div class="text-sm text-gray-600">
