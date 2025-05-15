@@ -284,9 +284,11 @@ export const handle: Handle = async ({ event, resolve }) => {
         // Apply CSP in both production and development mode for testing purposes
         // Use nonce-based CSP if available and enabled
         if (config.security.cspNonce && event.locals.cspNonce) {
-            const scriptSrc = `'self' 'nonce-${event.locals.cspNonce}'`;
+            const nonce = event.locals.cspNonce;
+            const scriptSrc = `'self' 'nonce-${nonce}'`;
             const styleSrc = `'self' 'unsafe-inline'`; // Keep 'unsafe-inline' for styles in development
 
+            // Create a more comprehensive CSP that handles more edge cases
             response.headers.set(
                 'Content-Security-Policy',
                 "default-src 'self'; " +
@@ -295,8 +297,14 @@ export const handle: Handle = async ({ event, resolve }) => {
                 "img-src 'self' data: blob: https://*.supabase.co; " +
                 "font-src 'self'; " +
                 "connect-src 'self' https://*.supabase.co;" +
-                "report-uri /api/csp-report;"
+                "report-uri /api/csp-report;" +
+                // Allow eval in development for hot module reloading
+                (config.isDevelopment ? "script-src-attr 'unsafe-inline';" : "")
             );
+
+            // Add a special header to help client-side scripts know what nonce to use
+            // This allows dynamic scripts to use the same nonce
+            response.headers.set('X-CSP-Nonce', nonce);
         }
     }
 

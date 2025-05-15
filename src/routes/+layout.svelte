@@ -7,6 +7,12 @@
 	import { browser } from '$app/environment';
 	import ErrorBoundary from '$lib/components/ErrorBoundary.svelte';
 	import { page } from '$app/stores';
+	import { initGlobalHelpers } from '$lib/utils/globalHelpers';
+
+	// Initialize global helpers for CSP-compliant scripting
+	if (browser) {
+		initGlobalHelpers();
+	}
 
 	// State for storing the current user's username
 	let username = $state<string | null>(null);

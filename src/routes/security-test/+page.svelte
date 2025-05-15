@@ -8,19 +8,26 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
+	import { safeInjectScript } from '$lib/utils/cspHelpers';
 
 	let nonce = '';
 	let testResults = {
 		noncePresent: false,
 		safeScriptExecuted: false,
 		unsafeScriptBlocked: true,
-		cspViolationReported: false
+		cspViolationReported: false,
+		dynamicScriptExecuted: false
 	};
+
+	// Header diagnostics
+	let headers: Record<string, string> = {};
+	let cspHeader = '';
 
 	// TypeScript types for the test
 	type CustomWindow = Window & {
 		unsafeTestExecuted?: boolean;
 		safeScriptExecuted?: () => void;
+		dynamicScriptExecuted?: () => void;
 	};
 
 	onMount(() => {
@@ -32,6 +39,7 @@
 
 			// Set the safeScriptExecuted function on window
 			(window as CustomWindow).safeScriptExecuted = safeScriptExecuted;
+			(window as CustomWindow).dynamicScriptExecuted = dynamicScriptExecuted;
 
 			// Add event listener for CSP violations
 			document.addEventListener('securitypolicyviolation', (e) => {
@@ -56,12 +64,41 @@
 					console.error('Error injecting unsafe script:', e);
 				}
 			}, 1000);
+
+			// Test dynamic script injection with nonce
+			setTimeout(() => {
+				safeInjectScript('window.dynamicScriptExecuted();');
+			}, 1500);
+
+			// Get CSP headers for diagnostics
+			fetch('/api/verify-session')
+				.then((response) => {
+					// Extract CSP header
+					cspHeader =
+						response.headers.get('Content-Security-Policy') ||
+						response.headers.get('content-security-policy') ||
+						'';
+
+					// Convert headers to object for display
+					response.headers.forEach((value, key) => {
+						headers[key] = value;
+					});
+				})
+				.catch((err) => {
+					console.error('Error fetching headers:', err);
+				});
 		}
 	});
 
 	// This function will be executed by the safe script with nonce
 	function safeScriptExecuted() {
 		testResults.safeScriptExecuted = true;
+		testResults = testResults; // Force reactivity update
+	}
+
+	// This function will be executed by dynamically injected script
+	function dynamicScriptExecuted() {
+		testResults.dynamicScriptExecuted = true;
 		testResults = testResults; // Force reactivity update
 	}
 </script>
@@ -114,12 +151,38 @@
 				</span>
 			</li>
 			<li>
+				Dynamic script with nonce executed:
+				<span class={testResults.dynamicScriptExecuted ? 'text-green-600' : 'text-red-600'}>
+					{testResults.dynamicScriptExecuted ? '✓ Success' : '✗ Failed'}
+				</span>
+			</li>
+			<li>
 				CSP violation reported:
 				<span class={testResults.cspViolationReported ? 'text-green-600' : 'text-yellow-600'}>
 					{testResults.cspViolationReported ? '✓ Success' : '⚠ Waiting...'}
 				</span>
 			</li>
 		</ul>
+	</div>
+
+	<div class="mb-8 rounded bg-purple-50 p-6">
+		<h2 class="mb-4 text-xl font-semibold">CSP Header Diagnostics</h2>
+		<h3 class="mb-2 text-lg">Content Security Policy:</h3>
+		<pre class="mb-4 overflow-auto rounded bg-gray-100 p-3 text-xs">{cspHeader || 'Not found'}</pre>
+
+		<h3 class="mb-2 text-lg">Response Headers:</h3>
+		<div class="max-h-48 overflow-auto rounded bg-gray-100 p-3">
+			<table class="w-full text-xs">
+				<tbody>
+					{#each Object.entries(headers) as [key, value]}
+						<tr>
+							<td class="pr-4 font-semibold">{key}:</td>
+							<td class="break-all">{value}</td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
+		</div>
 	</div>
 
 	<div class="rounded bg-yellow-50 p-6">
