@@ -6,9 +6,14 @@
 	import { cvStore } from '$lib/stores/cvDataStore';
 	import ResponsibilitiesEditor from '../../work-experience/ResponsibilitiesEditor.svelte';
 	import { getProxiedPhotoUrl, DEFAULT_PROFILE_PHOTO } from '$lib/photoUtils';
+	import { session as authSession } from '$lib/stores/authStore';
+	import { supabase } from '$lib/supabase';
 
 	// Get username from the URL
 	const username = $page.params.username;
+
+	// Auth session for checking if user is viewing their own CV
+	const currentSession = $authSession;
 
 	// CV data from the store
 	let cvData = $state($cvStore);
@@ -134,8 +139,24 @@
 	});
 
 	// Handle print function
-	function handlePrint() {
-		// Instead of navigating to preview page, just use browser print
+	async function handlePrint() {
+		// Check if the current user is the owner of this CV
+		if (currentSession && currentSession.user) {
+			// Get the current user's profile
+			const { data: myProfile } = await supabase
+				.from('profiles')
+				.select('username')
+				.eq('id', currentSession.user.id)
+				.single();
+
+			// If this is the user's own CV, use the full preview page
+			if (myProfile && myProfile.username === username) {
+				window.location.href = `/preview-cv?username=${username}`;
+				return;
+			}
+		}
+
+		// For non-owners, just use browser print
 		window.print();
 	}
 </script>
