@@ -14,14 +14,20 @@
 		reorderCategories,
 		reorderItems
 	} from './responsibilities';
+	import { decodeHtmlEntities } from '$lib/validation';
 
 	// Event dispatcher to communicate with parent
 	const dispatch = createEventDispatcher();
 
 	// Props
-	let { workExperienceId = '', readOnly = false } = $props<{
-		workExperienceId: string;
+	let {
+		workExperienceId = '',
+		readOnly = false,
+		responsibilities = undefined
+	} = $props<{
+		workExperienceId?: string;
 		readOnly?: boolean;
+		responsibilities?: CategoryWithItems[];
 	}>();
 
 	// State
@@ -48,6 +54,13 @@
 
 	// Load responsibilities on mount
 	onMount(async () => {
+		// If responsibilities were passed as a prop, use them directly
+		if (responsibilities) {
+			categories = responsibilities;
+			loading = false;
+			return;
+		}
+
 		await loadResponsibilities();
 	});
 
@@ -331,11 +344,11 @@
 					{#if readOnly}
 						<!-- Read-only compact display -->
 						<div class="mb-2">
-							<h4 class="font-medium text-gray-800">{category.name}</h4>
+							<h4 class="font-medium text-gray-800">{decodeHtmlEntities(category.name)}</h4>
 							{#if category.items.length > 0}
 								<ul class="mt-1 list-disc space-y-1 pl-5">
 									{#each category.items as item (item.id)}
-										<li class="text-sm text-gray-700">{item.content}</li>
+										<li class="text-sm text-gray-700">{decodeHtmlEntities(item.content)}</li>
 									{/each}
 								</ul>
 							{/if}

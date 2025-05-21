@@ -4,7 +4,7 @@
 	import { supabase } from '$lib/supabase';
 	import { page } from '$app/stores';
 	import { onMount, onDestroy } from 'svelte';
-	import { session as authSession } from '$lib/stores/authStore';
+	import { session as authSession, initializeSession } from '$lib/stores/authStore';
 	import BreadcrumbNavigation from '$lib/components/BreadcrumbNavigation.svelte';
 	import { invalidate } from '$app/navigation';
 	import { enhance } from '$app/forms';
@@ -107,12 +107,58 @@
 		category = '';
 	}
 
+	// Function to ensure we have a fresh token
+	async function ensureFreshToken(): Promise<boolean> {
+		try {
+			// Check if token is expiring soon
+			const { data: sessionData } = await supabase.auth.getSession();
+			if (!sessionData.session) {
+				// No session, can't refresh
+				return false;
+			}
+
+			// Try to refresh token
+			const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+
+			if (refreshError) {
+				console.warn('Token refresh failed:', refreshError.message);
+				return false;
+			}
+
+			if (refreshData.session) {
+				// Update the auth store with the new session
+				authSession.set(refreshData.session);
+				return true;
+			}
+
+			return false;
+		} catch (err) {
+			console.error('Error ensuring fresh token:', err);
+			return false;
+		}
+	}
+
 	// Handle form submission
 	async function handleSubmit(event: Event): Promise<void> {
 		event.preventDefault();
 
 		if (!session) {
 			error = 'You need to be logged in to save skills.';
+			// Try to recover by refreshing auth session
+			try {
+				const { data: sessionData } = await supabase.auth.refreshSession();
+				if (sessionData.session) {
+					// Refresh successful
+					success = 'Session refreshed. Please try again.';
+					setTimeout(() => {
+						success = '';
+						window.location.reload();
+					}, 1500);
+					return;
+				}
+			} catch (refreshErr) {
+				console.error('Error refreshing session:', refreshErr);
+			}
 			return;
 		}
 
@@ -127,15 +173,11 @@
 		success = '';
 
 		try {
-			// Ensure we have a valid auth token by checking session
-			const { data: sessionData } = await supabase.auth.getSession();
+			// Ensure we have a fresh token before proceeding
+			await ensureFreshToken();
 
-			if (!sessionData.session) {
-				// Re-authenticate if no session
-				error = 'Your session has expired. Please refresh the page and try again.';
-				loading = false;
-				return;
-			}
+			// Simplify session verification approach
+			// We already checked session existence above, so let's proceed with the operation
 
 			let result;
 
@@ -155,7 +197,7 @@
 				result = await supabase
 					.from('skills')
 					.insert({
-						profile_id: sessionData.session.user.id,
+						profile_id: session.user.id,
 						name,
 						level: level || null,
 						category: category || null
@@ -167,7 +209,27 @@
 
 			if (submitError) {
 				console.error('Error submitting skill:', submitError);
-				error = submitError.message || 'Failed to save skill';
+
+				// Handle unauthorized errors specially
+				if (submitError.code === 'PGRST301' || submitError.message.includes('JWT')) {
+					error = 'Your session has expired. Please refresh the page and try again.';
+					// Try auto-refreshing the session
+					try {
+						const { data: refreshData } = await supabase.auth.refreshSession();
+						if (refreshData.session) {
+							success = 'Session refreshed. Please try again in a moment.';
+							setTimeout(() => {
+								success = '';
+								window.location.reload();
+							}, 1500);
+						}
+					} catch (refreshErr) {
+						console.error('Failed to refresh session:', refreshErr);
+					}
+				} else {
+					// General error
+					error = submitError.message || 'Failed to save skill';
+				}
 				success = '';
 			} else {
 				console.log('Skill saved successfully:', skillData);
@@ -209,6 +271,13 @@
 			// Ensure error is properly set and success is cleared
 			success = '';
 			error = 'An unexpected error occurred. Please try again.';
+
+			// If it looks like a network error, provide a better message
+			if (err instanceof Error) {
+				if (err.message.includes('network') || err.message.includes('fetch')) {
+					error = 'Network error. Please check your connection and try again.';
+				}
+			}
 		} finally {
 			loading = false;
 		}
@@ -249,7 +318,7 @@
 		deleteConfirmId = null;
 	}
 
-	// Function to delete a skill
+	// Modify the deleteSkill function to ensure fresh token
 	async function deleteSkill(id: string): Promise<void> {
 		if (!session) {
 			error = 'You need to be logged in to delete skills.';
@@ -261,6 +330,9 @@
 		success = '';
 
 		try {
+			// Ensure we have a fresh token
+			await ensureFreshToken();
+
 			// First update UI optimistically
 			const skillToDelete = skills.find((skill) => skill.id === id);
 			const backupSkills = [...skills];
@@ -372,6 +444,9 @@
 	async function refreshSkills() {
 		loadingSkills = true;
 		try {
+			// Ensure fresh token before refreshing data
+			await ensureFreshToken();
+
 			// Use SvelteKit's invalidation to trigger the +page.js load function
 			await invalidate('app:skills');
 
@@ -466,10 +541,15 @@
 
 						// Apply optimistic update
 						if (isEditing && editingSkill) {
-							skills = skills.map((s) => (s.id === editingSkill.id ? optimisticSkill : s));
+							skills = skills.map((s) => (s.id === editingSkill?.id ? optimisticSkill : s));
 						} else {
 							skills = [...skills, optimisticSkill];
 						}
+
+						// Ensure fresh token right before form submission
+						ensureFreshToken().catch((err) => {
+							console.warn('Token refresh failed:', err);
+						});
 
 						return async ({ result, update }) => {
 							loading = false;
@@ -490,7 +570,7 @@
 							} else if (result.type === 'failure') {
 								// Handle errors
 								if (result.data?.error) {
-									error = result.data.error;
+									error = String(result.data.error);
 								} else {
 									error = 'Failed to save skill. Please try again.';
 								}

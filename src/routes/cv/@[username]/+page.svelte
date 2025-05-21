@@ -8,6 +8,7 @@
 	import { getProxiedPhotoUrl, DEFAULT_PROFILE_PHOTO } from '$lib/photoUtils';
 	import { session as authSession } from '$lib/stores/authStore';
 	import { supabase } from '$lib/supabase';
+	import { decodeHtmlEntities } from '$lib/validation';
 
 	// Get username from the URL
 	const username = $page.params.username;
@@ -184,13 +185,21 @@
 
 <svelte:head>
 	{#if cvData.profile}
-		<title>{cvData.profile.full_name}'s CV</title>
-		<meta name="description" content="View {cvData.profile.full_name}'s professional CV" />
+		<title>{decodeHtmlEntities(cvData.profile.full_name)}'s CV</title>
+		<meta
+			name="description"
+			content="View {decodeHtmlEntities(cvData.profile.full_name)}'s professional CV"
+		/>
 		<!-- Open Graph meta tags for better social sharing -->
-		<meta property="og:title" content="{cvData.profile.full_name}'s Professional CV" />
+		<meta
+			property="og:title"
+			content="{decodeHtmlEntities(cvData.profile.full_name)}'s Professional CV"
+		/>
 		<meta
 			property="og:description"
-			content="View the professional CV and qualifications of {cvData.profile.full_name}"
+			content="View the professional CV and qualifications of {decodeHtmlEntities(
+				cvData.profile.full_name
+			)}"
 		/>
 		{#if cvData.profile.photo_url}
 			<meta property="og:image" content={cvData.profile.photo_url} />
@@ -201,10 +210,15 @@
 		{/if}
 		<!-- Twitter Card meta tags -->
 		<meta name="twitter:card" content="summary" />
-		<meta name="twitter:title" content="{cvData.profile.full_name}'s Professional CV" />
+		<meta
+			name="twitter:title"
+			content="{decodeHtmlEntities(cvData.profile.full_name)}'s Professional CV"
+		/>
 		<meta
 			name="twitter:description"
-			content="View the professional CV and qualifications of {cvData.profile.full_name}"
+			content="View the professional CV and qualifications of {decodeHtmlEntities(
+				cvData.profile.full_name
+			)}"
 		/>
 		{#if cvData.profile.photo_url}
 			<meta name="twitter:image" content={cvData.profile.photo_url} />
@@ -250,7 +264,9 @@
 			<div class="container mx-auto px-4 sm:px-6 lg:px-8">
 				<div class="flex flex-col items-center gap-4 md:flex-row md:items-start md:gap-8">
 					<div class="order-2 flex-1 md:order-1">
-						<h1 class="text-4xl font-bold">{cvData.profile.full_name || 'Professional CV'}</h1>
+						<h1 class="text-4xl font-bold">
+							{decodeHtmlEntities(cvData.profile.full_name) || 'Professional CV'}
+						</h1>
 
 						<div class="mt-6 space-y-2">
 							{#if cvData.profile.email}
@@ -267,7 +283,7 @@
 										<path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
 									</svg>
 									<a href="mailto:{cvData.profile.email}" class="hover:underline"
-										>{cvData.profile.email}</a
+										>{decodeHtmlEntities(cvData.profile.email)}</a
 									>
 								</div>
 							{/if}
@@ -284,7 +300,7 @@
 											d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"
 										/>
 									</svg>
-									<span>{cvData.profile.phone}</span>
+									<span>{decodeHtmlEntities(cvData.profile.phone)}</span>
 								</div>
 							{/if}
 
@@ -302,7 +318,7 @@
 											clip-rule="evenodd"
 										/>
 									</svg>
-									<span>{cvData.profile.location}</span>
+									<span>{decodeHtmlEntities(cvData.profile.location)}</span>
 								</div>
 							{/if}
 
@@ -332,7 +348,7 @@
 
 						{#if cvData.profile.bio}
 							<div class="mt-4 rounded-lg bg-white/20 p-3">
-								<p class="text-sm leading-relaxed">{cvData.profile.bio}</p>
+								<p class="text-sm leading-relaxed">{decodeHtmlEntities(cvData.profile.bio)}</p>
 							</div>
 						{/if}
 					</div>
@@ -345,7 +361,7 @@
 							>
 								<img
 									src={photoUrl}
-									alt={cvData.profile.full_name}
+									alt={decodeHtmlEntities(cvData.profile.full_name)}
 									class="h-full w-full object-cover"
 									onerror={handleImageError}
 								/>
@@ -429,15 +445,19 @@
 									<div class="mt-4 space-y-5">
 										{#each categorizedSkills as category}
 											<div>
-												<h3 class="mb-2 font-semibold text-gray-700">{category.category}</h3>
+												<h3 class="mb-2 font-semibold text-gray-700">
+													{decodeHtmlEntities(category.category)}
+												</h3>
 												<div class="flex flex-wrap gap-2">
 													{#each category.skills as skill}
 														<span
 															class="rounded-full bg-indigo-100 px-3 py-1 text-sm text-indigo-800"
 														>
-															{skill.name}
+															{decodeHtmlEntities(skill.name)}
 															{#if skill.level}
-																<span class="ml-1 text-indigo-600">({skill.level})</span>
+																<span class="ml-1 text-indigo-600"
+																	>({decodeHtmlEntities(skill.level)})</span
+																>
 															{/if}
 														</span>
 													{/each}
@@ -449,9 +469,11 @@
 									<div class="mt-4 flex flex-wrap gap-2">
 										{#each cvData.skills as skill}
 											<span class="rounded-full bg-indigo-100 px-3 py-1 text-sm text-indigo-800">
-												{skill.name}
+												{decodeHtmlEntities(skill.name)}
 												{#if skill.level}
-													<span class="ml-1 text-indigo-600">({skill.level})</span>
+													<span class="ml-1 text-indigo-600"
+														>({decodeHtmlEntities(skill.level)})</span
+													>
 												{/if}
 											</span>
 										{/each}
@@ -470,10 +492,14 @@
 								<div class="mt-4 space-y-4">
 									{#each cvData.education as edu}
 										<div class="border-b border-gray-100 pb-4 last:border-b-0 last:pb-0">
-											<h3 class="font-semibold text-gray-800">{edu.institution}</h3>
-											<p class="text-gray-700">{edu.qualification || edu.degree}</p>
+											<h3 class="font-semibold text-gray-800">
+												{decodeHtmlEntities(edu.institution)}
+											</h3>
+											<p class="text-gray-700">
+												{decodeHtmlEntities(edu.qualification || edu.degree)}
+											</p>
 											{#if edu.field_of_study}
-												<p class="text-gray-600">{edu.field_of_study}</p>
+												<p class="text-gray-600">{decodeHtmlEntities(edu.field_of_study)}</p>
 											{/if}
 											{#if edu.start_date}
 												<p class="mt-1 text-sm text-gray-500">
@@ -498,16 +524,21 @@
 								<div class="mt-4 space-y-4">
 									{#each cvData.certifications as cert}
 										<div class="border-b border-gray-100 pb-4 last:border-b-0 last:pb-0">
-											<h3 class="font-semibold text-gray-800">{cert.name}</h3>
+											<h3 class="font-semibold text-gray-800">{decodeHtmlEntities(cert.name)}</h3>
 											{#if cert.issuer}
-												<p class="text-gray-700">{cert.issuer}</p>
+												<p class="text-gray-700">{decodeHtmlEntities(cert.issuer)}</p>
 											{/if}
-											{#if cert.date_obtained || cert.date_issued}
+											{#if cert.date_obtained}
 												<p class="mt-1 text-sm text-gray-500">
-													{formatDate(cert.date_obtained || cert.date_issued)}
+													{formatDate(cert.date_obtained)}
 													{#if cert.expiry_date}
 														- Expires: {formatDate(cert.expiry_date)}
 													{/if}
+												</p>
+											{/if}
+											{#if cert.description}
+												<p class="mt-2 text-sm text-gray-600">
+													{decodeHtmlEntities(cert.description)}
 												</p>
 											{/if}
 										</div>
@@ -516,20 +547,22 @@
 							</section>
 						{/if}
 
-						<!-- Qualification Equivalence section -->
-						{#if cvData.qualificationEquivalence && cvData.qualificationEquivalence.length > 0 && (activeTab === 'all' || activeTab === 'more' || windowWidth >= 768)}
+						<!-- Interests (in sidebar on larger screens) -->
+						{#if cvData.interests && cvData.interests.length > 0 && (activeTab === 'all' || activeTab === 'more' || windowWidth >= 768)}
 							<section class="rounded-lg bg-white p-6 shadow-md print:shadow-none">
 								<h2 class="border-b border-gray-200 pb-2 text-xl font-bold text-gray-800">
-									Qualification Equivalence
+									Interests & Activities
 								</h2>
 
 								<div class="mt-4 space-y-4">
-									{#each cvData.qualificationEquivalence as qualification}
-										<div class="border-b border-gray-100 pb-4 last:border-b-0 last:pb-0">
-											<h3 class="font-semibold text-gray-800">{qualification.level}</h3>
-											{#if qualification.description}
-												<p class="mt-1 whitespace-pre-line text-gray-700">
-													{qualification.description}
+									{#each cvData.interests as interest}
+										<div class="pb-2 last:pb-0">
+											<h3 class="font-semibold text-gray-800">
+												{decodeHtmlEntities(interest.name)}
+											</h3>
+											{#if interest.description}
+												<p class="mt-1 text-sm text-gray-600">
+													{decodeHtmlEntities(interest.description)}
 												</p>
 											{/if}
 										</div>
@@ -550,44 +583,40 @@
 									Work Experience
 								</h2>
 
-								<div class="mt-6 space-y-8">
-									{#each cvData.workExperiences as job}
-										<div class="relative border-b border-gray-100 pb-6 last:border-b-0 last:pb-0">
-											<!-- Timeline dot for visual appeal (only on larger screens) -->
-											<div
-												class="absolute top-1 -left-3 hidden h-6 w-6 rounded-full border-4 border-white bg-indigo-100 md:block"
-											></div>
-
-											<div class="md:ml-6">
-												<div class="flex flex-wrap items-start justify-between gap-2">
-													<div>
-														<h3 class="text-lg font-semibold text-gray-800">{job.position}</h3>
-														<h4 class="text-base text-gray-700">{job.company_name}</h4>
-													</div>
-													<div class="bg-gray-100 px-3 py-1 text-sm text-gray-700">
-														{formatDate(job.start_date)} - {job.end_date
-															? formatDate(job.end_date)
-															: 'Present'}
-													</div>
+								<div class="mt-4 space-y-6">
+									{#each cvData.workExperiences as work}
+										<div class="border-b border-gray-100 pb-6 last:border-b-0 last:pb-0">
+											<header class="mb-2">
+												<h3 class="text-lg font-semibold text-gray-800">
+													{decodeHtmlEntities(work.position)}
+												</h3>
+												<div class="text-md font-medium text-gray-700">
+													{decodeHtmlEntities(work.company_name)}
 												</div>
+												<p class="text-sm text-gray-500">
+													{formatDate(work.start_date)} - {work.end_date
+														? formatDate(work.end_date)
+														: 'Present'}
+												</p>
+											</header>
 
-												{#if job.description}
-													<div class="mt-3 text-gray-700">
-														<p class="whitespace-pre-line">
-															{#if job.description.includes('Key Responsibilities:')}
-																{job.description.split('Key Responsibilities:')[0].trim()}
-															{:else}
-																{job.description}
-															{/if}
-														</p>
-													</div>
-												{/if}
+											{#if work.description}
+												<p class="my-2 text-gray-600">{decodeHtmlEntities(work.description)}</p>
+											{/if}
 
-												<!-- Display job responsibilities -->
+											{#if work.responsibilities && work.responsibilities.length > 0}
 												<div class="mt-3">
-													<ResponsibilitiesEditor workExperienceId={job.id} readOnly={true} />
+													<h4 class="mb-2 font-medium text-gray-700">Key Responsibilities:</h4>
+
+													<!-- Render responsibilities as read-only -->
+													<div class="pl-2">
+														<ResponsibilitiesEditor
+															responsibilities={work.responsibilities}
+															readOnly={true}
+														/>
+													</div>
 												</div>
-											</div>
+											{/if}
 										</div>
 									{/each}
 								</div>
@@ -606,7 +635,9 @@
 										<div class="overflow-hidden rounded-lg border border-gray-200 bg-white">
 											<div class="border-b border-gray-100 bg-gray-50 px-4 py-3">
 												<div class="flex flex-wrap items-start justify-between gap-2">
-													<h3 class="font-semibold text-gray-800">{project.title}</h3>
+													<h3 class="font-semibold text-gray-800">
+														{decodeHtmlEntities(project.title)}
+													</h3>
 													{#if project.start_date}
 														<p class="text-sm text-gray-500">
 															{formatDate(project.start_date)} - {project.end_date
@@ -619,7 +650,9 @@
 
 											<div class="p-4">
 												{#if project.description}
-													<p class="text-sm text-gray-700">{project.description}</p>
+													<p class="text-sm text-gray-700">
+														{decodeHtmlEntities(project.description)}
+													</p>
 												{/if}
 
 												{#if project.url}
@@ -666,9 +699,11 @@
 										<div class="border-b border-gray-100 pb-4 last:border-b-0 last:pb-0">
 											<div class="flex flex-wrap items-start justify-between gap-2">
 												<div>
-													<h3 class="font-semibold text-gray-800">{membership.organisation}</h3>
+													<h3 class="font-semibold text-gray-800">
+														{decodeHtmlEntities(membership.organisation)}
+													</h3>
 													{#if membership.role}
-														<p class="text-gray-700">{membership.role}</p>
+														<p class="text-gray-700">{decodeHtmlEntities(membership.role)}</p>
 													{/if}
 												</div>
 												{#if membership.start_date}
@@ -695,9 +730,13 @@
 								<div class="mt-4 grid gap-4 sm:grid-cols-2">
 									{#each cvData.interests as interest}
 										<div class="rounded-lg bg-gray-50 p-4">
-											<h3 class="font-semibold text-gray-800">{interest.name}</h3>
+											<h3 class="font-semibold text-gray-800">
+												{decodeHtmlEntities(interest.name)}
+											</h3>
 											{#if interest.description}
-												<p class="mt-1 text-sm text-gray-700">{interest.description}</p>
+												<p class="mt-1 text-sm text-gray-700">
+													{decodeHtmlEntities(interest.description)}
+												</p>
 											{/if}
 										</div>
 									{/each}
@@ -712,7 +751,7 @@
 		<!-- Footer -->
 		<footer class="bg-gray-800 py-6 text-center text-white print:hidden">
 			<div class="container mx-auto px-4 sm:px-6 lg:px-8">
-				<p class="text-gray-300">CV created with CV App</p>
+				<p class="text-gray-300">CV created with CV App by William Ellis</p>
 				<p class="mt-2">
 					<a href="/" class="text-indigo-300 hover:text-indigo-200 hover:underline"
 						>Return to CV App</a

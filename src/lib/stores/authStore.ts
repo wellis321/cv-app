@@ -108,6 +108,7 @@ export const initializeSession = async (forceRefresh = false) => {
         if (error) {
             safeLog('error', 'Error getting session', { error: error.message });
             authError.set(error.message);
+            authLoading.set(false);
             return;
         }
 
@@ -133,110 +134,81 @@ export const initializeSession = async (forceRefresh = false) => {
                 // Setup inactivity check
                 setupInactivityCheck();
 
-                // Basic session verification with server - now with CSRF protection
+                // Skip session verification for public CV pages (optional)
+                const currentPath = browser ? window.location.pathname : null;
+                if (currentPath && currentPath.startsWith('/cv/@')) {
+                    safeLog('debug', 'Skipping session verification for public CV page');
+                    sessionInitialized = true;
+                    authLoading.set(false);
+                    return;
+                }
+
+                // Simpler session verification with proper error handling
                 try {
-                    // Add retry logic for verification attempts
-                    const MAX_RETRY = 2;
-                    let retryCount = 0;
-                    let verified = false;
+                    // Use fetch with timeout protection
+                    const abortController = new AbortController();
+                    const timeoutId = setTimeout(() => abortController.abort(), 5000); // 5 second timeout
 
-                    while (retryCount <= MAX_RETRY && !verified) {
-                        try {
-                            // Use built-in fetch with timeout to prevent hanging requests
-                            const abortController = new AbortController();
-                            const timeoutId = setTimeout(() => abortController.abort(), 5000); // 5 second timeout
+                    const response = await fetch('/api/verify-session', {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${data.session.access_token}`
+                        },
+                        signal: abortController.signal
+                    });
 
-                            const response = await fetch('/api/verify-session', {
-                                method: 'GET',
-                                headers: {
-                                    'Authorization': `Bearer ${data.session.access_token}`,
-                                    'Content-Type': 'application/json'
-                                },
-                                signal: abortController.signal
-                            });
+                    clearTimeout(timeoutId);
 
-                            clearTimeout(timeoutId);
+                    if (response.ok) {
+                        safeLog('debug', 'Session verified successfully');
+                        sessionInitialized = true;
+                    } else {
+                        // Try refreshing the session one more time
+                        safeLog('warn', 'Session verification failed, attempting refresh');
+                        const { data: refreshAttempt, error: refreshAttemptError } =
+                            await supabase.auth.refreshSession();
 
-                            if (response.ok) {
-                                verified = true;
-                                safeLog('debug', 'Session verified successfully');
+                        if (refreshAttemptError) {
+                            safeLog('error', 'Failed to refresh after verification failure',
+                                { error: refreshAttemptError.message });
+
+                            // Even if verification fails but we have a session, still allow access
+                            // This prevents issues where backend verification fails but client session is valid
+                            if (session) {
+                                safeLog('info', 'Continuing with existing session despite verification failure');
+                                sessionInitialized = true;
                             } else {
-                                const status = response.status;
-                                let errorText = await response.text().catch(() => 'No response body');
-
-                                retryCount++;
-                                safeLog('warn', `Session verification attempt ${retryCount} failed`, {
-                                    status,
-                                    error: `API error: ${status}`,
-                                    details: errorText
-                                });
-
-                                // If we got a 401, try to refresh the session before next attempt
-                                if (status === 401 && retryCount <= MAX_RETRY) {
-                                    safeLog('info', 'Attempting token refresh after 401 response');
-                                    const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
-
-                                    if (refreshError) {
-                                        safeLog('error', 'Failed to refresh token after 401', { error: refreshError.message });
-                                    } else if (refreshData?.session) {
-                                        safeLog('info', 'Successfully refreshed token after 401');
-                                        session.set(refreshData.session);
-                                    }
-                                }
-
-                                // Wait before retrying (with exponential backoff)
-                                if (retryCount <= MAX_RETRY) {
-                                    await new Promise(r => setTimeout(r, 1000 * Math.pow(2, retryCount - 1)));
-                                }
+                                authError.set('Session verification failed. You may need to log in again.');
                             }
-                        } catch (verifyErrUnknown) {
-                            retryCount++;
-
-                            // Type cast the error to any to access properties
-                            const verifyErr = verifyErrUnknown as any;
-
-                            // Check if this was an abort error (timeout)
-                            const isTimeout = verifyErr?.name === 'AbortError';
-
-                            safeLog('warn', `Session verification attempt ${retryCount} failed`, {
-                                error: isTimeout ? 'Request timeout' : (verifyErr?.message || 'Unknown error'),
-                                isTimeout
-                            });
-
-                            if (retryCount <= MAX_RETRY) {
-                                // Wait a bit before retrying (exponential backoff)
-                                await new Promise(r => setTimeout(r, 1000 * Math.pow(2, retryCount - 1)));
-                            }
+                        } else if (refreshAttempt?.session) {
+                            session.set(refreshAttempt.session);
+                            safeLog('info', 'Successfully refreshed session after verification failure');
+                            sessionInitialized = true;
                         }
                     }
-
-                    if (!verified) {
-                        safeLog('warn', 'All session verification attempts failed');
-
-                        // Set auth error to notify the user
-                        authError.set('Session verification failed. You may need to log in again.');
-
-                        // We don't force logout here, but we provide a clear error message
-                        // that will be shown to the user
-                    }
-                } catch (errUnknown) {
-                    // Type cast the error to any to access properties
-                    const err = errUnknown as any;
-
-                    // Improved logging with error details
-                    safeLog('warn', 'Error during session verification process', {
-                        message: err?.message || 'Unknown error',
-                        name: err?.name,
-                        stack: err?.stack
+                } catch (verifyErr) {
+                    // Handle verification errors gracefully
+                    safeLog('warn', 'Error during session verification', {
+                        error: verifyErr instanceof Error ? verifyErr.message : 'Unknown error'
                     });
+
+                    // Don't force logout or show errors for network issues
+                    if (verifyErr instanceof Error &&
+                        (verifyErr.message.includes('network') ||
+                            verifyErr.message.includes('timeout') ||
+                            verifyErr.message.includes('abort'))) {
+                        safeLog('info', 'Network issue during verification, continuing with session');
+                        sessionInitialized = true;
+                    } else {
+                        authError.set('Session verification failed. Please refresh the page.');
+                    }
                 }
             } catch (err) {
                 // Don't interrupt the flow for network errors - let client continue
-                safeLog('warn', 'Network error during session verification', err);
+                safeLog('warn', 'Error during auth initialization', err);
+                sessionInitialized = true; // Still mark as initialized to prevent repeated attempts
             }
         }
-
-        sessionInitialized = true;
     } catch (err) {
         safeLog('error', 'Error initializing session', err);
         authError.set('Failed to initialize session');

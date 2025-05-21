@@ -9,447 +9,377 @@ import { sanitizeInput } from '$lib/validation';
 
 // Types for CV data
 export interface CvData {
-	userId: string | null;
-	profile: any | null;
-	workExperiences: any[];
-	projects: any[];
-	skills: any[];
-	education: any[];
-	certifications: any[];
-	memberships: any[];
-	interests: any[];
-	qualificationEquivalence: any[];
-	username: string | null;
+    userId: string | null;
+    profile: any | null;
+    workExperiences: any[];
+    projects: any[];
+    skills: any[];
+    education: any[];
+    certifications: any[];
+    memberships: any[];
+    interests: any[];
+    qualificationEquivalence: any[];
+    username: string | null;
 }
 
 // Default empty state
 const defaultCvData: CvData = {
-	userId: null,
-	profile: null,
-	workExperiences: [],
-	projects: [],
-	skills: [],
-	education: [],
-	certifications: [],
-	memberships: [],
-	interests: [],
-	qualificationEquivalence: [],
-	username: null
+    userId: null,
+    profile: null,
+    workExperiences: [],
+    projects: [],
+    skills: [],
+    education: [],
+    certifications: [],
+    memberships: [],
+    interests: [],
+    qualificationEquivalence: [],
+    username: null
 };
 
 // Create the store
 const createCvStore = () => {
-	const { subscribe, set, update } = writable<CvData>({ ...defaultCvData });
+    const { subscribe, set, update } = writable<CvData>({ ...defaultCvData });
 
-	// Track loading state
-	const loadingState = writable({
-		loading: false,
-		error: null as string | null
-	});
+    // Track loading state
+    const loadingState = writable({
+        loading: false,
+        error: null as string | null
+    });
 
-	// Store cache by userId to avoid refetching
-	let cache: Record<string, CvData> = {};
+    // Store cache by userId to avoid refetching
+    let cache: Record<string, CvData> = {};
 
-	return {
-		subscribe,
-		loading: {
-			subscribe: loadingState.subscribe
-		},
+    return {
+        subscribe,
+        loading: {
+            subscribe: loadingState.subscribe
+        },
 
-		// Reset the store to initial empty state
-		reset: () => {
-			set({ ...defaultCvData });
-		},
+        // Reset the store to initial empty state
+        reset: () => {
+            set({ ...defaultCvData });
+        },
 
-		// Set cached data if available
-		setCachedData: (userId: string) => {
-			if (cache[userId]) {
-				set(cache[userId]);
-				return true;
-			}
-			return false;
-		},
+        // Set cached data if available
+        setCachedData: (userId: string) => {
+            if (cache[userId]) {
+                set(cache[userId]);
+                return true;
+            }
+            return false;
+        },
 
-		// Load CV data for the current user
-		loadCurrentUserData: async () => {
-			if (!browser) return;
+        // Load CV data for the current user
+        loadCurrentUserData: async () => {
+            if (!browser) return;
 
-			const currentSession = get(session);
-			if (!currentSession || !currentSession.user) {
-				loadingState.update((s) => ({ ...s, error: 'User not logged in' }));
-				return;
-			}
+            const currentSession = get(session);
+            if (!currentSession || !currentSession.user) {
+                loadingState.update((s) => ({ ...s, error: 'User not logged in' }));
+                return;
+            }
 
-			const userId = currentSession.user.id;
+            const userId = currentSession.user.id;
 
-			// Return cached data if available
-			if (cache[userId]) {
-				set(cache[userId]);
-				return;
-			}
+            // Return cached data if available
+            if (cache[userId]) {
+                set(cache[userId]);
+                return;
+            }
 
-			try {
-				loadingState.update((s) => ({ ...s, loading: true, error: null }));
+            try {
+                loadingState.update((s) => ({ ...s, loading: true, error: null }));
 
-				// First get the profile to check username
-				const { data: profile, error: profileError } = await supabase
-					.from('profiles')
-					.select('*')
-					.eq('id', userId)
-					.single();
+                // First get the profile to check username
+                const { data: profile, error: profileError } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', userId)
+                    .single();
 
-				if (profileError) {
-					console.error('Error loading profile:', profileError);
-					loadingState.update((s) => ({ ...s, error: 'Failed to load profile data' }));
-					return;
-				}
+                if (profileError) {
+                    console.error('Error loading profile:', profileError);
+                    loadingState.update((s) => ({ ...s, error: 'Failed to load profile data' }));
+                    return;
+                }
 
-				// Load all CV sections
-				const data = await loadUserCvData(userId);
+                // Load all CV sections
+                const data = await loadUserCvData(userId);
 
-				if (data.profile) {
-					data.username = data.profile.username || null;
-				}
+                if (data.profile) {
+                    data.username = data.profile.username || null;
+                }
 
-				// Cache the data
-				cache[userId] = data;
+                // Cache the data
+                cache[userId] = data;
 
-				// Update the store
-				set(data);
+                // Update the store
+                set(data);
 
-				loadingState.update((s) => ({ ...s, loading: false }));
-				return data;
-			} catch (err: any) {
-				console.error('Error loading CV data:', err);
-				loadingState.update((s) => ({
-					...s,
-					loading: false,
-					error: err.message || 'Failed to load CV data'
-				}));
-			}
-		},
+                loadingState.update((s) => ({ ...s, loading: false }));
+                return data;
+            } catch (err: any) {
+                console.error('Error loading CV data:', err);
+                loadingState.update((s) => ({
+                    ...s,
+                    loading: false,
+                    error: err.message || 'Failed to load CV data'
+                }));
+            }
+        },
 
-		// Load CV data by username (for public view)
-		loadByUsername: async (username: string) => {
-			if (!browser || !username) return;
+        // Load CV data by username (for public view)
+        loadByUsername: async (username: string) => {
+            if (!browser || !username) return;
 
-			// Check if we have this username cached
-			const cachedEntry = Object.values(cache).find((entry) => entry.username === username);
-			if (cachedEntry) {
-				set(cachedEntry);
-				return cachedEntry;
-			}
+            // Check if we have this username cached
+            const cachedEntry = Object.values(cache).find((entry) => entry.username === username);
+            if (cachedEntry) {
+                set(cachedEntry);
+                return cachedEntry;
+            }
 
-			try {
-				loadingState.update((s) => ({ ...s, loading: true, error: null }));
+            try {
+                loadingState.update((s) => ({ ...s, loading: true, error: null }));
 
-				// Create a new Supabase client for this request
-				// (bypassing auth to ensure public profiles can be viewed by non-authenticated users)
-				const publicSupabase = createClient<Database>(
-					config.supabase.url,
-					config.supabase.anonKey,
-					{
-						auth: {
-							persistSession: false,
-							autoRefreshToken: false
-						}
-					}
-				);
+                // Create a new Supabase client for this request
+                // (bypassing auth to ensure public profiles can be viewed by non-authenticated users)
+                const publicSupabase = createClient<Database>(
+                    config.supabase.url,
+                    config.supabase.anonKey,
+                    {
+                        auth: {
+                            persistSession: false,
+                            autoRefreshToken: false
+                        }
+                    }
+                );
 
-				// First, get the user's ID from their username
-				const { data: userData, error: userError } = await publicSupabase
-					.from('profiles')
-					.select('id')
-					.eq('username', username)
-					.single();
+                // First, get the user's ID from their username
+                const { data: userData, error: userError } = await publicSupabase
+                    .from('profiles')
+                    .select('id')
+                    .eq('username', username)
+                    .single();
 
-				if (userError || !userData) {
-					console.error('Error finding user by username:', userError);
-					loadingState.update((s) => ({ ...s, loading: false, error: 'User not found' }));
-					return;
-				}
+                if (userError || !userData) {
+                    console.error('Error finding user by username:', userError);
+                    loadingState.update((s) => ({ ...s, loading: false, error: 'User not found' }));
+                    return;
+                }
 
-				const userId = userData.id;
+                const userId = userData.id;
 
-				// Load all CV data for this user, using public Supabase instance
-				try {
-					const data = await loadUserCvData(userId, publicSupabase);
-					data.username = username;
+                // Load all CV data for this user, using public Supabase instance
+                try {
+                    const data = await loadUserCvData(userId, publicSupabase);
+                    data.username = username;
 
-					// Cache the data
-					cache[userId] = data;
+                    // Cache the data
+                    cache[userId] = data;
 
-					// Update the store
-					set(data);
+                    // Update the store
+                    set(data);
 
-					loadingState.update((s) => ({ ...s, loading: false }));
-					return data;
-				} catch (loadError: any) {
-					console.error('Error loading CV data sections:', loadError);
-					loadingState.update((s) => ({
-						...s,
-						loading: false,
-						error: loadError.message || 'Failed to load CV data sections'
-					}));
-				}
-			} catch (err: any) {
-				console.error('Error loading CV data by username:', err);
-				loadingState.update((s) => ({
-					...s,
-					loading: false,
-					error: err.message || 'Failed to load CV data'
-				}));
-			}
-		},
+                    loadingState.update((s) => ({ ...s, loading: false }));
+                    return data;
+                } catch (loadError: any) {
+                    console.error('Error loading CV data sections:', loadError);
+                    loadingState.update((s) => ({
+                        ...s,
+                        loading: false,
+                        error: loadError.message || 'Failed to load CV data sections'
+                    }));
+                }
+            } catch (err: any) {
+                console.error('Error loading CV data by username:', err);
+                loadingState.update((s) => ({
+                    ...s,
+                    loading: false,
+                    error: err.message || 'Failed to load CV data'
+                }));
+            }
+        },
 
-		// Clear the cache for a specific user
-		clearCache: (userId: string | null = null) => {
-			if (userId) {
-				delete cache[userId];
-			} else {
-				cache = {};
-			}
-		}
-	};
+        // Clear the cache for a specific user
+        clearCache: (userId: string | null = null) => {
+            if (userId) {
+                delete cache[userId];
+            } else {
+                cache = {};
+            }
+        }
+    };
 };
 
 // Helper function to sanitize text fields in arrays
 function sanitizeArray(arr: any[], textFields: string[]): any[] {
-	if (!Array.isArray(arr)) return arr;
+    if (!Array.isArray(arr)) return arr;
 
-	return arr.map((item) => {
-		const sanitizedItem = { ...item };
-		for (const field of textFields) {
-			if (typeof sanitizedItem[field] === 'string') {
-				sanitizedItem[field] = sanitizeInput(sanitizedItem[field]);
-			}
-		}
-		return sanitizedItem;
-	});
+    return arr.map((item) => {
+        const sanitizedItem = { ...item };
+        for (const field of textFields) {
+            if (typeof sanitizedItem[field] === 'string') {
+                sanitizedItem[field] = sanitizeInput(sanitizedItem[field]);
+            }
+        }
+        return sanitizedItem;
+    });
 }
 
 // Sanitize CV data to prevent XSS
 function sanitizeCvData(cvData: CvData): CvData {
-	if (!cvData) return cvData;
+    if (!cvData) return cvData;
 
-	// Create a deep copy to avoid mutating original data
-	const sanitized = { ...cvData };
+    // Create a deep copy to avoid mutating original data
+    const sanitized = { ...cvData };
 
-	// Sanitize profile data
-	if (sanitized.profile) {
-		if (typeof sanitized.profile.full_name === 'string') {
-			sanitized.profile.full_name = sanitizeInput(sanitized.profile.full_name);
-		}
-		if (typeof sanitized.profile.location === 'string') {
-			sanitized.profile.location = sanitizeInput(sanitized.profile.location);
-		}
-	}
+    // Sanitize profile data
+    if (sanitized.profile) {
+        if (typeof sanitized.profile.full_name === 'string') {
+            sanitized.profile.full_name = sanitizeInput(sanitized.profile.full_name);
+        }
+        if (typeof sanitized.profile.location === 'string') {
+            sanitized.profile.location = sanitizeInput(sanitized.profile.location);
+        }
+    }
 
-	// Sanitize each section
-	if (Array.isArray(sanitized.workExperiences)) {
-		sanitized.workExperiences = sanitizeArray(sanitized.workExperiences, [
-			'company_name',
-			'position',
-			'description'
-		]);
-	}
+    // Sanitize each section
+    if (Array.isArray(sanitized.workExperiences)) {
+        sanitized.workExperiences = sanitizeArray(sanitized.workExperiences, [
+            'company_name',
+            'position',
+            'description'
+        ]);
+    }
 
-	if (Array.isArray(sanitized.projects)) {
-		sanitized.projects = sanitizeArray(sanitized.projects, ['title', 'description', 'url']);
-	}
+    if (Array.isArray(sanitized.projects)) {
+        sanitized.projects = sanitizeArray(sanitized.projects, ['title', 'description', 'url']);
+    }
 
-	if (Array.isArray(sanitized.education)) {
-		sanitized.education = sanitizeArray(sanitized.education, [
-			'institution',
-			'degree',
-			'field_of_study',
-			'description'
-		]);
-	}
+    if (Array.isArray(sanitized.education)) {
+        sanitized.education = sanitizeArray(sanitized.education, [
+            'institution',
+            'degree',
+            'field_of_study',
+            'description'
+        ]);
+    }
 
-	if (Array.isArray(sanitized.skills)) {
-		sanitized.skills = sanitizeArray(sanitized.skills, ['name', 'category']);
-	}
+    if (Array.isArray(sanitized.skills)) {
+        sanitized.skills = sanitizeArray(sanitized.skills, ['name', 'category']);
+    }
 
-	if (Array.isArray(sanitized.certifications)) {
-		sanitized.certifications = sanitizeArray(sanitized.certifications, [
-			'name',
-			'issuer',
-			'description'
-		]);
-	}
+    if (Array.isArray(sanitized.certifications)) {
+        sanitized.certifications = sanitizeArray(sanitized.certifications, [
+            'name',
+            'issuer',
+            'description'
+        ]);
+    }
 
-	if (Array.isArray(sanitized.memberships)) {
-		sanitized.memberships = sanitizeArray(sanitized.memberships, [
-			'organisation',
-			'role',
-			'description'
-		]);
-	}
+    if (Array.isArray(sanitized.memberships)) {
+        sanitized.memberships = sanitizeArray(sanitized.memberships, [
+            'organisation',
+            'role',
+            'description'
+        ]);
+    }
 
-	if (Array.isArray(sanitized.interests)) {
-		sanitized.interests = sanitizeArray(sanitized.interests, ['name', 'description']);
-	}
+    if (Array.isArray(sanitized.interests)) {
+        sanitized.interests = sanitizeArray(sanitized.interests, ['name', 'description']);
+    }
 
-	return sanitized;
+    return sanitized;
 }
 
 // Modify the loadUserCvData function to apply sanitization
 async function loadUserCvData(userId: string, clientInstance?: any): Promise<CvData> {
-	// Start with empty data
-	const data: CvData = { ...defaultCvData, userId };
+    // Use provided client instance or default to supabase
+    const client = clientInstance || supabase;
 
-	// Use the provided client instance or fall back to the default supabase client
-	const client = clientInstance || supabase;
+    // Try to refresh token if using the main client (not for public viewing)
+    if (!clientInstance && browser) {
+        try {
+            const { error: refreshError } = await supabase.auth.refreshSession();
+            if (refreshError) {
+                console.warn('Could not refresh session before loading CV data:', refreshError.message);
+            }
+        } catch (refreshErr) {
+            console.warn('Error during session refresh before loading CV data:', refreshErr);
+        }
+    }
 
-	try {
-		// Fetch profile data
-		const { data: profile, error: profileError } = await client
-			.from('profiles')
-			.select('*')
-			.eq('id', userId)
-			.single();
+    // Start with empty data
+    const data: CvData = { ...defaultCvData, userId };
 
-		if (profileError) {
-			console.error('Error loading profile:', profileError);
-			throw new Error('Failed to load profile data');
-		}
+    try {
+        // Load all sections in parallel for efficiency
+        const [
+            profileResult,
+            workExperiencesResult,
+            projectsResult,
+            skillsResult,
+            educationResult,
+            certificationsResult,
+            membershipResult,
+            interestsResult,
+            qualificationEquivalenceResult
+        ] = await Promise.all([
+            client.from('profiles').select('*').eq('id', userId).single(),
+            client.from('work_experience').select('*').eq('profile_id', userId).order('start_date', { ascending: false }),
+            client.from('projects').select('*').eq('profile_id', userId).order('start_date', { ascending: false }),
+            client.from('skills').select('*').eq('profile_id', userId),
+            client.from('education').select('*').eq('profile_id', userId).order('start_date', { ascending: false }),
+            client.from('certifications').select('*').eq('profile_id', userId).order('date_obtained', { ascending: false }),
+            client.from('professional_memberships').select('*').eq('profile_id', userId).order('start_date', { ascending: false }),
+            client.from('interests').select('*').eq('profile_id', userId),
+            client
+                .from('professional_qualification_equivalence')
+                .select('*')
+                .eq('profile_id', userId)
+        ]);
 
-		data.profile = profile;
+        // Check profile result - this is required
+        if (profileResult.error) {
+            console.error('Error loading profile:', profileResult.error);
+            throw new Error('Failed to load profile data');
+        }
 
-		// Load work experiences
-		const { data: workData, error: workError } = await client
-			.from('work_experience')
-			.select('*')
-			.eq('profile_id', userId)
-			.order('start_date', { ascending: false });
+        // Populate data with results, handle any errors gracefully
+        data.profile = profileResult.data;
+        data.workExperiences = workExperiencesResult.error ? [] : workExperiencesResult.data || [];
+        data.projects = projectsResult.error ? [] : projectsResult.data || [];
+        data.skills = skillsResult.error ? [] : skillsResult.data || [];
+        data.education = educationResult.error ? [] : educationResult.data || [];
+        data.certifications = certificationsResult.error ? [] : certificationsResult.data || [];
+        data.memberships = membershipResult.error ? [] : membershipResult.data || [];
+        data.interests = interestsResult.error ? [] : interestsResult.data || [];
+        data.qualificationEquivalence = qualificationEquivalenceResult.error ? [] : qualificationEquivalenceResult.data || [];
 
-		if (!workError) {
-			data.workExperiences = workData || [];
-		} else {
-			console.error('Error loading work experiences:', workError);
-		}
+        // Log any errors that occurred
+        [
+            { name: 'work experiences', result: workExperiencesResult },
+            { name: 'projects', result: projectsResult },
+            { name: 'skills', result: skillsResult },
+            { name: 'education', result: educationResult },
+            { name: 'certifications', result: certificationsResult },
+            { name: 'memberships', result: membershipResult },
+            { name: 'interests', result: interestsResult },
+            { name: 'qualification equivalence', result: qualificationEquivalenceResult }
+        ].forEach(item => {
+            if (item.result.error) {
+                console.error(`Error loading ${item.name}:`, item.result.error);
+            }
+        });
 
-		// Load projects
-		const { data: projectsData, error: projectsError } = await client
-			.from('projects')
-			.select('*')
-			.eq('profile_id', userId)
-			.order('start_date', { ascending: false });
-
-		if (!projectsError) {
-			data.projects = projectsData || [];
-		} else {
-			console.error('Error loading projects:', projectsError);
-		}
-
-		// Load skills
-		const { data: skillsData, error: skillsError } = await client
-			.from('skills')
-			.select('*')
-			.eq('profile_id', userId);
-
-		if (!skillsError) {
-			data.skills = skillsData || [];
-		} else {
-			console.error('Error loading skills:', skillsError);
-		}
-
-		// Load education
-		try {
-			const { data: educationData, error: educationError } = await client
-				.from('education')
-				.select('*')
-				.eq('profile_id', userId)
-				.order('start_date', { ascending: false });
-
-			if (!educationError) {
-				data.education = educationData || [];
-			} else {
-				console.error('Error loading education:', educationError);
-			}
-		} catch (err) {
-			// Silently handle missing table
-			data.education = [];
-		}
-
-		// Load certifications
-		try {
-			const { data: certData, error: certError } = await client
-				.from('certifications')
-				.select('*')
-				.eq('profile_id', userId)
-				.order('date_obtained', { ascending: false });
-
-			if (!certError) {
-				data.certifications = certData || [];
-			} else {
-				console.error('Error loading certifications:', certError);
-			}
-		} catch (err) {
-			// Silently handle missing table
-			data.certifications = [];
-		}
-
-		// Load memberships
-		try {
-			const { data: membershipData, error: membershipError } = await client
-				.from('professional_memberships')
-				.select('*')
-				.eq('profile_id', userId)
-				.order('start_date', { ascending: false });
-
-			if (!membershipError) {
-				data.memberships = membershipData || [];
-			} else {
-				console.error('Error loading memberships:', membershipError);
-			}
-		} catch (err) {
-			// Silently handle missing table
-			data.memberships = [];
-		}
-
-		// Load interests
-		try {
-			const { data: interestsData, error: interestsError } = await client
-				.from('interests')
-				.select('*')
-				.eq('profile_id', userId);
-
-			if (!interestsError) {
-				data.interests = interestsData || [];
-			} else {
-				console.error('Error loading interests:', interestsError);
-			}
-		} catch (err) {
-			// Silently handle missing table
-			data.interests = [];
-		}
-
-		// Load qualification equivalence
-		try {
-			const { data: qualificationData, error: qualificationError } = await client
-				.from('professional_qualification_equivalence')
-				.select('*')
-				.eq('profile_id', userId);
-
-			if (!qualificationError) {
-				data.qualificationEquivalence = qualificationData || [];
-			} else {
-				console.error('Error loading qualification equivalence:', qualificationError);
-			}
-		} catch (err) {
-			// Silently handle missing table
-			data.qualificationEquivalence = [];
-		}
-
-		// Apply sanitization before returning the data
-		const sanitizedData = sanitizeCvData(data);
-		return sanitizedData;
-	} catch (error) {
-		console.error('Error in loadUserCvData:', error);
-		throw error;
-	}
+        // Apply sanitization before returning the data
+        return sanitizeCvData(data);
+    } catch (err) {
+        console.error('Error loading CV data:', err);
+        throw err;
+    }
 }
 
 // Create and export the store instance
@@ -465,6 +395,6 @@ export const certifications = derived(cvStore, ($cvStore) => $cvStore.certificat
 export const memberships = derived(cvStore, ($cvStore) => $cvStore.memberships);
 export const interests = derived(cvStore, ($cvStore) => $cvStore.interests);
 export const qualificationEquivalence = derived(
-	cvStore,
-	($cvStore) => $cvStore.qualificationEquivalence
+    cvStore,
+    ($cvStore) => $cvStore.qualificationEquivalence
 );
