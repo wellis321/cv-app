@@ -719,30 +719,6 @@
 								</div>
 							</section>
 						{/if}
-
-						<!-- Interests section -->
-						{#if cvData.interests && cvData.interests.length > 0 && (activeTab === 'all' || activeTab === 'more')}
-							<section class="rounded-lg bg-white p-6 shadow-md print:shadow-none">
-								<h2 class="border-b border-gray-200 pb-2 text-xl font-bold text-gray-800">
-									Interests & Activities
-								</h2>
-
-								<div class="mt-4 grid gap-4 sm:grid-cols-2">
-									{#each cvData.interests as interest}
-										<div class="rounded-lg bg-gray-50 p-4">
-											<h3 class="font-semibold text-gray-800">
-												{decodeHtmlEntities(interest.name)}
-											</h3>
-											{#if interest.description}
-												<p class="mt-1 text-sm text-gray-700">
-													{decodeHtmlEntities(interest.description)}
-												</p>
-											{/if}
-										</div>
-									{/each}
-								</div>
-							</section>
-						{/if}
 					</div>
 				</div>
 			</div>
