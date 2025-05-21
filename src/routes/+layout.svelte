@@ -46,6 +46,11 @@
 		return $page.url.pathname.startsWith(path);
 	}
 
+	// Function to check if current page is a public CV profile page
+	function isPublicCvPage(): boolean {
+		return /^\/cv\/@[^/]+$/.test($page.url.pathname);
+	}
+
 	// Setup auth on mount
 	onMount(() => {
 		console.log('Layout mounted, initializing session...');
@@ -170,7 +175,7 @@
 	</header>
 
 	<main class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
-		{#if !$session}
+		{#if !$session && !isPublicCvPage()}
 			<AuthForm />
 		{:else}
 			<ErrorBoundary>

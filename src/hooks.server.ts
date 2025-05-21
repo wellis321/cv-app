@@ -6,7 +6,14 @@ import { getCsrfToken, validateCsrfToken, requiresCsrfCheck } from '$lib/securit
 import { rateLimit, applyAuthRateLimit } from '$lib/security/rateLimit';
 
 // Define base public routes that don't require authentication
-const basePublicRoutes = ['/', '/login', '/signup', '/security-review-client', '/cv'];
+const basePublicRoutes = [
+    '/',
+    '/login',
+    '/signup',
+    '/security-review-client',
+    '/cv',
+    /^\/cv\/@[^/]+$/ // Add regex pattern for username-based CV paths like /cv/@username
+];
 
 // Add development-only routes if not in production
 const publicRoutes = [
@@ -166,9 +173,15 @@ export const handle: Handle = async ({ event, resolve }) => {
         }
 
         // Check if this is a protected route and redirect if needed
-        const isPublicRoute = publicRoutes.some(
-            (route) => path === route || path.startsWith(`${route}/`)
-        );
+        // Modified to handle regex patterns in publicRoutes
+        const isPublicRoute = publicRoutes.some(route => {
+            if (typeof route === 'string') {
+                return path === route || path.startsWith(`${route}/`);
+            } else if (route instanceof RegExp) {
+                return route.test(path);
+            }
+            return false;
+        });
 
         safeLog('debug', `[${requestId}] Route check`, {
             path,
