@@ -100,9 +100,11 @@ export const actions: Actions = {
             const formEmail = formData.get('email') as string;
             const phone = formData.get('phone') as string;
             const location = formData.get('location') as string;
+            const linkedinUrl = formData.get('linkedinUrl') as string;
+            const bio = formData.get('bio') as string;
 
             // Log form data
-            console.log('Form data:', { fullName, formEmail, phone, location, authEmail });
+            console.log('Form data:', { fullName, formEmail, phone, location, linkedinUrl, bio, authEmail });
 
             // Create the profile data object with correct typed structure
             let profileData: {
@@ -111,6 +113,8 @@ export const actions: Actions = {
                 email: string | null;
                 phone: string | null;
                 location: string | null;
+                linkedin_url: string | null;
+                bio: string | null;
                 updated_at: string;
                 username: string; // Username is required for Insert but optional for Update
             };
@@ -134,6 +138,8 @@ export const actions: Actions = {
                 email: authEmail || formEmail || null,
                 phone: phone || null,
                 location: location || null,
+                linkedin_url: linkedinUrl || null,
+                bio: bio || null,
                 updated_at: new Date().toISOString(),
                 // Either use existing username or generate a default one
                 username: existingProfile?.username || `user${authUser.userId.substring(0, 8)}`

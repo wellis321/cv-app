@@ -26,6 +26,8 @@
 	let phone = $state(data.profile?.phone ?? '');
 	let location = $state(data.profile?.location ?? '');
 	let photoUrl = $state(data.profile?.photo_url ?? '');
+	let linkedinUrl = $state(data.profile?.linkedin_url ?? '');
+	let bio = $state(data.profile?.bio ?? '');
 	let error = $state<string | null>(null);
 	let success = $state<string | null>(null);
 	let loading = $state(false);
@@ -103,7 +105,9 @@
 							phone = profileData.phone || '';
 							location = profileData.location || '';
 							// Use either photo_url or profile_photo_url for compatibility
-							photoUrl = profileData.photo_url || profileData.profile_photo_url || '';
+							photoUrl = profileData.photo_url || '';
+							linkedinUrl = profileData.linkedin_url || '';
+							bio = profileData.bio || '';
 							// Clear any error
 							error = null;
 						} else {
@@ -610,8 +614,9 @@
 				email = profileData.email || email;
 				phone = profileData.phone || phone;
 				location = profileData.location || location;
-				// Use either photo_url or profile_photo_url for compatibility
-				photoUrl = profileData.photo_url || profileData.profile_photo_url || '';
+				photoUrl = profileData.photo_url || '';
+				linkedinUrl = profileData.linkedin_url || '';
+				bio = profileData.bio || '';
 			}
 		} catch (err) {
 			console.error('Exception refreshing profile:', err);
@@ -739,6 +744,78 @@
 				success: false,
 				error: error instanceof Error ? error.message : 'Unknown error in profile update'
 			};
+		}
+	}
+
+	// Update when data.profile changes
+	$effect(() => {
+		if (data.profile && !loading) {
+			// Update form fields with profile data
+			fullName = data.profile.full_name || '';
+			username = data.profile.username || '';
+			email = data.profile.email || '';
+			phone = data.profile.phone || '';
+			location = data.profile.location || '';
+			photoUrl = data.profile.photo_url || '';
+			linkedinUrl = data.profile.linkedin_url || '';
+			bio = data.profile.bio || '';
+		}
+	});
+
+	// Handle form submission
+	async function handleSubmit(e: Event) {
+		e.preventDefault();
+		loading = true;
+		formStatus.isPending = true;
+		error = null;
+		success = null;
+
+		// Validate username first - if it fails, don't proceed
+		const isUsernameValid = await validateUsername(username);
+		if (!isUsernameValid) {
+			loading = false;
+			formStatus.isPending = false;
+			return;
+		}
+
+		// First update the main profile (without photo)
+		try {
+			// Create the profile data
+			const profile = {
+				full_name: fullName,
+				email,
+				phone,
+				location,
+				username,
+				linkedin_url: linkedinUrl,
+				bio
+			};
+
+			// Validate that at least name is present
+			if (!profile.full_name || !profile.full_name.trim()) {
+				error = 'Name is required';
+				loading = false;
+				formStatus.isPending = false;
+				return;
+			}
+
+			// Update the profile using fetch with CSRF protection
+			const result = await fetchWithCsrf('/profile', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(profile)
+			});
+
+			// ... rest of function ...
+		} catch (err) {
+			console.error('Error handling form submission:', err);
+			error = 'An unexpected error occurred. Please try again.';
+			success = null;
+		} finally {
+			loading = false;
+			formStatus.isPending = false;
 		}
 	}
 </script>
@@ -896,6 +973,8 @@
 				const optimisticPhone = formData.get('phone') as string;
 				const optimisticLocation = formData.get('location') as string;
 				const optimisticUsername = formData.get('username') as string;
+				const optimisticLinkedinUrl = formData.get('linkedinUrl') as string;
+				const optimisticBio = formData.get('bio') as string;
 
 				// Apply optimistic updates
 				fullName = optimisticFullName;
@@ -903,6 +982,8 @@
 				phone = optimisticPhone;
 				location = optimisticLocation;
 				username = optimisticUsername;
+				linkedinUrl = optimisticLinkedinUrl;
+				bio = optimisticBio;
 
 				// Show temporary success message for immediate feedback
 				success = 'Saving your profile...';
@@ -1029,6 +1110,37 @@
 					bind:value={location}
 					class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
 				/>
+			</div>
+			<div>
+				<label class="mb-1 block text-sm font-medium text-gray-700" for="linkedinUrl"
+					>LinkedIn URL</label
+				>
+				<input
+					id="linkedinUrl"
+					name="linkedinUrl"
+					type="url"
+					bind:value={linkedinUrl}
+					placeholder="https://www.linkedin.com/in/yourprofile"
+					class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+				/>
+				<p class="mt-1 text-xs text-gray-500">
+					Add your LinkedIn profile URL to help recruiters connect with you professionally.
+				</p>
+			</div>
+			<div>
+				<label class="mb-1 block text-sm font-medium text-gray-700" for="bio">Short Bio</label>
+				<textarea
+					id="bio"
+					name="bio"
+					bind:value={bio}
+					rows="4"
+					placeholder="Write a brief professional summary about yourself..."
+					class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+				></textarea>
+				<p class="mt-1 text-xs text-gray-500">
+					Keep your bio concise and highlight your key professional attributes (250 words or less
+					recommended).
+				</p>
 			</div>
 			<div>
 				<button

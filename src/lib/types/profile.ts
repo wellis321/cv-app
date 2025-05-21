@@ -16,6 +16,8 @@ export interface DefaultProfile {
     username?: string;
     photo_url?: string | null;
     profile_photo_url?: string | null;
+    linkedin_url?: string | null;
+    bio?: string | null;
 }
 
 // Define a union type for profile data that can be either a complete profile or a default profile
