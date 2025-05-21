@@ -5,28 +5,13 @@ import { redirect, error } from '@sveltejs/kit';
 import { getCsrfToken, validateCsrfToken, requiresCsrfCheck } from '$lib/security/csrf';
 import { rateLimit, applyAuthRateLimit } from '$lib/security/rateLimit';
 
-// Define base public routes that don't require authentication
-const basePublicRoutes = [
-    '/',
-    '/login',
-    '/signup',
-    '/security-review-client',
-    '/cv',
-    /^\/cv\/@[^/]+$/ // Add regex pattern for username-based CV paths like /cv/@username
-];
-
-// Add development-only routes if not in production
-const publicRoutes = [
-    ...basePublicRoutes,
-    // Only add security-test page to public routes in development
-    ...(config.isDevelopment ? ['/security-test'] : [])
-];
+// List of public routes that don't require authentication
+const publicRoutes = ['/', '/login', '/signup', '/security-review-client', '/cv/@'];
 
 // List of API routes that are exempt from CSRF checks (e.g., webhooks)
 const csrfExemptRoutes = [
     '/api/verify-session', // This is a read-only endpoint to verify a session
-    '/api/update-profile-photo', // Special endpoint for photo uploads that handles auth separately
-    '/api/csp-report' // CSP violation reporting endpoint
+    '/api/update-profile-photo' // Special endpoint for photo uploads that handles auth separately
 ];
 
 export const handle: Handle = async ({ event, resolve }) => {
@@ -173,15 +158,9 @@ export const handle: Handle = async ({ event, resolve }) => {
         }
 
         // Check if this is a protected route and redirect if needed
-        // Modified to handle regex patterns in publicRoutes
-        const isPublicRoute = publicRoutes.some(route => {
-            if (typeof route === 'string') {
-                return path === route || path.startsWith(`${route}/`);
-            } else if (route instanceof RegExp) {
-                return route.test(path);
-            }
-            return false;
-        });
+        const isPublicRoute = publicRoutes.some(
+            (route) => path === route || path.startsWith(`${route}/`)
+        );
 
         safeLog('debug', `[${requestId}] Route check`, {
             path,
@@ -211,18 +190,15 @@ export const handle: Handle = async ({ event, resolve }) => {
     // Process the request and get the response
     const response = await resolve(event, {
         transformPageChunk: ({ html }) => {
-            let modified = html;
-
             // If a CSRF token exists in locals, inject it into the page
             // This makes it available to client-side scripts
             if (event.locals.csrfToken) {
-                modified = modified.replace(
+                return html.replace(
                     '</head>',
                     `<meta name="csrf-token" content="${event.locals.csrfToken}"></head>`
                 );
             }
-
-            return modified;
+            return html;
         }
     });
 
@@ -269,6 +245,19 @@ export const handle: Handle = async ({ event, resolve }) => {
                     headers: response.headers
                 });
             }
+        }
+
+        // Only set in production - in dev we need to allow inline scripts for HMR
+        if (config.isProduction) {
+            response.headers.set(
+                'Content-Security-Policy',
+                "default-src 'self'; " +
+                "script-src 'self' 'unsafe-inline'; " +
+                "style-src 'self' 'unsafe-inline'; " +
+                "img-src 'self' data: blob:; " +
+                "font-src 'self'; " +
+                "connect-src 'self' https://*.supabase.co;"
+            );
         }
     }
 
