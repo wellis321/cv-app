@@ -22,21 +22,10 @@ const csrfExemptRoutes = [
     '/api/csp-report' // CSP violation reporting endpoint
 ];
 
-// Generate a CSP nonce - cryptographically random string for each request
-function generateNonce() {
-    return Buffer.from(crypto.getRandomValues(new Uint8Array(16))).toString('base64');
-}
-
 export const handle: Handle = async ({ event, resolve }) => {
     try {
         const path = event.url.pathname;
         const requestId = crypto.randomUUID(); // Generate a unique ID for this request
-
-        // Generate a unique nonce for CSP if enabled in config
-        if (config.security.cspNonce) {
-            const nonce = generateNonce();
-            event.locals.cspNonce = nonce;
-        }
 
         // Use safeLog instead of console.log for secure logging
         safeLog('debug', `[${requestId}] Processing request`, { path });
@@ -220,18 +209,6 @@ export const handle: Handle = async ({ event, resolve }) => {
                 );
             }
 
-            // Add the CSP nonce to any script tags if enabled
-            if (config.security.cspNonce && event.locals.cspNonce) {
-                // Add nonce to script tags
-                modified = modified.replace(/<script\b/g, `<script nonce="${event.locals.cspNonce}"`);
-
-                // Add meta tag with CSP nonce for client-side reference
-                modified = modified.replace(
-                    '</head>',
-                    `<meta name="csp-nonce" content="${event.locals.cspNonce}"></head>`
-                );
-            }
-
             return modified;
         }
     });
@@ -279,32 +256,6 @@ export const handle: Handle = async ({ event, resolve }) => {
                     headers: response.headers
                 });
             }
-        }
-
-        // Apply CSP in both production and development mode for testing purposes
-        // Use nonce-based CSP if available and enabled
-        if (config.security.cspNonce && event.locals.cspNonce) {
-            const nonce = event.locals.cspNonce;
-            const scriptSrc = `'self' 'nonce-${nonce}'`;
-            const styleSrc = `'self' 'unsafe-inline'`; // Keep 'unsafe-inline' for styles in development
-
-            // Create a more comprehensive CSP that handles more edge cases
-            response.headers.set(
-                'Content-Security-Policy',
-                "default-src 'self'; " +
-                `script-src ${scriptSrc}; ` +
-                `style-src ${styleSrc}; ` +
-                "img-src 'self' data: blob: https://*.supabase.co; " +
-                "font-src 'self'; " +
-                "connect-src 'self' https://*.supabase.co;" +
-                "report-uri /api/csp-report;" +
-                // Allow eval in development for hot module reloading
-                (config.isDevelopment ? "script-src-attr 'unsafe-inline';" : "")
-            );
-
-            // Add a special header to help client-side scripts know what nonce to use
-            // This allows dynamic scripts to use the same nonce
-            response.headers.set('X-CSP-Nonce', nonce);
         }
     }
 

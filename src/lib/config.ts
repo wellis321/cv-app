@@ -53,7 +53,7 @@ const defaultConfig: Config = {
         csrfProtection: true,
         strictHeaders: true,
         rateLimiting: true,
-        cspNonce: true
+        cspNonce: false
     }
 };
 
@@ -75,7 +75,7 @@ const envConfigs: Record<string, Partial<Config>> = {
             csrfProtection: true,
             strictHeaders: true,
             rateLimiting: false,
-            cspNonce: true
+            cspNonce: false
         }
     },
     test: {
@@ -95,7 +95,7 @@ const envConfigs: Record<string, Partial<Config>> = {
             csrfProtection: true,
             strictHeaders: true,
             rateLimiting: true,
-            cspNonce: true
+            cspNonce: false
         }
     }
 };

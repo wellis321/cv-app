@@ -9,7 +9,7 @@
 	import { page } from '$app/stores';
 	import { initGlobalHelpers } from '$lib/utils/globalHelpers';
 
-	// Initialize global helpers for CSP-compliant scripting
+	// Initialize global helpers
 	if (browser) {
 		initGlobalHelpers();
 	}

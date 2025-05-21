@@ -10,7 +10,6 @@ declare global {
             supabase: SupabaseClient<Database>;
             session: Session | null;
             csrfToken?: string;
-            cspNonce?: string;
         }
         // interface PageData {}
         // interface PageState {}
