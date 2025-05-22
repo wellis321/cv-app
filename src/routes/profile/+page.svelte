@@ -9,6 +9,7 @@
 	import { updateSectionStatus } from '$lib/cv-sections';
 	import CameraCapture from '$lib/components/CameraCapture.svelte';
 	import PhotoFallback from '$lib/components/PhotoFallback.svelte';
+	import ColorPicker from '$lib/components/ColorPicker.svelte';
 	import { fetchWithCsrf } from '$lib/security/clientCsrf';
 	import { enhance } from '$app/forms';
 	import type { ProfileData } from '$lib/types/profile';
@@ -863,7 +864,13 @@
 		}
 	}
 
-	// Update saveProfile function to include CV theme colors
+	// Add validation function for hex colors
+	// Validate hex color format
+	function isValidHexColor(color: string): boolean {
+		return /^#[0-9A-F]{6}$/i.test(color);
+	}
+
+	// Update saveProfile function with validation
 	async function saveProfile() {
 		if (!$session) {
 			error = 'Not authenticated. Please login first.';
@@ -896,6 +903,14 @@
 		// Validate that name is present
 		if (!fullName || !fullName.trim()) {
 			error = 'Full name is required';
+			loading = false;
+			formStatus.isPending = false;
+			return;
+		}
+
+		// Validate color inputs
+		if (!isValidHexColor(cvHeaderFromColor) || !isValidHexColor(cvHeaderToColor)) {
+			error = 'Invalid color format. Please use valid hex colors (e.g., #FF0000).';
 			loading = false;
 			formStatus.isPending = false;
 			return;
@@ -1206,34 +1221,8 @@
 					</div>
 
 					<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-						<div>
-							<label class="block text-sm font-medium text-gray-700" for="fromColor"
-								>From Color</label
-							>
-							<div class="mt-1 flex items-center gap-3">
-								<input
-									type="color"
-									id="fromColor"
-									name="fromColor"
-									bind:value={cvHeaderFromColor}
-									class="h-10 w-10 cursor-pointer rounded border border-gray-300 p-0"
-								/>
-								<span class="font-mono text-sm">{cvHeaderFromColor}</span>
-							</div>
-						</div>
-						<div>
-							<label class="block text-sm font-medium text-gray-700" for="toColor">To Color</label>
-							<div class="mt-1 flex items-center gap-3">
-								<input
-									type="color"
-									id="toColor"
-									name="toColor"
-									bind:value={cvHeaderToColor}
-									class="h-10 w-10 cursor-pointer rounded border border-gray-300 p-0"
-								/>
-								<span class="font-mono text-sm">{cvHeaderToColor}</span>
-							</div>
-						</div>
+						<ColorPicker id="fromColor" label="From Color" bind:value={cvHeaderFromColor} />
+						<ColorPicker id="toColor" label="To Color" bind:value={cvHeaderToColor} />
 					</div>
 					<p class="text-xs text-gray-500">
 						Choose custom colors for your CV header gradient. The left color will blend into the

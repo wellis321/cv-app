@@ -68,10 +68,32 @@
 			};
 			window.addEventListener('resize', handleResize);
 
+			// Add debugging
+			console.log('CV @[username] page mounted. Username:', username);
+
+			// Check if Supabase is initialized properly
+			if (!supabase) {
+				console.error('Supabase client not initialized');
+			} else {
+				// Test Supabase connection with a simple query
+				supabase
+					.from('profiles')
+					.select('count')
+					.then(({ data, error }) => {
+						if (error) {
+							console.error('Error testing Supabase connection:', error);
+						} else {
+							console.log('Supabase connection test successful:', data);
+						}
+					});
+			}
+
 			// Load data by username
 			if (username) {
 				console.log('Loading CV data for username:', username);
 				cvStore.loadByUsername(username);
+			} else {
+				console.error('No username provided in URL params');
 			}
 
 			return () => {
@@ -316,7 +338,13 @@
 
 {#if loadingState.error}
 	<div class="container mx-auto max-w-5xl px-4 py-8">
-		<div class="mb-4 rounded-lg bg-red-100 p-4 text-red-700 shadow-lg">{loadingState.error}</div>
+		<div class="mb-4 rounded-lg bg-red-100 p-4 text-red-700 shadow-lg">
+			Error: {loadingState.error}
+			{#if browser}
+				<br />
+				<span class="text-sm text-gray-600">Debug: Username from URL: {username}</span>
+			{/if}
+		</div>
 	</div>
 {:else if loadingState.loading}
 	<div class="flex h-screen items-center justify-center">
@@ -324,7 +352,7 @@
 			<div
 				class="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-indigo-600"
 			></div>
-			<p class="text-xl text-gray-600">Loading CV...</p>
+			<p class="text-xl text-gray-600">Loading CV for {username}...</p>
 		</div>
 	</div>
 {:else if !cvData.profile}
@@ -332,6 +360,15 @@
 		<div class="rounded-lg bg-yellow-50 p-6 shadow-lg">
 			<h2 class="mb-2 text-xl font-semibold text-yellow-800">CV Not Found</h2>
 			<p class="text-yellow-700">This CV is not available or no longer exists.</p>
+			{#if browser}
+				<div class="mt-2 text-sm text-gray-600">
+					Debug info: username={username}, loading={loadingState.loading}, cvData={JSON.stringify(
+						cvData,
+						null,
+						2
+					)}
+				</div>
+			{/if}
 			<div class="mt-4">
 				<a
 					href="/"
@@ -787,7 +824,7 @@
 																	d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"
 																/>
 																<path
-																	d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"
+																	d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5z"
 																/>
 															</svg>
 															View Project

@@ -4,6 +4,23 @@ import config from '$lib/config';
 import type { Database } from '$lib/database.types';
 import { error } from '@sveltejs/kit';
 
+// Validate header colors
+// This ensures that if a user tries to set invalid colors, they'll be replaced with defaults
+function validateHeaderColors(profile: any): void {
+    const isValidHexColor = (color: string): boolean => {
+        return /^#[0-9A-F]{6}$/i.test(color);
+    };
+
+    // Set default colors if invalid or missing
+    if (!profile.cv_header_from_color || !isValidHexColor(profile.cv_header_from_color)) {
+        profile.cv_header_from_color = '#4338ca'; // Default indigo-700
+    }
+
+    if (!profile.cv_header_to_color || !isValidHexColor(profile.cv_header_to_color)) {
+        profile.cv_header_to_color = '#7e22ce'; // Default purple-700
+    }
+}
+
 // We'll use a minimal server-side load function since we're now loading data
 // client-side with the CV data store. This is just to handle basic routing
 // and username validation.
@@ -16,13 +33,14 @@ export const load: PageServerLoad = async ({ params, setHeaders }) => {
     });
 
     const { username } = params;
+    console.log(`[SERVER] +page.server.ts load function called for username: ${username}`);
 
     if (!username) {
-        console.error('Username not provided in URL parameters');
+        console.error('[SERVER] Username not provided in URL parameters');
         throw error(404, 'Username not provided');
     }
 
-    console.log(`Server-side load - Looking up username: ${username}`);
+    console.log(`[SERVER] Server-side load - Looking up username: ${username}`);
 
     // Create a new Supabase client just for this request to verify the username exists
     const supabase = createClient<Database>(config.supabase.url, config.supabase.anonKey, {
@@ -33,45 +51,40 @@ export const load: PageServerLoad = async ({ params, setHeaders }) => {
     });
 
     try {
-        // Just check if the username exists
-        const { data: userData, error: userError } = await supabase
+        // Only check if the profile exists - the full data will be loaded client-side
+        console.log(`[SERVER] Checking if profile exists for username: ${username}`);
+        const { data: profile, error: profileError } = await supabase
             .from('profiles')
-            .select('id, full_name')
+            .select('id, username')
             .eq('username', username)
             .single();
 
-        if (userError) {
-            console.error(`Error finding user by username ${username}:`, userError);
-            throw error(404, 'User not found');
+        if (profileError) {
+            console.error(`[SERVER] Error finding profile for username ${username}:`, profileError);
+            throw error(404, 'Profile not found');
         }
 
-        console.log(
-            `Found user for username ${username}:`,
-            userData.id,
-            userData.full_name || '(No name)'
-        );
+        if (!profile) {
+            console.error(`[SERVER] No profile found for username ${username}`);
+            throw error(404, 'Profile not found');
+        }
 
-        // All public CVs should not be indexed by search engines
-        // This could be made configurable in the future by adding a
-        // cv_settings column to the profiles table
-        const allowIndexing = false;
+        console.log(`[SERVER] Profile found for ${username}:`, profile);
 
-        // Return minimal data - client will load the full data
+        // Return minimal data - seo and profile indicator
         return {
-            username,
-            userId: userData.id,
-            foundProfile: true,
             seo: {
-                allowIndexing
-            }
+                allowIndexing: false // For now, we're not allowing any CV profiles to be indexed
+            },
+            profileExists: true
         };
-    } catch (err: any) {
-        console.error(`Unexpected error checking username ${username}:`, err);
-
-        if (err.status === 404) {
-            throw err; // Re-throw not found errors
+    } catch (e) {
+        console.error(`[SERVER] Error in load function for username ${username}:`, e);
+        // If it's already a SvelteKit error, rethrow it
+        if (e && typeof e === 'object' && 'status' in e && 'message' in e) {
+            throw e;
         }
-
-        throw error(500, 'An error occurred checking this username');
+        // Otherwise, wrap it
+        throw error(500, 'Failed to load profile data');
     }
 };
