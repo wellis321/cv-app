@@ -64,8 +64,8 @@
 				sessionStorage.removeItem('just_authenticated');
 			}
 
-			// Initialize session
-			initializeSession()
+			// Initialize session with force refresh to ensure token validity
+			initializeSession(true)
 				.then(() => {
 					console.log('Session initialized in layout:', $session ? 'Present' : 'None');
 					fetchUsername();

@@ -172,14 +172,10 @@ export const initializeSession = async (forceRefresh = false) => {
                             safeLog('error', 'Failed to refresh after verification failure',
                                 { error: refreshAttemptError.message });
 
-                            // Even if verification fails but we have a session, still allow access
-                            // This prevents issues where backend verification fails but client session is valid
-                            if (session) {
-                                safeLog('info', 'Continuing with existing session despite verification failure');
-                                sessionInitialized = true;
-                            } else {
-                                authError.set('Session verification failed. You may need to log in again.');
-                            }
+                            // Continue with existing session even if verification fails
+                            // This is important for client-side operations to work
+                            safeLog('info', 'Continuing with existing session despite verification failure');
+                            sessionInitialized = true;
                         } else if (refreshAttempt?.session) {
                             session.set(refreshAttempt.session);
                             safeLog('info', 'Successfully refreshed session after verification failure');

@@ -8,6 +8,7 @@
 	import BreadcrumbNavigation from '$lib/components/BreadcrumbNavigation.svelte';
 	import { invalidate } from '$app/navigation';
 	import { enhance } from '$app/forms';
+	import { cvStore } from '$lib/stores/cvDataStore';
 
 	interface PageData {
 		skills: Skill[];
@@ -430,13 +431,27 @@
 
 	// Set initial skills state from data prop whenever it changes
 	$effect(() => {
-		if (data.skills) {
+		if (data.skills && data.skills.length > 0) {
 			skills = data.skills;
+		} else if ($cvStore && $cvStore.skills && $cvStore.skills.length > 0) {
+			// Fall back to cvStore data if server data is empty
+			console.log('Using skills data from cvStore');
+			skills = $cvStore.skills;
 		}
 
 		// Show any server errors
 		if (data.error) {
 			error = data.error;
+		}
+	});
+
+	// Add a useEffect to load CV data on mount
+	$effect(() => {
+		if (browser && session && skills.length === 0) {
+			// Try to load skills from the cvStore
+			cvStore.loadCurrentUserData().catch((err) => {
+				console.error('Error loading CV data:', err);
+			});
 		}
 	});
 
@@ -477,12 +492,20 @@
 	<div class="mx-auto max-w-xl">
 		<div class="mb-4 flex items-center justify-between">
 			<h2 class="text-2xl font-bold">Your Skills</h2>
-			<button
-				onclick={toggleAddForm}
-				class="rounded bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-			>
-				{showAddForm ? 'Cancel' : 'Add Skill'}
-			</button>
+			<div class="flex gap-2">
+				<button
+					onclick={() => cvStore.loadCurrentUserData()}
+					class="rounded border border-indigo-600 px-4 py-2 text-indigo-600 hover:bg-indigo-50 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+				>
+					Refresh Data
+				</button>
+				<button
+					onclick={toggleAddForm}
+					class="rounded bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+				>
+					{showAddForm ? 'Cancel' : 'Add Skill'}
+				</button>
+			</div>
 		</div>
 
 		{#if error}
@@ -499,159 +522,94 @@
 				<h3 class="mb-4 text-xl font-semibold">
 					{isEditing ? 'Edit Skill' : 'Add New Skill'}
 				</h3>
-
-				<form
-					method="POST"
-					action={isEditing ? '?/update' : '?/create'}
-					class="space-y-4"
-					use:enhance={({ formData, cancel }) => {
-						// Validate form before submission
-						if (!formData.get('name')) {
-							error = 'Skill name is required';
-							return cancel();
-						}
-
-						// Set form status
-						loading = true;
-						error = undefined;
-
-						// Get form data for optimistic update
-						const optimisticName = formData.get('name') as string;
-						const optimisticLevel = formData.get('level') as string;
-						const optimisticCategory = formData.get('category') as string;
-
-						// Create optimistic skill
-						const optimisticSkill =
-							isEditing && editingSkill
-								? {
-										...editingSkill,
-										name: optimisticName,
-										level: optimisticLevel || null,
-										category: optimisticCategory || null
-									}
-								: {
-										id: 'temp-' + Date.now(),
-										profile_id: session?.user?.id,
-										name: optimisticName,
-										level: optimisticLevel || null,
-										category: optimisticCategory || null,
-										created_at: new Date().toISOString(),
-										updated_at: new Date().toISOString()
-									};
-
-						// Apply optimistic update
-						if (isEditing && editingSkill) {
-							skills = skills.map((s) => (s.id === editingSkill?.id ? optimisticSkill : s));
-						} else {
-							skills = [...skills, optimisticSkill];
-						}
-
-						// Ensure fresh token right before form submission
-						ensureFreshToken().catch((err) => {
-							console.warn('Token refresh failed:', err);
-						});
-
-						return async ({ result, update }) => {
-							loading = false;
-
-							if (result.type === 'success') {
-								success = isEditing ? 'Skill updated successfully!' : 'Skill added successfully!';
-
-								// Ensure we have fresh data
-								await invalidate('app:skills');
-
-								// Reset form state
-								resetForm();
-								isEditing = false;
-								editingSkill = null;
-
-								// Hide form after successful submission
-								showAddForm = false;
-							} else if (result.type === 'failure') {
-								// Handle errors
-								if (result.data?.error) {
-									error = String(result.data.error);
-								} else {
-									error = 'Failed to save skill. Please try again.';
-								}
-
-								// Refresh data to ensure UI consistency
-								await refreshSkills();
-							}
-
-							await update();
-						};
-					}}
-				>
-					{#if data.form?.error}
-						<div class="mb-4 rounded bg-red-100 p-4 text-red-700">{data.form.error}</div>
-					{/if}
-
+				<form onsubmit={handleSubmit}>
 					{#if isEditing && editingSkill}
 						<input type="hidden" name="id" value={editingSkill.id} />
 					{/if}
 
-					<div>
-						<label class="mb-1 block text-sm font-medium text-gray-700" for="name">Skill Name</label
-						>
+					<div class="mb-4">
+						<label for="name" class="mb-2 block font-medium text-gray-700">Skill Name*</label>
 						<input
+							type="text"
 							id="name"
 							name="name"
-							type="text"
-							bind:value={name}
-							placeholder="e.g. JavaScript, Project Management, Adobe Photoshop"
-							class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+							class="w-full rounded-md border border-gray-300 p-2 focus:border-indigo-500 focus:ring-indigo-500"
 							required
+							bind:value={name}
 						/>
 					</div>
-					<div>
-						<label class="mb-1 block text-sm font-medium text-gray-700" for="level"
-							>Skill Level</label
+
+					<div class="mb-4">
+						<label for="level" class="mb-2 block font-medium text-gray-700">Proficiency Level</label
 						>
 						<select
 							id="level"
 							name="level"
+							class="w-full rounded-md border border-gray-300 p-2 focus:border-indigo-500 focus:ring-indigo-500"
 							bind:value={level}
-							class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
 						>
-							<option value="">Select Level (Optional)</option>
-							{#each SKILL_LEVELS as skillLevel}
-								<option value={skillLevel.value}>{skillLevel.label}</option>
+							<option value="">Select a level (optional)</option>
+							{#each SKILL_LEVELS as levelOption}
+								<option value={levelOption.value}>{levelOption.label}</option>
 							{/each}
 						</select>
 					</div>
-					<div>
-						<label class="mb-1 block text-sm font-medium text-gray-700" for="category"
-							>Category</label
-						>
+
+					<div class="mb-4">
+						<label for="category" class="mb-2 block font-medium text-gray-700">Category</label>
 						<select
 							id="category"
 							name="category"
+							class="w-full rounded-md border border-gray-300 p-2 focus:border-indigo-500 focus:ring-indigo-500"
 							bind:value={category}
-							class="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
 						>
-							<option value="">Select Category (Optional)</option>
-							{#each COMMON_CATEGORIES as cat}
-								<option value={cat.value}>{cat.label}</option>
+							<option value="">Select a category (optional)</option>
+							{#each COMMON_CATEGORIES as categoryOption}
+								<option value={categoryOption.value}>{categoryOption.label}</option>
 							{/each}
 						</select>
-						<p class="mt-1 text-xs text-gray-500">
-							Categorizing your skills helps organize them on your CV.
-						</p>
 					</div>
-					<div class="flex gap-2">
+
+					<div class="flex items-center justify-between">
 						<button
 							type="submit"
+							class="rounded bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
 							disabled={loading}
-							class="flex-1 rounded bg-indigo-600 px-4 py-2 font-semibold text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none disabled:opacity-50"
 						>
-							{loading ? 'Saving...' : isEditing ? 'Update Skill' : 'Save Skill'}
+							{#if loading}
+								<span class="flex items-center">
+									<svg
+										class="mr-2 h-4 w-4 animate-spin"
+										xmlns="http://www.w3.org/2000/svg"
+										fill="none"
+										viewBox="0 0 24 24"
+									>
+										<circle
+											class="opacity-25"
+											cx="12"
+											cy="12"
+											r="10"
+											stroke="currentColor"
+											stroke-width="4"
+										></circle>
+										<path
+											class="opacity-75"
+											fill="currentColor"
+											d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+										></path>
+									</svg>
+									Saving...
+								</span>
+							{:else}
+								{isEditing ? 'Update Skill' : 'Add Skill'}
+							{/if}
 						</button>
+
 						{#if isEditing}
 							<button
 								type="button"
 								onclick={cancelEdit}
-								class="rounded bg-gray-300 px-4 py-2 font-semibold text-gray-700 hover:bg-gray-400 focus:ring-2 focus:ring-gray-500 focus:outline-none"
+								class="rounded border border-gray-300 bg-white px-4 py-2 text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:outline-none"
 							>
 								Cancel
 							</button>
@@ -694,17 +652,12 @@
 										<div class="mb-2 rounded bg-red-50 p-2 text-red-800">
 											<p class="text-sm font-medium">Delete this skill?</p>
 											<div class="mt-1 flex gap-2">
-												<form method="POST" action="?/delete" class="inline">
-													<input type="hidden" name="id" value={skill.id} />
-													<button
-														type="button"
-														class="rounded bg-red-600 px-2 py-1 text-xs font-semibold text-white hover:bg-red-700"
-														disabled={loading}
-														onclick={() => deleteSkill(skill.id)}
-													>
-														{loading ? 'Deleting...' : 'Yes, Delete'}
-													</button>
-												</form>
+												<button
+													onclick={() => deleteSkill(skill.id)}
+													class="rounded bg-red-600 px-2 py-1 text-xs font-semibold text-white hover:bg-red-700"
+												>
+													Confirm
+												</button>
 												<button
 													onclick={cancelDelete}
 													class="rounded bg-gray-200 px-2 py-1 text-xs font-semibold text-gray-700 hover:bg-gray-300"
