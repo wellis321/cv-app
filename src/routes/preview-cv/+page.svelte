@@ -494,7 +494,25 @@
 							{#if profile.phone}
 								<p>{profile.phone}</p>
 							{/if}
+							{#if profile.linkedin_url}
+								<p>
+									<a
+										href={profile.linkedin_url}
+										target="_blank"
+										rel="noopener noreferrer"
+										class="text-indigo-600 hover:underline"
+									>
+										LinkedIn Profile
+									</a>
+								</p>
+							{/if}
 						</div>
+
+						{#if profile.bio && profile.bio.trim()}
+							<div class="mt-4 text-gray-700">
+								<p>{decodeHtmlEntities(profile.bio)}</p>
+							</div>
+						{/if}
 					</div>
 
 					{#if profile.photo_url && !photoLoadError}

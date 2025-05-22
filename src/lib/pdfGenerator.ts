@@ -8,6 +8,8 @@ export interface PdfProfile {
     phone: string | null;
     location: string | null;
     photo_url: string | null;
+    linkedin_url: string | null;
+    bio: string | null;
 }
 
 export interface PdfWorkExperience {
@@ -221,7 +223,6 @@ export async function createCvDocDefinition(
             headerContent.push({ text: decodeHtmlEntities(profile.phone), style: 'normal' });
         }
 
-        // Profile header layout with optional photo (if enabled)
         if (profile.photo_url && config.includePhoto) {
             try {
                 // Fetch the image
@@ -275,6 +276,27 @@ export async function createCvDocDefinition(
             // No photo, just add the text
             content.push({
                 stack: headerContent
+            });
+        }
+
+        // Add LinkedIn URL as a clickable link after the header
+        if (profile.linkedin_url) {
+            content.push({
+                text: 'LinkedIn Profile',
+                style: 'normal',
+                color: '#0000EE',
+                decoration: 'underline',
+                link: profile.linkedin_url,
+                margin: [0, 10, 0, 0]
+            });
+        }
+
+        // Add bio after the header if available
+        if (profile.bio && profile.bio.trim().length > 0) {
+            content.push({
+                text: decodeHtmlEntities(profile.bio),
+                style: 'normal',
+                margin: [0, 10, 0, 0]
             });
         }
 
