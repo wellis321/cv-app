@@ -181,11 +181,12 @@ export function decodeHtmlEntities(input: string): string {
 }
 
 /**
- * Validates a username to ensure it's available and meets requirements
+ * Validates a username format (client-side only validation)
+ * Note: This does NOT check availability - server-side validation is required for that
+ *
  * @param username The username to validate
- * @param currentUserId Optional current user ID to skip validation against user's own username
  */
-export async function validateUsername(username: string, currentUserId?: string): Promise<{ valid: boolean; error?: string }> {
+export function validateUsername(username: string): { valid: boolean; error?: string } {
     // Check if empty
     if (!username.trim()) {
         return { valid: false, error: 'Username is required' };
@@ -209,40 +210,8 @@ export async function validateUsername(username: string, currentUserId?: string)
         };
     }
 
-    // Check availability from database
-    try {
-        const { supabaseAdmin } = await import('$lib/server/supabase');
-
-        // If currentUserId provided, check that this isn't the user's own username
-        if (currentUserId) {
-            const { data: currentProfile } = await supabaseAdmin
-                .from('profiles')
-                .select('username')
-                .eq('id', currentUserId)
-                .single();
-
-            // If it's the user's current username, it's valid
-            if (currentProfile && currentProfile.username === username) {
-                return { valid: true };
-            }
-        }
-
-        const { data: existingUser } = await supabaseAdmin
-            .from('profiles')
-            .select('username')
-            .eq('username', username)
-            .single();
-
-        if (existingUser) {
-            return { valid: false, error: 'This username is already taken' };
-        }
-
-        // Username is available
-        return { valid: true };
-    } catch (err) {
-        console.error('Error checking username availability:', err);
-        return { valid: false, error: 'An error occurred checking username availability' };
-    }
+    // Format is valid (availability check must happen server-side)
+    return { valid: true };
 }
 
 /**

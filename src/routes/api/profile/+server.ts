@@ -4,6 +4,7 @@ import type { RequestHandler } from './$types';
 import { getSessionFromEvent } from '$lib/server/session';
 import { createCsrfProtection } from '$lib/security/serverCsrf';
 import { supabaseAdmin } from '$lib/server/supabase';
+import { validateUsernameServer } from '$lib/server/validation';
 
 export const POST: RequestHandler = async ({ request, cookies, locals }) => {
     const { validateRequest } = createCsrfProtection(cookies);
@@ -22,13 +23,10 @@ export const POST: RequestHandler = async ({ request, cookies, locals }) => {
     try {
         const formData = await request.json();
 
-        // Validate the username if one is provided
-        if (formData.username !== undefined) {
-            const { validateUsername } = await import('$lib/validation');
-            const usernameValidation = await validateUsername(formData.username, session.user.id);
-            if (!usernameValidation.valid) {
-                return json({ success: false, error: usernameValidation.error }, { status: 400 });
-            }
+        // Validate the username server-side (checks format and availability)
+        const usernameValidation = await validateUsernameServer(formData.username, session.user.id);
+        if (!usernameValidation.valid) {
+            return json({ success: false, error: usernameValidation.error }, { status: 400 });
         }
 
         // Validate hex color format

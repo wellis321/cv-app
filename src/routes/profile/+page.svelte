@@ -184,7 +184,7 @@
 	});
 
 	// Username validation
-	const validateUsername = async (value: string): Promise<boolean> => {
+	const validateUsername = async (value: string): Promise<{ valid: boolean; error?: string }> => {
 		// Clear previous errors
 		usernameError = null;
 		usernameAvailable = true;
@@ -192,18 +192,18 @@
 		// Check if empty
 		if (!value.trim()) {
 			usernameError = 'Username is required';
-			return false;
+			return { valid: false, error: 'Username is required' };
 		}
 
 		// Check length
 		if (value.length < 3) {
 			usernameError = 'Username must be at least 3 characters long';
-			return false;
+			return { valid: false, error: 'Username must be at least 3 characters long' };
 		}
 
 		if (value.length > 30) {
 			usernameError = 'Username must be less than 30 characters';
-			return false;
+			return { valid: false, error: 'Username must be less than 30 characters' };
 		}
 
 		// Check format (lowercase letters, numbers, hyphens, underscores)
@@ -211,47 +211,11 @@
 		if (!validFormat) {
 			usernameError =
 				'Username can only contain lowercase letters, numbers, hyphens, and underscores, and must start with a letter or number';
-			return false;
+			return { valid: false, error: usernameError };
 		}
 
-		// Check availability from database
-		try {
-			checkingUsername = true;
-
-			// Skip check if it's the user's current username
-			if (data.profile?.username === value) {
-				checkingUsername = false;
-				return true;
-			}
-
-			const { data: existingUser, error: lookupError } = await supabase
-				.from('profiles')
-				.select('username')
-				.eq('username', value)
-				.single();
-
-			if (existingUser) {
-				usernameError = 'This username is already taken';
-				usernameAvailable = false;
-				return false;
-			}
-
-			if (lookupError && lookupError.code !== 'PGRST116') {
-				// PGRST116 is the "no rows returned" error, which is what we want
-				console.error('Error checking username:', lookupError);
-				usernameError = 'Unable to verify username availability';
-				return false;
-			}
-
-			// Username is available
-			return true;
-		} catch (err) {
-			console.error('Error checking username availability:', err);
-			usernameError = 'An error occurred checking username availability';
-			return false;
-		} finally {
-			checkingUsername = false;
-		}
+		// Username is valid
+		return { valid: true };
 	};
 
 	// Handle username change
@@ -260,7 +224,36 @@
 			return; // No change, skip validation
 		}
 
-		await validateUsername(username);
+		const isUsernameValidFormat = await validateUsername(username);
+		if (!isUsernameValidFormat.valid) {
+			usernameError = isUsernameValidFormat.error || 'Invalid username format';
+			usernameAvailable = false;
+			return;
+		}
+
+		// Check availability on server via API
+		try {
+			// Make a fetch request to verify username availability
+			const response = await fetchWithCsrf('/api/validate-username', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ username })
+			});
+
+			const result = await response.json();
+			if (!result.success) {
+				usernameError = result.error || 'Username is not available';
+				usernameAvailable = false;
+				return;
+			}
+		} catch (error) {
+			console.error('Error validating username:', error);
+			usernameError = 'Error checking username availability';
+			usernameAvailable = false;
+			return;
+		}
 	}
 
 	// Handle captured photo from camera
@@ -817,7 +810,7 @@
 
 		// Validate username first - if it fails, don't proceed
 		const isUsernameValid = await validateUsername(username);
-		if (!isUsernameValid) {
+		if (!isUsernameValid.valid) {
 			loading = false;
 			formStatus.isPending = false;
 			return;
@@ -967,6 +960,15 @@
 	$effect(() => {
 		previewGradientStyle = `background: linear-gradient(to right, ${cvHeaderFromColor}, ${cvHeaderToColor});`;
 	});
+
+	// Utility function to get CSRF token from meta tag
+	function getCsrfTokenFromMeta(): string {
+		if (browser) {
+			const metaTag = document.querySelector('meta[name="csrf-token"]');
+			return metaTag?.getAttribute('content') || '';
+		}
+		return '';
+	}
 </script>
 
 <div class="mx-auto max-w-xl space-y-6 rounded bg-white p-8 shadow">
