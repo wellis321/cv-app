@@ -28,6 +28,11 @@
 	// Format profile photo URL or use default
 	let photoUrl = $state(DEFAULT_PROFILE_PHOTO);
 
+	// SEO settings - get from server data if available
+	// Use any server data passed from +page.server.ts
+	const { seo } = $page.data;
+	let allowIndexing = $state(seo?.allowIndexing ?? false); // Default to not allow indexing
+
 	// Update photoUrl when cvData.profile changes, but don't create a derived value
 	// as this causes infinite loop
 	let previousPhotoUrl = $state<string | null>(null);
@@ -248,6 +253,8 @@
 			name="description"
 			content="View {decodeHtmlEntities(cvData.profile.full_name)}'s professional CV"
 		/>
+		<!-- SEO/robots settings - directly use the server-provided data -->
+		<meta name="robots" content="noindex, nofollow, noarchive" />
 		<!-- Open Graph meta tags for better social sharing -->
 		<meta
 			property="og:title"
@@ -284,6 +291,8 @@
 	{:else}
 		<title>CV</title>
 		<meta name="description" content="View this professional CV" />
+		<!-- Always include robots meta tag even when no profile is loaded -->
+		<meta name="robots" content="noindex, nofollow, noarchive" />
 	{/if}
 </svelte:head>
 
