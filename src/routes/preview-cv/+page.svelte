@@ -204,6 +204,26 @@
 			});
 	}
 
+	// Predefined skill categories in preferred order
+	const PREFERRED_CATEGORIES = [
+		'Programming Languages',
+		'Frameworks',
+		'Technical Skills',
+		'Frontend',
+		'Backend',
+		'Database',
+		'Cloud Services',
+		'DevOps',
+		'Project Management',
+		'Mobile',
+		'Software',
+		'Design',
+		'Soft Skills',
+		'Tools',
+		'Other',
+		'Uncategorized'
+	];
+
 	// Group skills by category
 	function getSkillsByCategory(skillsList: any[]) {
 		return skillsList.reduce((acc: Record<string, any[]>, skill) => {
@@ -218,13 +238,30 @@
 	function getCategorizedSkills(skillsList: any[]) {
 		const skillsByCategory = getSkillsByCategory(skillsList);
 
+		// Get all category names from skills
+		const categories = Object.keys(skillsByCategory);
+
+		// Sort categories according to preferred order
+		const orderedCategories = categories.sort((a, b) => {
+			const indexA = PREFERRED_CATEGORIES.indexOf(a);
+			const indexB = PREFERRED_CATEGORIES.indexOf(b);
+
+			// If both categories are in preferred list, sort by preferred order
+			if (indexA >= 0 && indexB >= 0) return indexA - indexB;
+
+			// If only one is in preferred list, prioritize it
+			if (indexA >= 0) return -1;
+			if (indexB >= 0) return 1;
+
+			// If neither is in preferred list, sort alphabetically
+			return a.localeCompare(b);
+		});
+
 		// Convert to array format for template rendering
-		const categorizedSkillsArray = Object.keys(skillsByCategory)
-			.sort()
-			.map((category) => ({
-				category,
-				skills: skillsByCategory[category]
-			}));
+		const categorizedSkillsArray = orderedCategories.map((category) => ({
+			category,
+			skills: skillsByCategory[category]
+		}));
 
 		return categorizedSkillsArray;
 	}

@@ -82,6 +82,26 @@
 		category?: string | null;
 	}
 
+	// Predefined skill categories in preferred order
+	const PREFERRED_CATEGORIES = [
+		'Programming Languages',
+		'Frameworks',
+		'Technical Skills',
+		'Frontend',
+		'Backend',
+		'Database',
+		'Cloud Services',
+		'DevOps',
+		'Project Management',
+		'Mobile',
+		'Software',
+		'Design',
+		'Soft Skills',
+		'Tools',
+		'Other',
+		'Uncategorized'
+	];
+
 	// Handle image error
 	function handleImageError(event: Event) {
 		const imgElement = event.target as HTMLImageElement;
@@ -122,16 +142,33 @@
 			skillsByCategory[category].sort((a: Skill, b: Skill) => a.name.localeCompare(b.name));
 		});
 
+		// Get all category names
+		const categories = Object.keys(skillsByCategory);
+
+		// Sort categories according to preferred order
+		const orderedCategories = categories.sort((a, b) => {
+			const indexA = PREFERRED_CATEGORIES.indexOf(a);
+			const indexB = PREFERRED_CATEGORIES.indexOf(b);
+
+			// If both categories are in preferred list, sort by preferred order
+			if (indexA >= 0 && indexB >= 0) return indexA - indexB;
+
+			// If only one is in preferred list, prioritize it
+			if (indexA >= 0) return -1;
+			if (indexB >= 0) return 1;
+
+			// If neither is in preferred list, sort alphabetically
+			return a.localeCompare(b);
+		});
+
 		// Update categorized skills - only if different from current state
 		const newSkills: { category: string; skills: Skill[] }[] = [];
-		Object.keys(skillsByCategory)
-			.sort()
-			.forEach((category) => {
-				newSkills.push({
-					category,
-					skills: skillsByCategory[category]
-				});
+		orderedCategories.forEach((category) => {
+			newSkills.push({
+				category,
+				skills: skillsByCategory[category]
 			});
+		});
 
 		// Only update state if actually different
 		const currentJson = JSON.stringify(categorizedSkills);

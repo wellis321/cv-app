@@ -56,11 +56,16 @@
 
 	const COMMON_CATEGORIES = [
 		{ value: 'Programming Languages', label: 'Programming Languages' },
+		{ value: 'Frameworks', label: 'Frameworks' },
+		{ value: 'Technical Skills', label: 'Technical Skills' },
 		{ value: 'Frontend', label: 'Frontend Development' },
 		{ value: 'Backend', label: 'Backend Development' },
 		{ value: 'Database', label: 'Database' },
+		{ value: 'Cloud Services', label: 'Cloud Services' },
 		{ value: 'DevOps', label: 'DevOps' },
+		{ value: 'Project Management', label: 'Project Management' },
 		{ value: 'Mobile', label: 'Mobile Development' },
+		{ value: 'Software', label: 'Software' },
 		{ value: 'Design', label: 'Design' },
 		{ value: 'Soft Skills', label: 'Soft Skills' },
 		{ value: 'Tools', label: 'Tools & Software' },
@@ -89,6 +94,30 @@
 		}
 
 		return grouped;
+	}
+
+	// Get ordered category names based on our predefined categories
+	function getOrderedCategories(categories: string[]): string[] {
+		// Define the preferred order (same as COMMON_CATEGORIES but just the values)
+		const preferredOrder = COMMON_CATEGORIES.map((c) => c.value);
+
+		// Sort categories by the preferred order
+		return categories.sort((a, b) => {
+			const indexA = preferredOrder.indexOf(a);
+			const indexB = preferredOrder.indexOf(b);
+
+			// If both categories are in our preferred list, sort by that order
+			if (indexA >= 0 && indexB >= 0) {
+				return indexA - indexB;
+			}
+
+			// If only one is in our preferred list, prioritize it
+			if (indexA >= 0) return -1;
+			if (indexB >= 0) return 1;
+
+			// For categories not in our list, sort alphabetically
+			return a.localeCompare(b);
+		});
 	}
 
 	// Toggle add form visibility
@@ -640,13 +669,14 @@
 		{:else}
 			<!-- Group skills by category -->
 			{@const skillsByCategory = getSkillsByCategory(skills)}
+			{@const orderedCategories = getOrderedCategories(Object.keys(skillsByCategory))}
 
 			<div class="space-y-6">
-				{#each Object.entries(skillsByCategory) as [category, categorySkills]}
+				{#each orderedCategories as category}
 					<div class="rounded bg-white p-4 shadow">
 						<h3 class="mb-3 text-lg font-semibold text-gray-800">{category}</h3>
 						<ul class="grid grid-cols-1 gap-3 md:grid-cols-2">
-							{#each categorySkills as skill}
+							{#each skillsByCategory[category] as skill}
 								<li class="rounded border bg-gray-50 p-3">
 									{#if deleteConfirmId === skill.id}
 										<div class="mb-2 rounded bg-red-50 p-2 text-red-800">
