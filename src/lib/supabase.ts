@@ -19,35 +19,49 @@ import { browser } from '$app/environment';
 // We use let here to make sure only one instance is created
 let supabaseInstance: ReturnType<typeof createClient<Database>> | null = null;
 
+// Check if we're on a public CV page
+const isPublicCvPage = browser && window.location.pathname.match(/^\/cv\/@.+$/);
+
+// Define client options with a unique storage key for the main client
+const mainClientOptions = {
+    auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        storageKey: 'sb-auth-token-main',
+        flowType: 'pkce' as const
+    },
+    global: {
+        fetch: customFetch
+    }
+};
+
+// Create a supabase client
 export const supabase = browser && !supabaseInstance
-    ? createClient<Database>(config.supabase.url, config.supabase.anonKey, {
+    ? createClient<Database>(config.supabase.url, config.supabase.anonKey, mainClientOptions)
+    : supabaseInstance || createClient<Database>(config.supabase.url, config.supabase.anonKey, mainClientOptions);
+
+// Save the instance for future use
+if (browser && !supabaseInstance) {
+    supabaseInstance = supabase;
+    safeLog('debug', 'Main Supabase client initialized');
+}
+
+// Create a separate client specifically for public CV pages with a different storage key
+export function createPublicClient() {
+    safeLog('debug', 'Created unauthenticated client for public CV access');
+    return createClient<Database>(config.supabase.url, config.supabase.anonKey, {
         auth: {
-            persistSession: true,
-            autoRefreshToken: true,
-            detectSessionInUrl: true,
-            storageKey: 'sb-auth-token',
-            flowType: 'pkce'
-        },
-        global: {
-            fetch: customFetch
-        }
-    })
-    : supabaseInstance || createClient<Database>(config.supabase.url, config.supabase.anonKey, {
-        auth: {
-            persistSession: true,
-            autoRefreshToken: true,
-            detectSessionInUrl: true,
-            storageKey: 'sb-auth-token',
-            flowType: 'pkce'
+            persistSession: false, // Don't persist sessions for public views
+            autoRefreshToken: false, // Don't attempt to refresh tokens
+            detectSessionInUrl: false, // Don't check URL for auth tokens
+            storageKey: 'sb-auth-token-public', // Use a different storage key
+            flowType: 'pkce' as const
         },
         global: {
             fetch: customFetch
         }
     });
-
-// Save the instance for future use
-if (browser && !supabaseInstance) {
-    supabaseInstance = supabase;
 }
 
 // Custom fetch function with retry logic for network errors
@@ -55,6 +69,26 @@ async function customFetch(input: RequestInfo | URL, init?: RequestInit): Promis
     const MAX_RETRIES = 3;
     let retries = 0;
     let lastError: Error = new Error('Unknown error');
+
+    // Check if this is a refresh token request and we're on a public CV page
+    const isRefreshTokenRequest =
+        typeof input === 'string' && input.includes('/auth/v1/token?grant_type=refresh_token') ||
+        input instanceof URL && input.toString().includes('/auth/v1/token?grant_type=refresh_token');
+
+    // If we're on a public CV page and trying to refresh a token, return a mock response
+    if (isRefreshTokenRequest && isPublicCvPage) {
+        safeLog('debug', 'Intercepted refresh token request on public CV page');
+        return new Response(JSON.stringify({
+            access_token: null,
+            token_type: 'bearer',
+            expires_in: 3600,
+            refresh_token: null,
+            user: null
+        }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
 
     while (retries < MAX_RETRIES) {
         try {

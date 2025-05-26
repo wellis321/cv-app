@@ -57,6 +57,12 @@
 		console.log('Layout mounted, initializing session...');
 
 		if (browser) {
+			// Check if we're on a public CV page and skip auth if so
+			if (isPublicCvPage() && $page.url.pathname.includes('/cv/@')) {
+				console.log('Public CV page detected, skipping authentication');
+				return;
+			}
+
 			// Force refresh page if coming from login/signup
 			const fromAuth = sessionStorage.getItem('just_authenticated');
 			if (fromAuth) {

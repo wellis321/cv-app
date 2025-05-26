@@ -264,6 +264,7 @@ export interface Database {
                     title: string;
                     updated_at: string;
                     url: string | null;
+                    image_url: string | null;
                 };
                 Insert: {
                     created_at?: string;
@@ -275,6 +276,7 @@ export interface Database {
                     title: string;
                     updated_at?: string;
                     url?: string | null;
+                    image_url?: string | null;
                 };
                 Update: {
                     created_at?: string;
@@ -286,6 +288,7 @@ export interface Database {
                     title?: string;
                     updated_at?: string;
                     url?: string | null;
+                    image_url?: string | null;
                 };
                 Relationships: [
                     {

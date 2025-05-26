@@ -187,11 +187,30 @@ export function getPathFromUrl(url: string, bucket: string): string | null {
     if (!url) return null;
 
     try {
+        // Debug logging
+        console.log(`Extracting path from URL: ${url} for bucket: ${bucket}`);
+
         // Try to extract the path from the URL
-        const regex = new RegExp(`${bucket}/([^?#]+)`);
+        // Supabase URLs look like: https://xxx.supabase.co/storage/v1/object/public/bucket-name/path/to/file.jpg
+        const regex = new RegExp(`public/${bucket}/([^?#]+)`);
         const match = url.match(regex);
 
-        return match ? match[1] : null;
+        if (match && match[1]) {
+            console.log(`Extracted path from URL: ${match[1]}`);
+            return match[1];
+        }
+
+        // Fallback to old regex pattern in case URL format is different
+        const oldRegex = new RegExp(`/${bucket}/([^?#]+)`);
+        const oldMatch = url.match(oldRegex);
+
+        if (oldMatch && oldMatch[1]) {
+            console.log(`Extracted path using fallback regex: ${oldMatch[1]}`);
+            return oldMatch[1];
+        }
+
+        console.log(`Failed to extract path from URL: ${url}`);
+        return null;
     } catch (error) {
         console.error('Error extracting path from URL:', error);
         return null;

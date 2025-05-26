@@ -1,5 +1,5 @@
 import { writable, derived, get } from 'svelte/store';
-import { supabase } from '$lib/supabase';
+import { supabase, createPublicClient } from '$lib/supabase';
 import { browser } from '$app/environment';
 import { session } from './authStore';
 import type { Database } from '$lib/database.types';
@@ -154,8 +154,16 @@ const createCvStore = () => {
         }));
 
         try {
-            // Use supabaseAdmin to avoid RLS issues for public profiles
-            const client = supabase; // Use the regular client since we have public policies
+            // Use the dedicated public client for CV access
+            let client;
+
+            // Only create a public client on browser to avoid SSR issues
+            if (browser) {
+                client = createPublicClient();
+                console.log('Using public client for CV data access');
+            } else {
+                client = supabase; // Use regular client for SSR
+            }
 
             // Check if the client is properly initialized
             if (!client) {

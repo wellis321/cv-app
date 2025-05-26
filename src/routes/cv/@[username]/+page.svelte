@@ -5,9 +5,14 @@
 	import { formatDate, generateCvPdf } from '$lib/pdfGenerator';
 	import { cvStore } from '$lib/stores/cvDataStore';
 	import ResponsibilitiesEditor from '../../work-experience/ResponsibilitiesEditor.svelte';
-	import { getProxiedPhotoUrl, DEFAULT_PROFILE_PHOTO } from '$lib/photoUtils';
+	import {
+		getProxiedPhotoUrl,
+		DEFAULT_PROFILE_PHOTO,
+		DEFAULT_PROJECT_IMAGE,
+		PROJECT_IMAGES_BUCKET
+	} from '$lib/photoUtils';
 	import { session as authSession } from '$lib/stores/authStore';
-	import { supabase } from '$lib/supabase';
+	import { supabase, createPublicClient } from '$lib/supabase';
 	import { decodeHtmlEntities } from '$lib/validation';
 
 	// Get username from the URL
@@ -24,6 +29,9 @@
 	let activeTab = $state('all');
 	let windowWidth = $state<number>(0);
 	let photoLoadError = $state(false);
+
+	// Create a public client for unauthenticated CV access
+	const publicClient = browser ? createPublicClient() : null;
 
 	// Format profile photo URL or use default
 	let photoUrl = $state(DEFAULT_PROFILE_PHOTO);
@@ -72,18 +80,19 @@
 			console.log('CV @[username] page mounted. Username:', username);
 
 			// Check if Supabase is initialized properly
-			if (!supabase) {
-				console.error('Supabase client not initialized');
+			if (!publicClient) {
+				console.error('Public Supabase client not initialized');
 			} else {
-				// Test Supabase connection with a simple query
-				supabase
+				// Test Supabase connection with a simple query but don't use auth
+				publicClient
 					.from('profiles')
 					.select('count')
+					.limit(1)
 					.then(({ data, error }) => {
 						if (error) {
 							console.error('Error testing Supabase connection:', error);
 						} else {
-							console.log('Supabase connection test successful:', data);
+							console.log('Supabase public data query successful:', data);
 						}
 					});
 			}
@@ -243,9 +252,9 @@
 	// Handle print function
 	async function handlePrint() {
 		// Check if the current user is the owner of this CV
-		if (currentSession && currentSession.user) {
+		if (currentSession && currentSession.user && publicClient) {
 			// Get the current user's profile
-			const { data: myProfile } = await supabase
+			const { data: myProfile } = await publicClient
 				.from('profiles')
 				.select('username')
 				.eq('id', currentSession.user.id)
@@ -760,7 +769,7 @@
 											{/if}
 
 											<!-- Responsibilities section with better visibility -->
-											{#if work.responsibilities && Array.isArray(work.responsibilities) && work.responsibilities.length > 0}
+											{#if work.responsibility_categories && Array.isArray(work.responsibility_categories) && work.responsibility_categories.length > 0}
 												<div class="mt-3">
 													<button
 														onclick={() => toggleResponsibilities(work.id)}
@@ -793,7 +802,7 @@
 														<div class="mt-2 pl-2">
 															<div class="pl-2">
 																<ResponsibilitiesEditor
-																	responsibilities={work.responsibilities}
+																	responsibilities={work.responsibility_categories}
 																	readOnly={true}
 																/>
 															</div>
@@ -909,38 +918,91 @@
 												</div>
 											</div>
 
-											<div class="p-4">
-												{#if project.description}
-													<p class="text-sm text-gray-700">
-														{decodeHtmlEntities(project.description)}
-													</p>
-												{/if}
-
-												{#if project.url}
-													<div class="mt-3">
-														<a
-															href={project.url}
-															target="_blank"
-															rel="noopener noreferrer"
-															class="inline-flex items-center gap-1 text-sm font-medium text-indigo-600 hover:text-indigo-800 hover:underline"
-														>
-															<svg
-																xmlns="http://www.w3.org/2000/svg"
-																class="h-4 w-4"
-																viewBox="0 0 20 20"
-																fill="currentColor"
+											<div class="flex flex-col">
+												<!-- Project Image (if available) - Now positioned above the text -->
+												{#if project.image_url}
+													<div class="relative w-full overflow-hidden">
+														{#if project.url}
+															<a
+																href={project.url}
+																target="_blank"
+																rel="noopener noreferrer"
+																class="block"
 															>
-																<path
-																	d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"
+																<img
+																	src={getProxiedPhotoUrl(project.image_url, PROJECT_IMAGES_BUCKET)}
+																	alt={decodeHtmlEntities(project.title)}
+																	class="mx-auto h-auto max-h-96 w-full object-contain py-4"
+																	onload={() => console.log('Project image loaded successfully')}
+																	onerror={(e) => {
+																		console.error('Project image failed to load, using default');
+																		const img = e.target as HTMLImageElement;
+																		img.src = DEFAULT_PROJECT_IMAGE;
+																	}}
 																/>
-																<path
-																	d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5z"
-																/>
-															</svg>
-															View Project
-														</a>
+																<div
+																	class="hover:bg-opacity-20 absolute inset-0 flex items-center justify-center bg-transparent transition-all duration-300 hover:bg-black"
+																>
+																	<div
+																		class="translate-y-8 transform opacity-0 transition-all duration-300 hover:translate-y-0 hover:opacity-100"
+																	>
+																		<span
+																			class="rounded-full bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white"
+																			>View Project</span
+																		>
+																	</div>
+																</div>
+															</a>
+														{:else}
+															<img
+																src={getProxiedPhotoUrl(project.image_url, PROJECT_IMAGES_BUCKET)}
+																alt={decodeHtmlEntities(project.title)}
+																class="mx-auto h-auto max-h-96 w-full object-contain py-4"
+																onload={() => console.log('Project image loaded successfully')}
+																onerror={(e) => {
+																	console.error('Project image failed to load, using default');
+																	const img = e.target as HTMLImageElement;
+																	img.src = DEFAULT_PROJECT_IMAGE;
+																}}
+															/>
+														{/if}
 													</div>
 												{/if}
+
+												<!-- Project Description and Link -->
+												<div class="p-6">
+													{#if project.description}
+														<p class="text-sm text-gray-700">
+															{decodeHtmlEntities(project.description)}
+														</p>
+													{/if}
+
+													{#if project.url}
+														<div class="mt-3">
+															<a
+																href={project.url}
+																target="_blank"
+																rel="noopener noreferrer"
+																class="inline-flex items-center gap-1 text-sm font-medium text-indigo-600 hover:text-indigo-800 hover:underline"
+															>
+																<svg
+																	xmlns="http://www.w3.org/2000/svg"
+																	class="h-4 w-4"
+																	viewBox="0 0 20 20"
+																	fill="currentColor"
+																>
+																	<path
+																		d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"
+																	/>
+																	<path
+																		d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5z"
+																	/>
+																</svg>
+																View Project
+															</a>
+														</div>
+													{/if}
+												</div>
 											</div>
 										</div>
 									{/each}

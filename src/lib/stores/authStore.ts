@@ -93,6 +93,15 @@ export const initializeSession = async (forceRefresh = false) => {
         authLoading.set(true);
         authError.set(null);
 
+        // Skip authentication for public CV pages
+        const currentPath = browser ? window.location.pathname : null;
+        if (currentPath && currentPath.startsWith('/cv/@')) {
+            safeLog('debug', 'Skipping session initialization for public CV page');
+            sessionInitialized = true;
+            authLoading.set(false);
+            return;
+        }
+
         // Don't initialize twice unless forced
         if (sessionInitialized && !forceRefresh) {
             authLoading.set(false);
@@ -133,15 +142,6 @@ export const initializeSession = async (forceRefresh = false) => {
 
                 // Setup inactivity check
                 setupInactivityCheck();
-
-                // Skip session verification for public CV pages (optional)
-                const currentPath = browser ? window.location.pathname : null;
-                if (currentPath && currentPath.startsWith('/cv/@')) {
-                    safeLog('debug', 'Skipping session verification for public CV page');
-                    sessionInitialized = true;
-                    authLoading.set(false);
-                    return;
-                }
 
                 // Simpler session verification with proper error handling
                 try {
@@ -199,17 +199,17 @@ export const initializeSession = async (forceRefresh = false) => {
                         authError.set('Session verification failed. Please refresh the page.');
                     }
                 }
-            } catch (err) {
-                // Don't interrupt the flow for network errors - let client continue
-                safeLog('warn', 'Error during auth initialization', err);
-                sessionInitialized = true; // Still mark as initialized to prevent repeated attempts
+            } catch (innerErr) {
+                safeLog('error', 'Unexpected error during session initialization', innerErr);
+                authError.set('Failed to initialize session');
             }
+        } else {
+            safeLog('debug', 'No session found during initialization');
         }
-    } catch (err) {
-        safeLog('error', 'Error initializing session', err);
+    } catch (outerErr) {
+        safeLog('error', 'Error in initializeSession', outerErr);
         authError.set('Failed to initialize session');
     } finally {
-        // Clear loading state
         authLoading.set(false);
     }
 };
