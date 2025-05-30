@@ -220,6 +220,8 @@ export interface Database {
                     bio: string | null;
                     cv_header_from_color: string;
                     cv_header_to_color: string;
+                    subscription_plan_id: string | null;
+                    subscription_expires_at: string | null;
                 };
                 Insert: {
                     created_at?: string;
@@ -235,6 +237,8 @@ export interface Database {
                     bio?: string | null;
                     cv_header_from_color?: string;
                     cv_header_to_color?: string;
+                    subscription_plan_id?: string | null;
+                    subscription_expires_at?: string | null;
                 };
                 Update: {
                     created_at?: string;
@@ -250,6 +254,8 @@ export interface Database {
                     bio?: string | null;
                     cv_header_from_color?: string;
                     cv_header_to_color?: string;
+                    subscription_plan_id?: string | null;
+                    subscription_expires_at?: string | null;
                 };
                 Relationships: [];
             };
@@ -480,6 +486,45 @@ export interface Database {
                         referencedColumns: ['id'];
                     }
                 ];
+            };
+            subscription_plans: {
+                Row: {
+                    id: string;
+                    name: string;
+                    description: string;
+                    price: number;
+                    currency: string;
+                    interval: string;
+                    features: Json;
+                    is_active: boolean;
+                    created_at: string;
+                    updated_at: string;
+                };
+                Insert: {
+                    id?: string;
+                    name: string;
+                    description: string;
+                    price: number;
+                    currency: string;
+                    interval: string;
+                    features?: Json;
+                    is_active?: boolean;
+                    created_at?: string;
+                    updated_at?: string;
+                };
+                Update: {
+                    id?: string;
+                    name?: string;
+                    description?: string;
+                    price?: number;
+                    currency?: string;
+                    interval?: string;
+                    features?: Json;
+                    is_active?: boolean;
+                    created_at?: string;
+                    updated_at?: string;
+                };
+                Relationships: [];
             };
         };
         Views: {

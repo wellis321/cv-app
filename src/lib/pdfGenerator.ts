@@ -106,8 +106,8 @@ export interface PdfExportConfig {
         qualificationEquivalence: boolean;
     };
     includePhoto: boolean;
-    // Layout templates could be added in the future
-    template?: 'standard' | 'minimal' | 'professional';
+    // Template types based on subscription
+    template?: string; // 'basic' | 'professional' | 'modern' | 'creative' | 'executive'
     // Custom section order could be added in the future
     sectionOrder?: string[];
 }
@@ -126,7 +126,7 @@ export const defaultPdfConfig: PdfExportConfig = {
         qualificationEquivalence: true
     },
     includePhoto: true,
-    template: 'standard'
+    template: 'basic'
 };
 
 /**
@@ -144,16 +144,11 @@ export function formatDate(dateString: string | null): string {
 }
 
 /**
- * Creates a PDF document definition from CV data
+ * Get template-specific styles
  */
-export async function createCvDocDefinition(
-    cvData: CvData,
-    config: PdfExportConfig = defaultPdfConfig
-): Promise<TDocumentDefinitions> {
-    const { profile } = cvData;
-
-    // Define document styles
-    const styles: StyleDictionary = {
+function getTemplateStyles(template: string = 'basic'): StyleDictionary {
+    // Basic template - default
+    const basicStyles: StyleDictionary = {
         header: {
             fontSize: 18,
             bold: true,
@@ -199,6 +194,367 @@ export async function createCvDocDefinition(
             margin: [0, 10, 0, 0] as [number, number, number, number]
         }
     };
+
+    // Professional template
+    if (template === 'professional') {
+        return {
+            ...basicStyles,
+            header: {
+                fontSize: 20,
+                bold: true,
+                color: '#1f497d', // Navy blue
+                margin: [0, 0, 0, 15] as [number, number, number, number]
+            },
+            subheader: {
+                fontSize: 15,
+                bold: true,
+                color: '#1f497d', // Navy blue
+                margin: [0, 15, 0, 10] as [number, number, number, number]
+            },
+            jobPosition: {
+                fontSize: 13,
+                bold: true,
+                color: '#1f497d' // Navy blue
+            },
+            company: {
+                fontSize: 12,
+                bold: false,
+                color: '#333333'
+            }
+        };
+    }
+
+    // Modern template
+    if (template === 'modern') {
+        return {
+            ...basicStyles,
+            header: {
+                fontSize: 22,
+                bold: true,
+                color: '#3498db', // Blue
+                margin: [0, 0, 0, 10] as [number, number, number, number]
+            },
+            subheader: {
+                fontSize: 16,
+                bold: true,
+                color: '#3498db', // Blue
+                margin: [0, 15, 0, 8] as [number, number, number, number]
+            },
+            normal: {
+                fontSize: 11,
+                lineHeight: 1.4
+            },
+            jobPosition: {
+                fontSize: 13,
+                bold: true,
+                color: '#2c3e50' // Dark blue
+            }
+        };
+    }
+
+    // Creative template
+    if (template === 'creative') {
+        return {
+            ...basicStyles,
+            header: {
+                fontSize: 24,
+                bold: true,
+                color: '#e74c3c', // Red
+                margin: [0, 0, 0, 10] as [number, number, number, number]
+            },
+            subheader: {
+                fontSize: 16,
+                bold: true,
+                color: '#e74c3c', // Red
+                margin: [0, 10, 0, 5] as [number, number, number, number]
+            },
+            jobPosition: {
+                fontSize: 13,
+                bold: true,
+                color: '#e74c3c' // Red
+            },
+            company: {
+                fontSize: 12,
+                color: '#333333'
+            }
+        };
+    }
+
+    // Executive template
+    if (template === 'executive') {
+        return {
+            ...basicStyles,
+            header: {
+                fontSize: 20,
+                bold: true,
+                color: '#2c3e50', // Dark blue
+                margin: [0, 0, 0, 15] as [number, number, number, number]
+            },
+            subheader: {
+                fontSize: 16,
+                bold: true,
+                color: '#34495e', // Dark gray-blue
+                margin: [0, 15, 0, 10] as [number, number, number, number],
+                decoration: 'underline'
+            },
+            jobPosition: {
+                fontSize: 14,
+                bold: true,
+                color: '#2c3e50' // Dark blue
+            },
+            company: {
+                fontSize: 12,
+                bold: true,
+                color: '#7f8c8d' // Gray
+            }
+        };
+    }
+
+    // Simple template
+    if (template === 'simple') {
+        return {
+            ...basicStyles,
+            header: {
+                fontSize: 20,
+                bold: true,
+                color: '#000000', // Black
+                margin: [0, 0, 0, 10] as [number, number, number, number]
+            },
+            subheader: {
+                fontSize: 15,
+                bold: true,
+                color: '#555555', // Dark gray
+                margin: [0, 10, 0, 5] as [number, number, number, number]
+            },
+            normal: {
+                fontSize: 11,
+                lineHeight: 1.3
+            },
+            jobPosition: {
+                fontSize: 12,
+                bold: true,
+                color: '#000000' // Black
+            },
+            company: {
+                fontSize: 11,
+                bold: false,
+                color: '#555555' // Dark gray
+            }
+        };
+    }
+
+    // Classic template
+    if (template === 'classic') {
+        return {
+            ...basicStyles,
+            header: {
+                fontSize: 22,
+                bold: true,
+                color: '#800000', // Maroon
+                margin: [0, 0, 0, 12] as [number, number, number, number]
+            },
+            subheader: {
+                fontSize: 16,
+                bold: true,
+                color: '#800000', // Maroon
+                margin: [0, 12, 0, 8] as [number, number, number, number],
+                decoration: 'underline'
+            },
+            normal: {
+                fontSize: 11,
+                lineHeight: 1.3
+            },
+            jobPosition: {
+                fontSize: 13,
+                bold: true,
+                color: '#800000' // Maroon
+            },
+            company: {
+                fontSize: 12,
+                italics: true,
+                color: '#333333' // Dark gray
+            }
+        };
+    }
+
+    // Elegant template
+    if (template === 'elegant') {
+        return {
+            ...basicStyles,
+            header: {
+                fontSize: 24,
+                bold: true,
+                color: '#4b0082', // Indigo
+                margin: [0, 0, 0, 15] as [number, number, number, number]
+            },
+            subheader: {
+                fontSize: 16,
+                bold: true,
+                color: '#4b0082', // Indigo
+                margin: [0, 15, 0, 10] as [number, number, number, number]
+            },
+            normal: {
+                fontSize: 11,
+                lineHeight: 1.4
+            },
+            jobPosition: {
+                fontSize: 14,
+                bold: true,
+                color: '#4b0082' // Indigo
+            },
+            company: {
+                fontSize: 12,
+                italics: true,
+                color: '#666666' // Medium gray
+            }
+        };
+    }
+
+    // Minimalist template
+    if (template === 'minimalist') {
+        return {
+            ...basicStyles,
+            header: {
+                fontSize: 18,
+                bold: true,
+                color: '#333333', // Dark gray
+                margin: [0, 0, 0, 10] as [number, number, number, number]
+            },
+            subheader: {
+                fontSize: 14,
+                bold: true,
+                color: '#666666', // Medium gray
+                margin: [0, 10, 0, 5] as [number, number, number, number]
+            },
+            normal: {
+                fontSize: 10,
+                lineHeight: 1.2
+            },
+            jobPosition: {
+                fontSize: 11,
+                bold: true,
+                color: '#333333' // Dark gray
+            },
+            company: {
+                fontSize: 10,
+                color: '#666666' // Medium gray
+            }
+        };
+    }
+
+    // Bold template
+    if (template === 'bold') {
+        return {
+            ...basicStyles,
+            header: {
+                fontSize: 26,
+                bold: true,
+                color: '#000000', // Black
+                margin: [0, 0, 0, 15] as [number, number, number, number]
+            },
+            subheader: {
+                fontSize: 18,
+                bold: true,
+                color: '#ff5722', // Orange
+                margin: [0, 15, 0, 10] as [number, number, number, number]
+            },
+            normal: {
+                fontSize: 12,
+                lineHeight: 1.4
+            },
+            jobPosition: {
+                fontSize: 14,
+                bold: true,
+                color: '#ff5722' // Orange
+            },
+            company: {
+                fontSize: 13,
+                bold: true,
+                color: '#333333' // Dark gray
+            }
+        };
+    }
+
+    // Academic template
+    if (template === 'academic') {
+        return {
+            ...basicStyles,
+            header: {
+                fontSize: 20,
+                bold: true,
+                color: '#003366', // Dark blue
+                margin: [0, 0, 0, 15] as [number, number, number, number]
+            },
+            subheader: {
+                fontSize: 16,
+                bold: true,
+                color: '#003366', // Dark blue
+                margin: [0, 15, 0, 10] as [number, number, number, number],
+                decoration: 'underline'
+            },
+            normal: {
+                fontSize: 11,
+                lineHeight: 1.3
+            },
+            jobPosition: {
+                fontSize: 12,
+                bold: true,
+                color: '#003366' // Dark blue
+            },
+            company: {
+                fontSize: 11,
+                italics: true,
+                color: '#333333' // Dark gray
+            }
+        };
+    }
+
+    // Technical template
+    if (template === 'technical') {
+        return {
+            ...basicStyles,
+            header: {
+                fontSize: 20,
+                bold: true,
+                color: '#2c3e50', // Dark blue-gray
+                margin: [0, 0, 0, 15] as [number, number, number, number]
+            },
+            subheader: {
+                fontSize: 15,
+                bold: true,
+                color: '#16a085', // Teal
+                margin: [0, 15, 0, 10] as [number, number, number, number]
+            },
+            normal: {
+                fontSize: 11,
+                lineHeight: 1.4
+            },
+            jobPosition: {
+                fontSize: 13,
+                bold: true,
+                color: '#16a085' // Teal
+            },
+            company: {
+                fontSize: 11,
+                color: '#2c3e50' // Dark blue-gray
+            }
+        };
+    }
+
+    return basicStyles;
+}
+
+/**
+ * Creates a PDF document definition from CV data
+ */
+export async function createCvDocDefinition(
+    cvData: CvData,
+    config: PdfExportConfig = defaultPdfConfig
+): Promise<TDocumentDefinitions> {
+    const { profile } = cvData;
+
+    // Get template-specific styles
+    const styles = getTemplateStyles(config.template);
 
     // Initialize document content
     const content: Content[] = [];

@@ -9,6 +9,7 @@
 	import { page } from '$app/stores';
 	import { initGlobalHelpers } from '$lib/utils/globalHelpers';
 	import ContentWrapper from '$lib/components/ContentWrapper.svelte';
+	import { initializeSubscription } from '$lib/stores/subscriptionStore';
 
 	// Initialize global helpers
 	if (browser) {
@@ -22,7 +23,8 @@
 	const navItems = [
 		{ name: 'Profile', path: '/profile', forceReload: false },
 		{ name: 'Edit CV Sections', path: '/dashboard', forceReload: false },
-		{ name: 'Preview & PDF', path: '/preview-cv', forceReload: false }
+		{ name: 'Preview & PDF', path: '/preview-cv', forceReload: false },
+		{ name: 'Subscription', path: '/subscription', forceReload: false }
 	];
 
 	// Function to check if a path is active
@@ -76,6 +78,9 @@
 		console.log('Layout mounted, initializing session...');
 
 		if (browser) {
+			// Initialize subscription system
+			initializeSubscription();
+
 			// Check if we're on a public CV page and skip auth if so
 			if (isPublicCvPage() && $page.url.pathname.includes('/cv/@')) {
 				console.log('Public CV page detected, skipping authentication');

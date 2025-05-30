@@ -16,6 +16,8 @@
 	import { page } from '$app/stores';
 	import { getProxiedPhotoUrl, validatePhotoUrl, DEFAULT_PROFILE_PHOTO } from '$lib/photoUtils';
 	import { decodeHtmlEntities } from '$lib/validation';
+	import { canExportPdf, getAvailableTemplates } from '$lib/utils/subscriptionUtils';
+	import { goto } from '$app/navigation';
 
 	// CV data
 	let profile = $state<any>(null);
@@ -44,6 +46,10 @@
 
 	// Shareable URL
 	let shareableUrl = $state<string | null>(null);
+
+	// Template selection
+	let selectedTemplate = $state('basic');
+	let availableTemplates = $state<string[]>(['basic']);
 
 	// Interface for skill objects
 	interface Skill {
@@ -172,9 +178,98 @@
 		}
 	});
 
-	// Generate PDF
+	// Get available templates based on subscription
+	$effect(() => {
+		availableTemplates = getAvailableTemplates();
+
+		// If current template is not available, switch to basic
+		if (!availableTemplates.includes(selectedTemplate)) {
+			selectedTemplate = 'basic';
+		}
+
+		// Update PDF config with selected template
+		pdfConfig = {
+			...pdfConfig,
+			template: selectedTemplate
+		};
+	});
+
+	// Get template color for preview
+	function getTemplateColor(template: string): string {
+		switch (template) {
+			case 'professional':
+				return '#1f497d'; // Navy blue
+			case 'modern':
+				return '#3498db'; // Blue
+			case 'creative':
+				return '#e74c3c'; // Red
+			case 'executive':
+				return '#2c3e50'; // Dark blue
+			case 'simple':
+				return '#000000'; // Black
+			case 'classic':
+				return '#800000'; // Maroon
+			case 'elegant':
+				return '#4b0082'; // Indigo
+			case 'minimalist':
+				return '#333333'; // Dark gray
+			case 'bold':
+				return '#ff5722'; // Orange
+			case 'academic':
+				return '#003366'; // Dark blue
+			case 'technical':
+				return '#16a085'; // Teal
+			default:
+				return '#333333'; // Basic template - dark gray
+		}
+	}
+
+	// Get template description for preview
+	function getTemplateDescription(template: string): string {
+		switch (template) {
+			case 'basic':
+				return 'Clean and simple layout';
+			case 'professional':
+				return 'Polished look for corporate roles';
+			case 'modern':
+				return 'Contemporary design with blue accents';
+			case 'creative':
+				return 'Bold design for creative fields';
+			case 'executive':
+				return 'Sophisticated style for leadership positions';
+			case 'simple':
+				return 'Minimalist black and white design';
+			case 'classic':
+				return 'Traditional format with maroon accents';
+			case 'elegant':
+				return 'Refined style with indigo highlights';
+			case 'minimalist':
+				return 'Ultra-clean with minimal elements';
+			case 'bold':
+				return 'Eye-catching with strong orange accents';
+			case 'academic':
+				return 'Formal layout for research and education';
+			case 'technical':
+				return 'Structured format for technical roles';
+			default:
+				return 'Standard CV template';
+		}
+	}
+
+	// Function to handle upgrade prompt
+	function handleUpgradePrompt(feature: string) {
+		goto(`/subscription?required=${feature}`);
+	}
+
+	// Generate PDF with template
 	async function generatePdf() {
 		if (generatingPdf || !profile) return;
+
+		// Check if user has PDF export permission
+		if (!canExportPdf()) {
+			handleUpgradePrompt('pdf_export');
+			return;
+		}
 
 		generatingPdf = true;
 
@@ -192,11 +287,14 @@
 				qualificationEquivalence
 			};
 
-			// Generate and download PDF
-			await generateCvPdf(cvData, pdfConfig);
+			// Generate and download PDF with template
+			await generateCvPdf(cvData, {
+				...pdfConfig,
+				template: selectedTemplate
+			});
 		} catch (err) {
 			console.error('Error generating PDF:', err);
-			error = 'Failed to generate PDF. Please try again.';
+			error = 'Failed to generate PDF. Please try again later.';
 		} finally {
 			generatingPdf = false;
 		}
@@ -394,120 +492,204 @@
 		</div>
 	</div>
 
-	<!-- PDF Options Panel -->
-	{#if showPdfOptions}
-		<div class="mb-8 rounded-lg border border-gray-300 bg-gray-50 p-6">
-			<h2 class="mb-4 text-xl font-semibold">PDF Export Options</h2>
+	<!-- PDF Controls Section -->
+	<div class="mt-8 rounded-md border border-gray-200 bg-white p-4 shadow-sm">
+		<h2 class="mb-4 text-lg font-medium text-gray-900">PDF Export Options</h2>
 
-			<div class="mb-4">
-				<div class="mb-2 flex items-center justify-between">
-					<label class="font-medium">What to include:</label>
-					<div>
-						<button
-							onclick={() => toggleAllSections(true)}
-							class="mr-2 text-sm text-indigo-600 hover:underline"
-							type="button"
-						>
-							Select All
-						</button>
-						<button
-							onclick={() => toggleAllSections(false)}
-							class="text-sm text-indigo-600 hover:underline"
-							type="button"
-						>
-							Deselect All
-						</button>
+		<!-- Template Selector -->
+		<div class="mb-8">
+			<label for="template-select" class="mb-3 block text-sm font-medium text-gray-700"
+				>Select Template</label
+			>
+
+			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+				{#each availableTemplates as template}
+					<div
+						class="cursor-pointer rounded-md border p-3 transition-colors {selectedTemplate ===
+						template
+							? 'border-indigo-500 bg-indigo-50 ring-2 ring-indigo-500'
+							: 'border-gray-200 hover:border-indigo-300'}"
+						onclick={() => (selectedTemplate = template)}
+					>
+						<div class="template-preview flex flex-col {template} mb-2">
+							<!-- Template preview thumbnail -->
+							<div class="mb-2 w-full rounded bg-white p-2 shadow-sm">
+								<div class="rounded bg-gray-50 p-2">
+									<!-- Simulate header -->
+									<div
+										class="mb-2 h-4 rounded"
+										style="background-color: {getTemplateColor(template)}"
+									></div>
+									<!-- Simulate text lines -->
+									<div class="mb-1 h-2 w-1/2 rounded bg-gray-300"></div>
+									<div class="mb-3 h-2 w-3/4 rounded bg-gray-300"></div>
+
+									<!-- Simulate section -->
+									<div
+										class="h-3 w-1/3 rounded"
+										style="background-color: {getTemplateColor(template)}"
+									></div>
+									<div class="mt-1 mb-1 h-2 w-full rounded bg-gray-300"></div>
+									<div class="mb-1 h-2 w-full rounded bg-gray-300"></div>
+									<div class="mb-3 h-2 w-3/4 rounded bg-gray-300"></div>
+								</div>
+							</div>
+							<span class="text-center font-medium capitalize">{template}</span>
+							<span class="text-center text-xs text-gray-500">
+								{getTemplateDescription(template)}
+							</span>
+						</div>
 					</div>
+				{/each}
+
+				{#if availableTemplates.length === 1}
+					<div
+						class="flex cursor-pointer flex-col items-center justify-center rounded-md border border-dashed border-gray-300 bg-gray-50 p-3"
+						onclick={() => handleUpgradePrompt('templates')}
+					>
+						<div class="mb-2 text-center">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								class="mx-auto mb-1 h-8 w-8 text-gray-400"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke="currentColor"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+								/>
+							</svg>
+							<span class="block font-medium text-gray-800">Get More Templates</span>
+						</div>
+						<p class="text-xs text-gray-500">Upgrade to Premium for access to all templates</p>
+					</div>
+				{/if}
+			</div>
+		</div>
+
+		<!-- PDF Section Controls -->
+		<div class="mb-4">
+			<div class="mb-2 flex items-center justify-between">
+				<h3 class="text-sm font-medium text-gray-700">Sections to Include</h3>
+				<div class="flex items-center space-x-4">
+					<button
+						onclick={() => toggleAllSections(true)}
+						class="text-sm text-indigo-600 hover:text-indigo-800">Select All</button
+					>
+					<button
+						onclick={() => toggleAllSections(false)}
+						class="text-sm text-indigo-600 hover:text-indigo-800">Deselect All</button
+					>
 				</div>
-				<div class="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
-					{#each Object.keys(pdfConfig.sections) as section}
-						{@const sectionName = section as keyof typeof pdfConfig.sections}
-						<div class="flex items-center rounded p-1 hover:bg-gray-100">
+			</div>
+			<div class="grid grid-cols-1 gap-3 md:grid-cols-3">
+				{#each Object.keys(pdfConfig.sections) as section}
+					<div class="relative flex items-start">
+						<div class="flex h-5 items-center">
 							<input
+								id={`section-${section}`}
 								type="checkbox"
-								id={`include-${section}`}
-								checked={pdfConfig.sections[sectionName]}
-								onclick={() =>
-									updateSectionVisibility(sectionName, !pdfConfig.sections[sectionName])}
+								checked={pdfConfig.sections[section as SectionName]}
+								onchange={(e) =>
+									updateSectionVisibility(section as SectionName, e.currentTarget.checked)}
 								class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
 							/>
-							<label for={`include-${section}`} class="ml-2 block text-gray-700">
+						</div>
+						<div class="ml-3 text-sm">
+							<label for={`section-${section}`} class="font-medium text-gray-700">
 								{formatSectionName(section)}
 							</label>
 						</div>
-					{/each}
-				</div>
+					</div>
+				{/each}
 			</div>
+		</div>
 
-			<div class="mb-4">
-				<div class="flex items-center">
-					<input
-						type="checkbox"
-						id="include-photo"
-						checked={pdfConfig.includePhoto}
-						onclick={(e) => {
-							const target = e.target as HTMLInputElement;
-							pdfConfig = {
-								...pdfConfig,
-								includePhoto: target.checked
-							};
-						}}
-						class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-					/>
-					<label for="include-photo" class="ml-2 block text-gray-700">
-						Include Profile Photo
-						{#if photoLoadError}
-							<span class="ml-2 text-xs text-red-600">
-								(Photo may not be accessible. If PDF generation fails, try disabling this option)
-							</span>
-						{/if}
-					</label>
-				</div>
-			</div>
-
-			<div class="mb-4">
-				<label class="mb-2 block font-medium">Template:</label>
-				<div class="flex space-x-4">
-					{#each ['standard', 'minimal', 'professional'] as templateOption}
-						<div class="flex items-center">
-							<input
-								type="radio"
-								id={`template-${templateOption}`}
-								name="template"
-								value={templateOption}
-								checked={pdfConfig.template === templateOption}
-								disabled={templateOption !== 'standard'}
-								onclick={(e) => {
-									const target = e.target as HTMLInputElement;
-									pdfConfig = {
-										...pdfConfig,
-										template: target.value as 'standard' | 'minimal' | 'professional'
-									};
-								}}
-								class="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500"
-							/>
-							<label for={`template-${templateOption}`} class="ml-2 block text-gray-700 capitalize">
-								{templateOption}
-								{#if templateOption !== 'standard'}
-									<span class="ml-1 text-xs text-gray-500">(Coming soon)</span>
-								{/if}
-							</label>
-						</div>
-					{/each}
-				</div>
-			</div>
-
-			<div class="mt-4 text-right">
+		<!-- Export PDF Button -->
+		<div class="mt-4">
+			{#if canExportPdf()}
 				<button
 					onclick={generatePdf}
 					disabled={generatingPdf}
-					class="rounded bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none disabled:opacity-50"
+					class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
 				>
-					Generate PDF with Current Settings
+					{#if generatingPdf}
+						<svg
+							class="mr-2 -ml-1 h-5 w-5 animate-spin text-white"
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+						>
+							<circle
+								class="opacity-25"
+								cx="12"
+								cy="12"
+								r="10"
+								stroke="currentColor"
+								stroke-width="4"
+							/>
+							<path
+								class="opacity-75"
+								fill="currentColor"
+								d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+							/>
+						</svg>
+						Generating PDF...
+					{:else}
+						<svg
+							class="mr-2 -ml-1 h-5 w-5"
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 20 20"
+							fill="currentColor"
+						>
+							<path
+								fill-rule="evenodd"
+								d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+								clip-rule="evenodd"
+							/>
+						</svg>
+						Export as PDF
+					{/if}
 				</button>
-			</div>
+			{:else}
+				<div class="rounded-md border border-indigo-100 bg-indigo-50 p-4">
+					<div class="flex">
+						<div class="flex-shrink-0">
+							<svg
+								class="h-5 w-5 text-indigo-600"
+								xmlns="http://www.w3.org/2000/svg"
+								viewBox="0 0 20 20"
+								fill="currentColor"
+							>
+								<path
+									fill-rule="evenodd"
+									d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+									clip-rule="evenodd"
+								/>
+							</svg>
+						</div>
+						<div class="ml-3">
+							<h3 class="text-sm font-medium text-indigo-800">Premium Feature</h3>
+							<div class="mt-2 text-sm text-indigo-700">
+								<p>PDF export is available with our Premium subscription.</p>
+							</div>
+							<div class="mt-3">
+								<button
+									onclick={() => handleUpgradePrompt('pdf_export')}
+									class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none"
+								>
+									Upgrade to Premium
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			{/if}
 		</div>
-	{/if}
+	</div>
 
 	{#if error}
 		<div class="mb-4 rounded bg-red-100 p-4 text-red-700">{error}</div>
