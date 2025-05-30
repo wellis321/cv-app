@@ -209,7 +209,8 @@ function getTemplateStyles(template: string = 'basic'): StyleDictionary {
                 fontSize: 15,
                 bold: true,
                 color: '#1f497d', // Navy blue
-                margin: [0, 15, 0, 10] as [number, number, number, number]
+                margin: [0, 15, 0, 10] as [number, number, number, number],
+                decoration: 'underline'
             },
             jobPosition: {
                 fontSize: 13,
@@ -545,8 +546,244 @@ function getTemplateStyles(template: string = 'basic'): StyleDictionary {
 }
 
 /**
- * Creates a PDF document definition from CV data
+ * Get template-specific document definitions
  */
+function getTemplateDocDefinition(template: string = 'basic'): Partial<TDocumentDefinitions> {
+    // Basic template - default
+    const basicDocDef: Partial<TDocumentDefinitions> = {
+        pageMargins: { left: 40, top: 40, right: 40, bottom: 40 },
+        background: function () { return null; }
+    };
+
+    // Professional template
+    if (template === 'professional') {
+        return {
+            ...basicDocDef,
+            pageMargins: { left: 40, top: 60, right: 40, bottom: 60 },
+            header: function () {
+                return {
+                    canvas: [{
+                        type: 'line',
+                        x1: 40, y1: 40, x2: 555, y2: 40,
+                        lineWidth: 1,
+                        lineColor: '#1f497d'
+                    }]
+                };
+            }
+        };
+    }
+
+    // Modern template
+    if (template === 'modern') {
+        return {
+            ...basicDocDef,
+            pageMargins: { left: 50, top: 50, right: 40, bottom: 50 }
+        };
+    }
+
+    // Creative template
+    if (template === 'creative') {
+        return {
+            ...basicDocDef,
+            pageMargins: { left: 70, top: 40, right: 40, bottom: 40 },
+            background: function () {
+                return {
+                    canvas: [{
+                        type: 'rect',
+                        x: 0, y: 0, w: 50, h: 842,
+                        color: '#e74c3c15' // Very light red
+                    }]
+                };
+            }
+        };
+    }
+
+    // Executive template
+    if (template === 'executive') {
+        return {
+            ...basicDocDef,
+            pageMargins: { left: 50, top: 50, right: 50, bottom: 50 },
+            header: function () {
+                return {
+                    canvas: [{
+                        type: 'line',
+                        x1: 40, y1: 40, x2: 555, y2: 40,
+                        lineWidth: 1,
+                        lineColor: '#2c3e50'
+                    }]
+                };
+            },
+            footer: function () {
+                return {
+                    canvas: [{
+                        type: 'line',
+                        x1: 40, y1: 0, x2: 555, y2: 0,
+                        lineWidth: 1,
+                        lineColor: '#2c3e50'
+                    }]
+                };
+            }
+        };
+    }
+
+    // Simple template
+    if (template === 'simple') {
+        return {
+            ...basicDocDef,
+            pageMargins: { left: 40, top: 40, right: 40, bottom: 40 },
+            background: function () { return null; }
+        };
+    }
+
+    // Classic template
+    if (template === 'classic') {
+        return {
+            ...basicDocDef,
+            pageMargins: { left: 60, top: 60, right: 60, bottom: 60 },
+            background: function () {
+                return {
+                    canvas: [{
+                        type: 'rect',
+                        x: 20, y: 20, w: 555, h: 802,
+                        lineColor: '#800000',
+                        lineWidth: 0.5,
+                        color: '#fffaf5' // Very light warm background
+                    }]
+                };
+            }
+        };
+    }
+
+    // Elegant template
+    if (template === 'elegant') {
+        return {
+            ...basicDocDef,
+            pageMargins: { left: 50, top: 55, right: 50, bottom: 50 },
+            header: function () {
+                return {
+                    canvas: [{
+                        type: 'line',
+                        x1: 40, y1: 40, x2: 555, y2: 40,
+                        lineWidth: 2,
+                        lineColor: '#4b0082'
+                    }]
+                };
+            },
+            background: function () {
+                return {
+                    canvas: [{
+                        type: 'rect',
+                        x: 0, y: 0, w: 595, h: 842,
+                        color: '#f9f7ff' // Very light indigo
+                    }]
+                };
+            }
+        };
+    }
+
+    // Minimalist template
+    if (template === 'minimalist') {
+        return {
+            ...basicDocDef,
+            pageMargins: { left: 70, top: 70, right: 70, bottom: 70 },
+            background: function () { return null; }
+        };
+    }
+
+    // Bold template
+    if (template === 'bold') {
+        return {
+            ...basicDocDef,
+            pageMargins: { left: 45, top: 50, right: 45, bottom: 50 },
+            header: function () {
+                return {
+                    canvas: [{
+                        type: 'line',
+                        x1: 40, y1: 40, x2: 555, y2: 40,
+                        lineWidth: 3,
+                        lineColor: '#ff5722'
+                    }]
+                };
+            },
+            background: function () {
+                return {
+                    canvas: [{
+                        type: 'rect',
+                        x: 0, y: 0, w: 595, h: 20,
+                        color: '#ff5722' // Orange top stripe
+                    }]
+                };
+            }
+        };
+    }
+
+    // Academic template
+    if (template === 'academic') {
+        return {
+            ...basicDocDef,
+            pageMargins: { left: 70, top: 70, right: 70, bottom: 70 },
+            background: function () {
+                return {
+                    canvas: [{
+                        type: 'rect',
+                        x: 0, y: 0, w: 595, h: 842,
+                        color: '#fafcff' // Very light blue
+                    }]
+                };
+            },
+            footer: function () {
+                return {
+                    canvas: [{
+                        type: 'line',
+                        x1: 40, y1: 0, x2: 555, y2: 0,
+                        lineWidth: 1,
+                        lineColor: '#003366'
+                    }]
+                };
+            }
+        };
+    }
+
+    // Technical template
+    if (template === 'technical') {
+        return {
+            ...basicDocDef,
+            pageMargins: { left: 50, top: 50, right: 50, bottom: 50 },
+            background: function () {
+                const gridLines = [];
+                const gridSize = 20;
+                const gridColor = '#16a08510'; // Very light teal
+
+                // Create horizontal grid lines
+                for (let y = 0; y < 842; y += gridSize) {
+                    gridLines.push({
+                        type: 'line',
+                        x1: 0, y1: y, x2: 595, y2: y,
+                        lineWidth: 0.5,
+                        lineColor: gridColor
+                    });
+                }
+
+                // Create vertical grid lines
+                for (let x = 0; x < 595; x += gridSize) {
+                    gridLines.push({
+                        type: 'line',
+                        x1: x, y1: 0, x2: x, y2: 842,
+                        lineWidth: 0.5,
+                        lineColor: gridColor
+                    });
+                }
+
+                return {
+                    canvas: gridLines
+                };
+            }
+        };
+    }
+
+    return basicDocDef;
+}
+
 export async function createCvDocDefinition(
     cvData: CvData,
     config: PdfExportConfig = defaultPdfConfig
@@ -555,6 +792,9 @@ export async function createCvDocDefinition(
 
     // Get template-specific styles
     const styles = getTemplateStyles(config.template);
+
+    // Get template-specific document definition properties
+    const templateDocDef = getTemplateDocDefinition(config.template);
 
     // Initialize document content
     const content: Content[] = [];
@@ -1156,8 +1396,18 @@ export async function createCvDocDefinition(
         }
     }
 
-    // Return the complete document definition
+    // Combine template properties with standard document properties
     return {
+        // Template-specific properties
+        ...templateDocDef,
+
+        // Standard document properties
+        content: content,
+        styles: styles,
+        defaultStyle: {
+            font: 'Roboto',
+            fontSize: 11
+        },
         info: {
             title: `CV - ${profile.full_name || 'CV'}`,
             author: profile.full_name || 'CV App User',
@@ -1165,13 +1415,9 @@ export async function createCvDocDefinition(
             keywords: 'CV, Resume'
         },
         pageSize: 'A4',
-        pageMargins: { left: 40, top: 40, right: 40, bottom: 60 },
-        styles,
-        defaultStyle: {
-            fontSize: 11
-        },
-        content,
-        footer: function (currentPage: number, pageCount: number) {
+
+        // Footer (if not already defined by template)
+        footer: templateDocDef.footer || function (currentPage: number, pageCount: number) {
             return {
                 text: `CV created with CV App by William and Max Ellis | Page ${currentPage} of ${pageCount}`,
                 style: 'footer',
