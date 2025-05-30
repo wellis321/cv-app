@@ -327,9 +327,23 @@
 					<li><strong>Basic</strong> - Clean and simple layout (Available on all plans)</li>
 					<li><strong>Professional</strong> - Sophisticated design for corporate environments</li>
 					<li><strong>Modern</strong> - Contemporary styling with accent colors</li>
-					<li><strong>Creative</strong> - Distinctive layout for creative industries</li>
+					<li><strong>Creative</strong> - Distinctive design for creative industries</li>
 					<li><strong>Executive</strong> - Elegant design for senior positions</li>
+					<li><strong>Simple</strong> - Minimalist black and white design</li>
+					<li><strong>Classic</strong> - Traditional format with maroon accents</li>
+					<li><strong>Elegant</strong> - Refined style with indigo highlights</li>
+					<li><strong>Minimalist</strong> - Ultra-clean with minimal elements</li>
+					<li><strong>Bold</strong> - Eye-catching with strong orange accents</li>
+					<li><strong>Academic</strong> - Formal layout for research and education</li>
+					<li><strong>Technical</strong> - Structured format for technical roles</li>
 				</ul>
+
+				<h3 class="mt-6">Pricing</h3>
+				<p>
+					<strong>Free Plan:</strong> £0/month<br />
+					<strong>Premium Monthly:</strong> £7.99/month<br />
+					<strong>Premium Annual:</strong> £79.99/year (Save over 16% compared to monthly)
+				</p>
 
 				<h3 class="mt-6">Billing</h3>
 				<p>

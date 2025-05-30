@@ -47,7 +47,7 @@ const DEFAULT_FREE_PLAN: SubscriptionPlan = {
     name: 'Free',
     description: 'Basic CV features',
     price: 0,
-    currency: 'USD',
+    currency: 'GBP',
     interval: 'month',
     features: {
         max_sections: 3,

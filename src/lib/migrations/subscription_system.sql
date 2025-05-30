@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS public.subscription_plans (
     name VARCHAR(255) NOT NULL,
     description TEXT,
     price DECIMAL(10, 2) NOT NULL,
-    currency VARCHAR(3) NOT NULL DEFAULT 'USD',
+    currency VARCHAR(3) NOT NULL DEFAULT 'GBP',
     interval VARCHAR(20) NOT NULL DEFAULT 'month', -- 'month', 'year', etc.
     features JSONB DEFAULT '{}',
     is_active BOOLEAN DEFAULT TRUE,
@@ -61,9 +61,9 @@ $$;
 -- Insert default subscription plans
 INSERT INTO public.subscription_plans (name, description, price, currency, interval, features, is_active)
 VALUES
-('Free', 'Basic CV features', 0, 'USD', 'month', '{"max_sections": 3, "pdf_export": false, "online_cv": true, "templates": ["basic"]}', true),
-('Premium', 'Full CV features with multiple templates', 9.99, 'USD', 'month', '{"max_sections": -1, "pdf_export": true, "online_cv": true, "templates": ["basic", "professional", "modern", "creative", "executive", "simple", "classic", "elegant", "minimalist", "bold", "academic", "technical"]}', true),
-('Premium Annual', 'Full CV features with multiple templates', 99.99, 'USD', 'year', '{"max_sections": -1, "pdf_export": true, "online_cv": true, "templates": ["basic", "professional", "modern", "creative", "executive", "simple", "classic", "elegant", "minimalist", "bold", "academic", "technical"]}', true)
+('Free', 'Basic CV features', 0, 'GBP', 'month', '{"max_sections": 3, "pdf_export": false, "online_cv": true, "templates": ["basic"]}', true),
+('Premium', 'Full CV features with multiple templates', 7.99, 'GBP', 'month', '{"max_sections": -1, "pdf_export": true, "online_cv": true, "templates": ["basic", "professional", "modern", "creative", "executive", "simple", "classic", "elegant", "minimalist", "bold", "academic", "technical"]}', true),
+('Premium Annual', 'Full CV features with multiple templates', 79.99, 'GBP', 'year', '{"max_sections": -1, "pdf_export": true, "online_cv": true, "templates": ["basic", "professional", "modern", "creative", "executive", "simple", "classic", "elegant", "minimalist", "bold", "academic", "technical"]}', true)
 ON CONFLICT (id) DO NOTHING;
 
 -- Create or replace function to update the updated_at timestamp
