@@ -24,9 +24,9 @@
 	let isAdmin = $state(false);
 
 	// Automatically update active users count every minute
-	let activeUsersInterval: number;
+	let activeUsersInterval: ReturnType<typeof setInterval> | undefined;
 
-	onMount(async () => {
+	onMount(() => {
 		if (!browser) return;
 
 		// Check if user is authorized to view analytics
@@ -44,25 +44,31 @@
 			return;
 		}
 
-		try {
-			// Load initial data
-			await loadData();
-			loading = false;
+		// Define an async function to load data
+		async function initializeData() {
+			try {
+				// Load initial data
+				await loadData();
+				loading = false;
 
-			// Start polling for active users
-			activeUsersInterval = window.setInterval(async () => {
-				activeUsers = await getActiveUsers();
-			}, 60000); // Update every minute
-		} catch (err) {
-			console.error('Error loading analytics data:', err);
-			error = 'An error occurred while loading analytics data.';
-			loading = false;
+				// Start polling for active users
+				activeUsersInterval = setInterval(async () => {
+					activeUsers = await getActiveUsers();
+				}, 60000); // Update every minute
+			} catch (err) {
+				console.error('Error loading analytics data:', err);
+				error = 'An error occurred while loading analytics data.';
+				loading = false;
+			}
 		}
 
-		// Cleanup interval on unmount
+		// Call the function but don't await it in onMount
+		initializeData();
+
+		// Return a cleanup function
 		return () => {
 			if (activeUsersInterval) {
-				window.clearInterval(activeUsersInterval);
+				clearInterval(activeUsersInterval);
 			}
 		};
 	});

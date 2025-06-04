@@ -1,21 +1,11 @@
 import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { dev } from '$app/environment';
-
-// Get the current module's directory
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Path to migration file
-const migrationPath = path.resolve(__dirname, '../../../../lib/migrations/20240530_create_page_analytics.sql');
 
 // Get admin emails - server side version
 function getAdminEmails(): string[] {
     // In production, you should set this in your server environment
-    return ['admin@example.com', 'your.email@example.com']; // Add your email here
+    return ['admin@example.com', 'your.email@example.com'];
 }
 
 // Check if user is admin - server side version
@@ -41,27 +31,27 @@ export async function POST({ locals, request }: RequestEvent) {
     }
 
     try {
-        // Read the migration file
-        const migrationSql = fs.readFileSync(migrationPath, 'utf8');
-
-        // Note: This is a simplified example for demonstration
-        // In a real application, you would execute the SQL properly
-        // using Supabase's API or a different approach
-
-        // For demonstration purposes, we'll return success without actually executing SQL
-        // since there are type errors with the 'query' method
+        // Instead of reading from the filesystem (which isn't available in Edge Functions),
+        // we'll return instructions for applying the migration manually
 
         return json({
             success: true,
-            message: 'Analytics migration instructions provided. Please execute the SQL manually in the Supabase dashboard.',
-            migrationPath
+            message: 'To apply the analytics migration, please execute the SQL file manually in the Supabase dashboard.',
+            instructions: [
+                '1. Log in to your Supabase dashboard',
+                '2. Go to the SQL Editor',
+                '3. Create a new query',
+                '4. Find the migration file in your project at src/lib/migrations/20240530_create_page_analytics.sql',
+                '5. Copy and paste the contents into the SQL Editor',
+                '6. Run the query'
+            ]
         });
 
     } catch (err: any) {
-        console.error('Migration execution error:', err);
+        console.error('Error processing migration request:', err);
         return json({
             success: false,
-            error: `Failed to apply migration: ${err.message}`
+            error: `Failed to process request: ${err.message}`
         }, { status: 500 });
     }
 }

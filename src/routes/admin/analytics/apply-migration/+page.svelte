@@ -3,7 +3,6 @@
 	import { browser } from '$app/environment';
 	import { session } from '$lib/stores/authStore';
 	import { goto } from '$app/navigation';
-	import { supabase } from '$lib/supabase';
 	import { isAdminUser } from '$lib/adminConfig';
 
 	// State variables
@@ -11,6 +10,7 @@
 	let isLoading = $state(false);
 	let error = $state<string | null>(null);
 	let success = $state(false);
+	let instructions = $state<string[]>([]);
 
 	onMount(() => {
 		// Check if user is authorized
@@ -27,30 +27,35 @@
 		}
 	});
 
-	async function applyMigration() {
+	async function getInstructions() {
 		if (!browser || !$session?.user) return;
 
 		try {
 			isLoading = true;
 			error = null;
 			success = false;
-			migrationStatus = 'Applying analytics migration...';
+			migrationStatus = 'Fetching migration instructions...';
 
-			// This is just a simple demonstration of applying a migration
-			// In a real app, you would likely have a more secure way to apply migrations
+			const response = await fetch('/admin/analytics/apply-migration', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			});
 
-			// For a simple demo, we'll just tell the user how to apply the migration manually
-			// through the Supabase dashboard, rather than implementing a potentially
-			// insecure direct SQL execution method
+			const data = await response.json();
 
-			// Simulate a delay to represent migration being applied
-			await new Promise((resolve) => setTimeout(resolve, 1500));
-
-			success = true;
-			migrationStatus = 'Migration process complete.';
+			if (response.ok) {
+				success = true;
+				migrationStatus = data.message;
+				instructions = data.instructions || [];
+			} else {
+				error = data.error || 'Failed to get migration instructions';
+				success = false;
+			}
 		} catch (err) {
-			console.error('Error applying migration:', err);
-			error = 'Failed to apply migration. Please check the console for more details.';
+			console.error('Error getting migration instructions:', err);
+			error = 'Failed to get migration instructions. Please check the console for more details.';
 			success = false;
 		} finally {
 			isLoading = false;
@@ -90,35 +95,44 @@
 
 		<div class="mb-6 rounded bg-gray-50 p-4">
 			<h3 class="mb-2 font-medium">How to apply the migration:</h3>
-			<ol class="ml-6 list-decimal space-y-2">
-				<li>
-					Log in to your <a
-						href="https://app.supabase.com"
-						target="_blank"
-						rel="noreferrer"
-						class="text-indigo-600 hover:underline">Supabase dashboard</a
-					>
-				</li>
-				<li>Select your project</li>
-				<li>Go to the SQL Editor</li>
-				<li>Create a new query</li>
-				<li>
-					Paste the migration SQL content (available in your project at <code
-						class="rounded bg-gray-100 px-1 py-0.5"
-						>src/lib/migrations/20240530_create_page_analytics.sql</code
-					>)
-				</li>
-				<li>Run the query</li>
-			</ol>
+
+			{#if instructions.length > 0}
+				<ol class="ml-6 list-decimal space-y-2">
+					{#each instructions as instruction}
+						<li>{instruction}</li>
+					{/each}
+				</ol>
+			{:else}
+				<ol class="ml-6 list-decimal space-y-2">
+					<li>
+						Log in to your <a
+							href="https://app.supabase.com"
+							target="_blank"
+							rel="noreferrer"
+							class="text-indigo-600 hover:underline">Supabase dashboard</a
+						>
+					</li>
+					<li>Select your project</li>
+					<li>Go to the SQL Editor</li>
+					<li>Create a new query</li>
+					<li>
+						Paste the migration SQL content (available in your project at <code
+							class="rounded bg-gray-100 px-1 py-0.5"
+							>src/lib/migrations/20240530_create_page_analytics.sql</code
+						>)
+					</li>
+					<li>Run the query</li>
+				</ol>
+			{/if}
 		</div>
 
 		<div class="mt-4">
 			<button
-				onclick={applyMigration}
+				on:click={getInstructions}
 				disabled={isLoading}
 				class="rounded bg-indigo-600 px-4 py-2 font-medium text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:outline-none disabled:opacity-50"
 			>
-				{isLoading ? 'Processing...' : 'Prepare Migration Instructions'}
+				{isLoading ? 'Processing...' : 'Get Migration Instructions'}
 			</button>
 
 			{#if migrationStatus}
