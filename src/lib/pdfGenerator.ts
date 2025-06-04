@@ -200,344 +200,192 @@ function getTemplateStyles(template: string = 'basic'): StyleDictionary {
         return {
             ...basicStyles,
             header: {
+                ...basicStyles.header,
+                color: '#2c3e50',
                 fontSize: 20,
-                bold: true,
-                color: '#1f497d', // Navy blue
                 margin: [0, 0, 0, 15] as [number, number, number, number]
             },
             subheader: {
-                fontSize: 15,
-                bold: true,
-                color: '#1f497d', // Navy blue
-                margin: [0, 15, 0, 10] as [number, number, number, number],
-                decoration: 'underline'
+                ...basicStyles.subheader,
+                color: '#3498db',
+                fontSize: 15
             },
             jobPosition: {
-                fontSize: 13,
-                bold: true,
-                color: '#1f497d' // Navy blue
+                ...basicStyles.jobPosition,
+                color: '#2c3e50'
             },
             company: {
-                fontSize: 12,
-                bold: false,
-                color: '#333333'
+                ...basicStyles.company,
+                color: '#34495e'
             }
         };
     }
 
-    // Modern template
+    // Modern template - sleek design with accent colors
     if (template === 'modern') {
         return {
             ...basicStyles,
             header: {
+                ...basicStyles.header,
+                color: '#1a237e',
                 fontSize: 22,
-                bold: true,
-                color: '#3498db', // Blue
-                margin: [0, 0, 0, 10] as [number, number, number, number]
+                margin: [0, 0, 0, 12] as [number, number, number, number]
             },
             subheader: {
+                ...basicStyles.subheader,
+                color: '#3f51b5',
                 fontSize: 16,
-                bold: true,
-                color: '#3498db', // Blue
-                margin: [0, 15, 0, 8] as [number, number, number, number]
-            },
-            normal: {
-                fontSize: 11,
-                lineHeight: 1.4
+                bold: true
             },
             jobPosition: {
+                ...basicStyles.jobPosition,
+                color: '#303f9f',
                 fontSize: 13,
-                bold: true,
-                color: '#2c3e50' // Dark blue
-            }
-        };
-    }
-
-    // Creative template
-    if (template === 'creative') {
-        return {
-            ...basicStyles,
-            header: {
-                fontSize: 24,
-                bold: true,
-                color: '#e74c3c', // Red
-                margin: [0, 0, 0, 10] as [number, number, number, number]
-            },
-            subheader: {
-                fontSize: 16,
-                bold: true,
-                color: '#e74c3c', // Red
-                margin: [0, 10, 0, 5] as [number, number, number, number]
-            },
-            jobPosition: {
-                fontSize: 13,
-                bold: true,
-                color: '#e74c3c' // Red
+                bold: true
             },
             company: {
-                fontSize: 12,
-                color: '#333333'
+                ...basicStyles.company,
+                color: '#424242',
+                italics: false,
+                bold: false
+            },
+            dates: {
+                ...basicStyles.dates,
+                color: '#5c6bc0',
+                fontSize: 10
+            },
+            institution: {
+                ...basicStyles.institution,
+                color: '#424242',
+                italics: false,
+                bold: false,
+                fontSize: 11
             }
         };
     }
 
-    // Executive template
+    // Executive template - sophisticated, corporate look
     if (template === 'executive') {
         return {
             ...basicStyles,
             header: {
-                fontSize: 20,
-                bold: true,
-                color: '#2c3e50', // Dark blue
+                ...basicStyles.header,
+                color: '#000000',
+                fontSize: 22,
                 margin: [0, 0, 0, 15] as [number, number, number, number]
             },
             subheader: {
+                ...basicStyles.subheader,
+                color: '#263238',
                 fontSize: 16,
-                bold: true,
-                color: '#34495e', // Dark gray-blue
-                margin: [0, 15, 0, 10] as [number, number, number, number],
-                decoration: 'underline'
+                margin: [0, 12, 0, 6] as [number, number, number, number]
             },
             jobPosition: {
-                fontSize: 14,
-                bold: true,
-                color: '#2c3e50' // Dark blue
+                ...basicStyles.jobPosition,
+                color: '#000000',
+                fontSize: 13,
+                margin: [0, 5, 0, 2] as [number, number, number, number]
             },
             company: {
-                fontSize: 12,
-                bold: true,
-                color: '#7f8c8d' // Gray
+                ...basicStyles.company,
+                color: '#37474f',
+                italics: false,
+                bold: true
+            },
+            dates: {
+                ...basicStyles.dates,
+                color: '#546e7a',
+                fontSize: 10,
+                bold: false
+            },
+            institution: {
+                ...basicStyles.institution,
+                color: '#37474f',
+                italics: false,
+                bold: true
             }
         };
     }
 
-    // Simple template
-    if (template === 'simple') {
+    // Creative template - vibrant and distinctive
+    if (template === 'creative') {
         return {
             ...basicStyles,
             header: {
-                fontSize: 20,
-                bold: true,
-                color: '#000000', // Black
-                margin: [0, 0, 0, 10] as [number, number, number, number]
-            },
-            subheader: {
-                fontSize: 15,
-                bold: true,
-                color: '#555555', // Dark gray
-                margin: [0, 10, 0, 5] as [number, number, number, number]
-            },
-            normal: {
-                fontSize: 11,
-                lineHeight: 1.3
-            },
-            jobPosition: {
-                fontSize: 12,
-                bold: true,
-                color: '#000000' // Black
-            },
-            company: {
-                fontSize: 11,
-                bold: false,
-                color: '#555555' // Dark gray
-            }
-        };
-    }
-
-    // Classic template
-    if (template === 'classic') {
-        return {
-            ...basicStyles,
-            header: {
-                fontSize: 22,
-                bold: true,
-                color: '#800000', // Maroon
+                ...basicStyles.header,
+                color: '#6200ea',
+                fontSize: 24,
                 margin: [0, 0, 0, 12] as [number, number, number, number]
             },
             subheader: {
+                ...basicStyles.subheader,
+                color: '#651fff',
                 fontSize: 16,
-                bold: true,
-                color: '#800000', // Maroon
-                margin: [0, 12, 0, 8] as [number, number, number, number],
-                decoration: 'underline'
-            },
-            normal: {
-                fontSize: 11,
-                lineHeight: 1.3
+                bold: true
             },
             jobPosition: {
+                ...basicStyles.jobPosition,
+                color: '#7c4dff',
                 fontSize: 13,
-                bold: true,
-                color: '#800000' // Maroon
+                bold: true
             },
             company: {
-                fontSize: 12,
-                italics: true,
-                color: '#333333' // Dark gray
+                ...basicStyles.company,
+                color: '#512da8',
+                italics: false,
+                bold: false
+            },
+            dates: {
+                ...basicStyles.dates,
+                color: '#9575cd',
+                fontSize: 10
+            },
+            institution: {
+                ...basicStyles.institution,
+                color: '#512da8',
+                italics: false,
+                bold: false
             }
         };
     }
 
-    // Elegant template
-    if (template === 'elegant') {
+    // Minimal template - clean and simple
+    if (template === 'minimal') {
         return {
             ...basicStyles,
             header: {
-                fontSize: 24,
+                ...basicStyles.header,
+                color: '#212121',
+                fontSize: 20,
                 bold: true,
-                color: '#4b0082', // Indigo
-                margin: [0, 0, 0, 15] as [number, number, number, number]
-            },
-            subheader: {
-                fontSize: 16,
-                bold: true,
-                color: '#4b0082', // Indigo
-                margin: [0, 15, 0, 10] as [number, number, number, number]
-            },
-            normal: {
-                fontSize: 11,
-                lineHeight: 1.4
-            },
-            jobPosition: {
-                fontSize: 14,
-                bold: true,
-                color: '#4b0082' // Indigo
-            },
-            company: {
-                fontSize: 12,
-                italics: true,
-                color: '#666666' // Medium gray
-            }
-        };
-    }
-
-    // Minimalist template
-    if (template === 'minimalist') {
-        return {
-            ...basicStyles,
-            header: {
-                fontSize: 18,
-                bold: true,
-                color: '#333333', // Dark gray
                 margin: [0, 0, 0, 10] as [number, number, number, number]
             },
             subheader: {
+                ...basicStyles.subheader,
+                color: '#424242',
                 fontSize: 14,
-                bold: true,
-                color: '#666666', // Medium gray
-                margin: [0, 10, 0, 5] as [number, number, number, number]
-            },
-            normal: {
-                fontSize: 10,
-                lineHeight: 1.2
+                bold: true
             },
             jobPosition: {
-                fontSize: 11,
-                bold: true,
-                color: '#333333' // Dark gray
-            },
-            company: {
-                fontSize: 10,
-                color: '#666666' // Medium gray
-            }
-        };
-    }
-
-    // Bold template
-    if (template === 'bold') {
-        return {
-            ...basicStyles,
-            header: {
-                fontSize: 26,
-                bold: true,
-                color: '#000000', // Black
-                margin: [0, 0, 0, 15] as [number, number, number, number]
-            },
-            subheader: {
-                fontSize: 18,
-                bold: true,
-                color: '#ff5722', // Orange
-                margin: [0, 15, 0, 10] as [number, number, number, number]
-            },
-            normal: {
+                ...basicStyles.jobPosition,
+                color: '#212121',
                 fontSize: 12,
-                lineHeight: 1.4
-            },
-            jobPosition: {
-                fontSize: 14,
-                bold: true,
-                color: '#ff5722' // Orange
+                bold: true
             },
             company: {
-                fontSize: 13,
-                bold: true,
-                color: '#333333' // Dark gray
-            }
-        };
-    }
-
-    // Academic template
-    if (template === 'academic') {
-        return {
-            ...basicStyles,
-            header: {
-                fontSize: 20,
-                bold: true,
-                color: '#003366', // Dark blue
-                margin: [0, 0, 0, 15] as [number, number, number, number]
+                ...basicStyles.company,
+                color: '#616161',
+                italics: false
             },
-            subheader: {
-                fontSize: 16,
-                bold: true,
-                color: '#003366', // Dark blue
-                margin: [0, 15, 0, 10] as [number, number, number, number],
-                decoration: 'underline'
+            dates: {
+                ...basicStyles.dates,
+                color: '#757575',
+                fontSize: 10
             },
-            normal: {
-                fontSize: 11,
-                lineHeight: 1.3
-            },
-            jobPosition: {
-                fontSize: 12,
-                bold: true,
-                color: '#003366' // Dark blue
-            },
-            company: {
-                fontSize: 11,
-                italics: true,
-                color: '#333333' // Dark gray
-            }
-        };
-    }
-
-    // Technical template
-    if (template === 'technical') {
-        return {
-            ...basicStyles,
-            header: {
-                fontSize: 20,
-                bold: true,
-                color: '#2c3e50', // Dark blue-gray
-                margin: [0, 0, 0, 15] as [number, number, number, number]
-            },
-            subheader: {
-                fontSize: 15,
-                bold: true,
-                color: '#16a085', // Teal
-                margin: [0, 15, 0, 10] as [number, number, number, number]
-            },
-            normal: {
-                fontSize: 11,
-                lineHeight: 1.4
-            },
-            jobPosition: {
-                fontSize: 13,
-                bold: true,
-                color: '#16a085' // Teal
-            },
-            company: {
-                fontSize: 11,
-                color: '#2c3e50' // Dark blue-gray
+            institution: {
+                ...basicStyles.institution,
+                color: '#616161',
+                italics: false
             }
         };
     }
@@ -546,242 +394,155 @@ function getTemplateStyles(template: string = 'basic'): StyleDictionary {
 }
 
 /**
- * Get template-specific document definitions
+ * Get template-specific document definition overrides
  */
 function getTemplateDocDefinition(template: string = 'basic'): Partial<TDocumentDefinitions> {
     // Basic template - default
-    const basicDocDef: Partial<TDocumentDefinitions> = {
-        pageMargins: { left: 40, top: 40, right: 40, bottom: 40 },
-        background: function () { return null; }
+    const basicDef: Partial<TDocumentDefinitions> = {
+        pageMargins: { left: 40, top: 60, right: 40, bottom: 60 },
+        defaultStyle: {
+            font: 'Roboto'
+        }
     };
 
-    // Professional template
+    // Professional template - standard business look with a blue accent
     if (template === 'professional') {
         return {
-            ...basicDocDef,
+            ...basicDef,
             pageMargins: { left: 40, top: 60, right: 40, bottom: 60 },
-            header: function () {
+            footer: (currentPage: number, pageCount: number) => {
                 return {
-                    canvas: [{
-                        type: 'line',
-                        x1: 40, y1: 40, x2: 555, y2: 40,
-                        lineWidth: 1,
-                        lineColor: '#1f497d'
-                    }]
+                    text: `${currentPage} / ${pageCount}`,
+                    alignment: 'center',
+                    style: 'footer'
                 };
             }
         };
     }
 
-    // Modern template
+    // Modern template - sleek design with sidebar
     if (template === 'modern') {
         return {
-            ...basicDocDef,
-            pageMargins: { left: 50, top: 50, right: 40, bottom: 50 }
-        };
-    }
-
-    // Creative template
-    if (template === 'creative') {
-        return {
-            ...basicDocDef,
-            pageMargins: { left: 70, top: 40, right: 40, bottom: 40 },
+            ...basicDef,
+            pageMargins: { left: 120, top: 60, right: 40, bottom: 60 }, // Wider left margin for side panel
             background: function () {
+                return [
+                    {
+                        canvas: [
+                            {
+                                type: 'rect',
+                                x: 0,
+                                y: 0,
+                                w: 100,
+                                h: 842, // A4 height
+                                color: '#e8eaf6' // Light indigo background
+                            }
+                        ]
+                    }
+                ];
+            },
+            footer: (currentPage: number, pageCount: number) => {
                 return {
-                    canvas: [{
-                        type: 'rect',
-                        x: 0, y: 0, w: 50, h: 842,
-                        color: '#e74c3c15' // Very light red
-                    }]
+                    text: `${currentPage} / ${pageCount}`,
+                    alignment: 'right',
+                    style: 'footer',
+                    margin: [0, 0, 40, 0]
                 };
             }
         };
     }
 
-    // Executive template
+    // Executive template - sophisticated with header line
     if (template === 'executive') {
         return {
-            ...basicDocDef,
-            pageMargins: { left: 50, top: 50, right: 50, bottom: 50 },
+            ...basicDef,
+            pageMargins: { left: 50, top: 70, right: 50, bottom: 50 },
             header: function () {
                 return {
-                    canvas: [{
-                        type: 'line',
-                        x1: 40, y1: 40, x2: 555, y2: 40,
-                        lineWidth: 1,
-                        lineColor: '#2c3e50'
-                    }]
+                    canvas: [
+                        {
+                            type: 'line',
+                            x1: 50,
+                            y1: 35,
+                            x2: 545,
+                            y2: 35,
+                            lineWidth: 3,
+                            lineColor: '#263238'
+                        }
+                    ]
                 };
             },
-            footer: function () {
+            footer: (currentPage: number, pageCount: number) => {
+                return [
+                    {
+                        canvas: [
+                            {
+                                type: 'line',
+                                x1: 50,
+                                y1: 5,
+                                x2: 545,
+                                y2: 5,
+                                lineWidth: 1,
+                                lineColor: '#78909c'
+                            }
+                        ]
+                    },
+                    {
+                        text: `${currentPage} / ${pageCount}`,
+                        alignment: 'center',
+                        style: 'footer',
+                        margin: [0, 10, 0, 0]
+                    }
+                ];
+            }
+        };
+    }
+
+    // Creative template - vibrant with distinctive header
+    if (template === 'creative') {
+        return {
+            ...basicDef,
+            pageMargins: { left: 40, top: 85, right: 40, bottom: 50 },
+            header: function () {
                 return {
-                    canvas: [{
-                        type: 'line',
-                        x1: 40, y1: 0, x2: 555, y2: 0,
-                        lineWidth: 1,
-                        lineColor: '#2c3e50'
-                    }]
+                    canvas: [
+                        {
+                            type: 'rect',
+                            x: 0,
+                            y: 0,
+                            w: 595, // A4 width
+                            h: 60,
+                            color: '#b388ff' // Light purple header
+                        }
+                    ]
+                };
+            },
+            footer: (currentPage: number, pageCount: number) => {
+                return {
+                    text: `${currentPage} / ${pageCount}`,
+                    alignment: 'center',
+                    style: 'footer'
                 };
             }
         };
     }
 
-    // Simple template
-    if (template === 'simple') {
+    // Minimal template - clean and simple
+    if (template === 'minimal') {
         return {
-            ...basicDocDef,
-            pageMargins: { left: 40, top: 40, right: 40, bottom: 40 },
-            background: function () { return null; }
-        };
-    }
-
-    // Classic template
-    if (template === 'classic') {
-        return {
-            ...basicDocDef,
+            ...basicDef,
             pageMargins: { left: 60, top: 60, right: 60, bottom: 60 },
-            background: function () {
+            footer: (currentPage: number, pageCount: number) => {
                 return {
-                    canvas: [{
-                        type: 'rect',
-                        x: 20, y: 20, w: 555, h: 802,
-                        lineColor: '#800000',
-                        lineWidth: 0.5,
-                        color: '#fffaf5' // Very light warm background
-                    }]
+                    text: `${currentPage} / ${pageCount}`,
+                    alignment: 'center',
+                    style: 'footer'
                 };
             }
         };
     }
 
-    // Elegant template
-    if (template === 'elegant') {
-        return {
-            ...basicDocDef,
-            pageMargins: { left: 50, top: 55, right: 50, bottom: 50 },
-            header: function () {
-                return {
-                    canvas: [{
-                        type: 'line',
-                        x1: 40, y1: 40, x2: 555, y2: 40,
-                        lineWidth: 2,
-                        lineColor: '#4b0082'
-                    }]
-                };
-            },
-            background: function () {
-                return {
-                    canvas: [{
-                        type: 'rect',
-                        x: 0, y: 0, w: 595, h: 842,
-                        color: '#f9f7ff' // Very light indigo
-                    }]
-                };
-            }
-        };
-    }
-
-    // Minimalist template
-    if (template === 'minimalist') {
-        return {
-            ...basicDocDef,
-            pageMargins: { left: 70, top: 70, right: 70, bottom: 70 },
-            background: function () { return null; }
-        };
-    }
-
-    // Bold template
-    if (template === 'bold') {
-        return {
-            ...basicDocDef,
-            pageMargins: { left: 45, top: 50, right: 45, bottom: 50 },
-            header: function () {
-                return {
-                    canvas: [{
-                        type: 'line',
-                        x1: 40, y1: 40, x2: 555, y2: 40,
-                        lineWidth: 3,
-                        lineColor: '#ff5722'
-                    }]
-                };
-            },
-            background: function () {
-                return {
-                    canvas: [{
-                        type: 'rect',
-                        x: 0, y: 0, w: 595, h: 20,
-                        color: '#ff5722' // Orange top stripe
-                    }]
-                };
-            }
-        };
-    }
-
-    // Academic template
-    if (template === 'academic') {
-        return {
-            ...basicDocDef,
-            pageMargins: { left: 70, top: 70, right: 70, bottom: 70 },
-            background: function () {
-                return {
-                    canvas: [{
-                        type: 'rect',
-                        x: 0, y: 0, w: 595, h: 842,
-                        color: '#fafcff' // Very light blue
-                    }]
-                };
-            },
-            footer: function () {
-                return {
-                    canvas: [{
-                        type: 'line',
-                        x1: 40, y1: 0, x2: 555, y2: 0,
-                        lineWidth: 1,
-                        lineColor: '#003366'
-                    }]
-                };
-            }
-        };
-    }
-
-    // Technical template
-    if (template === 'technical') {
-        return {
-            ...basicDocDef,
-            pageMargins: { left: 50, top: 50, right: 50, bottom: 50 },
-            background: function () {
-                const gridLines = [];
-                const gridSize = 20;
-                const gridColor = '#16a08510'; // Very light teal
-
-                // Create horizontal grid lines
-                for (let y = 0; y < 842; y += gridSize) {
-                    gridLines.push({
-                        type: 'line',
-                        x1: 0, y1: y, x2: 595, y2: y,
-                        lineWidth: 0.5,
-                        lineColor: gridColor
-                    });
-                }
-
-                // Create vertical grid lines
-                for (let x = 0; x < 595; x += gridSize) {
-                    gridLines.push({
-                        type: 'line',
-                        x1: x, y1: 0, x2: x, y2: 842,
-                        lineWidth: 0.5,
-                        lineColor: gridColor
-                    });
-                }
-
-                return {
-                    canvas: gridLines
-                };
-            }
-        };
-    }
-
-    return basicDocDef;
+    return basicDef;
 }
 
 export async function createCvDocDefinition(

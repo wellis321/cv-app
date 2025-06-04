@@ -261,40 +261,101 @@
 		goto(`/subscription?required=${feature}`);
 	}
 
-	// Generate PDF with template
-	async function generatePdf() {
-		if (generatingPdf || !profile) return;
-
-		// Check if user has PDF export permission
-		if (!canExportPdf()) {
-			handleUpgradePrompt('pdf_export');
-			return;
-		}
-
-		generatingPdf = true;
+	// Generate and download PDF
+	async function generatePdf(): Promise<void> {
+		if (!browser) return;
 
 		try {
-			// Prepare CV data
+			// Update the template selection in the config
+			pdfConfig.template = selectedTemplate;
+
+			generatingPdf = true;
+
+			// Prepare CV data for PDF generation
 			const cvData: CvData = {
-				profile,
-				workExperiences,
-				projects,
-				skills,
-				education,
-				certifications,
-				memberships,
-				interests,
-				qualificationEquivalence
+				profile: {
+					id: profile.id,
+					full_name:
+						profile.full_name ||
+						`${profile.first_name || ''} ${profile.middle_name || ''} ${profile.last_name || ''}`.trim(),
+					email: profile.email,
+					phone: profile.phone,
+					location: profile.location,
+					photo_url: photoLoadError ? null : pdfConfig.includePhoto ? profile.photo_url : null,
+					linkedin_url: profile.linkedin_url,
+					bio: profile.bio ? decodeHtmlEntities(profile.bio) : null
+				},
+				workExperiences: workExperiences.map((exp) => ({
+					id: exp.id,
+					company_name: exp.company_name,
+					position: exp.position,
+					start_date: exp.start_date,
+					end_date: exp.end_date,
+					description: exp.description ? decodeHtmlEntities(exp.description) : null
+				})),
+				projects: projects.map((proj) => ({
+					id: proj.id,
+					title: proj.title,
+					description: proj.description ? decodeHtmlEntities(proj.description) : null,
+					start_date: proj.start_date,
+					end_date: proj.end_date,
+					url: proj.url
+				})),
+				skills: skills.map((skill) => ({
+					id: skill.id,
+					name: skill.name,
+					level: skill.level,
+					category: skill.category
+				})),
+				education: education.map((edu) => ({
+					id: edu.id,
+					institution: edu.institution,
+					degree: edu.degree,
+					course: edu.course,
+					start_date: edu.start_date,
+					end_date: edu.end_date,
+					description: edu.description ? decodeHtmlEntities(edu.description) : null
+				})),
+				certifications: certifications.map((cert) => ({
+					id: cert.id,
+					name: cert.name,
+					issuer: cert.issuer,
+					date_issued: cert.date_issued,
+					expiry_date: cert.expiry_date,
+					url: cert.url,
+					description: cert.description ? decodeHtmlEntities(cert.description) : null
+				})),
+				memberships: memberships.map((member) => ({
+					id: member.id,
+					organisation: member.organisation,
+					role: member.role,
+					start_date: member.start_date,
+					end_date: member.end_date,
+					description: member.description ? decodeHtmlEntities(member.description) : null
+				})),
+				interests: interests.map((interest) => ({
+					id: interest.id,
+					name: interest.name,
+					description: interest.description ? decodeHtmlEntities(interest.description) : null
+				})),
+				qualificationEquivalence: qualificationEquivalence.map((qual) => ({
+					id: qual.id,
+					profile_id: qual.profile_id,
+					level: qual.level,
+					description: qual.description ? decodeHtmlEntities(qual.description) : null,
+					qualification: qual.qualification,
+					equivalent_to: qual.equivalent_to
+				}))
 			};
 
-			// Generate and download PDF with template
-			await generateCvPdf(cvData, {
-				...pdfConfig,
-				template: selectedTemplate
-			});
+			// Log template info for debugging
+			console.log(`Generating PDF with template: ${pdfConfig.template}`);
+
+			// Generate the PDF with the updated template
+			await generateCvPdf(cvData, pdfConfig);
 		} catch (err) {
 			console.error('Error generating PDF:', err);
-			error = 'Failed to generate PDF. Please try again later.';
+			alert('Failed to generate PDF. Please try again later.');
 		} finally {
 			generatingPdf = false;
 		}
@@ -496,77 +557,157 @@
 	<div class="mt-8 rounded-md border border-gray-200 bg-white p-4 shadow-sm">
 		<h2 class="mb-4 text-lg font-medium text-gray-900">PDF Export Options</h2>
 
-		<!-- Template Selector -->
-		<div class="mb-8">
-			<label for="template-select" class="mb-3 block text-sm font-medium text-gray-700"
-				>Select Template</label
-			>
+		<!-- Template selection section -->
+		<div class="mx-auto my-8 w-full max-w-3xl rounded-lg bg-white p-6 shadow-md">
+			<div class="mb-4 flex items-center justify-between">
+				<h2 class="text-xl font-semibold">Choose a Template</h2>
+				<a
+					href="/cv/templates"
+					class="text-primary-600 hover:text-primary-800 text-sm hover:underline"
+				>
+					View all templates
+				</a>
+			</div>
 
-			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+			<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
 				{#each availableTemplates as template}
 					<div
-						class="cursor-pointer rounded-md border p-3 transition-colors {selectedTemplate ===
+						class="template-card cursor-pointer rounded-md border p-3 transition-all hover:shadow-md {selectedTemplate ===
 						template
-							? 'border-indigo-500 bg-indigo-50 ring-2 ring-indigo-500'
-							: 'border-gray-200 hover:border-indigo-300'}"
-						onclick={() => (selectedTemplate = template)}
+							? 'ring-primary-500 shadow-md ring-2'
+							: 'hover:border-gray-400'}"
+						onclick={() => {
+							selectedTemplate = template;
+							pdfConfig = {
+								...pdfConfig,
+								template
+							};
+						}}
 					>
-						<div class="template-preview flex flex-col {template} mb-2">
-							<!-- Template preview thumbnail -->
-							<div class="mb-2 w-full rounded bg-white p-2 shadow-sm">
-								<div class="rounded bg-gray-50 p-2">
-									<!-- Simulate header -->
-									<div
-										class="mb-2 h-4 rounded"
-										style="background-color: {getTemplateColor(template)}"
-									></div>
-									<!-- Simulate text lines -->
-									<div class="mb-1 h-2 w-1/2 rounded bg-gray-300"></div>
-									<div class="mb-3 h-2 w-3/4 rounded bg-gray-300"></div>
-
-									<!-- Simulate section -->
-									<div
-										class="h-3 w-1/3 rounded"
-										style="background-color: {getTemplateColor(template)}"
-									></div>
-									<div class="mt-1 mb-1 h-2 w-full rounded bg-gray-300"></div>
-									<div class="mb-1 h-2 w-full rounded bg-gray-300"></div>
-									<div class="mb-3 h-2 w-3/4 rounded bg-gray-300"></div>
-								</div>
+						<div class="relative mb-2 aspect-[0.7] w-full overflow-hidden rounded bg-gray-50">
+							<!-- Template thumbnail -->
+							<div class="absolute inset-0 overflow-hidden border">
+								{#if template === 'basic'}
+									<div class="p-2 text-[7px]">
+										<div class="mb-1 text-center text-[8px] font-bold">JOHN DOE</div>
+										<div class="mb-1 text-center text-[6px]">
+											johndoe@example.com | (123) 456-7890
+										</div>
+										<div class="my-1 h-[2px] w-full bg-gray-300"></div>
+										<div class="mt-1 text-[7px] font-bold">EXPERIENCE</div>
+										<div class="flex justify-between text-[6px]">
+											<span class="font-semibold">Software Developer</span>
+											<span>2018 - Present</span>
+										</div>
+									</div>
+								{:else if template === 'professional'}
+									<div class="p-2 text-[7px]">
+										<div class="mb-1 text-center text-[8px] font-bold text-[#2c3e50]">JOHN DOE</div>
+										<div class="mb-1 text-center text-[6px]">
+											johndoe@example.com | (123) 456-7890
+										</div>
+										<div class="my-1 h-[2px] w-full bg-[#3498db]"></div>
+										<div class="mt-1 text-[7px] font-bold text-[#3498db]">EXPERIENCE</div>
+										<div class="flex justify-between text-[6px]">
+											<span class="font-semibold">Software Developer</span>
+											<span>2018 - Present</span>
+										</div>
+									</div>
+								{:else if template === 'modern'}
+									<div class="flex h-full">
+										<div class="h-full w-[30%] bg-[#e8eaf6]"></div>
+										<div class="flex-1 p-2 text-[7px]">
+											<div class="mb-1 text-[8px] font-bold text-[#1a237e]">JOHN DOE</div>
+											<div class="mb-1 text-[6px]">johndoe@example.com</div>
+											<div class="mt-1 text-[7px] font-bold text-[#3f51b5]">EXPERIENCE</div>
+											<div class="flex justify-between text-[6px]">
+												<span class="font-semibold">Software Developer</span>
+												<span class="text-[#5c6bc0]">2018 - Present</span>
+											</div>
+										</div>
+									</div>
+								{:else if template === 'executive'}
+									<div class="p-2 text-[7px]">
+										<div class="mb-2 h-[2px] w-full bg-[#263238]"></div>
+										<div class="mb-1 text-center text-[8px] font-bold">JOHN DOE</div>
+										<div class="mb-1 text-center text-[6px]">
+											johndoe@example.com | (123) 456-7890
+										</div>
+										<div class="mt-1 text-[7px] font-bold text-[#263238]">EXPERIENCE</div>
+										<div class="flex justify-between text-[6px]">
+											<span class="font-semibold">Software Developer</span>
+											<span>2018 - Present</span>
+										</div>
+										<div class="absolute bottom-2 h-[1px] w-[calc(100%-16px)] bg-[#78909c]"></div>
+									</div>
+								{:else if template === 'creative'}
+									<div class="p-0 text-[7px]">
+										<div class="mb-1 h-[15px] w-full bg-[#b388ff]"></div>
+										<div class="p-2">
+											<div class="mb-1 text-center text-[8px] font-bold text-[#6200ea]">
+												JOHN DOE
+											</div>
+											<div class="mb-1 text-center text-[6px]">johndoe@example.com</div>
+											<div class="mt-1 text-[7px] font-bold text-[#651fff]">EXPERIENCE</div>
+											<div class="flex justify-between text-[6px]">
+												<span class="font-semibold">Software Developer</span>
+												<span class="text-[#9575cd]">2018 - Present</span>
+											</div>
+										</div>
+									</div>
+								{:else if template === 'minimal'}
+									<div class="p-3 text-[7px]">
+										<div class="mb-1 text-center text-[8px] font-bold text-[#212121]">JOHN DOE</div>
+										<div class="mb-1 text-center text-[6px] text-[#616161]">
+											johndoe@example.com
+										</div>
+										<div class="mt-2 text-[7px] font-bold text-[#424242]">EXPERIENCE</div>
+										<div class="flex justify-between text-[6px]">
+											<span class="font-semibold">Software Developer</span>
+											<span class="text-[#757575]">2018 - Present</span>
+										</div>
+									</div>
+								{/if}
 							</div>
-							<span class="text-center font-medium capitalize">{template}</span>
-							<span class="text-center text-xs text-gray-500">
-								{getTemplateDescription(template)}
-							</span>
+						</div>
+						<div class="flex items-center justify-between">
+							<div class="text-sm font-medium capitalize">{template}</div>
+							{#if selectedTemplate === template}
+								<div class="bg-primary-500 rounded-full p-1">
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										class="h-4 w-4 text-white"
+										viewBox="0 0 20 20"
+										fill="currentColor"
+									>
+										<path
+											fill-rule="evenodd"
+											d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+											clip-rule="evenodd"
+										/>
+									</svg>
+								</div>
+							{/if}
+						</div>
+						<div class="mt-1 text-xs text-gray-500">
+							{#if template === 'basic'}
+								Simple and clean design
+							{:else if template === 'professional'}
+								Traditional business style
+							{:else if template === 'modern'}
+								Contemporary with side panel
+							{:else if template === 'executive'}
+								Sophisticated corporate look
+							{:else if template === 'creative'}
+								Vibrant and distinctive
+							{:else if template === 'minimal'}
+								Clean and minimal
+							{:else}
+								{template} design
+							{/if}
 						</div>
 					</div>
 				{/each}
-
-				{#if availableTemplates.length === 1}
-					<div
-						class="flex cursor-pointer flex-col items-center justify-center rounded-md border border-dashed border-gray-300 bg-gray-50 p-3"
-						onclick={() => handleUpgradePrompt('templates')}
-					>
-						<div class="mb-2 text-center">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								class="mx-auto mb-1 h-8 w-8 text-gray-400"
-								fill="none"
-								viewBox="0 0 24 24"
-								stroke="currentColor"
-							>
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-								/>
-							</svg>
-							<span class="block font-medium text-gray-800">Get More Templates</span>
-						</div>
-						<p class="text-xs text-gray-500">Upgrade to Premium for access to all templates</p>
-					</div>
-				{/if}
 			</div>
 		</div>
 

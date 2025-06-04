@@ -77,7 +77,23 @@ export function getAvailableTemplates(): string[] {
         return ['basic']; // Default for free/no plan
     }
 
-    return subscription.plan.features.templates || ['basic'];
+    // Different templates based on subscription level
+    switch (subscription.plan.name.toLowerCase()) {
+        case 'free':
+            return ['basic'];
+        case 'starter':
+        case 'basic':
+            return ['basic', 'professional', 'minimal'];
+        case 'pro':
+        case 'professional':
+            return ['basic', 'professional', 'modern', 'minimal', 'executive'];
+        case 'premium':
+        case 'business':
+            return ['basic', 'professional', 'modern', 'executive', 'creative', 'minimal'];
+        default:
+            // Fall back to plan features if defined, otherwise provide basic
+            return subscription.plan.features.templates || ['basic'];
+    }
 }
 
 /**

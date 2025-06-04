@@ -46,5 +46,10 @@ export const handle: Handle = async ({ event, resolve }) => {
     }
 
     // Process the request
-    return resolve(event);
+    const response = await resolve(event);
+
+    // We could track analytics server-side here, but we'll use the client-side
+    // approach for better browser detection and to avoid duplicating logic
+
+    return response;
 };

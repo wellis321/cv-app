@@ -10,6 +10,8 @@
 	import { initGlobalHelpers } from '$lib/utils/globalHelpers';
 	import ContentWrapper from '$lib/components/ContentWrapper.svelte';
 	import { initializeSubscription } from '$lib/stores/subscriptionStore';
+	import AnalyticsTracker from '$lib/components/AnalyticsTracker.svelte';
+	import { isAdminUser } from '$lib/adminConfig';
 
 	// Initialize global helpers
 	if (browser) {
@@ -18,6 +20,7 @@
 
 	// State for storing the current user's username
 	let username = $state<string | null>(null);
+	let isAdmin = $state(false);
 
 	// Navigation items with their paths
 	const navItems = [
@@ -26,6 +29,9 @@
 		{ name: 'Preview & PDF', path: '/preview-cv', forceReload: false },
 		{ name: 'Subscription', path: '/subscription', forceReload: false }
 	];
+
+	// Admin navigation items - only visible to admins
+	const adminNavItems = [{ name: 'Analytics', path: '/admin/analytics', forceReload: false }];
 
 	// Function to check if a path is active
 	function isActive(path: string): boolean {
@@ -99,6 +105,7 @@
 				.then(() => {
 					console.log('Session initialized in layout:', $session ? 'Present' : 'None');
 					fetchUsername();
+					checkAdmin();
 				})
 				.catch((err) => {
 					console.error('Error initializing session in layout:', err);
@@ -129,12 +136,24 @@
 		}
 	}
 
+	// Check if the current user is an admin
+	function checkAdmin() {
+		if ($session?.user) {
+			// Use the isAdminUser helper function from adminConfig
+			isAdmin = isAdminUser($session.user.email);
+		} else {
+			isAdmin = false;
+		}
+	}
+
 	// Update username when session changes
 	$effect(() => {
 		if ($session?.user?.id) {
 			fetchUsername();
+			checkAdmin();
 		} else {
 			username = null;
+			isAdmin = false;
 		}
 	});
 
@@ -165,6 +184,9 @@
 </script>
 
 <div class="min-h-screen bg-gray-50">
+	<!-- Track page visits with the AnalyticsTracker component -->
+	<AnalyticsTracker />
+
 	<header class="bg-white shadow">
 		<nav class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 			<div class="flex h-16 justify-between">
@@ -185,6 +207,18 @@
 								{item.name}
 							</a>
 						{/each}
+						{#if isAdmin}
+							{#each adminNavItems as item}
+								<a
+									href={item.path}
+									class={isActive(item.path)
+										? 'border-b-2 border-purple-600 font-medium text-purple-800 transition-colors hover:text-purple-900'
+										: 'text-purple-600 transition-colors hover:border-b-2 hover:border-purple-300 hover:text-purple-900'}
+								>
+									{item.name}
+								</a>
+							{/each}
+						{/if}
 						{#if username}
 							<a
 								href="/cv/@{username}"

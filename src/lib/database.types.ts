@@ -526,9 +526,90 @@ export interface Database {
                 };
                 Relationships: [];
             };
+            page_analytics: {
+                Row: {
+                    id: string;
+                    path: string;
+                    user_id: string | null;
+                    session_id: string;
+                    is_authenticated: boolean;
+                    browser: string | null;
+                    device_type: string | null;
+                    referrer: string | null;
+                    query_params: Json | null;
+                    created_at: string;
+                    updated_at: string;
+                };
+                Insert: {
+                    id?: string;
+                    path: string;
+                    user_id?: string | null;
+                    session_id: string;
+                    is_authenticated: boolean;
+                    browser?: string | null;
+                    device_type?: string | null;
+                    referrer?: string | null;
+                    query_params?: Json | null;
+                    created_at?: string;
+                    updated_at?: string;
+                };
+                Update: {
+                    id?: string;
+                    path?: string;
+                    user_id?: string | null;
+                    session_id?: string;
+                    is_authenticated?: boolean;
+                    browser?: string | null;
+                    device_type?: string | null;
+                    referrer?: string | null;
+                    query_params?: Json | null;
+                    created_at?: string;
+                    updated_at?: string;
+                };
+                Relationships: [
+                    {
+                        foreignKeyName: 'page_analytics_user_id_fkey';
+                        columns: ['user_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'users';
+                        referencedColumns: ['id'];
+                    }
+                ];
+            };
         };
         Views: {
-            [_ in never]: never;
+            daily_page_views: {
+                Row: {
+                    date: string;
+                    path: string;
+                    views: number;
+                    unique_users: number;
+                    unique_sessions: number;
+                };
+                Relationships: [];
+            };
+            monthly_page_views: {
+                Row: {
+                    month: string;
+                    path: string;
+                    views: number;
+                    unique_users: number;
+                    unique_sessions: number;
+                };
+                Relationships: [];
+            };
+            analytics_dashboard_data: {
+                Row: {
+                    date: string;
+                    total_pageviews: number;
+                    unique_pages: number;
+                    unique_users: number;
+                    unique_sessions: number;
+                    authenticated_views: number;
+                    anonymous_views: number;
+                };
+                Relationships: [];
+            };
         };
         Functions: {
             [_ in never]: never;
