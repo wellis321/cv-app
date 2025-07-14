@@ -3,19 +3,13 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
-    // Consult https://svelte.dev/docs/kit/integrations
-    // for more information about preprocessors
     preprocess: vitePreprocess(),
 
     kit: {
-        // adapter-auto only supports some environments, see https://svelte.dev/docs/kit/adapter-auto for a list.
-        // If your environment is not supported, or you settled on a specific environment, switch out the adapter.
-        // See https://svelte.dev/docs/kit/adapters for more information about adapters.
         adapter: adapter({
-            // Use Node.js runtime for Vercel - must be 'nodejs18.x' format
-            runtime: 'nodejs18.x'
-            // Removed target property as it's not needed with the correct runtime format
+            runtime: 'nodejs20.x'
         }),
+
         csp: {
             directives: {
                 'script-src': ['self', 'https://js.stripe.com'],
@@ -25,6 +19,11 @@ const config = {
                 'script-src': ['self'],
                 'report-uri': ['/api/csp-report']
             }
+        },
+
+        alias: {
+            $lib: 'src/lib',
+            $components: 'src/lib/components'
         }
     }
 };
