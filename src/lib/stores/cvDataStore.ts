@@ -159,8 +159,18 @@ const createCvStore = () => {
 
             // Only create a public client on browser to avoid SSR issues
             if (browser) {
-                client = createPublicClient();
-                console.log('Using public client for CV data access');
+                try {
+                    client = createPublicClient();
+                    console.log('Using public client for CV data access');
+                } catch (clientError) {
+                    console.error('Failed to create public client:', clientError);
+                    loadingState.update(state => ({
+                        ...state,
+                        loading: false,
+                        error: 'Failed to connect to the database'
+                    }));
+                    return;
+                }
             } else {
                 client = supabase; // Use regular client for SSR
             }
@@ -168,6 +178,32 @@ const createCvStore = () => {
             // Check if the client is properly initialized
             if (!client) {
                 console.error('Supabase client not initialized in loadByUsername');
+                loadingState.update(state => ({
+                    ...state,
+                    loading: false,
+                    error: 'Database connection error'
+                }));
+                return;
+            }
+
+            // Test the connection first with a simple query
+            try {
+                const { error: testError } = await client
+                    .from('profiles')
+                    .select('count')
+                    .limit(1);
+
+                if (testError) {
+                    console.error('Connection test failed:', testError);
+                    loadingState.update(state => ({
+                        ...state,
+                        loading: false,
+                        error: 'Database connection error'
+                    }));
+                    return;
+                }
+            } catch (testError) {
+                console.error('Connection test threw an exception:', testError);
                 loadingState.update(state => ({
                     ...state,
                     loading: false,

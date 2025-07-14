@@ -12,8 +12,8 @@ const config = {
         // If your environment is not supported, or you settled on a specific environment, switch out the adapter.
         // See https://svelte.dev/docs/kit/adapters for more information about adapters.
         adapter: adapter({
-            // Use Node.js runtime instead of Edge runtime for better compatibility
-            runtime: 'nodejs18.x'
+            // Use Node.js 18 runtime which is supported by Vercel
+            runtime: 'nodejs18'
             // Removed the regions configuration as it's only applicable to Edge runtime
         }),
         csp: {

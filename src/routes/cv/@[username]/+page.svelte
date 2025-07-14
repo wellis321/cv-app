@@ -15,8 +15,9 @@
 	import { supabase, createPublicClient } from '$lib/supabase';
 	import { decodeHtmlEntities } from '$lib/validation';
 
-	// Get username from the URL
+	// Get username from the URL and server data
 	const username = $page.params.username;
+	const { profileExists, errorMessage } = $page.data;
 
 	// Auth session for checking if user is viewing their own CV
 	const currentSession = $authSession;
@@ -45,6 +46,7 @@
 	// as this causes infinite loop
 	let previousPhotoUrl = $state<string | null>(null);
 	let initialPhotoUrlSet = $state(false);
+	let serverErrorMessage = $state(errorMessage || null);
 
 	// Initial photo URL setup + updates
 	$effect(() => {
@@ -78,10 +80,12 @@
 
 			// Add debugging
 			console.log('CV @[username] page mounted. Username:', username);
+			console.log('Server data:', $page.data);
 
 			// Check if Supabase is initialized properly
 			if (!publicClient) {
 				console.error('Public Supabase client not initialized');
+				serverErrorMessage = 'Database connection error';
 			} else {
 				// Test Supabase connection with a simple query but don't use auth
 				publicClient
@@ -91,18 +95,22 @@
 					.then(({ data, error }) => {
 						if (error) {
 							console.error('Error testing Supabase connection:', error);
+							serverErrorMessage = 'Database connection error';
 						} else {
 							console.log('Supabase public data query successful:', data);
+							// Only load data if the server didn't report an error
+							if (profileExists !== false) {
+								// Load data by username
+								if (username) {
+									console.log('Loading CV data for username:', username);
+									cvStore.loadByUsername(username);
+								} else {
+									console.error('No username provided in URL params');
+									serverErrorMessage = 'No username provided';
+								}
+							}
 						}
 					});
-			}
-
-			// Load data by username
-			if (username) {
-				console.log('Loading CV data for username:', username);
-				cvStore.loadByUsername(username);
-			} else {
-				console.error('No username provided in URL params');
 			}
 
 			return () => {
@@ -378,7 +386,17 @@
 	{/if}
 </svelte:head>
 
-{#if loadingState.error}
+{#if serverErrorMessage}
+	<div class="container mx-auto max-w-5xl px-4 py-8">
+		<div class="mb-4 rounded-lg bg-red-100 p-4 text-red-700 shadow-lg">
+			Error: {serverErrorMessage}
+			{#if browser}
+				<br />
+				<span class="text-sm text-gray-600">Debug: Username from URL: {username}</span>
+			{/if}
+		</div>
+	</div>
+{:else if loadingState.error}
 	<div class="container mx-auto max-w-5xl px-4 py-8">
 		<div class="mb-4 rounded-lg bg-red-100 p-4 text-red-700 shadow-lg">
 			Error: {loadingState.error}
@@ -404,11 +422,8 @@
 			<p class="text-yellow-700">This CV is not available or no longer exists.</p>
 			{#if browser}
 				<div class="mt-2 text-sm text-gray-600">
-					Debug info: username={username}, loading={loadingState.loading}, cvData={JSON.stringify(
-						cvData,
-						null,
-						2
-					)}
+					Debug info: username={username}, loading={loadingState.loading}, profileExists={profileExists},
+					cvData={JSON.stringify(cvData, null, 2)}
 				</div>
 			{/if}
 			<div class="mt-4">

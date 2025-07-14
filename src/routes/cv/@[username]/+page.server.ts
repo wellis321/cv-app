@@ -24,7 +24,7 @@ function validateHeaderColors(profile: any): void {
 // We'll use a minimal server-side load function since we're now loading data
 // client-side with the CV data store. This is just to handle basic routing
 // and username validation.
-export const load: PageServerLoad = async ({ params, setHeaders }) => {
+export const load: PageServerLoad = async ({ params, setHeaders, fetch }) => {
     // Set cache headers - cache for 5 minutes on the edge
     setHeaders({
         'Cache-Control': 'max-age=0, s-maxage=300',
@@ -55,13 +55,28 @@ export const load: PageServerLoad = async ({ params, setHeaders }) => {
         console.log(`[SERVER] Checking if profile exists for username: ${username}`);
         const { data: profile, error: profileError } = await supabase
             .from('profiles')
-            .select('id, username')
+            .select('id, username, full_name')
             .eq('username', username)
             .single();
 
         if (profileError) {
             console.error(`[SERVER] Error finding profile for username ${username}:`, profileError);
-            throw error(404, 'Profile not found');
+
+            // Check if this is a data not found error
+            if (profileError.code === 'PGRST116') {
+                throw error(404, `Profile not found for username: ${username}`);
+            } else {
+                // For database connection errors, return a minimal response to prevent 404
+                console.error(`[SERVER] Database error for username ${username}:`, profileError);
+                return {
+                    seo: {
+                        allowIndexing: false
+                    },
+                    profileExists: false,
+                    errorMessage: 'Database connection error, please try again later',
+                    username
+                };
+            }
         }
 
         if (!profile) {
@@ -76,15 +91,26 @@ export const load: PageServerLoad = async ({ params, setHeaders }) => {
             seo: {
                 allowIndexing: false // For now, we're not allowing any CV profiles to be indexed
             },
-            profileExists: true
+            profileExists: true,
+            username,
+            profileName: profile.full_name || username
         };
     } catch (e) {
         console.error(`[SERVER] Error in load function for username ${username}:`, e);
+
         // If it's already a SvelteKit error, rethrow it
         if (e && typeof e === 'object' && 'status' in e && 'message' in e) {
             throw e;
         }
-        // Otherwise, wrap it
-        throw error(500, 'Failed to load profile data');
+
+        // For other errors, return a minimal response to prevent 404
+        return {
+            seo: {
+                allowIndexing: false
+            },
+            profileExists: false,
+            errorMessage: 'An error occurred while loading the profile',
+            username
+        };
     }
 };

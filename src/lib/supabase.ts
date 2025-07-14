@@ -37,9 +37,25 @@ const mainClientOptions = {
 };
 
 // Create a supabase client
-export const supabase = browser && !supabaseInstance
-    ? createClient<Database>(config.supabase.url, config.supabase.anonKey, mainClientOptions)
-    : supabaseInstance || createClient<Database>(config.supabase.url, config.supabase.anonKey, mainClientOptions);
+export const supabase = (() => {
+    try {
+        if (browser && !supabaseInstance) {
+            const client = createClient<Database>(config.supabase.url, config.supabase.anonKey, mainClientOptions);
+            supabaseInstance = client;
+            safeLog('debug', 'Main Supabase client initialized');
+            return client;
+        }
+        return supabaseInstance || createClient<Database>(config.supabase.url, config.supabase.anonKey, mainClientOptions);
+    } catch (error) {
+        safeLog('error', 'Failed to initialize main Supabase client', error);
+        // Return a non-null value to prevent runtime errors, but this client won't work
+        return createClient<Database>(
+            config.supabase.url || 'https://placeholder-url.supabase.co',
+            config.supabase.anonKey || 'placeholder-key',
+            mainClientOptions
+        );
+    }
+})();
 
 // Save the instance for future use
 if (browser && !supabaseInstance) {
@@ -49,19 +65,24 @@ if (browser && !supabaseInstance) {
 
 // Create a separate client specifically for public CV pages with a different storage key
 export function createPublicClient() {
-    safeLog('debug', 'Created unauthenticated client for public CV access');
-    return createClient<Database>(config.supabase.url, config.supabase.anonKey, {
-        auth: {
-            persistSession: false, // Don't persist sessions for public views
-            autoRefreshToken: false, // Don't attempt to refresh tokens
-            detectSessionInUrl: false, // Don't check URL for auth tokens
-            storageKey: 'sb-auth-token-public', // Use a different storage key
-            flowType: 'pkce' as const
-        },
-        global: {
-            fetch: customFetch
-        }
-    });
+    try {
+        safeLog('debug', 'Created unauthenticated client for public CV access');
+        return createClient<Database>(config.supabase.url, config.supabase.anonKey, {
+            auth: {
+                persistSession: false, // Don't persist sessions for public views
+                autoRefreshToken: false, // Don't attempt to refresh tokens
+                detectSessionInUrl: false, // Don't check URL for auth tokens
+                storageKey: 'sb-auth-token-public', // Use a different storage key
+                flowType: 'pkce' as const
+            },
+            global: {
+                fetch: customFetch
+            }
+        });
+    } catch (error) {
+        safeLog('error', 'Failed to create public Supabase client', error);
+        throw new Error('Failed to connect to the database. Please try again later.');
+    }
 }
 
 // Custom fetch function with retry logic for network errors
