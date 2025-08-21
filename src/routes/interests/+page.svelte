@@ -4,8 +4,12 @@
 	import { supabase } from '$lib/supabase';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
-	import { session as authSession } from '$lib/stores/authStore';
+	import { session, authLoading } from '$lib/stores/authStore';
 	import BreadcrumbNavigation from '$lib/components/BreadcrumbNavigation.svelte';
+	import FormSection from '$lib/components/FormSection.svelte';
+	import FormGrid from '$lib/components/FormGrid.svelte';
+	import FormField from '$lib/components/FormField.svelte';
+	import { formatDescription } from '$lib/utils/textFormatting';
 
 	interface Interest {
 		id: string;
@@ -32,9 +36,6 @@
 	let isEditing = $state(false);
 	let editingInterest = $state<Interest | null>(null);
 	let deleteConfirmId = $state<string | null>(null);
-
-	// Session from store
-	const session = $authSession;
 
 	// Sort interests alphabetically
 	function sortInterests(interestList: Interest[]): Interest[] {
@@ -464,7 +465,9 @@
 								<div class="flex-1">
 									<div class="font-semibold">{interest.name}</div>
 									{#if interest.description}
-										<div class="mt-1 text-sm text-gray-600">{interest.description}</div>
+										{#each formatDescription(interest.description) as paragraph}
+											<div class="mt-1 text-sm text-gray-600">{paragraph}</div>
+										{/each}
 									{/if}
 								</div>
 								<div class="flex gap-2">

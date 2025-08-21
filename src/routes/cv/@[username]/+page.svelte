@@ -14,6 +14,7 @@
 	import { session as authSession } from '$lib/stores/authStore';
 	import { supabase, createPublicClient } from '$lib/supabase';
 	import { decodeHtmlEntities } from '$lib/validation';
+	import { formatDescription } from '$lib/utils/textFormatting';
 
 	// Get username from the URL and server data
 	const username = $page.params.username;
@@ -636,7 +637,7 @@
 												</p>
 											{/if}
 											{#if cert.description}
-												<p class="mt-2 text-sm text-gray-600">
+												<p class="mt-2 text-sm whitespace-pre-line text-gray-600">
 													{decodeHtmlEntities(cert.description)}
 												</p>
 											{/if}
@@ -692,7 +693,7 @@
 												{decodeHtmlEntities(interest.name)}
 											</h3>
 											{#if interest.description}
-												<p class="mt-1 text-sm text-gray-600">
+												<p class="mt-1 text-sm whitespace-pre-line text-gray-600">
 													{decodeHtmlEntities(interest.description)}
 												</p>
 											{/if}
@@ -780,7 +781,9 @@
 											</header>
 
 											{#if work.description}
-												<p class="my-2 text-gray-600">{decodeHtmlEntities(work.description)}</p>
+												<p class="my-2 whitespace-pre-line text-gray-600">
+													{decodeHtmlEntities(work.description)}
+												</p>
 											{/if}
 
 											<!-- Responsibilities section with better visibility -->

@@ -15,6 +15,7 @@
 	import FormSection from '$lib/components/FormSection.svelte';
 	import FormGrid from '$lib/components/FormGrid.svelte';
 	import FormField from '$lib/components/FormField.svelte';
+	import { formatDescription } from '$lib/utils/textFormatting';
 
 	// Define type for form values
 	type FormValues = {
@@ -770,7 +771,11 @@
 									{formatDate(experience.start_date)} - {formatDate(experience.end_date)}
 								</p>
 								{#if experience.description}
-									<p class="mt-2 text-gray-700">{experience.description}</p>
+									{#each formatDescription(experience.description) as paragraph}
+										<p class="mt-2 text-gray-700">
+											{paragraph}
+										</p>
+									{/each}
 								{/if}
 							</div>
 							<div class="flex items-center space-x-2">

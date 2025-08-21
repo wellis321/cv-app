@@ -16,6 +16,7 @@
 		deleteQualification,
 		addEvidence
 	} from './qualificationUtils';
+	import { formatDescription } from '$lib/utils/textFormatting';
 
 	let { data, form } = $props<{
 		data: {
@@ -668,11 +669,11 @@
 
 						<!-- Description section (if exists) -->
 						{#if qualification.description && qualification.description.trim()}
-							<div class="mt-2">
+							<div class="mt-3">
 								<h4 class="mb-1 text-sm font-medium text-gray-700">Description</h4>
-								<div class="whitespace-pre-line text-gray-700">
-									{qualification.description}
-								</div>
+								{#each formatDescription(qualification.description) as paragraph}
+									<div class="text-gray-700">{paragraph}</div>
+								{/each}
 							</div>
 						{/if}
 

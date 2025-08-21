@@ -14,6 +14,7 @@
 		DEFAULT_PROJECT_IMAGE,
 		getProxiedPhotoUrl
 	} from '$lib/photoUtils';
+	import { formatDescription } from '$lib/utils/textFormatting';
 
 	interface PageData {
 		projects: Project[];
@@ -729,7 +730,9 @@
 							<!-- Project Details -->
 							<div class="p-6">
 								{#if project.description}
-									<p class="text-gray-600">{project.description}</p>
+									{#each formatDescription(project.description) as paragraph}
+										<p class="text-gray-600">{paragraph}</p>
+									{/each}
 								{/if}
 
 								{#if project.url}

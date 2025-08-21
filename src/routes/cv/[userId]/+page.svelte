@@ -4,6 +4,7 @@
 	import { formatDate } from '$lib/pdfGenerator';
 	import ResponsibilitiesEditor from '../../work-experience/ResponsibilitiesEditor.svelte';
 	import { getProxiedPhotoUrl, DEFAULT_PROFILE_PHOTO } from '$lib/photoUtils';
+	import { formatDescription } from '$lib/utils/textFormatting';
 
 	// Get CV data from server load
 	let { data } = $props();

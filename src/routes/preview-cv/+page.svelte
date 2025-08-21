@@ -18,6 +18,7 @@
 	import { decodeHtmlEntities } from '$lib/validation';
 	import { canExportPdf, getAvailableTemplates } from '$lib/utils/subscriptionUtils';
 	import { goto } from '$app/navigation';
+	import { formatDescription } from '$lib/utils/textFormatting';
 
 	// CV data
 	let profile = $state<any>(null);
@@ -954,7 +955,9 @@
 									</div>
 									{#if job.description}
 										<div class="my-3 text-gray-700">
-											{decodeHtmlEntities(job.description)}
+											{#each formatDescription(decodeHtmlEntities(job.description)) as paragraph}
+												<p>{paragraph}</p>
+											{/each}
 										</div>
 									{/if}
 									{#if job.responsibilities && job.responsibilities.length > 0}
@@ -986,7 +989,9 @@
 									{/if}
 									{#if qual.description}
 										<div class="my-3 text-gray-700">
-											{decodeHtmlEntities(qual.description)}
+											{#each formatDescription(decodeHtmlEntities(qual.description)) as paragraph}
+												<p>{paragraph}</p>
+											{/each}
 										</div>
 									{/if}
 								</div>
@@ -1021,7 +1026,9 @@
 									</div>
 									{#if edu.description}
 										<div class="my-3 text-gray-700">
-											{decodeHtmlEntities(edu.description)}
+											{#each formatDescription(decodeHtmlEntities(edu.description)) as paragraph}
+												<p>{paragraph}</p>
+											{/each}
 										</div>
 									{/if}
 								</div>
@@ -1086,7 +1093,9 @@
 									</div>
 									{#if project.description}
 										<div class="my-3 text-gray-700">
-											{decodeHtmlEntities(project.description)}
+											{#each formatDescription(decodeHtmlEntities(project.description)) as paragraph}
+												<p>{paragraph}</p>
+											{/each}
 										</div>
 									{/if}
 								</div>
@@ -1130,7 +1139,9 @@
 									</div>
 									{#if cert.description}
 										<div class="my-3 text-gray-700">
-											{decodeHtmlEntities(cert.description)}
+											{#each formatDescription(decodeHtmlEntities(cert.description)) as paragraph}
+												<p>{paragraph}</p>
+											{/each}
 										</div>
 									{/if}
 								</div>
@@ -1163,7 +1174,9 @@
 									</div>
 									{#if membership.description}
 										<div class="my-3 text-gray-700">
-											{decodeHtmlEntities(membership.description)}
+											{#each formatDescription(decodeHtmlEntities(membership.description)) as paragraph}
+												<p>{paragraph}</p>
+											{/each}
 										</div>
 									{/if}
 								</div>
@@ -1182,7 +1195,9 @@
 									</h3>
 									{#if interest.description}
 										<div class="my-3 text-gray-700">
-											{decodeHtmlEntities(interest.description)}
+											{#each formatDescription(decodeHtmlEntities(interest.description)) as paragraph}
+												<p>{paragraph}</p>
+											{/each}
 										</div>
 									{/if}
 								</div>
