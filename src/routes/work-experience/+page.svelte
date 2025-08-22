@@ -15,7 +15,8 @@
 	import FormSection from '$lib/components/FormSection.svelte';
 	import FormGrid from '$lib/components/FormGrid.svelte';
 	import FormField from '$lib/components/FormField.svelte';
-	import { formatDescription } from '$lib/utils/textFormatting';
+	import RichTextEditor from '$lib/components/RichTextEditor.svelte';
+	import { formatDescription, formatDescriptionWithFormatting } from '$lib/utils/textFormatting';
 
 	// Define type for form values
 	type FormValues = {
@@ -962,19 +963,12 @@
 							/>
 						</FormGrid>
 
-						<div>
-							<label class="mb-1 block text-sm font-medium text-gray-700" for="description"
-								>Description</label
-							>
-							<textarea
-								id="description"
-								name="description"
-								rows="4"
-								bind:value={description}
-								placeholder="Briefly describe your role and responsibilities..."
-								class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-							></textarea>
-						</div>
+						<RichTextEditor
+							bind:value={description}
+							placeholder="Briefly describe your role and responsibilities... Use the toolbar above to make text bold, italic, or add bullet points."
+							rows={4}
+							label="Description"
+						/>
 
 						<!-- Hide Date Option -->
 						<div class="flex items-center">
@@ -1102,11 +1096,11 @@
 									)}
 								</p>
 								{#if experience.description}
-									{#each formatDescription(experience.description) as paragraph}
-										<p class="mt-2 text-gray-700">
-											{paragraph}
-										</p>
-									{/each}
+									<div class="mt-2 text-gray-700">
+										{#each formatDescriptionWithFormatting(experience.description) as paragraph}
+											{@html paragraph}
+										{/each}
+									</div>
 								{/if}
 							</div>
 							<div class="flex items-center space-x-2">

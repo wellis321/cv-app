@@ -18,7 +18,7 @@
 	import { decodeHtmlEntities } from '$lib/validation';
 	import { canExportPdf, getAvailableTemplates } from '$lib/utils/subscriptionUtils';
 	import { goto } from '$app/navigation';
-	import { formatDescription } from '$lib/utils/textFormatting';
+	import { formatDescription, formatDescriptionWithFormatting } from '$lib/utils/textFormatting';
 
 	// CV data
 	let profile = $state<any>(null);
@@ -1007,8 +1007,8 @@
 									</div>
 									{#if job.description}
 										<div class="my-3 text-gray-700">
-											{#each formatDescription(decodeHtmlEntities(job.description)) as paragraph}
-												<p>{paragraph}</p>
+											{#each formatDescriptionWithFormatting(decodeHtmlEntities(job.description)) as paragraph}
+												{@html paragraph}
 											{/each}
 										</div>
 									{/if}

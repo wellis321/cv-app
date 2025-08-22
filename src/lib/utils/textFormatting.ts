@@ -58,3 +58,47 @@ export function formatDescriptionWithCss(description: string): string {
     // Return the original text - use CSS white-space: pre-line to preserve formatting
     return description;
 }
+
+// Function to render formatted text with basic markdown-like syntax
+export function renderFormattedText(text: string): string {
+    if (!text) return '';
+
+    // Convert markdown-like syntax to HTML
+    return text
+        // Bold text: **text** -> <strong>text</strong>
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        // Italic text: *text* -> <em>text</em>
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        // Bullet points: • text -> <li>text</li>
+        .replace(/^•\s+(.*)$/gm, '<li>$1</li>')
+        // Dash points: - text -> <li>text</li>
+        .replace(/^-\s+(.*)$/gm, '<li>$1</li>')
+        // Convert line breaks to <br> tags
+        .replace(/\n/g, '<br>');
+}
+
+// Function to format description with proper HTML rendering
+export function formatDescriptionWithFormatting(description: string): string[] {
+    if (!description) return [];
+
+    // Split by double line breaks to separate paragraphs
+    const paragraphs = description.split(/\n\s*\n/);
+
+    return paragraphs.map(paragraph => {
+        // Check if paragraph contains list items
+        const lines = paragraph.split('\n');
+        const hasListItems = lines.some(line => line.trim().match(/^[•-]\s+/));
+
+        if (hasListItems) {
+            // Format as a list
+            const listItems = lines
+                .filter(line => line.trim().match(/^[•-]\s+/))
+                .map(line => line.trim().replace(/^[•-]\s+/, ''));
+
+            return `<ul class="list-disc list-inside space-y-1">${listItems.map(item => `<li>${item}</li>`).join('')}</ul>`;
+        } else {
+            // Format as regular paragraph with inline formatting
+            return renderFormattedText(paragraph.trim());
+        }
+    });
+}

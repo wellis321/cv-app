@@ -15,7 +15,7 @@
 	import { session as authSession } from '$lib/stores/authStore';
 	import { supabase, createPublicClient } from '$lib/supabase';
 	import { decodeHtmlEntities } from '$lib/validation';
-	import { formatDescription } from '$lib/utils/textFormatting';
+	import { formatDescription, formatDescriptionWithFormatting } from '$lib/utils/textFormatting';
 
 	// Get username from the URL and server data
 	const username = $page.params.username;
@@ -802,9 +802,11 @@
 											</header>
 
 											{#if work.description}
-												<p class="my-2 whitespace-pre-line text-gray-600">
-													{decodeHtmlEntities(work.description)}
-												</p>
+												<div class="my-2 text-gray-600">
+													{#each formatDescriptionWithFormatting(decodeHtmlEntities(work.description)) as paragraph}
+														{@html paragraph}
+													{/each}
+												</div>
 											{/if}
 
 											<!-- Responsibilities section with better visibility -->
