@@ -76,18 +76,71 @@
 	let loadingResponsibilities = $state(false);
 	let isReordering = $state(false);
 	let draggedExperience = $state<WorkExperience | null>(null);
+	let dateFormatPreference = $state<'month-year' | 'year-only'>('month-year');
 
-	// Function to format dates with Temporal
+	// Load date format preference from user profile
+	async function loadDateFormatPreference() {
+		try {
+			const userId = $session?.user.id || data.session?.user.id;
+			if (userId) {
+				const { data: profileData } = await supabase
+					.from('profiles')
+					.select('date_format_preference')
+					.eq('id', userId)
+					.single();
+
+				if (profileData?.date_format_preference) {
+					dateFormatPreference = profileData.date_format_preference;
+				}
+			}
+		} catch (err) {
+			console.warn('Could not load date format preference:', err);
+		}
+	}
+
+	// Save date format preference to user profile
+	async function saveDateFormatPreference() {
+		try {
+			const userId = $session?.user.id || data.session?.user.id;
+			if (userId) {
+				await supabase
+					.from('profiles')
+					.update({ date_format_preference: dateFormatPreference })
+					.eq('id', userId);
+			}
+		} catch (err) {
+			console.warn('Could not save date format preference:', err);
+		}
+	}
+
+	// Watch for changes in date format preference and save to profile
+	$effect(() => {
+		if (dateFormatPreference && initialCheckDone) {
+			saveDateFormatPreference();
+		}
+	});
+
+	// Function to format dates with preference
 	function formatDate(dateString: string | null): string {
 		if (!dateString) return 'Present';
 		try {
 			const plainDate = Temporal.PlainDate.from(dateString);
-			// Format as MM/YYYY
-			return `${plainDate.month.toString().padStart(2, '0')}/${plainDate.year}`;
+
+			if (dateFormatPreference === 'year-only') {
+				return plainDate.year.toString();
+			} else {
+				// Format as MM/YYYY
+				return `${plainDate.month.toString().padStart(2, '0')}/${plainDate.year}`;
+			}
 		} catch (e) {
 			// Fallback to basic formatting if Temporal fails
 			const date = new Date(dateString);
-			return `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+
+			if (dateFormatPreference === 'year-only') {
+				return date.getFullYear().toString();
+			} else {
+				return `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+			}
 		}
 	}
 
@@ -420,6 +473,9 @@
 		}
 
 		initialCheckDone = true;
+
+		// Load date format preference
+		await loadDateFormatPreference();
 	});
 
 	// Subscribe to auth state changes
@@ -800,21 +856,35 @@
 	<div class="mx-auto max-w-xl">
 		<div class="mb-4 flex items-center justify-between">
 			<h2 class="text-2xl font-bold">Your Work Experience</h2>
-			<div class="flex gap-2">
-				{#if workExperiences.length > 1}
-					<button
-						onclick={toggleReorderMode}
-						class="rounded-md bg-gray-600 px-4 py-2 text-white hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:outline-none"
+			<div class="flex items-center gap-4">
+				<!-- Date Format Preference -->
+				<div class="flex items-center gap-2">
+					<label class="text-sm font-medium text-gray-700">Date Format:</label>
+					<select
+						bind:value={dateFormatPreference}
+						class="rounded-md border border-gray-300 px-3 py-1 text-sm focus:border-indigo-500 focus:ring-indigo-500"
 					>
-						{isReordering ? 'Done Reordering' : 'Reorder'}
+						<option value="month-year">Month/Year (01/2024)</option>
+						<option value="year-only">Year Only (2024)</option>
+					</select>
+				</div>
+
+				<div class="flex gap-2">
+					{#if workExperiences.length > 1}
+						<button
+							onclick={toggleReorderMode}
+							class="rounded-md bg-gray-600 px-4 py-2 text-white hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:outline-none"
+						>
+							{isReordering ? 'Done Reordering' : 'Reorder'}
+						</button>
+					{/if}
+					<button
+						onclick={toggleAddForm}
+						class="rounded-md bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+					>
+						{showAddForm ? 'Cancel' : 'Add Experience'}
 					</button>
-				{/if}
-				<button
-					onclick={toggleAddForm}
-					class="rounded-md bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-				>
-					{showAddForm ? 'Cancel' : 'Add Experience'}
-				</button>
+				</div>
 			</div>
 		</div>
 

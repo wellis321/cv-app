@@ -2,7 +2,8 @@
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
-	import { formatDate, generateCvPdf } from '$lib/pdfGenerator';
+	import { generateCvPdf } from '$lib/pdfGenerator';
+	import { formatDateWithPreference, getDateFormatPreference } from '$lib/utils/dateFormatting';
 	import { cvStore } from '$lib/stores/cvDataStore';
 	import ResponsibilitiesEditor from '../../work-experience/ResponsibilitiesEditor.svelte';
 	import {
@@ -630,9 +631,15 @@
 											{/if}
 											{#if cert.date_obtained}
 												<p class="mt-1 text-sm text-gray-500">
-													{formatDate(cert.date_obtained)}
+													{formatDateWithPreference(
+														cert.date_obtained,
+														getDateFormatPreference(cvData.profile)
+													)}
 													{#if cert.expiry_date}
-														- Expires: {formatDate(cert.expiry_date)}
+														- Expires: {formatDateWithPreference(
+															cert.expiry_date,
+															getDateFormatPreference(cvData.profile)
+														)}
 													{/if}
 												</p>
 											{/if}
@@ -668,8 +675,14 @@
 											{/if}
 											{#if edu.start_date}
 												<p class="mt-1 text-sm text-gray-500">
-													{formatDate(edu.start_date)} - {edu.end_date
-														? formatDate(edu.end_date)
+													{formatDateWithPreference(
+														edu.start_date,
+														getDateFormatPreference(cvData.profile)
+													)} - {edu.end_date
+														? formatDateWithPreference(
+																edu.end_date,
+																getDateFormatPreference(cvData.profile)
+															)
 														: 'Present'}
 												</p>
 											{/if}
@@ -774,8 +787,14 @@
 													{decodeHtmlEntities(work.company_name)}
 												</div>
 												<p class="text-sm text-gray-500">
-													{formatDate(work.start_date)} - {work.end_date
-														? formatDate(work.end_date)
+													{formatDateWithPreference(
+														work.start_date,
+														getDateFormatPreference(cvData.profile)
+													)} - {work.end_date
+														? formatDateWithPreference(
+																work.end_date,
+																getDateFormatPreference(cvData.profile)
+															)
 														: 'Present'}
 												</p>
 											</header>
@@ -928,8 +947,14 @@
 													</h3>
 													{#if project.start_date}
 														<p class="text-sm text-gray-500">
-															{formatDate(project.start_date)} - {project.end_date
-																? formatDate(project.end_date)
+															{formatDateWithPreference(
+																project.start_date,
+																getDateFormatPreference(cvData.profile)
+															)} - {project.end_date
+																? formatDateWithPreference(
+																		project.end_date,
+																		getDateFormatPreference(cvData.profile)
+																	)
 																: 'Present'}
 														</p>
 													{/if}
@@ -1049,8 +1074,14 @@
 												</div>
 												{#if membership.start_date}
 													<div class="text-sm text-gray-500">
-														{formatDate(membership.start_date)} - {membership.end_date
-															? formatDate(membership.end_date)
+														{formatDateWithPreference(
+															membership.start_date,
+															getDateFormatPreference(cvData.profile)
+														)} - {membership.end_date
+															? formatDateWithPreference(
+																	membership.end_date,
+																	getDateFormatPreference(cvData.profile)
+																)
 															: 'Present'}
 													</div>
 												{/if}

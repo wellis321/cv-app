@@ -7,11 +7,11 @@
 	import ResponsibilitiesEditor from '../work-experience/ResponsibilitiesEditor.svelte';
 	import {
 		generateCvPdf,
-		formatDate,
 		type CvData,
 		type PdfExportConfig,
 		defaultPdfConfig
 	} from '$lib/pdfGenerator';
+	import { formatDateWithPreference, getDateFormatPreference } from '$lib/utils/dateFormatting';
 	import { cvStore } from '$lib/stores/cvDataStore';
 	import { page } from '$app/stores';
 	import { getProxiedPhotoUrl, validatePhotoUrl, DEFAULT_PROFILE_PHOTO } from '$lib/photoUtils';
@@ -998,7 +998,8 @@
 											</div>
 										</div>
 										<div class="mt-2 text-gray-600 md:mt-0 md:text-right">
-											{formatDate(job.start_date)} - {formatDate(job.end_date)}
+											{formatDateWithPreference(job.start_date, getDateFormatPreference(profile))} -
+											{formatDateWithPreference(job.end_date, getDateFormatPreference(profile))}
 										</div>
 									</div>
 									{#if job.description}
@@ -1069,7 +1070,8 @@
 											{/if}
 										</div>
 										<div class="mt-2 text-gray-600 md:mt-0 md:text-right">
-											{formatDate(edu.start_date)} - {formatDate(edu.end_date)}
+											{formatDateWithPreference(edu.start_date, getDateFormatPreference(profile))} -
+											{formatDateWithPreference(edu.end_date, getDateFormatPreference(profile))}
 										</div>
 									</div>
 									{#if edu.description}
@@ -1135,7 +1137,13 @@
 										</div>
 										{#if project.start_date}
 											<div class="mt-2 text-gray-600 md:mt-0 md:text-right">
-												{formatDate(project.start_date)} - {formatDate(project.end_date)}
+												{formatDateWithPreference(
+													project.start_date,
+													getDateFormatPreference(profile)
+												)} - {formatDateWithPreference(
+													project.end_date,
+													getDateFormatPreference(profile)
+												)}
 											</div>
 										{/if}
 									</div>
@@ -1178,9 +1186,15 @@
 										</div>
 										<div class="mt-2 text-gray-600 md:mt-0 md:text-right">
 											{#if cert.date_issued}
-												Issued: {formatDate(cert.date_issued)}
+												Issued: {formatDateWithPreference(
+													cert.date_issued,
+													getDateFormatPreference(profile)
+												)}
 												{#if cert.expiry_date}
-													<br />Expires: {formatDate(cert.expiry_date)}
+													<br />Expires: {formatDateWithPreference(
+														cert.expiry_date,
+														getDateFormatPreference(profile)
+													)}
 												{/if}
 											{/if}
 										</div>
@@ -1216,7 +1230,13 @@
 										</div>
 										{#if membership.start_date}
 											<div class="mt-2 text-gray-600 md:mt-0 md:text-right">
-												{formatDate(membership.start_date)} - {formatDate(membership.end_date)}
+												{formatDateWithPreference(
+													membership.start_date,
+													getDateFormatPreference(profile)
+												)} - {formatDateWithPreference(
+													membership.end_date,
+													getDateFormatPreference(profile)
+												)}
 											</div>
 										{/if}
 									</div>
