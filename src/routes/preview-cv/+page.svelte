@@ -997,10 +997,13 @@
 												{decodeHtmlEntities(job.company_name)}
 											</div>
 										</div>
-										<div class="mt-2 text-gray-600 md:mt-0 md:text-right">
-											{formatDateWithPreference(job.start_date, getDateFormatPreference(profile))} -
-											{formatDateWithPreference(job.end_date, getDateFormatPreference(profile))}
-										</div>
+										{#if !job.hide_date}
+											<div class="mt-2 text-gray-600 md:mt-0 md:text-right">
+												{formatDateWithPreference(job.start_date, getDateFormatPreference(profile))}
+												-
+												{formatDateWithPreference(job.end_date, getDateFormatPreference(profile))}
+											</div>
+										{/if}
 									</div>
 									{#if job.description}
 										<div class="my-3 text-gray-700">

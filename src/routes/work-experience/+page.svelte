@@ -43,6 +43,7 @@
 		description: string | null;
 		created_at: string;
 		sort_order?: number;
+		hide_date?: boolean;
 	};
 
 	let { data, form } = $props<{
@@ -59,6 +60,7 @@
 	let startDate = $state('');
 	let endDate = $state('');
 	let description = $state('');
+	let hideDate = $state(false);
 	let workExperiences = $state<WorkExperience[]>([]);
 	let error = $state<string | null>(null);
 	let success = $state<string | null>(null);
@@ -121,7 +123,8 @@
 	});
 
 	// Function to format dates with preference
-	function formatDate(dateString: string | null): string {
+	function formatDate(dateString: string | null, hideDate: boolean = false): string {
+		if (hideDate) return '';
 		if (!dateString) return 'Present';
 		try {
 			const plainDate = Temporal.PlainDate.from(dateString);
@@ -536,6 +539,7 @@
 		position = exp.position;
 		startDate = exp.start_date;
 		endDate = exp.end_date || '';
+		hideDate = exp.hide_date || false;
 		showAddForm = true;
 
 		// Scroll to the form
@@ -675,6 +679,7 @@
 		startDate = '';
 		endDate = '';
 		description = '';
+		hideDate = false;
 	}
 
 	// Add client-side form handling to validate session before submission
@@ -752,7 +757,8 @@
 						position,
 						start_date: startDate,
 						end_date: endDate || null,
-						description: description // Only store the description, not the responsibilities
+						description: description, // Only store the description, not the responsibilities
+						hide_date: hideDate
 					})
 					.eq('id', editingExperience.id)
 					.select();
@@ -766,7 +772,8 @@
 						position,
 						start_date: startDate,
 						end_date: endDate || null,
-						description: description // Only store the description, not the responsibilities
+						description: description, // Only store the description, not the responsibilities
+						hide_date: hideDate
 					})
 					.select();
 			}
@@ -969,6 +976,19 @@
 							></textarea>
 						</div>
 
+						<!-- Hide Date Option -->
+						<div class="flex items-center">
+							<input
+								id="hideDate"
+								type="checkbox"
+								bind:checked={hideDate}
+								class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+							/>
+							<label for="hideDate" class="ml-2 text-sm text-gray-700">
+								Hide date for this work experience
+							</label>
+						</div>
+
 						<div class="flex justify-end gap-2">
 							{#if isEditing}
 								<button
@@ -1076,7 +1096,10 @@
 								<h3 class="text-lg font-medium text-gray-900">{experience.position}</h3>
 								<p class="text-gray-600">{experience.company_name}</p>
 								<p class="text-sm text-gray-500">
-									{formatDate(experience.start_date)} - {formatDate(experience.end_date)}
+									{formatDate(experience.start_date, experience.hide_date)} - {formatDate(
+										experience.end_date,
+										experience.hide_date
+									)}
 								</p>
 								{#if experience.description}
 									{#each formatDescription(experience.description) as paragraph}

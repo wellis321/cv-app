@@ -786,17 +786,19 @@
 												<div class="text-md font-medium text-gray-700">
 													{decodeHtmlEntities(work.company_name)}
 												</div>
-												<p class="text-sm text-gray-500">
-													{formatDateWithPreference(
-														work.start_date,
-														getDateFormatPreference(cvData.profile)
-													)} - {work.end_date
-														? formatDateWithPreference(
-																work.end_date,
-																getDateFormatPreference(cvData.profile)
-															)
-														: 'Present'}
-												</p>
+												{#if !work.hide_date}
+													<p class="text-sm text-gray-500">
+														{formatDateWithPreference(
+															work.start_date,
+															getDateFormatPreference(cvData.profile)
+														)} - {work.end_date
+															? formatDateWithPreference(
+																	work.end_date,
+																	getDateFormatPreference(cvData.profile)
+																)
+															: 'Present'}
+													</p>
+												{/if}
 											</header>
 
 											{#if work.description}
