@@ -208,6 +208,7 @@ export interface Database {
             profiles: {
                 Row: {
                     created_at: string;
+                    date_format_preference: string;
                     email: string | null;
                     full_name: string | null;
                     id: string;
@@ -225,6 +226,7 @@ export interface Database {
                 };
                 Insert: {
                     created_at?: string;
+                    date_format_preference?: string;
                     email?: string | null;
                     full_name?: string | null;
                     id: string;
@@ -242,6 +244,7 @@ export interface Database {
                 };
                 Update: {
                     created_at?: string;
+                    date_format_preference?: string;
                     email?: string | null;
                     full_name?: string | null;
                     id?: string;
@@ -449,9 +452,11 @@ export interface Database {
                     created_at: string;
                     description: string | null;
                     end_date: string | null;
+                    hide_date: boolean;
                     id: string;
                     position: string;
                     profile_id: string | null;
+                    sort_order: number;
                     start_date: string;
                     updated_at: string;
                 };
@@ -460,9 +465,11 @@ export interface Database {
                     created_at?: string;
                     description?: string | null;
                     end_date?: string | null;
+                    hide_date?: boolean;
                     id?: string;
                     position: string;
                     profile_id?: string | null;
+                    sort_order?: number;
                     start_date: string;
                     updated_at?: string;
                 };
@@ -471,9 +478,11 @@ export interface Database {
                     created_at?: string;
                     description?: string | null;
                     end_date?: string | null;
+                    hide_date?: boolean;
                     id?: string;
                     position?: string;
                     profile_id?: string | null;
+                    sort_order?: number;
                     start_date?: string;
                     updated_at?: string;
                 };

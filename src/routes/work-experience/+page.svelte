@@ -806,11 +806,20 @@
 							exp.id === savedExperience.id ? savedExperience : exp
 						);
 
+						// Update the editingExperience object with the latest data
+						editingExperience = savedExperience;
+
 						// If we're actively editing responsibilities, stay in edit mode
 						// Otherwise, return to the list view
 						if (editingResponsibilities) {
 							// Stay in edit mode for responsibilities
-							editingExperience = savedExperience;
+							// Update form fields to reflect the latest data
+							companyName = savedExperience.company_name;
+							position = savedExperience.position;
+							startDate = savedExperience.start_date;
+							endDate = savedExperience.end_date || '';
+							description = savedExperience.description || '';
+							hideDate = savedExperience.hide_date || false;
 						} else {
 							// Close the form after updating
 							resetForm();
