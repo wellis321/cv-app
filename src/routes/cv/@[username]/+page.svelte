@@ -294,6 +294,14 @@
 		}
 	}
 
+	// Get sorted professional summary strengths
+	function getSortedStrengths(professionalSummary: any) {
+		if (!professionalSummary?.professional_summary_strengths) return [];
+		return [...professionalSummary.professional_summary_strengths].sort(
+			(a, b) => a.sort_order - b.sort_order
+		);
+	}
+
 	// Update gradient style based on profile colors
 	let headerGradientStyle = $state('');
 
@@ -769,6 +777,34 @@
 				<!-- Main content -->
 				<div class="md:col-span-2">
 					<div class="space-y-8">
+						<!-- Professional Summary section -->
+						{#if cvData.professionalSummary && (cvData.professionalSummary.description || (cvData.professionalSummary.professional_summary_strengths && cvData.professionalSummary.professional_summary_strengths.length > 0))}
+							<section class="rounded-lg bg-white p-6 shadow-md print:shadow-none">
+								<h2 class="border-b border-gray-200 pb-2 text-xl font-bold text-gray-800">
+									Professional Summary
+								</h2>
+
+								{#if cvData.professionalSummary.description}
+									<div class="mt-4 leading-relaxed text-gray-700">
+										{@html formatDescriptionWithFormatting(
+											decodeHtmlEntities(cvData.professionalSummary.description)
+										)}
+									</div>
+								{/if}
+
+								{#if cvData.professionalSummary.professional_summary_strengths && cvData.professionalSummary.professional_summary_strengths.length > 0}
+									<div class="mt-4">
+										<h3 class="mb-2 text-lg font-semibold text-gray-800">Key Strengths</h3>
+										<ul class="list-inside list-disc space-y-1 text-gray-700">
+											{#each getSortedStrengths(cvData.professionalSummary) as strength}
+												<li>{decodeHtmlEntities(strength.strength)}</li>
+											{/each}
+										</ul>
+									</div>
+								{/if}
+							</section>
+						{/if}
+
 						<!-- Work Experience section -->
 						{#if cvData.workExperiences && cvData.workExperiences.length > 0 && (activeTab === 'all' || activeTab === 'work')}
 							<section class="rounded-lg bg-white p-6 shadow-md print:shadow-none">

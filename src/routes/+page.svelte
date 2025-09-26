@@ -41,8 +41,13 @@
 				}, 100);
 			}
 
+			// Clear any refresh flags that might be causing issues
+			sessionStorage.removeItem('home_page_refreshed');
+
 			// Force page refresh if we're on the home page with an active session
 			// This helps ensure we see the CV sections properly
+			// DISABLED: This was causing issues with navigation
+			/*
 			if (session && window.location.pathname === '/') {
 				console.log('Refreshing home page with active session');
 				// Set a flag to prevent infinite refresh
@@ -60,6 +65,7 @@
 					}, 5000);
 				}
 			}
+			*/
 
 			// Check for error parameters
 			if ($page.url.searchParams.has('error')) {

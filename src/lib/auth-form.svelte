@@ -28,7 +28,7 @@
 					// Create profile for the new user
 					try {
 						// Add a delay to ensure the user is fully registered in Supabase
-						await new Promise((resolve) => setTimeout(resolve, 500));
+						await new Promise((resolve) => setTimeout(resolve, 1000));
 
 						const profileResult = await createProfile(result.user.id, email);
 
@@ -43,8 +43,27 @@
 						}
 					} catch (profileErr: any) {
 						console.error('Exception creating profile:', profileErr);
-						// Continue anyway, we can create profile later
-						success = 'Account created but profile setup failed. Redirecting...';
+						// Check if it's a CSRF error
+						if (profileErr.message && profileErr.message.includes('CSRF')) {
+							console.warn('CSRF error during profile creation, retrying...');
+							// Try again after a short delay
+							await new Promise((resolve) => setTimeout(resolve, 500));
+							try {
+								const retryResult = await createProfile(result.user.id, email);
+								if ((retryResult as any).success) {
+									console.log('Profile created successfully on retry');
+									success = 'Account created! Redirecting...';
+								} else {
+									success = 'Account created but profile setup failed. Redirecting...';
+								}
+							} catch (retryErr) {
+								console.error('Retry failed:', retryErr);
+								success = 'Account created but profile setup failed. Redirecting...';
+							}
+						} else {
+							// Continue anyway, we can create profile later
+							success = 'Account created but profile setup failed. Redirecting...';
+						}
 					}
 
 					// Set a flag to indicate we just authenticated (for layout to detect)
@@ -76,7 +95,22 @@
 			}
 		} catch (err: any) {
 			console.error('Auth error:', err);
-			error = err.message || 'Authentication failed';
+			// Show more detailed error messages
+			if (err.message) {
+				if (err.message.includes('User already registered')) {
+					error = 'An account with this email already exists. Please sign in instead.';
+				} else if (err.message.includes('Invalid email')) {
+					error = 'Please enter a valid email address.';
+				} else if (err.message.includes('Password should be at least')) {
+					error = 'Password must be at least 6 characters long.';
+				} else if (err.message.includes('CSRF')) {
+					error = 'Security error. Please refresh the page and try again.';
+				} else {
+					error = err.message;
+				}
+			} else {
+				error = 'Authentication failed. Please try again.';
+			}
 		} finally {
 			loading = false;
 		}

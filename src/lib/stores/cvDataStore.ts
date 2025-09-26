@@ -11,6 +11,7 @@ import { sanitizeInput } from '$lib/validation';
 export interface CvData {
     userId: string | null;
     profile: any | null;
+    professionalSummary: any | null;
     workExperiences: any[];
     projects: any[];
     skills: any[];
@@ -26,6 +27,7 @@ export interface CvData {
 const defaultCvData: CvData = {
     userId: null,
     profile: null,
+    professionalSummary: null,
     workExperiences: [],
     projects: [],
     skills: [],
@@ -575,6 +577,20 @@ async function loadUserCvData(userId: string, clientInstance?: any): Promise<CvD
             .eq('profile_id', userId)
             .order('name', { ascending: true });
 
+        // Load professional summary with strengths
+        const professionalSummaryResult = await client.from('professional_summary')
+            .select(`
+                id,
+                description,
+                professional_summary_strengths (
+                    id,
+                    strength,
+                    sort_order
+                )
+            `)
+            .eq('profile_id', userId)
+            .maybeSingle();
+
         // Populate the data object with the results
         data.workExperiences = workExperiencesResult.error ? [] : workExperiencesResult.data || [];
         data.education = educationResult.error ? [] : educationResult.data || [];
@@ -584,6 +600,10 @@ async function loadUserCvData(userId: string, clientInstance?: any): Promise<CvD
         data.memberships = membershipsResult.error ? [] : membershipsResult.data || [];
         data.interests = interestsResult.error ? [] : interestsResult.data || [];
         data.qualificationEquivalence = qualificationEquivalenceResult.error ? [] : qualificationEquivalenceResult.data || [];
+        data.professionalSummary = professionalSummaryResult.error ? null : professionalSummaryResult.data || null;
+
+        console.log('CV Store - Professional Summary loaded:', data.professionalSummary);
+        console.log('CV Store - Professional Summary error:', professionalSummaryResult.error);
 
         // Load responsibilities for each work experience entry
         if (data.workExperiences.length > 0) {

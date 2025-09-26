@@ -97,8 +97,19 @@ export interface PdfQualificationEquivalence {
     equivalent_to?: string;
 }
 
+export interface PdfProfessionalSummary {
+    id: string;
+    description: string | null;
+    strengths: Array<{
+        id: string;
+        strength: string;
+        sort_order: number;
+    }>;
+}
+
 export interface CvData {
     profile: PdfProfile;
+    professionalSummary?: PdfProfessionalSummary;
     workExperiences: PdfWorkExperience[];
     projects: PdfProject[];
     skills: PdfSkill[];
@@ -112,6 +123,7 @@ export interface CvData {
 export interface PdfExportConfig {
     sections: {
         profile: boolean;
+        professionalSummary: boolean;
         workExperience: boolean;
         projects: boolean;
         skills: boolean;
@@ -132,6 +144,7 @@ export interface PdfExportConfig {
 export const defaultPdfConfig: PdfExportConfig = {
     sections: {
         profile: true,
+        professionalSummary: true,
         workExperience: true,
         projects: true,
         skills: true,
@@ -762,6 +775,38 @@ export async function createCvDocDefinition(
             ],
             margin: [0, 10, 0, 10]
         });
+    }
+
+    // Professional Summary
+    if (config.sections.professionalSummary && cvData.professionalSummary) {
+        const { professionalSummary } = cvData;
+        console.log('PDF Generator - Professional Summary:', professionalSummary);
+        console.log('PDF Generator - Strengths:', professionalSummary.strengths);
+
+        content.push(...createSectionHeader('Professional Summary', config.template));
+
+        // Add description if available
+        if (professionalSummary.description && professionalSummary.description.trim().length > 0) {
+            content.push({
+                text: convertMarkdownToPlainText(decodeHtmlEntities(professionalSummary.description)),
+                style: 'normal',
+                margin: [0, 0, 0, 10]
+            });
+        }
+
+        // Add strengths if available
+        if (professionalSummary.strengths && professionalSummary.strengths.length > 0) {
+            const strengthsText = [...professionalSummary.strengths]
+                .sort((a, b) => a.sort_order - b.sort_order)
+                .map(strength => `• ${decodeHtmlEntities(strength.strength)}`)
+                .join('\n');
+
+            content.push({
+                text: strengthsText,
+                style: 'normal',
+                margin: [0, 0, 0, 10]
+            });
+        }
     }
 
     // Work Experience

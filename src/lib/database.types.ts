@@ -262,6 +262,70 @@ export interface Database {
                 };
                 Relationships: [];
             };
+            professional_summary: {
+                Row: {
+                    created_at: string;
+                    description: string | null;
+                    id: string;
+                    profile_id: string | null;
+                    updated_at: string;
+                };
+                Insert: {
+                    created_at?: string;
+                    description?: string | null;
+                    id?: string;
+                    profile_id?: string | null;
+                    updated_at?: string;
+                };
+                Update: {
+                    created_at?: string;
+                    description?: string | null;
+                    id?: string;
+                    profile_id?: string | null;
+                    updated_at?: string;
+                };
+                Relationships: [
+                    {
+                        foreignKeyName: 'professional_summary_profile_id_fkey';
+                        columns: ['profile_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'profiles';
+                        referencedColumns: ['id'];
+                    }
+                ];
+            };
+            professional_summary_strengths: {
+                Row: {
+                    created_at: string;
+                    id: string;
+                    professional_summary_id: string | null;
+                    sort_order: number;
+                    strength: string;
+                };
+                Insert: {
+                    created_at?: string;
+                    id?: string;
+                    professional_summary_id?: string | null;
+                    sort_order?: number;
+                    strength: string;
+                };
+                Update: {
+                    created_at?: string;
+                    id?: string;
+                    professional_summary_id?: string | null;
+                    sort_order?: number;
+                    strength?: string;
+                };
+                Relationships: [
+                    {
+                        foreignKeyName: 'professional_summary_strengths_professional_summary_id_fkey';
+                        columns: ['professional_summary_id'];
+                        isOneToOne: false;
+                        referencedRelation: 'professional_summary';
+                        referencedColumns: ['id'];
+                    }
+                ];
+            };
             projects: {
                 Row: {
                     created_at: string;

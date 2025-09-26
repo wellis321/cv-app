@@ -308,10 +308,7 @@ export const signup = async (email: string, password: string) => {
 
         const { data, error } = await supabase.auth.signUp({
             email,
-            password,
-            options: {
-                emailRedirectTo: browser ? window.location.origin : undefined
-            }
+            password
         });
 
         if (error) {

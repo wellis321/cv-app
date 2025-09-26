@@ -20,8 +20,11 @@
 	import { goto } from '$app/navigation';
 	import { formatDescription, formatDescriptionWithFormatting } from '$lib/utils/textFormatting';
 
+	console.log('CV Preview page script loaded');
+
 	// CV data
 	let profile = $state<any>(null);
+	let professionalSummary = $state<any>(null);
 	let workExperiences = $state<any[]>([]);
 	let projects = $state<any[]>([]);
 	let skills = $state<any[]>([]);
@@ -76,6 +79,14 @@
 		return formatted;
 	}
 
+	// Get sorted professional summary strengths
+	function getSortedStrengths(professionalSummary: any) {
+		if (!professionalSummary?.professional_summary_strengths) return [];
+		return [...professionalSummary.professional_summary_strengths].sort(
+			(a, b) => a.sort_order - b.sort_order
+		);
+	}
+
 	// Update section visibility in PDF config
 	function updateSectionVisibility(section: SectionName, value: boolean): void {
 		pdfConfig = {
@@ -107,11 +118,14 @@
 
 	// Load all CV data
 	onMount(async () => {
+		console.log('CV Preview onMount function called');
 		if (!browser) return;
 
 		try {
 			// Data should already be loaded by +page.ts, so we just need to extract it
 			const data = $cvStore;
+			console.log('CV Preview - Raw store data:', data);
+			console.log('CV Preview - Store professional summary:', data?.professionalSummary);
 
 			// More thorough validation to prevent premature error message
 			if (!data) {
@@ -148,6 +162,16 @@
 
 			// Update the local variables with data from the store
 			profile = data.profile;
+			professionalSummary = data.professionalSummary || null;
+			console.log('CV Preview - Professional Summary data:', professionalSummary);
+			console.log(
+				'CV Preview - Professional Summary description:',
+				professionalSummary?.description
+			);
+			console.log(
+				'CV Preview - Professional Summary strengths:',
+				professionalSummary?.professional_summary_strengths
+			);
 			workExperiences = data.workExperiences || [];
 			projects = data.projects || [];
 			skills = data.skills || [];
@@ -327,6 +351,15 @@
 					linkedin_url: profile.linkedin_url,
 					bio: profile.bio ? decodeHtmlEntities(profile.bio) : null
 				},
+				professionalSummary: professionalSummary
+					? {
+							id: professionalSummary.id,
+							description: professionalSummary.description
+								? decodeHtmlEntities(professionalSummary.description)
+								: null,
+							strengths: professionalSummary.professional_summary_strengths || []
+						}
+					: undefined,
 				workExperiences: workExperiences.map((exp) => ({
 					id: exp.id,
 					company_name: exp.company_name,
@@ -983,6 +1016,32 @@
 			<!-- Preview content -->
 			<div class="rounded-b-lg bg-white p-6 shadow-md">
 				<div class="space-y-8">
+					<!-- Professional Summary Section -->
+					{#if professionalSummary && (professionalSummary.description || (professionalSummary.professional_summary_strengths && professionalSummary.professional_summary_strengths.length > 0))}
+						<section>
+							<h2 class="mb-4 text-2xl font-bold text-gray-800">Professional Summary</h2>
+
+							{#if professionalSummary.description}
+								<div class="mb-4 leading-relaxed text-gray-700">
+									{@html formatDescriptionWithFormatting(
+										decodeHtmlEntities(professionalSummary.description)
+									)}
+								</div>
+							{/if}
+
+							{#if professionalSummary.professional_summary_strengths && professionalSummary.professional_summary_strengths.length > 0}
+								<div class="mb-4">
+									<h3 class="mb-2 text-lg font-semibold text-gray-800">Key Strengths</h3>
+									<ul class="list-inside list-disc space-y-1 text-gray-700">
+										{#each getSortedStrengths(professionalSummary) as strength}
+											<li>{decodeHtmlEntities(strength.strength)}</li>
+										{/each}
+									</ul>
+								</div>
+							{/if}
+						</section>
+					{/if}
+
 					<!-- Work Experience Section -->
 					{#if workExperiences.length > 0}
 						<section>
