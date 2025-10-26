@@ -200,7 +200,7 @@
 					<div class="flex flex-1 flex-col justify-between bg-white p-6 group-hover:bg-gray-50">
 						<div class="flex-1">
 							<div class="flex justify-between">
-								<p class="text-xl font-semibold text-gray-900 group-hover:text-indigo-600">
+								<p class="text-xl font-semibold text-gray-900 group-hover:text-blue-600">
 									{section.name}
 								</p>
 								<span class={`text-lg font-bold ${status.className}`} title={status.text}>
@@ -219,7 +219,7 @@
 									</span>
 								{:else}
 									<span
-										class="inline-flex items-center text-sm font-medium text-indigo-600 group-hover:underline"
+										class="inline-flex items-center text-sm font-medium text-blue-600 group-hover:underline"
 									>
 										Add information
 										<svg
@@ -261,7 +261,7 @@
 						<div class="mt-10">
 							<button
 								onclick={startBuilding}
-								class="inline-block rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-center font-medium text-white hover:bg-indigo-700"
+								class="inline-block rounded-md border border-transparent bg-blue-600 px-8 py-3 text-center font-medium text-white hover:bg-blue-700"
 							>
 								Start Building Your CV
 							</button>
@@ -279,43 +279,43 @@
 								>
 									<div class="flex items-center space-x-6 lg:space-x-8">
 										<div class="grid flex-shrink-0 grid-cols-1 gap-y-6 lg:gap-y-8">
-											<div class="h-64 w-44 overflow-hidden rounded-lg bg-indigo-100 shadow-lg">
+											<div class="h-64 w-44 overflow-hidden rounded-lg bg-blue-100 shadow-lg">
 												<div
-													class="h-full w-full bg-gradient-to-br from-indigo-200 to-indigo-300"
+													class="h-full w-full bg-gradient-to-br from-blue-200 to-blue-300"
 												></div>
 											</div>
-											<div class="h-64 w-44 overflow-hidden rounded-lg bg-indigo-100 shadow-lg">
+											<div class="h-64 w-44 overflow-hidden rounded-lg bg-blue-100 shadow-lg">
 												<div
-													class="h-full w-full bg-gradient-to-br from-indigo-300 to-indigo-400"
-												></div>
-											</div>
-										</div>
-										<div class="grid flex-shrink-0 grid-cols-1 gap-y-6 lg:gap-y-8">
-											<div class="h-64 w-44 overflow-hidden rounded-lg bg-indigo-100 shadow-lg">
-												<div
-													class="h-full w-full bg-gradient-to-br from-indigo-400 to-indigo-500"
-												></div>
-											</div>
-											<div class="h-64 w-44 overflow-hidden rounded-lg bg-indigo-100 shadow-lg">
-												<div
-													class="h-full w-full bg-gradient-to-br from-indigo-500 to-indigo-600"
-												></div>
-											</div>
-											<div class="h-64 w-44 overflow-hidden rounded-lg bg-indigo-100 shadow-lg">
-												<div
-													class="h-full w-full bg-gradient-to-br from-indigo-600 to-indigo-700"
+													class="h-full w-full bg-gradient-to-br from-blue-300 to-blue-400"
 												></div>
 											</div>
 										</div>
 										<div class="grid flex-shrink-0 grid-cols-1 gap-y-6 lg:gap-y-8">
-											<div class="h-64 w-44 overflow-hidden rounded-lg bg-indigo-100 shadow-lg">
+											<div class="h-64 w-44 overflow-hidden rounded-lg bg-blue-100 shadow-lg">
 												<div
-													class="h-full w-full bg-gradient-to-br from-indigo-700 to-indigo-800"
+													class="h-full w-full bg-gradient-to-br from-blue-400 to-blue-500"
 												></div>
 											</div>
-											<div class="h-64 w-44 overflow-hidden rounded-lg bg-indigo-100 shadow-lg">
+											<div class="h-64 w-44 overflow-hidden rounded-lg bg-blue-100 shadow-lg">
 												<div
-													class="h-full w-full bg-gradient-to-br from-indigo-800 to-indigo-900"
+													class="h-full w-full bg-gradient-to-br from-blue-500 to-blue-600"
+												></div>
+											</div>
+											<div class="h-64 w-44 overflow-hidden rounded-lg bg-blue-100 shadow-lg">
+												<div
+													class="h-full w-full bg-gradient-to-br from-blue-600 to-blue-700"
+												></div>
+											</div>
+										</div>
+										<div class="grid flex-shrink-0 grid-cols-1 gap-y-6 lg:gap-y-8">
+											<div class="h-64 w-44 overflow-hidden rounded-lg bg-blue-100 shadow-lg">
+												<div
+													class="h-full w-full bg-gradient-to-br from-blue-700 to-blue-800"
+												></div>
+											</div>
+											<div class="h-64 w-44 overflow-hidden rounded-lg bg-blue-100 shadow-lg">
+												<div
+													class="h-full w-full bg-gradient-to-br from-blue-800 to-blue-900"
 												></div>
 											</div>
 										</div>
@@ -332,7 +332,7 @@
 		<div class="bg-gray-50 py-12 sm:py-16">
 			<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 				<div class="lg:text-center">
-					<h2 class="text-lg font-semibold text-indigo-600">CV Builder</h2>
+					<h2 class="text-lg font-semibold text-blue-600">CV Builder</h2>
 					<p class="mt-2 text-3xl leading-8 font-bold tracking-tight text-gray-900 sm:text-4xl">
 						A better way to showcase your professional journey
 					</p>
@@ -348,7 +348,7 @@
 							<div class="relative">
 								<dt>
 									<div
-										class="absolute flex h-12 w-12 items-center justify-center rounded-md bg-indigo-500 text-white"
+										class="absolute flex h-12 w-12 items-center justify-center rounded-md bg-blue-500 text-white"
 									>
 										<svg
 											class="h-6 w-6"
@@ -379,7 +379,7 @@
 		<div class="bg-white py-12 sm:py-16">
 			<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 				<div class="lg:text-center">
-					<h2 class="text-lg font-semibold text-indigo-600">Simple Process</h2>
+					<h2 class="text-lg font-semibold text-blue-600">Simple Process</h2>
 					<p class="mt-2 text-3xl leading-8 font-bold tracking-tight text-gray-900 sm:text-4xl">
 						How Our CV Builder Works
 					</p>
@@ -399,7 +399,7 @@
 					<div class="mt-6 grid grid-cols-1 gap-10 sm:grid-cols-3">
 						<div class="text-center">
 							<div
-								class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-indigo-100 text-indigo-600"
+								class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-600"
 							>
 								<span class="text-xl font-bold">1</span>
 							</div>
@@ -411,7 +411,7 @@
 
 						<div class="text-center">
 							<div
-								class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-indigo-100 text-indigo-600"
+								class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-600"
 							>
 								<span class="text-xl font-bold">2</span>
 							</div>
@@ -423,7 +423,7 @@
 
 						<div class="text-center">
 							<div
-								class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-indigo-100 text-indigo-600"
+								class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-600"
 							>
 								<span class="text-xl font-bold">3</span>
 							</div>
@@ -441,7 +441,7 @@
 		<div class="bg-gray-50 py-12 sm:py-16">
 			<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 				<div class="lg:text-center">
-					<h2 class="text-lg font-semibold text-indigo-600">Testimonials</h2>
+					<h2 class="text-lg font-semibold text-blue-600">Testimonials</h2>
 					<p class="mt-2 text-3xl leading-8 font-bold tracking-tight text-gray-900 sm:text-4xl">
 						What Our Users Say
 					</p>
@@ -451,7 +451,7 @@
 					{#each testimonials as testimonial}
 						<div class="rounded-lg bg-white p-6 shadow-lg">
 							<div class="flex items-center">
-								<svg class="h-8 w-8 text-indigo-400" fill="currentColor" viewBox="0 0 24 24">
+								<svg class="h-8 w-8 text-blue-400" fill="currentColor" viewBox="0 0 24 24">
 									<path
 										d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"
 									/>
@@ -469,13 +469,13 @@
 		</div>
 
 		<!-- Call to Action Section -->
-		<div class="bg-indigo-700" id="auth-section">
+		<div class="bg-blue-700" id="auth-section">
 			<div class="mx-auto max-w-2xl px-4 py-16 text-center sm:px-6 sm:py-20 lg:px-8">
 				<h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">
 					<span class="block">Ready to build your professional CV?</span>
 					<span class="block">Start for free today</span>
 				</h2>
-				<p class="mt-4 mb-8 text-lg leading-6 text-indigo-200">
+				<p class="mt-4 mb-8 text-lg leading-6 text-blue-200">
 					Create a CV that gets you noticed with our easy-to-use builder. Share your professional
 					story with a unique link or downloadable PDF.
 				</p>

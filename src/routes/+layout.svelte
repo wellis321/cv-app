@@ -13,6 +13,8 @@
 	import AnalyticsTracker from '$lib/components/AnalyticsTracker.svelte';
 	import { isAdminUser } from '$lib/adminConfig';
 	import { initializeCsrfToken } from '$lib/security/clientCsrf';
+	import CookieBanner from '$lib/components/CookieBanner.svelte';
+	import AppFooter from '$lib/components/AppFooter.svelte';
 
 	// Initialize global helpers
 	if (browser) {
@@ -82,6 +84,12 @@
 	function isPublicCvPage(): boolean {
 		// Check if we're on any CV page - including @username routes
 		return $page.url.pathname.startsWith('/cv/');
+	}
+
+	// Function to check if current page is public (no auth required)
+	function isPublicPage(): boolean {
+		const publicPages = ['/', '/privacy', '/terms', '/cv'];
+		return publicPages.includes($page.url.pathname) || $page.url.pathname.startsWith('/cv/');
 	}
 
 	// Setup auth on mount
@@ -249,7 +257,7 @@
 	</header>
 
 	<main class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
-		{#if !$session && !isPublicCvPage() && $page.url.pathname !== '/'}
+		{#if !$session && !isPublicPage()}
 			<AuthForm />
 		{:else}
 			<ContentWrapper>
@@ -257,4 +265,10 @@
 			</ContentWrapper>
 		{/if}
 	</main>
+
+	<!-- Footer -->
+	<AppFooter />
+
+	<!-- Cookie Banner -->
+	<CookieBanner />
 </div>
