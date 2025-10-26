@@ -104,6 +104,7 @@
 			...pdfConfig,
 			sections: {
 				profile: value,
+				professionalSummary: value,
 				workExperience: value,
 				projects: value,
 				skills: value,
@@ -427,8 +428,11 @@
 			// Log template info for debugging
 			console.log(`Generating PDF with template: ${pdfConfig.template}`);
 
+			// Get the CV URL for QR code
+			const cvUrl = shareableUrl || undefined;
+
 			// Generate the PDF with the updated template
-			await generateCvPdf(cvData, pdfConfig);
+			await generateCvPdf(cvData, pdfConfig, cvUrl);
 		} catch (err) {
 			console.error('Error generating PDF:', err);
 			alert('Failed to generate PDF. Please try again later.');
@@ -854,6 +858,32 @@
 					<p class="text-xs text-gray-500">
 						Uncheck to exclude your profile photo from the PDF while keeping other profile
 						information
+					</p>
+				</div>
+			</div>
+		</div>
+
+		<!-- QR Code Inclusion Option -->
+		<div class="mb-4">
+			<div class="flex items-center">
+				<input
+					id="include-qr"
+					type="checkbox"
+					checked={pdfConfig.includeQRCode}
+					onchange={(e) => {
+						pdfConfig = {
+							...pdfConfig,
+							includeQRCode: e.currentTarget.checked
+						};
+					}}
+					class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+				/>
+				<div class="ml-3 text-sm">
+					<label for="include-qr" class="font-medium text-gray-700">
+						Include QR Code to Online CV
+					</label>
+					<p class="text-xs text-gray-500">
+						Add a QR code linking to your online CV in the top-right corner of the PDF
 					</p>
 				</div>
 			</div>
