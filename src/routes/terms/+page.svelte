@@ -8,10 +8,10 @@
 </script>
 
 <svelte:head>
-	<title>Terms of Service - CV Builder</title>
+	<title>Terms of Service - Simple CV Builder</title>
 	<meta
 		name="description"
-		content="Terms of Service for CV Builder - Read our terms and conditions of use."
+		content="Terms of Service for Simple CV Builder - Read our terms and conditions of use."
 	/>
 </svelte:head>
 
@@ -32,7 +32,7 @@
 			<section class="mb-8">
 				<h2 class="mb-4 text-2xl font-semibold text-gray-900">Acceptance of Terms</h2>
 				<p class="text-gray-700">
-					By accessing and using CV Builder, you accept and agree to be bound by the terms and
+					By accessing and using SimpleCV Builder, you accept and agree to be bound by the terms and
 					provision of this agreement. If you do not agree to abide by the above, please do not use
 					this service.
 				</p>
@@ -41,8 +41,8 @@
 			<section class="mb-8">
 				<h2 class="mb-4 text-2xl font-semibold text-gray-900">Use License</h2>
 				<p class="mb-4 text-gray-700">
-					Permission is granted to temporarily use CV Builder for personal CV creation. This is the
-					grant of a license, not a transfer of title, and under this license you may not:
+					Permission is granted to temporarily use SimpleCV Builder for personal CV creation. This
+					is the grant of a license, not a transfer of title, and under this license you may not:
 				</p>
 				<ul class="list-disc space-y-2 pl-6 text-gray-700">
 					<li>modify or copy the materials</li>
@@ -50,7 +50,9 @@
 						use the materials for any commercial purpose, or for any public display (commercial or
 						non-commercial)
 					</li>
-					<li>attempt to decompile or reverse engineer any software contained on CV Builder</li>
+					<li>
+						attempt to decompile or reverse engineer any software contained on Simple CV Builder
+					</li>
 					<li>remove any copyright or other proprietary notations from the materials</li>
 					<li>
 						transfer the materials to another person or "mirror" the materials on any other server
@@ -74,9 +76,9 @@
 			<section class="mb-8">
 				<h2 class="mb-4 text-2xl font-semibold text-gray-900">Content</h2>
 				<p class="mb-4 text-gray-700">
-					You retain all ownership rights to the content you create using CV Builder. You grant us a
-					license to use, store, and display your content solely for the purpose of providing and
-					improving our service.
+					You retain all ownership rights to the content you create using Simple CV Builder. You
+					grant us a license to use, store, and display your content solely for the purpose of
+					providing and improving our service.
 				</p>
 				<p class="mb-4 text-gray-700">
 					You are solely responsible for the content you create and share. You agree not to upload,
@@ -105,56 +107,56 @@
 			<section class="mb-8">
 				<h2 class="mb-4 text-2xl font-semibold text-gray-900">Disclaimers</h2>
 				<p class="mb-4 text-gray-700">
-					The materials on CV Builder are provided on an 'as is' basis. CV Builder makes no
-					warranties, expressed or implied, and hereby disclaims and negates all other warranties
-					including without limitation, implied warranties or conditions of merchantability, fitness
-					for a particular purpose, or non-infringement of intellectual property or other violation
-					of rights.
+					The materials on Simple CV Builder are provided on an 'as is' basis. SimpleCV Builder
+					makes no warranties, expressed or implied, and hereby disclaims and negates all other
+					warranties including without limitation, implied warranties or conditions of
+					merchantability, fitness for a particular purpose, or non-infringement of intellectual
+					property or other violation of rights.
 				</p>
 				<p class="text-gray-700">
-					Further, CV Builder does not warrant or make any representations concerning the accuracy,
-					likely results, or reliability of the use of the materials on its website or otherwise
-					relating to such materials or on any sites linked to this site.
+					Further, Simple CV Builder does not warrant or make any representations concerning the
+					accuracy, likely results, or reliability of the use of the materials on its website or
+					otherwise relating to such materials or on any sites linked to this site.
 				</p>
 			</section>
 
 			<section class="mb-8">
 				<h2 class="mb-4 text-2xl font-semibold text-gray-900">Limitations</h2>
 				<p class="text-gray-700">
-					In no event shall CV Builder or its suppliers be liable for any damages (including,
+					In no event shall Simple CV Builder or its suppliers be liable for any damages (including,
 					without limitation, damages for loss of data or profit, or due to business interruption)
-					arising out of the use or inability to use the materials on CV Builder, even if CV Builder
-					or a CV Builder authorized representative has been notified orally or in writing of the
-					possibility of such damage.
+					arising out of the use or inability to use the materials on Simple CV Builder, even if
+					Simple CV Builder or a Simple CV Builder authorized representative has been notified
+					orally or in writing of the possibility of such damage.
 				</p>
 			</section>
 
 			<section class="mb-8">
 				<h2 class="mb-4 text-2xl font-semibold text-gray-900">Accuracy of Materials</h2>
 				<p class="text-gray-700">
-					The materials appearing on CV Builder could include technical, typographical, or
-					photographic errors. CV Builder does not warrant that any of the materials on its website
-					are accurate, complete, or current. CV Builder may make changes to the materials contained
-					on its website at any time without notice.
+					The materials appearing on Simple CV Builder could include technical, typographical, or
+					photographic errors. Simple CV Builder does not warrant that any of the materials on its
+					website are accurate, complete, or current. Simple CV Builder may make changes to the
+					materials contained on its website at any time without notice.
 				</p>
 			</section>
 
 			<section class="mb-8">
 				<h2 class="mb-4 text-2xl font-semibold text-gray-900">Links</h2>
 				<p class="text-gray-700">
-					CV Builder has not reviewed all of the sites linked to our website and is not responsible
-					for the contents of any such linked site. The inclusion of any link does not imply
-					endorsement by CV Builder of the site. Use of any such linked website is at the user's own
-					risk.
+					Simple CV Builder has not reviewed all of the sites linked to our website and is not
+					responsible for the contents of any such linked site. The inclusion of any link does not
+					imply endorsement by Simple CV Builder of the site. Use of any such linked website is at
+					the user's own risk.
 				</p>
 			</section>
 
 			<section class="mb-8">
 				<h2 class="mb-4 text-2xl font-semibold text-gray-900">Modifications</h2>
 				<p class="text-gray-700">
-					CV Builder may revise these terms of service for its website at any time without notice.
-					By using this website you are agreeing to be bound by the then current version of these
-					terms of service.
+					Simple CV Builder may revise these terms of service for its website at any time without
+					notice. By using this website you are agreeing to be bound by the then current version of
+					these terms of service.
 				</p>
 			</section>
 

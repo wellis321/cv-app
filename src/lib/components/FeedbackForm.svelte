@@ -120,6 +120,8 @@
 	</form>
 
 	<div class="mt-4 text-center text-xs text-gray-500">
-		<p>Your feedback helps us prioritize development and improve the CV Builder for everyone.</p>
+		<p>
+			Your feedback helps us prioritize development and improve the Simple CV Builder for everyone.
+		</p>
 	</div>
 </div>

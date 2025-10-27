@@ -88,7 +88,7 @@
 <div class="py-6">
 	<!-- Dashboard for logged in users -->
 	<div class="mb-10 text-center">
-		<h1 class="text-3xl font-bold text-gray-900">Your CV Builder Dashboard</h1>
+		<h1 class="text-3xl font-bold text-gray-900">Your Simple CV Builder Dashboard</h1>
 		<p class="mt-2 text-lg text-gray-600">Complete each section to create your professional CV.</p>
 	</div>
 

@@ -106,7 +106,7 @@
 
 <svelte:head>
 	<title>Analytics Dashboard</title>
-	<meta name="description" content="Website visitor analytics for CV Builder" />
+	<meta name="description" content="Website visitor analytics for Simple CV Builder" />
 </svelte:head>
 
 <div class="container mx-auto px-4 py-8">

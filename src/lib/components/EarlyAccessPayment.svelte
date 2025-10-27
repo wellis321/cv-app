@@ -78,7 +78,7 @@
 <div class="mx-auto max-w-md rounded-lg bg-white p-6 shadow-lg">
 	<div class="mb-6 text-center">
 		<h2 class="mb-2 text-2xl font-bold text-gray-900">Early Access</h2>
-		<p class="mb-4 text-gray-600">Get early access to our CV Builder for just £2.00</p>
+		<p class="mb-4 text-gray-600">Get early access to our Simple CV Builder for just £2.00</p>
 		<div class="mb-2 text-3xl font-bold text-green-600">£2.00</div>
 		<p class="text-sm text-gray-500">One-time payment</p>
 	</div>

@@ -205,7 +205,7 @@
 </script>
 
 <svelte:head>
-	<title>Professional Summary - CV Builder</title>
+	<title>Professional Summary - Simple CV Builder</title>
 </svelte:head>
 
 <div class="mx-auto max-w-4xl px-4 py-8">

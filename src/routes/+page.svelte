@@ -137,7 +137,8 @@
 		},
 		{
 			title: 'Reorder Work Experience',
-			description: 'Easily drag and drop to reorder your work experiences to highlight your most relevant roles first.',
+			description:
+				'Easily drag and drop to reorder your work experiences to highlight your most relevant roles first.',
 			icon: 'M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4'
 		},
 		{
@@ -152,7 +153,7 @@
 	const testimonials = [
 		{
 			quote:
-				'This CV builder helped me land my dream job. The online link was a game-changer during my application process.',
+				'This Simple CV builder helped me land my dream job. The online link was a game-changer during my application process.',
 			author: 'Alex Johnson',
 			role: 'Software Developer'
 		},
@@ -201,7 +202,7 @@
 
 		<!-- Dashboard for logged in users -->
 		<div class="mb-10 text-center">
-			<h1 class="text-3xl font-bold text-gray-900">Your CV Builder Dashboard</h1>
+			<h1 class="text-3xl font-bold text-gray-900">Your Simple CV Builder Dashboard</h1>
 			<p class="mt-2 text-lg text-gray-600">
 				Complete each section to create your professional CV.
 			</p>
@@ -349,7 +350,7 @@
 		<div class="bg-gray-50 py-12 sm:py-16">
 			<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 				<div class="lg:text-center">
-					<h2 class="text-lg font-semibold text-blue-600">CV Builder</h2>
+					<h2 class="text-lg font-semibold text-blue-600">Simple CV Builder</h2>
 					<p class="mt-2 text-3xl leading-8 font-bold tracking-tight text-gray-900 sm:text-4xl">
 						A better way to showcase your professional journey
 					</p>
@@ -398,7 +399,7 @@
 				<div class="lg:text-center">
 					<h2 class="text-lg font-semibold text-blue-600">Simple Process</h2>
 					<p class="mt-2 text-3xl leading-8 font-bold tracking-tight text-gray-900 sm:text-4xl">
-						How Our CV Builder Works
+						How Our Simple CV Builder Works
 					</p>
 				</div>
 

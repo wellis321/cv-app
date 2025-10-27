@@ -8,10 +8,10 @@
 </script>
 
 <svelte:head>
-	<title>Privacy Policy - CV Builder</title>
+	<title>Privacy Policy - Simple CV Builder</title>
 	<meta
 		name="description"
-		content="Privacy Policy for CV Builder - Learn how we collect, use, and protect your personal information."
+		content="Privacy Policy for SimpleCV Builder - Learn how we collect, use, and protect your personal information."
 	/>
 </svelte:head>
 
@@ -32,9 +32,9 @@
 			<section class="mb-8">
 				<h2 class="mb-4 text-2xl font-semibold text-gray-900">Introduction</h2>
 				<p class="mb-4 text-gray-700">
-					CV Builder ("we", "our", or "us") is committed to protecting your privacy. This Privacy
-					Policy explains how we collect, use, disclose, and safeguard your information when you use
-					our CV building service.
+					Simple CV Builder ("we", "our", or "us") is committed to protecting your privacy. This
+					Privacy Policy explains how we collect, use, disclose, and safeguard your information when
+					you use our CV building service.
 				</p>
 			</section>
 
@@ -43,8 +43,8 @@
 				<div class="space-y-4">
 					<h3 class="text-xl font-semibold text-gray-800">Personal Information</h3>
 					<p class="text-gray-700">
-						When you create an account with CV Builder, we collect information that you provide
-						directly, including:
+						When you create an account with , we collect information that you provide directly,
+						including:
 					</p>
 					<ul class="list-disc space-y-2 pl-6 text-gray-700">
 						<li>Name, email address, and phone number</li>
@@ -74,7 +74,7 @@
 				<p class="mb-4 text-gray-700">We use the information we collect to:</p>
 				<ul class="list-disc space-y-2 pl-6 text-gray-700">
 					<li>Create and maintain your CV profile</li>
-					<li>Provide, operate, and improve our CV builder service</li>
+					<li>Provide, operate, and improve our service</li>
 					<li>Generate PDF downloads of your CV</li>
 					<li>Share your CV via online links</li>
 					<li>Analyze usage patterns to improve our service</li>
