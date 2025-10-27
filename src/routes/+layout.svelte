@@ -15,6 +15,7 @@
 	import { initializeCsrfToken } from '$lib/security/clientCsrf';
 	import CookieBanner from '$lib/components/CookieBanner.svelte';
 	import AppFooter from '$lib/components/AppFooter.svelte';
+	import TrialBanner from '$lib/components/TrialBanner.svelte';
 
 	// Initialize global helpers
 	if (browser) {
@@ -30,8 +31,7 @@
 		{ name: 'Profile', path: '/profile', forceReload: false },
 		{ name: 'Edit CV Sections', path: '/dashboard', forceReload: false },
 		{ name: 'Preview & PDF', path: '/preview-cv', forceReload: false },
-		{ name: 'Subscription', path: '/subscription', forceReload: false },
-		{ name: 'Early Access', path: '/early-access', forceReload: false }
+		{ name: 'Subscription', path: '/subscription', forceReload: false }
 	];
 
 	// Admin navigation items - only visible to admins
@@ -202,6 +202,11 @@
 <div class="min-h-screen bg-gray-50">
 	<!-- Track page visits with the AnalyticsTracker component -->
 	<AnalyticsTracker />
+
+	<!-- Trial Banner (shown for users in trial period) -->
+	{#if $session}
+		<TrialBanner />
+	{/if}
 
 	<header class="bg-white shadow">
 		<nav class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

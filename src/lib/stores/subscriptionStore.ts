@@ -29,6 +29,9 @@ export interface UserSubscription {
     plan: SubscriptionPlan | null;
     expiresAt: string | null;
     isActive: boolean;
+    isTrial: boolean;
+    trialEndsAt: string | null;
+    hasPaid: boolean;
 }
 
 // Create stores
@@ -36,7 +39,10 @@ export const subscriptionPlans = writable<SubscriptionPlan[]>([]);
 export const currentSubscription = writable<UserSubscription>({
     plan: null,
     expiresAt: null,
-    isActive: false
+    isActive: false,
+    isTrial: false,
+    trialEndsAt: null,
+    hasPaid: false
 });
 export const subscriptionLoading = writable(false);
 export const subscriptionError = writable<string | null>(null);
@@ -58,12 +64,12 @@ const DEFAULT_FREE_PLAN: SubscriptionPlan = {
     is_active: true
 };
 
-// Early access plan
+// Early access plan (kept for backward compatibility with existing users)
 const EARLY_ACCESS_PLAN: SubscriptionPlan = {
     id: 'early_access',
-    name: 'Early Access',
+    name: 'Full Access',
     description: 'Lifetime access to all premium features',
-    price: 0, // Already paid £2
+    price: 0,
     currency: 'GBP',
     interval: 'lifetime',
     features: {
@@ -93,7 +99,7 @@ export const canAccessFeature = derived(
     currentSubscription,
     ($currentSubscription) => (featureName: string, value?: any) => {
         // During development: everyone gets free access to all features
-        return true; // Always return true for now
+        return true; // Always return true for now - ENABLE TRIAL SYSTEM when ready
 
         // Future: Uncomment this code when ready for paid subscriptions
         // if (!$currentSubscription.isActive || !$currentSubscription.plan) {
@@ -215,7 +221,10 @@ export async function loadUserSubscription() {
         currentSubscription.set({
             plan: null,
             expiresAt: null,
-            isActive: false
+            isActive: false,
+            isTrial: false,
+            trialEndsAt: null,
+            hasPaid: false
         });
         return;
     }
@@ -224,11 +233,10 @@ export async function loadUserSubscription() {
         subscriptionLoading.set(true);
         subscriptionError.set(null);
 
-        // Get user profile with subscription info
-        // Temporarily disable subscription columns until migration is run
+        // Get user profile with subscription and trial info
         const { data: profile, error: profileError } = await supabase
             .from('profiles')
-            .select('id')
+            .select('id, trial_ends_at, trial_started_at, has_paid, subscription_plan_id, subscription_expires_at')
             .eq('id', currentSession.user.id)
             .single();
 
@@ -238,13 +246,12 @@ export async function loadUserSubscription() {
             return;
         }
 
-        // During development: give everyone full free access
+        // During development: give everyone full free access (DISABLE WHEN READY FOR TRIALS)
         // Temporarily set to default free plan until migration is run
-        // TODO: Re-enable subscription logic after running database migration
         const allPlans = get(subscriptionPlans);
         const freePlan = allPlans.find((plan) => plan.price === 0) || DEFAULT_FREE_PLAN;
 
-        // Grant everyone full premium access during development
+        // FOR DEVELOPMENT - Comment out this section when ready to enable trial system
         currentSubscription.set({
             plan: {
                 ...freePlan,
@@ -259,9 +266,60 @@ export async function loadUserSubscription() {
                 }
             },
             expiresAt: null,
-            isActive: true // Always active during development
+            isActive: true, // Always active during development
+            isTrial: false,
+            trialEndsAt: null,
+            hasPaid: false
         });
         return;
+
+        // UNCOMMENT THIS SECTION WHEN READY TO ENABLE TRIAL SYSTEM
+        /*
+        const now = new Date();
+        const hasPaid = profile.has_paid || false;
+
+        // Check if user is in trial period
+        let isTrial = false;
+        let trialEndsAt = profile.trial_ends_at ? new Date(profile.trial_ends_at) : null;
+
+        if (!hasPaid && trialEndsAt) {
+            isTrial = trialEndsAt > now;
+
+            if (!isTrial) {
+                // Trial has expired and user hasn't paid - they lose access
+                currentSubscription.set({
+                    plan: null,
+                    expiresAt: trialEndsAt.toISOString(),
+                    isActive: false,
+                    isTrial: false,
+                    trialEndsAt: trialEndsAt.toISOString(),
+                    hasPaid: false
+                });
+                return;
+            }
+        }
+
+        // User either has paid or is in active trial - grant full access
+        currentSubscription.set({
+            plan: {
+                ...freePlan,
+                id: hasPaid ? 'full_access' : 'trial',
+                name: hasPaid ? 'Full Access' : 'Free Trial',
+                description: hasPaid ? 'Full access to all features' : `Free trial (expires ${trialEndsAt?.toLocaleDateString()})`,
+                features: {
+                    max_sections: -1, // Unlimited
+                    pdf_export: true,
+                    online_cv: true,
+                    templates: ['basic', 'professional', 'modern', 'creative', 'executive', 'simple', 'classic', 'elegant', 'minimalist', 'bold', 'academic', 'technical']
+                }
+            },
+            expiresAt: null,
+            isActive: true,
+            isTrial: isTrial,
+            trialEndsAt: trialEndsAt?.toISOString() || null,
+            hasPaid: hasPaid
+        });
+        */
 
         // Check if user has early access
         if (profile.subscription_plan_id === 'early_access') {
