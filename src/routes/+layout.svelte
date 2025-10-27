@@ -213,7 +213,7 @@
 			<div class="flex h-16 justify-between">
 				<div class="flex">
 					<div class="flex flex-shrink-0 items-center">
-						<a href="/" class="text-xl font-bold text-gray-900">CV Builder</a>
+						<a href="/" class="text-xl font-bold text-gray-900">Simple CV Builder</a>
 					</div>
 				</div>
 				<div class="flex items-center gap-4">

@@ -7,7 +7,7 @@
 		<div class="flex flex-col items-center justify-between gap-4 sm:flex-row">
 			<div class="text-center sm:text-left">
 				<p class="text-sm text-gray-600">
-					© {new Date().getFullYear()} CV Builder. All rights reserved.
+					© {new Date().getFullYear()} Simple CV Builder. All rights reserved.
 				</p>
 			</div>
 			<div class="flex flex-wrap justify-center gap-6 text-sm text-gray-600">
