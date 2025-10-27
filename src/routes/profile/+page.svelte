@@ -1022,9 +1022,39 @@
 					/>
 
 					<div>
-						<label class="mb-1 block text-sm font-medium text-gray-700" for="username"
-							>Username *</label
-						>
+						<div class="mb-1 flex items-center gap-2">
+							<label class="block text-sm font-medium text-gray-700" for="username"
+								>Username *</label
+							>
+							<div class="group relative">
+								<svg
+									class="h-4 w-4 cursor-help text-gray-400 hover:text-blue-500"
+									fill="currentColor"
+									viewBox="0 0 20 20"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									<path
+										fill-rule="evenodd"
+										d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+										clip-rule="evenodd"
+									/>
+								</svg>
+								<!-- Tooltip -->
+								<div
+									class="pointer-events-none absolute top-6 left-1/2 z-10 hidden w-64 -translate-x-1/2 rounded-md bg-gray-900 px-3 py-2 text-xs text-white opacity-0 shadow-lg transition-opacity group-hover:block group-hover:opacity-100"
+									role="tooltip"
+								>
+									<div
+										class="absolute -top-1 left-1/2 -translate-x-1/2 rotate-45 border-4 border-transparent border-t-gray-900"
+									></div>
+									<p class="mb-1 font-semibold">Choose your own username!</p>
+									<p class="text-gray-300">
+										Used for your CV link (e.g., simple-cv-builder.com/cv/@yourname). Use lowercase
+										letters, numbers, hyphens, or underscores. Must be at least 3 characters.
+									</p>
+								</div>
+							</div>
+						</div>
 						<div class="relative">
 							<input
 								id="username"
