@@ -2,8 +2,6 @@
 // Marketing page for non-logged in users
 ?>
 
-<?php partial('header'); ?>
-
 <!-- Hero Section -->
 <div class="relative overflow-hidden bg-white">
     <div class="pt-32 pb-80 sm:pt-36 sm:pb-40 lg:pt-56 lg:pb-48">

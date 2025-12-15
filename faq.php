@@ -107,7 +107,7 @@ $faqs = [
                                 <?php echo e($faq['question']); ?>
                             </h2>
                             <svg
-                                class="flex-shrink-0 h-5 w-5 text-gray-500 transform transition-transform"
+                                class="flex-shrink-0 h-5 w-5 text-gray-500 transform transition-transform duration-300 ease-in-out"
                                 data-faq-icon
                                 fill="none"
                                 stroke="currentColor"
@@ -119,12 +119,14 @@ $faqs = [
                         </button>
                         <div
                             id="faq-answer-<?php echo $index; ?>"
-                            class="hidden px-6 pb-5"
+                            class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out"
                             data-faq-content
                         >
-                            <p class="text-gray-700 leading-relaxed">
-                                <?php echo e($faq['answer']); ?>
-                            </p>
+                            <div class="px-6 pt-0 pb-6">
+                                <p class="text-gray-700 leading-relaxed">
+                                    <?php echo e($faq['answer']); ?>
+                                </p>
+                            </div>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -147,6 +149,28 @@ $faqs = [
 
     <?php partial('footer'); ?>
 
+    <style>
+        .faq-content {
+            max-height: 0;
+            opacity: 0;
+            transition: max-height 0.4s ease-in-out, opacity 0.3s ease-in-out, padding-top 0.3s ease-in-out, padding-bottom 0.3s ease-in-out;
+            overflow: hidden;
+        }
+        .faq-content.open {
+            max-height: 2000px; /* Large enough for longest FAQ answer */
+            opacity: 1;
+            padding-top: 0.5rem;
+        }
+        .faq-content > div {
+            transition: opacity 0.2s ease-in-out 0.1s;
+        }
+        .faq-content:not(.open) > div {
+            opacity: 0;
+        }
+        .faq-content.open > div {
+            opacity: 1;
+        }
+    </style>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const faqButtons = document.querySelectorAll('[data-faq-toggle]');
@@ -158,15 +182,15 @@ $faqs = [
                     const icon = this.querySelector('[data-faq-icon]');
                     const isExpanded = this.getAttribute('aria-expanded') === 'true';
 
-                    // Close all other FAQs
+                    // Close all other FAQs with smooth animation
                     faqButtons.forEach(function(otherButton) {
                         if (otherButton !== button) {
                             const otherTargetId = otherButton.getAttribute('data-target');
                             const otherTarget = document.getElementById(otherTargetId);
                             const otherIcon = otherButton.querySelector('[data-faq-icon]');
 
-                            if (otherTarget && !otherTarget.classList.contains('hidden')) {
-                                otherTarget.classList.add('hidden');
+                            if (otherTarget && otherTarget.classList.contains('open')) {
+                                otherTarget.classList.remove('open');
                                 otherButton.setAttribute('aria-expanded', 'false');
                                 if (otherIcon) {
                                     otherIcon.classList.remove('rotate-180');
@@ -175,16 +199,16 @@ $faqs = [
                         }
                     });
 
-                    // Toggle current FAQ
+                    // Toggle current FAQ with smooth animation
                     if (target) {
                         if (isExpanded) {
-                            target.classList.add('hidden');
+                            target.classList.remove('open');
                             this.setAttribute('aria-expanded', 'false');
                             if (icon) {
                                 icon.classList.remove('rotate-180');
                             }
                         } else {
-                            target.classList.remove('hidden');
+                            target.classList.add('open');
                             this.setAttribute('aria-expanded', 'true');
                             if (icon) {
                                 icon.classList.add('rotate-180');
