@@ -14,7 +14,8 @@
             </div>
             <p class="text-sm sm:text-base text-blue-100">
                 Simple CV Builder is currently in beta.<br>
-                While we build based on your feedback, get <strong>lifetime access for just £34.99</strong> - no recurring fees, forever.
+                While we build based on your feedback, get <strong>lifetime access for just £34.99</strong> - no recurring fees, forever.<br>
+                <span class="text-xs text-blue-200">Create a free account first, then upgrade from your dashboard</span>
             </p>
             <a href="#pricing" class="inline-flex items-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50 transition-colors whitespace-nowrap">
                 View Pricing
@@ -209,7 +210,10 @@
         <div class="max-w-2xl text-center mx-auto">
             <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">Flexible pricing that grows with you</h2>
             <p class="mt-4 text-lg text-gray-300">
-                Start for free, then upgrade when you need unlimited sections, premium templates, and priority support.
+                Create a free account to get started, then upgrade to unlock unlimited sections, premium templates, and priority support.
+            </p>
+            <p class="mt-2 text-sm text-blue-200">
+                <strong>Step 1:</strong> Create your free account below • <strong>Step 2:</strong> Upgrade to a paid plan anytime from your dashboard
             </p>
         </div>
         <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -241,7 +245,7 @@
                         'Priority email support',
                         'Lifetime access - no recurring fees',
                     ],
-                    'button' => ['text' => 'Get lifetime access', 'href' => '/subscription.php', 'plan' => 'lifetime'],
+                    'button' => ['text' => 'Create account to purchase', 'href' => '#auth-section', 'requiresAccount' => true],
                 ],
                 [
                     'label' => 'Pro Monthly',
@@ -254,7 +258,7 @@
                         'Download print-ready PDFs',
                         'Priority email support',
                     ],
-                    'button' => ['text' => 'View full plans', 'href' => '/subscription.php', 'plan' => 'pro_monthly'],
+                    'button' => ['text' => 'Create account to purchase', 'href' => '#auth-section', 'requiresAccount' => true],
                 ],
                 [
                     'label' => 'Pro Annual',
@@ -267,7 +271,7 @@
                         'Annual billing with Stripe',
                         'Priority email support',
                     ],
-                    'button' => ['text' => 'View full plans', 'href' => '/subscription.php', 'plan' => 'pro_annual'],
+                    'button' => ['text' => 'Create account to purchase', 'href' => '#auth-section', 'requiresAccount' => true],
                 ],
             ];
             foreach ($pricingCards as $card):
@@ -304,6 +308,7 @@
                         <?php
                         $buttonHref = $card['button']['href'] ?? '#auth-section';
                         $buttonPlan = $card['button']['plan'] ?? null;
+                        $requiresAccount = $card['button']['requiresAccount'] ?? false;
                         if ($buttonPlan && $buttonHref === '/subscription.php') {
                             $buttonHref .= '?plan=' . urlencode($buttonPlan);
                         }
@@ -315,6 +320,11 @@
                                : 'bg-white text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800'; ?>">
                             <?php echo e($card['button']['text']); ?>
                         </a>
+                        <?php if ($requiresAccount): ?>
+                            <p class="mt-2 text-xs text-center <?php echo $card['highlight'] ? 'text-gray-600' : 'text-gray-400'; ?>">
+                                Create a free account first, then upgrade from your dashboard
+                            </p>
+                        <?php endif; ?>
                     </div>
                 </div>
             <?php endforeach; ?>
@@ -449,8 +459,16 @@
                 Ready to build your professional CV?
             </h2>
             <p class="mt-4 text-lg text-gray-600">
-                Start for free, add your experience in minutes, and upgrade whenever you need more power.
+                Create your free account to get started. Add your experience in minutes, and upgrade to a paid plan anytime from your dashboard.
             </p>
+            <div class="mt-4 inline-flex items-center rounded-lg bg-blue-50 border border-blue-200 px-4 py-2">
+                <svg class="h-5 w-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <p class="text-sm text-blue-800">
+                    <strong>How it works:</strong> Create your free account → Build your CV → Upgrade to unlock premium features
+                </p>
+            </div>
         </div>
 
         <?php if (!empty($success) || !empty($error)): ?>

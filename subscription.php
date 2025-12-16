@@ -104,7 +104,10 @@ function renderPlanFeatures(string $planId, array $planConfig): array {
             <span class="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700">Subscriptions</span>
             <h1 class="mt-4 text-3xl font-bold text-gray-900 sm:text-4xl">Choose the plan that fits your career goals</h1>
             <p class="mt-4 text-gray-600 max-w-2xl mx-auto">
-                Upgrade to unlock unlimited sections, premium templates, and career-building resources.
+                You're logged in! Upgrade to unlock unlimited sections, premium templates, and career-building resources.
+            </p>
+            <p class="mt-2 text-sm text-gray-500 max-w-2xl mx-auto">
+                Already have a free account? You can upgrade anytime. New to Simple CV Builder? <a href="/" class="text-blue-600 hover:text-blue-800 underline">Create your free account first</a>.
             </p>
             <div class="mt-6 inline-flex items-center rounded-lg bg-white px-4 py-3 shadow">
                 <span class="text-sm text-gray-500 mr-2">Current plan:</span>
