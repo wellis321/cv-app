@@ -437,7 +437,28 @@ $subscriptionFrontendContext = buildSubscriptionFrontendContext($subscriptionCon
                     }
                 }
 
-                // Create PDF with better page break handling
+                // Convert HTML to canvas with better settings
+                const canvas = await html2canvas(pdfContainer, {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: '#ffffff',
+                    windowWidth: pdfContainer.scrollWidth,
+                    windowHeight: pdfContainer.scrollHeight,
+                    onclone: (clonedDoc) => {
+                        // Ensure all styles are preserved in the clone
+                        const clonedContainer = clonedDoc.querySelector('div');
+                        if (clonedContainer) {
+                            clonedContainer.style.display = 'block';
+                            clonedContainer.style.position = 'relative';
+                        }
+                    }
+                });
+
+                // Clean up temporary container
+                document.body.removeChild(pdfContainer);
+
+                // Create PDF
                 const { jsPDF } = window.jspdf;
                 const pdf = new jsPDF({
                     orientation: 'portrait',
@@ -446,38 +467,41 @@ $subscriptionFrontendContext = buildSubscriptionFrontendContext($subscriptionCon
                     compress: true
                 });
 
-                // Use jsPDF's html method for better page breaks
-                await pdf.html(pdfContainer, {
-                    callback: function(doc) {
-                        // Clean up temporary container
-                        document.body.removeChild(pdfContainer);
+                const pageWidth = 210; // A4 width in mm
+                const pageHeight = 297; // A4 height in mm
+                const margin = 0; // No margins since we already have them in the container
 
-                        // Download the PDF
-                        const fileName = `${(profile.full_name || 'CV').replace(/[^a-z0-9_\-]/gi, '_')}_CV.pdf`;
-                        doc.save(fileName);
+                const imgWidth = pageWidth - (2 * margin);
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-                        console.log('✅ PDF generated successfully using HTML-to-PDF approach');
+                const imgData = canvas.toDataURL('image/jpeg', 0.95);
 
-                        // Restore button
-                        if (button) {
-                            button.disabled = false;
-                            button.textContent = originalText;
-                        }
-                    },
-                    x: 0,
-                    y: 0,
-                    width: 210, // A4 width in mm
-                    windowWidth: 794, // A4 width in pixels at 96 DPI (210mm)
-                    html2canvas: {
-                        scale: 2,
-                        useCORS: true,
-                        logging: false,
-                        backgroundColor: '#ffffff'
-                    },
-                    autoPaging: 'text' // Better page break handling for text
-                });
+                let heightLeft = imgHeight;
+                let position = margin;
 
-                return; // Exit early since callback handles cleanup and download
+                // Add first page
+                pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight, '', 'FAST');
+                heightLeft -= pageHeight;
+
+                // Add additional pages if needed
+                while (heightLeft > 0) {
+                    position = margin - (imgHeight - heightLeft);
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight, '', 'FAST');
+                    heightLeft -= pageHeight;
+                }
+
+                // Download the PDF
+                const fileName = `${(profile.full_name || 'CV').replace(/[^a-z0-9_\-]/gi, '_')}_CV.pdf`;
+                pdf.save(fileName);
+
+                console.log('✅ PDF generated successfully using HTML-to-PDF approach');
+
+                // Restore button
+                if (button) {
+                    button.disabled = false;
+                    button.textContent = originalText;
+                }
 
             } catch (error) {
                 console.error('PDF generation error:', error);
