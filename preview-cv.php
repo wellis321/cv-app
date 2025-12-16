@@ -428,6 +428,12 @@ $subscriptionFrontendContext = buildSubscriptionFrontendContext($subscriptionCon
 
                 const profileForPdf = { ...profile, photo_base64: profilePhotoBase64 };
 
+                console.log('About to call buildDocDefinition with:');
+                console.log('  - pdfConfig.includeQRCode:', pdfConfig.includeQRCode);
+                console.log('  - qrCodeImage exists:', !!qrCodeImage);
+                console.log('  - qrCodeImage length:', qrCodeImage ? qrCodeImage.length : 0);
+                console.log('  - cvUrl:', cvUrl);
+
                 const docDefinition = window.PdfGenerator.buildDocDefinition(
                     cvData,
                     profileForPdf,
