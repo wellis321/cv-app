@@ -149,6 +149,22 @@ $faqs = [
 
     <?php partial('footer'); ?>
 
+    <?php
+    // Include auth modals for login/register functionality
+    $error = getFlash('error') ?: null;
+    $success = getFlash('success') ?: null;
+    $needsVerification = getFlash('needs_verification') ?: false;
+    $verificationEmail = getFlash('verification_email') ?: null;
+    $oldLoginEmail = getFlash('old_login_email') ?: null;
+    partial('auth-modals', [
+        'error' => $error,
+        'success' => $success,
+        'needsVerification' => $needsVerification,
+        'verificationEmail' => $verificationEmail,
+        'oldLoginEmail' => $oldLoginEmail,
+    ]);
+    ?>
+
     <style>
         .faq-content {
             max-height: 0;
