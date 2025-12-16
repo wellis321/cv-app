@@ -67,6 +67,8 @@ $subscriptionFrontendContext = buildSubscriptionFrontendContext($subscriptionCon
         })
     </script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script type="module" src="/js/pdf-generator.js?v=<?php echo time(); ?>"></script>
 </head>
 <body class="bg-gray-50">
@@ -312,6 +314,8 @@ $subscriptionFrontendContext = buildSubscriptionFrontendContext($subscriptionCon
 
         async function generatePDF() {
             try {
+                console.log('🎨 Using HTML-to-PDF approach (html2canvas + jsPDF)');
+
                 if (!SubscriptionContext?.pdfEnabled) {
                     const message = 'PDF export is available on Pro plans.';
                     if (SubscriptionContext?.upgradeUrl) {
@@ -330,168 +334,150 @@ $subscriptionFrontendContext = buildSubscriptionFrontendContext($subscriptionCon
                     return;
                 }
 
-                if (typeof pdfMake === 'undefined') {
-                    alert('Error: PDF library not loaded. Please refresh the page and try again.');
-                    console.error('pdfMake is not defined');
+                // Check for html2canvas and jsPDF
+                if (typeof html2canvas === 'undefined') {
+                    alert('Error: html2canvas library not loaded. Please refresh the page.');
+                    console.error('html2canvas is not defined');
                     return;
                 }
 
-                if (typeof QRCode === 'undefined' && typeof window.QRCode === 'undefined') {
-                    try {
-                        await loadQRCodeLibrary();
-                    } catch (error) {
-                        console.warn('QR code library failed to load. Continuing without QR code.', error);
-                    }
+                if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
+                    alert('Error: jsPDF library not loaded. Please refresh the page.');
+                    console.error('jsPDF is not defined');
+                    return;
                 }
 
-                selectedTemplate = getSelectedTemplate();
+                // Update the preview to make sure it's current
+                await renderPreview();
 
-                const sections = {
-                    profile: document.getElementById('section-profile')?.checked ?? true,
-                    professionalSummary: document.getElementById('section-summary')?.checked ?? true,
-                    workExperience: document.getElementById('section-work')?.checked ?? true,
-                    education: document.getElementById('section-education')?.checked ?? true,
-                    skills: document.getElementById('section-skills')?.checked ?? true,
-                    projects: document.getElementById('section-projects')?.checked ?? true,
-                    certifications: document.getElementById('section-certifications')?.checked ?? true,
-                    memberships: document.getElementById('section-memberships')?.checked ?? true,
-                    interests: document.getElementById('section-interests')?.checked ?? true,
-                    qualificationEquivalence: Array.isArray(cvData.qualification_equivalence) && cvData.qualification_equivalence.length > 0
-                };
+                const previewDiv = document.getElementById('cv-preview');
+                if (!previewDiv || !previewDiv.innerHTML.trim()) {
+                    alert('Error: Preview not rendered. Please ensure at least one section is selected.');
+                    return;
+                }
 
-                const includePhoto = document.getElementById('include-photo')?.checked ?? true;
+                // Show loading state
+                const button = document.getElementById('generate-pdf-button');
+                const originalText = button?.textContent;
+                if (button) {
+                    button.disabled = true;
+                    button.textContent = 'Generating PDF...';
+                }
+
+                // Create a temporary container optimized for PDF
+                const pdfContainer = document.createElement('div');
+                pdfContainer.style.cssText = `
+                    position: absolute;
+                    left: -9999px;
+                    top: 0;
+                    width: 210mm;
+                    padding: 15mm;
+                    background: white;
+                    font-family: Arial, Helvetica, sans-serif;
+                    font-size: 11pt;
+                    line-height: 1.5;
+                    color: #000;
+                    box-sizing: border-box;
+                `;
+                pdfContainer.innerHTML = previewDiv.innerHTML;
+                document.body.appendChild(pdfContainer);
+
+                // Add QR code if requested
                 const includeQR = document.getElementById('include-qr')?.checked ?? true;
-
-                let qrCodeImage = null;
                 if (includeQR && cvUrl) {
-                    console.log('Attempting to generate QR code for URL:', cvUrl);
                     try {
+                        const qrContainer = document.createElement('div');
+                        qrContainer.style.cssText = 'margin-top: 20px; text-align: right;';
+
+                        const qrDiv = document.createElement('div');
+                        qrDiv.style.display = 'inline-block';
+                        qrContainer.appendChild(qrDiv);
+
                         let QRCodeLib = typeof QRCode !== 'undefined' ? QRCode : window.QRCode;
-                        console.log('QRCode library available:', !!QRCodeLib);
-
-                        if (QRCodeLib && QRCodeLib.prototype && typeof QRCodeLib === 'function') {
-                            console.log('Using QRCode constructor approach');
-                            const container = document.createElement('div');
-                            container.style.position = 'absolute';
-                            container.style.left = '-9999px';
-                            document.body.appendChild(container);
-
-                            new QRCodeLib(container, {
+                        if (QRCodeLib) {
+                            new QRCodeLib(qrDiv, {
                                 text: cvUrl,
-                                width: 200,
-                                height: 200,
+                                width: 100,
+                                height: 100,
                                 colorDark: '#000000',
-                                colorLight: '#FFFFFF',
-                                correctLevel: QRCodeLib.CorrectLevel ? QRCodeLib.CorrectLevel.H : 0
+                                colorLight: '#FFFFFF'
                             });
 
-                            const canvas = container.querySelector('canvas');
-                            if (canvas) {
-                                qrCodeImage = canvas.toDataURL('image/png');
-                                console.log('QR code generated successfully via constructor, length:', qrCodeImage.length);
-                            } else {
-                                console.warn('Canvas not found after QRCode generation');
-                            }
+                            const qrLabel = document.createElement('p');
+                            qrLabel.textContent = 'View my CV online';
+                            qrLabel.style.cssText = 'font-size: 9pt; color: #6b7280; margin: 5px 0 0 0;';
+                            qrContainer.appendChild(qrLabel);
 
-                            document.body.removeChild(container);
-                        } else if (QRCodeLib && typeof QRCodeLib.toDataURL === 'function') {
-                            console.log('Using QRCode.toDataURL approach');
-                            qrCodeImage = await QRCodeLib.toDataURL(cvUrl, {
-                                width: 200,
-                                margin: 2,
-                                color: { dark: '#000000', light: '#FFFFFF' }
-                            });
-                            console.log('QR code generated successfully via toDataURL, length:', qrCodeImage.length);
-                        } else {
-                            console.warn('QRCode library not available or incompatible format');
+                            pdfContainer.appendChild(qrContainer);
                         }
                     } catch (qrError) {
-                        console.error('Error generating QR code:', qrError);
-                        qrCodeImage = null;
-                    }
-                } else {
-                    console.log('QR code not requested or CV URL not available. includeQR:', includeQR, 'cvUrl:', cvUrl);
-                }
-
-                console.log('Final qrCodeImage status:', qrCodeImage ? 'Generated' : 'null');
-
-                const pdfConfig = {
-                    sections,
-                    includePhoto,
-                    includeQRCode: includeQR
-                };
-
-                let profilePhotoBase64 = null;
-                if (includePhoto && profile.photo_url) {
-                    profilePhotoBase64 = await window.PdfGenerator.getImageAsBase64(profile.photo_url);
-                }
-
-                const profileForPdf = { ...profile, photo_base64: profilePhotoBase64 };
-
-                console.log('About to call buildDocDefinition with:');
-                console.log('  - pdfConfig.includeQRCode:', pdfConfig.includeQRCode);
-                console.log('  - qrCodeImage exists:', !!qrCodeImage);
-                console.log('  - qrCodeImage length:', qrCodeImage ? qrCodeImage.length : 0);
-                console.log('  - cvUrl:', cvUrl);
-
-                const docDefinition = await window.PdfGenerator.buildDocDefinition(
-                    cvData,
-                    profileForPdf,
-                    pdfConfig,
-                    selectedTemplate,
-                    cvUrl,
-                    qrCodeImage
-                );
-
-                if (window && window.console) {
-                    try {
-                        const previewNodes = docDefinition?.content?.slice?.(0, 8) ?? [];
-                        console.log('PDF debug: first nodes', previewNodes);
-                    } catch (logError) {
-                        console.warn('PDF debug logging failed:', logError);
+                        console.warn('QR code generation failed:', qrError);
                     }
                 }
 
-                if (!docDefinition.content || docDefinition.content.length === 0) {
-                    alert('Error: No content to generate PDF. Please ensure at least one section is selected.');
-                    console.error('PDF content is empty');
-                    return;
-                }
-
-                const pdfDoc = pdfMake.createPdf(docDefinition);
-
-                const timeoutId = setTimeout(() => {
-                    console.error('PDF generation timed out after 10 seconds');
-                    alert('PDF generation is taking too long. Please try again, or disable the photo to reduce size.');
-                }, 10000);
-
-                pdfDoc.getDataUrl((dataUrl) => {
-                    clearTimeout(timeoutId);
-
-                    if (!dataUrl) {
-                        alert('Error: Could not generate PDF preview. Please try again.');
-                        return;
-                    }
-
-                    const previewDiv = document.getElementById('pdf-preview');
-                    if (previewDiv) {
-                        previewDiv.innerHTML = `<iframe src="${dataUrl}" style="width: 100%; height: 600px; border: none;"></iframe>`;
-                    }
-
-                    try {
-                        pdfDoc.download(`${profile.full_name || 'CV'}_CV.pdf`);
-                    } catch (downloadErr) {
-                        console.error('Download error:', downloadErr);
-                        pdfDoc.open();
-                    }
-                }, (error) => {
-                    clearTimeout(timeoutId);
-                    console.error('Error generating PDF:', error);
-                    alert('Error generating PDF: ' + (error?.message || 'Unknown error'));
+                // Convert HTML to canvas
+                const canvas = await html2canvas(pdfContainer, {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: '#ffffff',
+                    windowWidth: pdfContainer.scrollWidth,
+                    windowHeight: pdfContainer.scrollHeight
                 });
+
+                // Clean up temporary container
+                document.body.removeChild(pdfContainer);
+
+                // Create PDF
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4',
+                    compress: true
+                });
+
+                const imgWidth = 210; // A4 width in mm
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                const pageHeight = 297; // A4 height in mm
+                let heightLeft = imgHeight;
+                let position = 0;
+
+                // Add first page
+                const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+
+                // Add additional pages if content is longer than one page
+                while (heightLeft > 0) {
+                    position = heightLeft - imgHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+
+                // Download the PDF
+                const fileName = `${(profile.full_name || 'CV').replace(/[^a-z0-9_\-]/gi, '_')}_CV.pdf`;
+                pdf.save(fileName);
+
+                console.log('✅ PDF generated successfully using HTML-to-PDF approach');
+
+                // Restore button
+                if (button) {
+                    button.disabled = false;
+                    button.textContent = originalText;
+                }
+
             } catch (error) {
                 console.error('PDF generation error:', error);
                 alert('Error generating PDF: ' + (error?.message || 'Unknown error'));
+
+                // Restore button on error
+                const button = document.getElementById('generate-pdf-button');
+                if (button) {
+                    button.disabled = false;
+                    button.textContent = 'Generate PDF';
+                }
             }
         }
 
