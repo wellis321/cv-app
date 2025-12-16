@@ -1,4 +1,14 @@
-import { DEFAULT_TEMPLATE_ID, getPdfRenderer, listTemplates as loadAllTemplates } from '/templates/index.js'
+// Use dynamic import with cache busting
+const CACHE_BUSTER = new Date().getTime()
+let templateModule = null
+
+// Load the template module dynamically with cache busting
+async function loadTemplateModule() {
+    if (!templateModule) {
+        templateModule = await import(`/templates/index.js?v=${CACHE_BUSTER}`)
+    }
+    return templateModule
+}
 
 const subscriptionContext = window.SubscriptionContext || {}
 const allowedTemplateIds = new Set(subscriptionContext.allowedTemplateIds || [])
@@ -11,8 +21,9 @@ function filterTemplatesForPlan(templates) {
     return templates.filter((template) => allowedTemplateIds.has(template.id))
 }
 
-function listTemplatesForPlan() {
-    return filterTemplatesForPlan(loadAllTemplates())
+async function listTemplatesForPlan() {
+    const module = await loadTemplateModule()
+    return filterTemplatesForPlan(module.listTemplates())
 }
 
 async function getImageAsBase64FromBlob(blob) {
@@ -59,23 +70,27 @@ async function getImageAsBase64(url) {
     }
 }
 
-function buildDocDefinition(cvData, profile, config, templateId, cvUrl, qrCodeImage) {
+async function buildDocDefinition(cvData, profile, config, templateId, cvUrl, qrCodeImage) {
     if (!pdfEnabled) {
         throw new Error('PDF export is not available for your current plan.')
     }
-    const targetTemplateId = templateId || DEFAULT_TEMPLATE_ID
+    const module = await loadTemplateModule()
+    const targetTemplateId = templateId || module.DEFAULT_TEMPLATE_ID
 
     if (allowedTemplateIds.size > 0 && !allowedTemplateIds.has(targetTemplateId)) {
         throw new Error('This template is not available for your current plan.')
     }
 
-    const pdfRenderer = getPdfRenderer(targetTemplateId)
+    const pdfRenderer = module.getPdfRenderer(targetTemplateId)
 
     if (!pdfRenderer || typeof pdfRenderer.buildDocDefinition !== 'function') {
         throw new Error(`PDF renderer not registered for template: ${targetTemplateId}`)
     }
 
-    return pdfRenderer.buildDocDefinition({
+    // Load the actual builder function (async loader)
+    const builderFunction = await pdfRenderer.buildDocDefinition()
+
+    return builderFunction({
         cvData,
         profile,
         config,

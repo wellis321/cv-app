@@ -434,7 +434,7 @@ $subscriptionFrontendContext = buildSubscriptionFrontendContext($subscriptionCon
                 console.log('  - qrCodeImage length:', qrCodeImage ? qrCodeImage.length : 0);
                 console.log('  - cvUrl:', cvUrl);
 
-                const docDefinition = window.PdfGenerator.buildDocDefinition(
+                const docDefinition = await window.PdfGenerator.buildDocDefinition(
                     cvData,
                     profileForPdf,
                     pdfConfig,

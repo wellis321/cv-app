@@ -1,9 +1,62 @@
-import { render as renderProfessionalBluePreview } from './default/preview.js'
-import { buildDocDefinition as buildProfessionalBluePdf } from './default/pdf.js'
-import { render as renderClassicPreview } from './classic/preview.js'
-import { buildDocDefinition as buildClassicPdf } from './classic/pdf.js'
-import { render as renderModernPreview } from './modern/preview.js'
-import { buildDocDefinition as buildModernPdf } from './modern/pdf.js'
+// Use cache buster for dynamic imports
+const CACHE_BUSTER = new Date().getTime()
+
+// Lazy-loaded modules
+let professionalBluePreview = null
+let professionalBluePdf = null
+let classicPreview = null
+let classicPdf = null
+let modernPreview = null
+let modernPdf = null
+
+// Dynamic imports with cache busting
+async function loadProfessionalBluePreview() {
+    if (!professionalBluePreview) {
+        const module = await import(`./default/preview.js?v=${CACHE_BUSTER}`)
+        professionalBluePreview = module.render
+    }
+    return professionalBluePreview
+}
+
+async function loadProfessionalBluePdf() {
+    if (!professionalBluePdf) {
+        const module = await import(`./default/pdf.js?v=${CACHE_BUSTER}`)
+        professionalBluePdf = module.buildDocDefinition
+    }
+    return professionalBluePdf
+}
+
+async function loadClassicPreview() {
+    if (!classicPreview) {
+        const module = await import(`./classic/preview.js?v=${CACHE_BUSTER}`)
+        classicPreview = module.render
+    }
+    return classicPreview
+}
+
+async function loadClassicPdf() {
+    if (!classicPdf) {
+        const module = await import(`./classic/pdf.js?v=${CACHE_BUSTER}`)
+        classicPdf = module.buildDocDefinition
+    }
+    return classicPdf
+}
+
+async function loadModernPreview() {
+    if (!modernPreview) {
+        const module = await import(`./modern/preview.js?v=${CACHE_BUSTER}`)
+        modernPreview = module.render
+    }
+    return modernPreview
+}
+
+async function loadModernPdf() {
+    if (!modernPdf) {
+        const module = await import(`./modern/pdf.js?v=${CACHE_BUSTER}`)
+        modernPdf = module.buildDocDefinition
+    }
+    return modernPdf
+}
 
 const DEFAULT_TEMPLATE_ID = 'professional'
 
@@ -26,10 +79,10 @@ const templateRegistry = {
             margin: [0, 4, 0, 6]
         },
         preview: {
-            render: renderProfessionalBluePreview
+            render: loadProfessionalBluePreview
         },
         pdf: {
-            buildDocDefinition: buildProfessionalBluePdf
+            buildDocDefinition: loadProfessionalBluePdf
         }
     },
     minimal: {
@@ -50,10 +103,10 @@ const templateRegistry = {
             margin: [0, 6, 0, 10]
         },
         preview: {
-            render: renderProfessionalBluePreview
+            render: loadProfessionalBluePreview
         },
         pdf: {
-            buildDocDefinition: buildProfessionalBluePdf
+            buildDocDefinition: loadProfessionalBluePdf
         }
     },
     classic: {
@@ -74,10 +127,10 @@ const templateRegistry = {
             margin: [0, 6, 0, 10]
         },
         preview: {
-            render: renderClassicPreview
+            render: loadClassicPreview
         },
         pdf: {
-            buildDocDefinition: buildClassicPdf
+            buildDocDefinition: loadClassicPdf
         }
     },
     modern: {
@@ -98,10 +151,10 @@ const templateRegistry = {
             margin: [0, 8, 0, 12]
         },
         preview: {
-            render: renderModernPreview
+            render: loadModernPreview
         },
         pdf: {
-            buildDocDefinition: buildModernPdf
+            buildDocDefinition: loadModernPdf
         }
     }
 }
