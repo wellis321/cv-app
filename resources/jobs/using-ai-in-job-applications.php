@@ -8,7 +8,7 @@ $sections = [
     [
         'id' => 'intro',
         'title' => 'What Can AI Do for Your Job Search?',
-        'image' => 'static/images/resources-images/AI/artificial intelligence-500.jpg',
+        'image' => 'static/images/resources-images/AI/artificial intelligence-500.png',
         'image_alt' => 'Professionals using artificial intelligence tools during a job search',
         'content' => [
             'AI tools like ChatGPT, Claude, and specialised career platforms can assist with drafting CVs, cover letters, and interview preparation. They excel at generating first drafts, suggesting improvements, and helping you articulate your experience more clearly.',
@@ -103,7 +103,7 @@ $sections = [
     [
         'id' => 'future',
         'title' => 'The Future of AI in Job Applications',
-        'image' => 'static/images/resources-images/AI/artificial intelligence-500.jpg',
+        'image' => 'static/images/resources-images/AI/artificial intelligence-500.png',
         'image_alt' => 'Future technology concept showing artificial intelligence icons',
         'content' => [
             'AI tools will become more sophisticated, and employers will improve their methods for assessing genuine fit. Staying informed helps you adapt.',
@@ -134,12 +134,12 @@ $sections = [
         'pageTitle' => $pageTitle . ' | Simple CV Builder',
         'metaDescription' => $metaDescription,
         'canonicalUrl' => APP_URL . '/resources/jobs/using-ai-in-job-applications.php',
-        'metaImage' => APP_URL . '/static/images/resources-images/AI/artificial intelligence-500.jpg',
+        'metaImage' => APP_URL . '/static/images/resources-images/AI/artificial intelligence-500.png',
         'structuredDataType' => 'article',
         'structuredData' => [
             'title' => $pageTitle,
             'description' => $metaDescription,
-            'image' => APP_URL . '/static/images/resources-images/AI/artificial intelligence-500.jpg',
+            'image' => APP_URL . '/static/images/resources-images/AI/artificial intelligence-500.png',
             'datePublished' => '2025-01-01',
             'dateModified' => date('Y-m-d'),
         ],
