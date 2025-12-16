@@ -388,11 +388,33 @@ $gettingStartedTips = [
                     </div>
                 <?php endforeach; ?>
             </div>
-            <div class="mt-8 rounded-2xl border border-slate-200 bg-white px-6 py-6 shadow-sm">
-                <h3 class="text-base font-semibold text-slate-900">Placeholder for downloadable resources</h3>
-                <p class="mt-3 text-base text-slate-600">
-                    Swap this section for a checklist, spreadsheet, or PDF lead magnet when you’re ready. Link it to your preferred download/CRM flow.
-                </p>
+            <div class="mt-8 rounded-2xl border-2 border-blue-500 bg-gradient-to-br from-blue-50 to-indigo-50 px-8 py-8 shadow-lg">
+                <div class="flex flex-col items-center text-center">
+                    <svg class="h-12 w-12 text-blue-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <h3 class="text-2xl font-semibold text-slate-900 mb-3">Ready to Apply? Create Your Professional CV</h3>
+                    <p class="text-base text-slate-700 max-w-2xl mb-6">
+                        Stand out from other applicants with a professional CV that highlights your remote-friendly skills. Create your free account and build a standout CV in minutes.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <?php if (isLoggedIn()): ?>
+                            <a href="/dashboard.php" class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-6 py-3 text-base font-semibold text-white shadow-md hover:bg-blue-700 transition-colors">
+                                Build Your CV
+                            </a>
+                            <a href="/subscription.php" class="inline-flex items-center justify-center rounded-lg border-2 border-blue-600 px-6 py-3 text-base font-semibold text-blue-600 hover:bg-blue-50 transition-colors">
+                                Upgrade to Pro
+                            </a>
+                        <?php else: ?>
+                            <a href="/#auth-section" class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-6 py-3 text-base font-semibold text-white shadow-md hover:bg-blue-700 transition-colors">
+                                Create Free Account
+                            </a>
+                            <a href="/subscription.php" class="inline-flex items-center justify-center rounded-lg border-2 border-blue-600 px-6 py-3 text-base font-semibold text-blue-600 hover:bg-blue-50 transition-colors">
+                                View Pricing
+                            </a>
+                        <?php endif; ?>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
