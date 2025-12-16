@@ -67,7 +67,7 @@ $subscriptionFrontendContext = buildSubscriptionFrontendContext($subscriptionCon
         })
     </script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-    <script type="module" src="/js/pdf-generator.js"></script>
+    <script type="module" src="/js/pdf-generator.js?v=<?php echo time(); ?>"></script>
 </head>
 <body class="bg-gray-50">
     <?php partial('header'); ?>
@@ -192,7 +192,7 @@ $subscriptionFrontendContext = buildSubscriptionFrontendContext($subscriptionCon
     </div>
 
         <script type="module">
-        import { DEFAULT_TEMPLATE_ID, getTemplateMeta, getPreviewRenderer, listTemplates } from '/templates/index.js';
+        import { DEFAULT_TEMPLATE_ID, getTemplateMeta, getPreviewRenderer, listTemplates } from '/templates/index.js?v=<?php echo time(); ?>';
 
         <?php
         // Helper to decode HTML entities recursively in arrays

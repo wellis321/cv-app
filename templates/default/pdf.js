@@ -308,7 +308,9 @@ function buildProfessionalDocDefinition({ cvData = {}, profile = {}, config = {}
     const template = getTemplate(templateId)
     const palette = template.colors || {}
 
+    console.log('🔧 PDF Builder v2.0 - UPDATED CODE WITH REDUCED SPACING')
     console.log('PDF Builder - includeQRCode:', config.includeQRCode, 'qrCodeImage provided:', !!qrCodeImage, 'cvUrl:', cvUrl)
+    console.log('Template pageMargins:', template.pageMargins)
 
     const styles = {
         header: { fontSize: 22, bold: true, color: palette.header || '#2c3e50', margin: [0, 0, 0, 4] },
@@ -336,7 +338,14 @@ function buildProfessionalDocDefinition({ cvData = {}, profile = {}, config = {}
         defaultStyle: { font: 'Roboto', fontSize: 11, color: palette.body || '#374151', lineHeight: 1.3 },
         footer: (currentPage, pageCount) => ({ text: `${currentPage} / ${pageCount}`, alignment: 'center', style: 'footer' }),
         content,
-        styles
+        styles,
+        pageBreakBefore: function(currentNode, followingNodesOnPage, nodesOnNextPage, previousNodesOnPage) {
+            // Don't force page breaks before section headers if they have content following
+            if (currentNode.style === 'subheader' && followingNodesOnPage.length > 2) {
+                return false;
+            }
+            return false;
+        }
     }
 
     const sections = config.sections || {}
@@ -625,6 +634,10 @@ function buildProfessionalDocDefinition({ cvData = {}, profile = {}, config = {}
     } else {
         console.log('QR code NOT added to footer. includeQRCode:', config.includeQRCode, 'qrCodeImage:', !!qrCodeImage, 'qrInHeader:', qrInHeader)
     }
+
+    console.log('Total content blocks:', content.length)
+    console.log('DocDefinition pageMargins:', docDefinition.pageMargins)
+    console.log('DocDefinition defaultStyle lineHeight:', docDefinition.defaultStyle.lineHeight)
 
     return docDefinition
 }
