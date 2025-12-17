@@ -65,6 +65,8 @@ $subscriptionFrontendContext = buildSubscriptionFrontendContext($subscriptionCon
         })
     </script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.min.js"></script>
     <script type="module" src="/js/pdf-generator.js?v=<?php echo time(); ?>"></script>
 </head>
 <body class="bg-gray-50">
@@ -310,7 +312,7 @@ $subscriptionFrontendContext = buildSubscriptionFrontendContext($subscriptionCon
 
         async function generatePDF() {
             try {
-                console.log('🎨 Using server-side PDF generation with Dompdf');
+                console.log('🎨 Using client-side PDF generation with pdfmake');
 
                 if (!SubscriptionContext?.pdfEnabled) {
                     const message = 'PDF export is available on Pro plans.';
@@ -330,6 +332,10 @@ $subscriptionFrontendContext = buildSubscriptionFrontendContext($subscriptionCon
                     return;
                 }
 
+                if (typeof pdfMake === 'undefined') {
+                    throw new Error('PDF library not loaded. Please refresh the page.');
+                }
+
                 // Show loading state
                 const button = document.getElementById('generate-pdf-button');
                 const originalText = button?.textContent;
@@ -338,31 +344,30 @@ $subscriptionFrontendContext = buildSubscriptionFrontendContext($subscriptionCon
                     button.textContent = 'Generating PDF...';
                 }
 
-                // Get selected sections
-                const sections = [];
-                const sectionCheckboxes = {
-                    'profile': 'section-profile',
-                    'summary': 'section-summary',
-                    'work': 'section-work',
-                    'education': 'section-education',
-                    'skills': 'section-skills',
-                    'projects': 'section-projects',
-                    'certifications': 'section-certifications',
-                    'qualifications': 'section-qualifications',
-                    'memberships': 'section-memberships',
-                    'interests': 'section-interests'
+                // Get selected sections and map to PDF template format
+                const sectionsObj = getSections();
+                const qualificationsCheckbox = document.getElementById('section-qualifications');
+                const sections = {
+                    profile: sectionsObj.profile,
+                    professionalSummary: sectionsObj.summary,
+                    summary: sectionsObj.summary,
+                    workExperience: sectionsObj.work,
+                    work: sectionsObj.work,
+                    education: sectionsObj.education,
+                    skills: sectionsObj.skills,
+                    projects: sectionsObj.projects,
+                    certifications: sectionsObj.certifications,
+                    qualificationEquivalence: qualificationsCheckbox ? qualificationsCheckbox.checked : false,
+                    memberships: sectionsObj.memberships,
+                    interests: sectionsObj.interests
                 };
-
-                for (const [sectionName, checkboxId] of Object.entries(sectionCheckboxes)) {
-                    const checkbox = document.getElementById(checkboxId);
-                    if (checkbox && checkbox.checked) {
-                        sections.push(sectionName);
-                    }
-                }
 
                 // Get include photo and QR code settings
                 const includePhoto = document.getElementById('include-photo')?.checked ?? true;
                 const includeQr = document.getElementById('include-qr')?.checked ?? true;
+
+                // Get selected template
+                const selectedTemplate = getSelectedTemplate();
 
                 // Generate QR code if needed
                 let qrCodeImage = null;
@@ -389,7 +394,7 @@ $subscriptionFrontendContext = buildSubscriptionFrontendContext($subscriptionCon
                             const qrCanvas = qrDiv.querySelector('canvas');
                             if (qrCanvas) {
                                 qrCodeImage = qrCanvas.toDataURL('image/png');
-                                console.log('QR code generated, length:', qrCodeImage.length);
+                                console.log('QR code generated');
                             }
                         }
 
@@ -399,59 +404,35 @@ $subscriptionFrontendContext = buildSubscriptionFrontendContext($subscriptionCon
                     }
                 }
 
-                // Get selected template
-                const selectedTemplate = getSelectedTemplate();
-
-                // Prepare form data
-                const formData = new FormData();
-                formData.append('<?php echo CSRF_TOKEN_NAME; ?>', '<?php echo csrfToken(); ?>');
-                formData.append('sections', JSON.stringify(sections));
-                formData.append('includePhoto', includePhoto ? '1' : '0');
-                formData.append('includeQr', includeQr ? '1' : '0');
-                formData.append('templateId', selectedTemplate);
-                if (qrCodeImage) {
-                    formData.append('qrCodeImage', qrCodeImage);
+                // Get profile photo as base64 if needed
+                let photoBase64 = null;
+                if (includePhoto && profile.photo_url) {
+                    photoBase64 = await window.PdfGenerator.getImageAsBase64(profile.photo_url);
                 }
 
-                // Call server-side endpoint
-                console.log('Calling server-side PDF generation endpoint...');
-                const response = await fetch('/api/generate-pdf-dompdf.php', {
-                    method: 'POST',
-                    body: formData
-                });
+                // Prepare config
+                const config = {
+                    sections: sections,
+                    includePhoto: includePhoto,
+                    includeQRCode: includeQr
+                };
 
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.error || `Server error: ${response.status}`);
-                }
+                // Build document definition using the template system
+                const docDefinition = await window.PdfGenerator.buildDocDefinition(
+                    cvData,
+                    { ...profile, photo_base64: photoBase64 },
+                    config,
+                    selectedTemplate,
+                    cvUrl,
+                    qrCodeImage
+                );
 
-                // Get the PDF blob
-                const blob = await response.blob();
+                // Generate and download PDF
+                pdfMake.createPdf(docDefinition).download(
+                    `${(profile.full_name || 'CV').replace(/[^a-z0-9_\-]/gi, '_')}_CV.pdf`
+                );
 
-                // Check if response is actually a PDF
-                if (blob.type !== 'application/pdf') {
-                    // Try to parse as JSON error
-                    const text = await blob.text();
-                    try {
-                        const errorData = JSON.parse(text);
-                        throw new Error(errorData.error || 'Failed to generate PDF');
-                    } catch (e) {
-                        throw new Error('Server returned invalid response');
-                    }
-                }
-
-                // Download the PDF
-                const fileName = `${(profile.full_name || 'CV').replace(/[^a-z0-9_\-]/gi, '_')}_CV.pdf`;
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = fileName;
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
-
-                console.log('✅ PDF generated successfully using Dompdf');
+                console.log('✅ PDF generated successfully using pdfmake');
 
                 // Restore button
                 if (button) {

@@ -177,7 +177,7 @@ function buildTemplatedCvHtml($cvData, $profile, $sections, $includePhoto, $incl
     <meta charset="UTF-8">
     <style>
         @page {
-            margin: 40px;
+            margin: 50mm 20mm 50mm 20mm;
         }
 
         * {
