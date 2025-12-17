@@ -7,7 +7,7 @@ const pdfTemplates = {
         id: 'professional',
         name: 'Professional Blue',
         description: 'Structured business layout with blue accent lines and refined typography.',
-        pageMargins: [30, 40, 30, 40],
+        pageMargins: [50, 50, 50, 50],
         colors: {
             header: '#2c3e50',
             body: '#374151',
@@ -113,7 +113,7 @@ function formatDateRange(startDate, endDate) {
 function createSectionHeader(title, template = {}) {
     const palette = template.colors || {}
     const variant = template.sectionHeaderStyle || 'line'
-    const pageMargins = Array.isArray(template.pageMargins) ? template.pageMargins : [40, 60, 40, 60]
+    const pageMargins = Array.isArray(template.pageMargins) ? template.pageMargins : [50, 50, 50, 50]
     const pageWidth = 595.28 // A4 width in points
     const availableWidth = pageWidth - (pageMargins[0] || 0) - (pageMargins[2] || 0)
     const lineWidth = template.sectionHeaderLineWidth ?? (variant === 'minimal' ? 0.75 : 2)
@@ -247,7 +247,7 @@ function buildHeader(content, profile, config, palette, template, cvUrl, qrCodeI
         })
     }
 
-    const pageMargins = template.pageMargins || [40, 60, 40, 60]
+    const pageMargins = template.pageMargins || [50, 50, 50, 50]
     const pageWidth = 595.28
     const availableWidth = pageWidth - (pageMargins[0] || 0) - (pageMargins[2] || 0)
     const dividerColor = palette.divider || ACCENT_COLOR
@@ -334,7 +334,7 @@ function buildProfessionalDocDefinition({ cvData = {}, profile = {}, config = {}
 
     const docDefinition = {
         pageSize: 'A4',
-        pageMargins: template.pageMargins || [30, 40, 30, 40],
+        pageMargins: template.pageMargins || [50, 50, 50, 50],
         defaultStyle: { font: 'Roboto', fontSize: 11, color: palette.body || '#374151', lineHeight: 1.3 },
         footer: (currentPage, pageCount) => ({ text: `${currentPage} / ${pageCount}`, alignment: 'center', style: 'footer' }),
         content,
