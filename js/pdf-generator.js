@@ -37,7 +37,27 @@ async function getImageAsBase64FromBlob(blob) {
 
 async function getImageAsBase64(url) {
     try {
-        const response = await fetch(url)
+        if (!url) {
+            return null
+        }
+
+        // If URL points to storage, use storage proxy
+        let fetchUrl = url
+        if (url.includes('/storage/')) {
+            // Extract the path after /storage/ (handles both relative and absolute URLs)
+            const storageMatch = url.match(/\/storage\/(.+)$/)
+            if (storageMatch) {
+                // Use relative path for storage proxy
+                fetchUrl = `/api/storage-proxy?path=${encodeURIComponent(storageMatch[1])}`
+            }
+        } else if (url.startsWith('http') && !url.startsWith(window.location.origin)) {
+            // External URL - might need CORS handling
+            // For now, try direct fetch
+        }
+
+        const response = await fetch(fetchUrl, {
+            credentials: 'include'
+        })
         if (!response.ok) {
             throw new Error(`Failed to fetch image: ${response.status}`)
         }

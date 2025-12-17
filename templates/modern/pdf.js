@@ -347,19 +347,34 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
 
     // PROFESSIONAL SUMMARY
     if (sections.professionalSummary !== false && cvData.professional_summary) {
-        mainContent.push(...createSideBorderHeader('Professional Summary', template, { fontSize: 16, borderWidth: 4, margin: [0, 0, 0, 16] }))
-        mainContent.push(...buildProfessionalSummarySection(
+        const summaryHeader = createSideBorderHeader('Professional Summary', template, { fontSize: 16, borderWidth: 4, margin: [0, 0, 0, 16] })
+        if (Array.isArray(summaryHeader)) {
+            mainContent.push(...summaryHeader)
+        } else {
+            mainContent.push(summaryHeader)
+        }
+        const summaryContent = buildProfessionalSummarySection(
             cvData.professional_summary,
             template,
             { fontSize: 13, showStrengths: true }
-        ))
+        )
+        if (Array.isArray(summaryContent)) {
+            mainContent.push(...summaryContent)
+        } else {
+            mainContent.push(summaryContent)
+        }
         mainContent.push({ text: '', margin: [0, 0, 0, 12] })
     }
 
     // WORK EXPERIENCE
     if (sections.workExperience !== false && Array.isArray(cvData.work_experience) && cvData.work_experience.length > 0) {
-        mainContent.push(...createSideBorderHeader('Experience', template, { fontSize: 16, borderWidth: 4, margin: [0, 0, 0, 16] }))
-        mainContent.push(...buildWorkExperienceSection(
+        const workHeader = createSideBorderHeader('Experience', template, { fontSize: 16, borderWidth: 4, margin: [0, 0, 0, 16] })
+        if (Array.isArray(workHeader)) {
+            mainContent.push(...workHeader)
+        } else {
+            mainContent.push(workHeader)
+        }
+        const workContent = buildWorkExperienceSection(
             cvData.work_experience,
             template,
             {
@@ -369,14 +384,24 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
                 fontSize: 12,
                 spacing: 1.5
             }
-        ))
+        )
+        if (Array.isArray(workContent)) {
+            mainContent.push(...workContent)
+        } else if (workContent) {
+            mainContent.push(workContent)
+        }
         mainContent.push({ text: '', margin: [0, 0, 0, 12] })
     }
 
     // PROJECTS
     if (sections.projects !== false && Array.isArray(cvData.projects) && cvData.projects.length > 0) {
-        mainContent.push(...createSideBorderHeader('Projects', template, { fontSize: 16, borderWidth: 4, margin: [0, 0, 0, 16] }))
-        mainContent.push(...buildProjectsSection(
+        const projectsHeader = createSideBorderHeader('Projects', template, { fontSize: 16, borderWidth: 4, margin: [0, 0, 0, 16] })
+        if (Array.isArray(projectsHeader)) {
+            mainContent.push(...projectsHeader)
+        } else {
+            mainContent.push(projectsHeader)
+        }
+        const projectsContent = buildProjectsSection(
             cvData.projects,
             template,
             {
@@ -384,21 +409,36 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
                 showUrl: true,
                 fontSize: 12
             }
-        ))
+        )
+        if (Array.isArray(projectsContent)) {
+            mainContent.push(...projectsContent)
+        } else if (projectsContent) {
+            mainContent.push(projectsContent)
+        }
         mainContent.push({ text: '', margin: [0, 0, 0, 12] })
     }
 
     // PROFESSIONAL MEMBERSHIPS
     if (sections.memberships !== false && Array.isArray(cvData.professional_memberships) && cvData.professional_memberships.length > 0) {
-        mainContent.push(...createSideBorderHeader('Memberships', template, { fontSize: 16, borderWidth: 4, margin: [0, 0, 0, 16] }))
-        mainContent.push(...buildMembershipsSection(
+        const membershipsHeader = createSideBorderHeader('Memberships', template, { fontSize: 16, borderWidth: 4, margin: [0, 0, 0, 16] })
+        if (Array.isArray(membershipsHeader)) {
+            mainContent.push(...membershipsHeader)
+        } else {
+            mainContent.push(membershipsHeader)
+        }
+        const membershipsContent = buildMembershipsSection(
             cvData.professional_memberships,
             template,
             {
                 showDates: true,
                 fontSize: 12
             }
-        ))
+        )
+        if (Array.isArray(membershipsContent)) {
+            mainContent.push(...membershipsContent)
+        } else if (membershipsContent) {
+            mainContent.push(membershipsContent)
+        }
     }
 
     // Create two-column layout

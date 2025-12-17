@@ -36,6 +36,8 @@ finfo_close($finfo);
 header('Content-Type: ' . $mimeType);
 header('Content-Length: ' . filesize($filePath));
 header('Cache-Control: public, max-age=31536000'); // Cache for 1 year
+header('Access-Control-Allow-Origin: ' . (isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '*'));
+header('Access-Control-Allow-Credentials: true');
 
 // Output file
 readfile($filePath);
