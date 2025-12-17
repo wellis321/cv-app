@@ -79,27 +79,30 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
 
         if (profile.location) {
             contactItems.push({
-                text: decodeHtmlEntities(profile.location),
-                fontSize: 9,
-                color: template.colors.body,
+                text: [
+                    { text: 'Location: ', fontSize: 9, bold: true, color: template.colors.accent },
+                    { text: decodeHtmlEntities(profile.location), fontSize: 9, color: template.colors.body }
+                ],
                 margin: [0, 0, 0, 4]
             })
         }
 
         if (profile.phone) {
             contactItems.push({
-                text: decodeHtmlEntities(profile.phone),
-                fontSize: 9,
-                color: template.colors.body,
+                text: [
+                    { text: 'Phone: ', fontSize: 9, bold: true, color: template.colors.accent },
+                    { text: decodeHtmlEntities(profile.phone), fontSize: 9, color: template.colors.body }
+                ],
                 margin: [0, 0, 0, 4]
             })
         }
 
         if (profile.email) {
             contactItems.push({
-                text: decodeHtmlEntities(profile.email),
-                fontSize: 9,
-                color: template.colors.body,
+                text: [
+                    { text: 'Email: ', fontSize: 9, bold: true, color: template.colors.accent },
+                    { text: decodeHtmlEntities(profile.email), fontSize: 9, color: template.colors.body }
+                ],
                 margin: [0, 0, 0, 4]
             })
         }
