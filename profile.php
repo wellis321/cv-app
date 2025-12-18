@@ -440,34 +440,32 @@ if (isPost()) {
 
                     <!-- CV Visibility Tab -->
                     <div id="tab-content-visibility" class="tab-content hidden">
-                        <div>
-                            <h2 class="text-xl font-semibold text-gray-900 mb-4">CV Visibility</h2>
+                        <h2 class="text-xl font-semibold text-gray-900 mb-4">CV Visibility</h2>
 
-                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                                <p class="text-sm text-blue-800">
-                                    <strong>Your CV URL:</strong> <span class="font-mono text-blue-600"><?php echo defined('APP_URL') ? APP_URL : 'https://simple-cv-builder.com'; ?>/cv/@<?php echo e($profile['username'] ?? 'username'); ?></span>
-                                </p>
-                            </div>
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                            <p class="text-sm text-blue-800">
+                                <strong>Your CV URL:</strong> <span class="font-mono text-blue-600"><?php echo APP_URL; ?>/cv/@<?php echo e($profile['username'] ?? 'username'); ?></span>
+                            </p>
+                        </div>
 
-                            <div class="space-y-4">
-                                <div class="flex items-start gap-3">
-                                    <input type="checkbox"
-                                           id="cv_public"
-                                           name="cv_public"
-                                           value="1"
-                                           <?php
-                                           $cvPublicValue = isset($profile['cv_public']) ? (int)$profile['cv_public'] : 1;
-                                           echo $cvPublicValue ? 'checked' : '';
-                                           ?>
-                                           class="mt-1 w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                                    <div class="flex-1">
-                                        <label for="cv_public" class="block text-sm font-medium text-gray-700 cursor-pointer">
-                                            Make my CV publicly accessible
-                                        </label>
-                                        <p class="mt-1 text-xs text-gray-500">
-                                            When enabled, anyone with your CV link can view your CV. When disabled, only you can view it when logged in. You can toggle this on or off at any time.
-                                        </p>
-                                    </div>
+                        <div class="space-y-4">
+                            <div class="flex items-start gap-3">
+                                <input type="checkbox"
+                                       id="cv_public"
+                                       name="cv_public"
+                                       value="1"
+                                       <?php
+                                       $cvPublicValue = isset($profile['cv_public']) ? (int)$profile['cv_public'] : 1;
+                                       echo $cvPublicValue ? 'checked' : '';
+                                       ?>
+                                       class="mt-1 w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                <div class="flex-1">
+                                    <label for="cv_public" class="block text-sm font-medium text-gray-700 cursor-pointer">
+                                        Make my CV publicly accessible
+                                    </label>
+                                    <p class="mt-1 text-xs text-gray-500">
+                                        When enabled, anyone with your CV link can view your CV. When disabled, only you can view it when logged in. You can toggle this on or off at any time.
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -477,87 +475,87 @@ if (isPost()) {
                     <div id="tab-content-colors" class="tab-content hidden">
                         <h2 class="text-xl font-semibold text-gray-900 mb-4">CV Header Colors</h2>
 
-                    <!-- Predefined Color Schemes -->
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-700 mb-3">Choose a Color Scheme</label>
-                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                            <?php
-                            $colorSchemes = [
-                                ['name' => 'Indigo to Purple', 'from' => '#4338ca', 'to' => '#7e22ce'],
-                                ['name' => 'Blue to Cyan', 'from' => '#2563eb', 'to' => '#06b6d4'],
-                                ['name' => 'Green to Teal', 'from' => '#059669', 'to' => '#14b8a6'],
-                                ['name' => 'Red to Pink', 'from' => '#dc2626', 'to' => '#ec4899'],
-                                ['name' => 'Orange to Red', 'from' => '#ea580c', 'to' => '#dc2626'],
-                                ['name' => 'Purple to Pink', 'from' => '#7c3aed', 'to' => '#ec4899'],
-                                ['name' => 'Slate to Blue', 'from' => '#475569', 'to' => '#3b82f6'],
-                                ['name' => 'Emerald to Blue', 'from' => '#10b981', 'to' => '#3b82f6'],
-                            ];
+                        <!-- Predefined Color Schemes -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-3">Choose a Color Scheme</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                                <?php
+                                $colorSchemes = [
+                                    ['name' => 'Indigo to Purple', 'from' => '#4338ca', 'to' => '#7e22ce'],
+                                    ['name' => 'Blue to Cyan', 'from' => '#2563eb', 'to' => '#06b6d4'],
+                                    ['name' => 'Green to Teal', 'from' => '#059669', 'to' => '#14b8a6'],
+                                    ['name' => 'Red to Pink', 'from' => '#dc2626', 'to' => '#ec4899'],
+                                    ['name' => 'Orange to Red', 'from' => '#ea580c', 'to' => '#dc2626'],
+                                    ['name' => 'Purple to Pink', 'from' => '#7c3aed', 'to' => '#ec4899'],
+                                    ['name' => 'Slate to Blue', 'from' => '#475569', 'to' => '#3b82f6'],
+                                    ['name' => 'Emerald to Blue', 'from' => '#10b981', 'to' => '#3b82f6'],
+                                ];
 
-                            $currentFrom = $profile['cv_header_from_color'] ?? '#4338ca';
-                            $currentTo = $profile['cv_header_to_color'] ?? '#7e22ce';
+                                $currentFrom = $profile['cv_header_from_color'] ?? '#4338ca';
+                                $currentTo = $profile['cv_header_to_color'] ?? '#7e22ce';
 
-                            foreach ($colorSchemes as $scheme):
-                                $isSelected = ($scheme['from'] === $currentFrom && $scheme['to'] === $currentTo);
-                            ?>
-                                <button type="button" onclick="selectColorScheme('<?php echo $scheme['from']; ?>', '<?php echo $scheme['to']; ?>')"
-                                        class="relative p-3 border-2 rounded-lg hover:border-blue-500 transition-colors <?php echo $isSelected ? 'border-blue-600 ring-2 ring-blue-500' : 'border-gray-200'; ?>">
-                                    <div class="w-full h-16 rounded mb-2" style="background: linear-gradient(to right, <?php echo $scheme['from']; ?>, <?php echo $scheme['to']; ?>);"></div>
-                                    <p class="text-xs text-gray-600 text-center"><?php echo e($scheme['name']); ?></p>
-                                    <?php if ($isSelected): ?>
-                                        <svg class="absolute top-1 right-1 w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                        </svg>
-                                    <?php endif; ?>
-                                </button>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
-
-                    <!-- Custom Color Pickers -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <div>
-                            <label for="cv_header_from_color" class="block text-sm font-medium text-gray-700 mb-2">Start Color</label>
-                            <div class="flex gap-3">
-                                <input type="color"
-                                       id="cv_header_from_color"
-                                       name="cv_header_from_color"
-                                       value="<?php echo e($profile['cv_header_from_color'] ?? '#4338ca'); ?>"
-                                       class="h-10 w-20 rounded border border-gray-300 cursor-pointer"
-                                       onchange="updatePreview()">
-                                <input type="text"
-                                       id="cv_header_from_color_text"
-                                       value="<?php echo e($profile['cv_header_from_color'] ?? '#4338ca'); ?>"
-                                       pattern="^#[0-9A-Fa-f]{6}$"
-                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                       placeholder="#4338ca"
-                                       onchange="updateColorFromText('from')">
+                                foreach ($colorSchemes as $scheme):
+                                    $isSelected = ($scheme['from'] === $currentFrom && $scheme['to'] === $currentTo);
+                                ?>
+                                    <button type="button" onclick="selectColorScheme('<?php echo $scheme['from']; ?>', '<?php echo $scheme['to']; ?>')"
+                                            class="relative p-3 border-2 rounded-lg hover:border-blue-500 transition-colors <?php echo $isSelected ? 'border-blue-600 ring-2 ring-blue-500' : 'border-gray-200'; ?>">
+                                        <div class="w-full h-16 rounded mb-2" style="background: linear-gradient(to right, <?php echo $scheme['from']; ?>, <?php echo $scheme['to']; ?>);"></div>
+                                        <p class="text-xs text-gray-600 text-center"><?php echo e($scheme['name']); ?></p>
+                                        <?php if ($isSelected): ?>
+                                            <svg class="absolute top-1 right-1 w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                            </svg>
+                                        <?php endif; ?>
+                                    </button>
+                                <?php endforeach; ?>
                             </div>
                         </div>
-                        <div>
-                            <label for="cv_header_to_color" class="block text-sm font-medium text-gray-700 mb-2">End Color</label>
-                            <div class="flex gap-3">
-                                <input type="color"
-                                       id="cv_header_to_color"
-                                       name="cv_header_to_color"
-                                       value="<?php echo e($profile['cv_header_to_color'] ?? '#7e22ce'); ?>"
-                                       class="h-10 w-20 rounded border border-gray-300 cursor-pointer"
-                                       onchange="updatePreview()">
-                                <input type="text"
-                                       id="cv_header_to_color_text"
-                                       value="<?php echo e($profile['cv_header_to_color'] ?? '#7e22ce'); ?>"
-                                       pattern="^#[0-9A-Fa-f]{6}$"
-                                       class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                       placeholder="#7e22ce"
-                                       onchange="updateColorFromText('to')">
+
+                        <!-- Custom Color Pickers -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div>
+                                <label for="cv_header_from_color" class="block text-sm font-medium text-gray-700 mb-2">Start Color</label>
+                                <div class="flex gap-3">
+                                    <input type="color"
+                                           id="cv_header_from_color"
+                                           name="cv_header_from_color"
+                                           value="<?php echo e($profile['cv_header_from_color'] ?? '#4338ca'); ?>"
+                                           class="h-10 w-20 rounded border border-gray-300 cursor-pointer"
+                                           onchange="updatePreview()">
+                                    <input type="text"
+                                           id="cv_header_from_color_text"
+                                           value="<?php echo e($profile['cv_header_from_color'] ?? '#4338ca'); ?>"
+                                           pattern="^#[0-9A-Fa-f]{6}$"
+                                           class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                           placeholder="#4338ca"
+                                           onchange="updateColorFromText('from')">
+                                </div>
+                            </div>
+                            <div>
+                                <label for="cv_header_to_color" class="block text-sm font-medium text-gray-700 mb-2">End Color</label>
+                                <div class="flex gap-3">
+                                    <input type="color"
+                                           id="cv_header_to_color"
+                                           name="cv_header_to_color"
+                                           value="<?php echo e($profile['cv_header_to_color'] ?? '#7e22ce'); ?>"
+                                           class="h-10 w-20 rounded border border-gray-300 cursor-pointer"
+                                           onchange="updatePreview()">
+                                    <input type="text"
+                                           id="cv_header_to_color_text"
+                                           value="<?php echo e($profile['cv_header_to_color'] ?? '#7e22ce'); ?>"
+                                           pattern="^#[0-9A-Fa-f]{6}$"
+                                           class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                           placeholder="#7e22ce"
+                                           onchange="updateColorFromText('to')">
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Preview -->
-                    <div class="mt-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Preview</label>
-                        <div id="color-preview" class="w-full h-24 rounded-lg shadow-sm" style="background: linear-gradient(to right, <?php echo e($profile['cv_header_from_color'] ?? '#4338ca'); ?>, <?php echo e($profile['cv_header_to_color'] ?? '#7e22ce'); ?>);"></div>
-                    </div>
+                        <!-- Preview -->
+                        <div class="mt-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Preview</label>
+                            <div id="color-preview" class="w-full h-24 rounded-lg shadow-sm" style="background: linear-gradient(to right, <?php echo e($profile['cv_header_from_color'] ?? '#4338ca'); ?>, <?php echo e($profile['cv_header_to_color'] ?? '#7e22ce'); ?>);"></div>
+                        </div>
                     </div>
                 </div>
             </form>
