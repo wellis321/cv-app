@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../php/helpers.php';
 
-$pageTitle = 'How to Refresh Your CV in 30 Minutes';
+$pageTitle = 'Six Steps to Refreshing Your CV in 30 Minutes';
 $metaDescription = 'Use this 30-minute workflow to modernise your CV summary, skills, and experience so you can respond to new job opportunities fast.';
 $canonicalUrl = APP_URL . '/resources/jobs/how-to-refresh-your-cv-in-30-minutes.php';
 
@@ -145,21 +145,42 @@ $sections = [
             </p>
         </div>
 
-        <?php foreach ($sections as $section): ?>
+        <?php
+        $stepNumber = 0;
+        $numberImages = ['one.jpg', 'two.jpg', 'three.jpg', 'four.jpg', 'five.jpg', 'six.jpg'];
+        foreach ($sections as $index => $section):
+            // Only show numbers for the first 6 steps (skip "The Power of Strategic Updates")
+            $isStep = $index < 6;
+            if ($isStep) {
+                $stepNumber++;
+            }
+        ?>
             <section class="rounded-3xl border border-slate-200 bg-white p-8 shadow-lg shadow-slate-900/5">
-                <h2 class="text-2xl font-semibold text-slate-900"><?php echo e($section['title']); ?></h2>
-                <div class="mt-4 space-y-4 text-base leading-relaxed text-slate-600">
-                    <?php foreach ($section['content'] as $block): ?>
-                        <?php if ($block['type'] === 'paragraph'): ?>
-                            <p><?php echo e($block['text']); ?></p>
-                        <?php elseif ($block['type'] === 'list'): ?>
-                            <ul class="list-disc space-y-2 pl-5">
-                                <?php foreach ($block['items'] as $item): ?>
-                                    <li><?php echo e($item); ?></li>
-                                <?php endforeach; ?>
-                            </ul>
-                        <?php endif; ?>
-                    <?php endforeach; ?>
+                <div class="flex gap-6 items-start">
+                    <?php if ($isStep): ?>
+                        <div class="flex-shrink-0">
+                            <img src="/static/images/numbers/<?php echo $numberImages[$stepNumber - 1]; ?>"
+                                 alt="Step <?php echo $stepNumber; ?>"
+                                 class="w-24 sm:w-32 h-auto"
+                                 loading="lazy">
+                        </div>
+                    <?php endif; ?>
+                    <div class="flex-1">
+                        <h2 class="text-2xl font-semibold text-slate-900"><?php echo e($section['title']); ?></h2>
+                        <div class="mt-4 space-y-4 text-base leading-relaxed text-slate-600">
+                            <?php foreach ($section['content'] as $block): ?>
+                                <?php if ($block['type'] === 'paragraph'): ?>
+                                    <p><?php echo e($block['text']); ?></p>
+                                <?php elseif ($block['type'] === 'list'): ?>
+                                    <ul class="list-disc space-y-2 pl-5">
+                                        <?php foreach ($block['items'] as $item): ?>
+                                            <li><?php echo e($item); ?></li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
                 </div>
             </section>
         <?php endforeach; ?>
