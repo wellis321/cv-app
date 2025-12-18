@@ -2,7 +2,12 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Simple CV Builder</h3>
+                <a href="/" class="inline-block mb-4">
+                    <img src="/static/images/browser-images/logo-300.jpg"
+                         alt="Simple CV Builder"
+                         class="h-12 w-auto"
+                         loading="lazy">
+                </a>
                 <p class="text-sm text-gray-600">
                     Create a professional CV that stands out, updates in real-time, and can be shared as a simple link.
                 </p>
