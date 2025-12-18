@@ -17,6 +17,7 @@
                     <li><a href="/resources/passive-income/" class="text-gray-600 hover:text-blue-600">Passive Income Ideas</a></li>
                     <li><a href="/resources/career/" class="text-gray-600 hover:text-blue-600">Career Advice Hub</a></li>
                     <li><a href="/resources/extra-income/" class="text-gray-600 hover:text-blue-600">Extra Income Ideas</a></li>
+                    <li><a href="/resources/jobs/remote-jobs-begginers.php#remote-work-story-form" class="text-blue-600 hover:text-blue-800 font-medium">Share Your Remote Work Story</a></li>
                     <?php if (isLoggedIn()): ?>
                         <li><a href="/profile.php" class="text-gray-600 hover:text-blue-600">Profile</a></li>
                         <li><a href="/cv.php" class="text-gray-600 hover:text-blue-600">View CV</a></li>

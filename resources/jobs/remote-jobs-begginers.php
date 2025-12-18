@@ -420,7 +420,8 @@ $gettingStartedTips = [
     </section>
 
     <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-base leading-relaxed text-slate-700">
-        <div class="grid gap-8 lg:grid-cols-2">
+        <!-- Ready to create a standout CV? -->
+        <div class="mb-12">
             <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg shadow-slate-900/5">
                 <h2 class="text-2xl font-semibold text-slate-900">Ready to create a standout CV?</h2>
                 <p class="mt-4 text-base text-slate-600">
@@ -430,14 +431,17 @@ $gettingStartedTips = [
                     Compare plans
                 </a>
             </div>
-            <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg shadow-slate-900/5">
-                <h2 class="text-2xl font-semibold text-slate-900">Share your remote work story</h2>
-                <p class="mt-4 text-base text-slate-600">
-                    Have you landed a remote role recently? We'd love to feature real-world experiences to inspire others. Share your story and help others on their remote work journey.
-                </p>
+        </div>
 
-                <!-- Story Submission Form -->
-                <form id="remote-work-story-form" class="mt-6 space-y-4">
+        <!-- Share your remote work story -->
+        <div id="remote-work-story-form" class="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg shadow-slate-900/5">
+            <h2 class="text-2xl font-semibold text-slate-900">Share your remote work story</h2>
+            <p class="mt-4 text-base text-slate-600">
+                Have you landed a remote role recently? We'd love to feature real-world experiences to inspire others. Share your story and help others on their remote work journey.
+            </p>
+
+            <!-- Story Submission Form -->
+            <form id="remote-work-story-form" class="mt-6 space-y-4">
                     <input type="hidden" name="<?php echo CSRF_TOKEN_NAME; ?>" value="<?php echo csrfToken(); ?>">
 
                     <div>
@@ -503,7 +507,6 @@ $gettingStartedTips = [
                         Submit Your Story
                     </button>
                 </form>
-            </div>
         </div>
     </section>
 
