@@ -172,12 +172,24 @@ $sections = [
         'pageTitle' => $pageTitle . ' | Simple CV Builder',
         'metaDescription' => $metaDescription,
         'canonicalUrl' => APP_URL . '/resources/career/how-to-update-your-cv.php',
+        'metaImage' => APP_URL . '/static/images/update-your-cv/update.jpeg',
+        'structuredDataType' => 'article',
+        'structuredData' => [
+            'title' => $pageTitle,
+            'description' => $metaDescription,
+            'image' => APP_URL . '/static/images/update-your-cv/update.jpeg',
+            'datePublished' => '2025-01-01',
+            'dateModified' => date('Y-m-d'),
+            'keywords' => 'CV update, resume update, CV maintenance, career advice, CV tips, resume tips, CV refresh, ATS optimisation',
+            'articleSection' => 'Career Advice',
+            'abstract' => $metaDescription,
+        ],
     ]); ?>
 </head>
 <body class="bg-slate-50 text-slate-900">
 <?php partial('header'); ?>
 
-<main>
+<main id="main-content" role="main">
     <article class="relative overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 text-white">
         <div class="absolute inset-0 opacity-30">
             <div class="absolute inset-y-0 left-1/2 -translate-x-1/2 w-[80%] rounded-full bg-sky-500/10 blur-3xl"></div>
@@ -193,10 +205,10 @@ $sections = [
                     Keep your CV current and ready for new opportunities. This guide walks you through essential updates, formatting tips, and long-term maintenance habits.
                 </p>
                 <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-                    <a href="/resources/career/" class="inline-flex items-center justify-center rounded-lg bg-white px-5 py-2 text-sm font-semibold text-slate-900 shadow hover:bg-slate-100">
+                    <a href="/resources/career/" class="inline-flex items-center justify-center rounded-lg bg-white px-5 py-2 text-sm font-semibold text-slate-900 shadow hover:bg-slate-100" aria-label="Navigate back to career advice hub">
                         Back to career advice
                     </a>
-                    <a href="#why-update" class="inline-flex items-center justify-center rounded-lg border border-white/40 px-5 py-2 text-sm font-semibold text-white hover:bg-white/10">
+                    <a href="#why-update" class="inline-flex items-center justify-center rounded-lg border border-white/40 px-5 py-2 text-sm font-semibold text-white hover:bg-white/10" aria-label="Skip to main article content">
                         Start reading
                     </a>
                 </div>
@@ -204,9 +216,9 @@ $sections = [
         </div>
     </article>
 
-    <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-16 text-base leading-relaxed text-slate-700">
+    <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-16 text-base leading-relaxed text-slate-700" aria-label="Article content">
         <?php foreach ($sections as $section): ?>
-            <section id="<?php echo e($section['id']); ?>" class="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg shadow-slate-900/5">
+            <section id="<?php echo e($section['id']); ?>" class="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg shadow-slate-900/5" aria-labelledby="section-<?php echo e($section['id']); ?>">
                 <?php
                 // Sections that should have text wrapping around image
                 $wrapSections = ['why-update', 'how-often', 'step-by-step'];
@@ -215,30 +227,28 @@ $sections = [
                 <?php if ($shouldWrap): ?>
                     <div class="relative">
                         <div class="float-right ml-6 mb-4 w-48 lg:w-64 flex-shrink-0">
-                            <div class="rounded-xl overflow-hidden border border-slate-200 bg-gradient-to-br <?php
-                                $gradients = [
-                                    'why-update' => 'from-indigo-100 via-purple-100 to-pink-100',
-                                    'how-often' => 'from-blue-100 via-cyan-100 to-teal-100',
-                                    'step-by-step' => 'from-violet-100 via-purple-100 to-fuchsia-100',
-                                ];
-                                echo $gradients[$section['id']] ?? 'from-slate-100 via-gray-100 to-slate-200';
-                            ?> h-48 lg:h-64 flex items-center justify-center">
-                                <?php
-                                $icons = [
-                                    'why-update' => '<svg class="w-16 h-16 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
-                                    'how-often' => '<svg class="w-16 h-16 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
-                                    'step-by-step' => '<svg class="w-16 h-16 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>',
-                                ];
-                                echo $icons[$section['id']] ?? '<svg class="w-16 h-16 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>';
-                                ?>
-                            </div>
+                            <?php
+                            $images = [
+                                'why-update' => '/static/images/update-your-cv/update.jpeg',
+                                'how-often' => '/static/images/update-your-cv/How Often.jpeg',
+                                'step-by-step' => '/static/images/update-your-cv/Step-by-Step.jpeg',
+                            ];
+                            $imagePath = $images[$section['id']] ?? null;
+                            ?>
+                            <?php if ($imagePath): ?>
+                                <img src="<?php echo e($imagePath); ?>" alt="<?php echo e($section['title']); ?>" class="rounded-xl border border-slate-200 w-full h-auto object-cover" loading="lazy" width="256" height="256" decoding="async">
+                            <?php else: ?>
+                                <div class="rounded-xl overflow-hidden border border-slate-200 bg-gradient-to-br from-slate-100 via-gray-100 to-slate-200 h-48 lg:h-64 flex items-center justify-center" aria-hidden="true">
+                                    <svg class="w-16 h-16 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                </div>
+                            <?php endif; ?>
                         </div>
-                        <h2 class="text-2xl font-semibold text-slate-900"><?php echo e($section['title']); ?></h2>
+                        <h2 id="section-<?php echo e($section['id']); ?>" class="text-2xl font-semibold text-slate-900"><?php echo e($section['title']); ?></h2>
                         <div class="mt-4 space-y-5">
                 <?php else: ?>
                     <div class="flex flex-col lg:flex-row gap-6">
                         <div class="flex-1">
-                            <h2 class="text-2xl font-semibold text-slate-900"><?php echo e($section['title']); ?></h2>
+                            <h2 id="section-<?php echo e($section['id']); ?>" class="text-2xl font-semibold text-slate-900"><?php echo e($section['title']); ?></h2>
                             <div class="mt-4 space-y-5">
                 <?php endif; ?>
                     <?php if (!empty($section['content'])): ?>
@@ -300,25 +310,22 @@ $sections = [
                 <?php else: ?>
                         </div>
                         <div class="lg:w-64 lg:flex-shrink-0">
-                            <div class="rounded-xl overflow-hidden border border-slate-200 bg-gradient-to-br <?php
-                                $gradients = [
-                                    'remove' => 'from-amber-100 via-orange-100 to-red-100',
-                                    'mistakes' => 'from-red-100 via-rose-100 to-pink-100',
-                                    'saving' => 'from-emerald-100 via-green-100 to-teal-100',
-                                    'long-term' => 'from-sky-100 via-blue-100 to-indigo-100',
-                                ];
-                                echo $gradients[$section['id']] ?? 'from-slate-100 via-gray-100 to-slate-200';
-                            ?> h-48 lg:h-64 flex items-center justify-center">
-                                <?php
-                                $icons = [
-                                    'remove' => '<svg class="w-16 h-16 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>',
-                                    'mistakes' => '<svg class="w-16 h-16 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>',
-                                    'saving' => '<svg class="w-16 h-16 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>',
-                                    'long-term' => '<svg class="w-16 h-16 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>',
-                                ];
-                                echo $icons[$section['id']] ?? '<svg class="w-16 h-16 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>';
-                                ?>
-                            </div>
+                            <?php
+                            $images = [
+                                'remove' => '/static/images/update-your-cv/What to Remove.jpeg',
+                                'mistakes' => '/static/images/update-your-cv/Common CV Updating Mistakes.jpeg',
+                                'saving' => '/static/images/update-your-cv/Saving and Sending.jpeg',
+                                'long-term' => '/static/images/update-your-cv/Updated Long-Term.jpeg',
+                            ];
+                            $imagePath = $images[$section['id']] ?? null;
+                            ?>
+                            <?php if ($imagePath): ?>
+                                <img src="<?php echo e($imagePath); ?>" alt="<?php echo e($section['title']); ?>" class="rounded-xl border border-slate-200 w-full h-auto object-cover" loading="lazy" width="256" height="256" decoding="async">
+                            <?php else: ?>
+                                <div class="rounded-xl overflow-hidden border border-slate-200 bg-gradient-to-br from-slate-100 via-gray-100 to-slate-200 h-48 lg:h-64 flex items-center justify-center" aria-hidden="true">
+                                    <svg class="w-16 h-16 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                 <?php endif; ?>
