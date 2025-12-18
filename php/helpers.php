@@ -171,7 +171,7 @@ function generateStructuredData($type = 'default', $data = []) {
         '@type' => 'Organization',
         'name' => 'Simple CV Builder',
         'url' => APP_URL,
-        'logo' => APP_URL . '/static/images/browser-images/logo-300.jpg',
+        'logo' => APP_URL . '/static/images/browser-images/logo/logo-black-300.jpeg',
         'description' => 'Build a standout CV online, share it instantly, and unlock premium templates with Simple CV Builder.',
         'sameAs' => [
             // Add social media URLs if available
@@ -235,7 +235,7 @@ function generateStructuredData($type = 'default', $data = []) {
                 'name' => 'Simple CV Builder',
                 'logo' => [
                     '@type' => 'ImageObject',
-                    'url' => APP_URL . '/static/images/browser-images/logo-300.jpg'
+                    'url' => APP_URL . '/static/images/browser-images/logo/logo-black-300.jpeg'
                 ]
             ]
         ];
