@@ -3,7 +3,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
                 <a href="/" class="inline-flex items-center gap-3 mb-4">
-                    <img src="/static/images/logo/black-logo-300.jpg"
+                    <img src="/static/images/logo/tp-background-black-logo-300.png"
                          alt="Simple CV Builder"
                          class="h-16 sm:h-20 w-auto"
                          loading="lazy">

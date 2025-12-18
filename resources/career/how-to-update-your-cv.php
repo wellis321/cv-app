@@ -32,7 +32,11 @@ $sections = [
         ],
         'tip' => [
             'title' => 'Pro Tip',
-            'body' => 'Keep a "wins document" where you jot down achievements, positive feedback, and completed projects throughout the year. When it\'s time to update your CV, you\'ll have a ready-made list of accomplishments to draw from. Alternatively, use <a href="https://simple-job-tracker.com/landing.php" target="_blank" rel="noopener noreferrer" class="font-semibold text-emerald-700 hover:text-emerald-800 underline">Simple Job Tracker</a> to track your applications and achievements in one place—it helps you stay organised and never miss an opportunity.',
+            'body' => 'Keep a "wins document" where you jot down achievements, positive feedback, and completed projects throughout the year. When it\'s time to update your CV, you\'ll have a ready-made list of accomplishments to draw from. Alternatively, use Simple Job Tracker to track your applications and achievements in one place—it helps you stay organised and never miss an opportunity.',
+            'button' => [
+                'text' => 'Try Simple Job Tracker',
+                'url' => 'https://simple-job-tracker.com/landing.php',
+            ],
         ],
     ],
     [
@@ -267,7 +271,17 @@ $sections = [
 
                     <?php if (!empty($section['tip'])): ?>
                         <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-base text-emerald-800">
-                            <strong><?php echo e($section['tip']['title']); ?>:</strong> <?php echo $section['tip']['body']; ?>
+                            <strong><?php echo e($section['tip']['title']); ?>:</strong> <?php echo e($section['tip']['body']); ?>
+                            <?php if (!empty($section['tip']['button'])): ?>
+                                <div class="mt-4">
+                                    <a href="<?php echo e($section['tip']['button']['url']); ?>" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 transition-colors">
+                                        <?php echo e($section['tip']['button']['text']); ?>
+                                        <svg class="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                                        </svg>
+                                    </a>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     <?php endif; ?>
 
