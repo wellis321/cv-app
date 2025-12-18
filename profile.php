@@ -440,29 +440,34 @@ if (isPost()) {
 
                     <!-- CV Visibility Tab -->
                     <div id="tab-content-visibility" class="tab-content hidden">
-                        <h2 class="text-xl font-semibold text-gray-900 mb-4">CV Visibility</h2>
+                        <div>
+                            <h2 class="text-xl font-semibold text-gray-900 mb-4">CV Visibility</h2>
 
-                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                            <p class="text-sm text-blue-800">
-                                <strong>Your CV URL:</strong> <span class="font-mono text-blue-600"><?php echo defined('APP_URL') ? APP_URL : 'https://simple-cv-builder.com'; ?>/cv/@<?php echo e($profile['username'] ?? 'username'); ?></span>
-                            </p>
-                        </div>
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                                <p class="text-sm text-blue-800">
+                                    <strong>Your CV URL:</strong> <span class="font-mono text-blue-600"><?php echo defined('APP_URL') ? APP_URL : 'https://simple-cv-builder.com'; ?>/cv/@<?php echo e($profile['username'] ?? 'username'); ?></span>
+                                </p>
+                            </div>
 
-                        <div class="space-y-4">
-                            <div class="flex items-start gap-3">
-                                <input type="checkbox"
-                                       id="cv_public"
-                                       name="cv_public"
-                                       value="1"
-                                       <?php echo (isset($profile['cv_public']) ? (int)$profile['cv_public'] : 1) ? 'checked' : ''; ?>
-                                       class="mt-1 w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                                <div class="flex-1">
-                                    <label for="cv_public" class="block text-sm font-medium text-gray-700 cursor-pointer">
-                                        Make my CV publicly accessible
-                                    </label>
-                                    <p class="mt-1 text-xs text-gray-500">
-                                        When enabled, anyone with your CV link can view your CV. When disabled, only you can view it when logged in. You can toggle this on or off at any time.
-                                    </p>
+                            <div class="space-y-4">
+                                <div class="flex items-start gap-3">
+                                    <input type="checkbox"
+                                           id="cv_public"
+                                           name="cv_public"
+                                           value="1"
+                                           <?php
+                                           $cvPublicValue = isset($profile['cv_public']) ? (int)$profile['cv_public'] : 1;
+                                           echo $cvPublicValue ? 'checked' : '';
+                                           ?>
+                                           class="mt-1 w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                    <div class="flex-1">
+                                        <label for="cv_public" class="block text-sm font-medium text-gray-700 cursor-pointer">
+                                            Make my CV publicly accessible
+                                        </label>
+                                        <p class="mt-1 text-xs text-gray-500">
+                                            When enabled, anyone with your CV link can view your CV. When disabled, only you can view it when logged in. You can toggle this on or off at any time.
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -577,6 +582,9 @@ if (isPost()) {
             const selectedContent = document.getElementById('tab-content-' + tabName);
             if (selectedContent) {
                 selectedContent.classList.remove('hidden');
+                selectedContent.style.display = 'block';
+            } else {
+                console.error('Tab content not found: tab-content-' + tabName);
             }
 
             // Add active styling to selected tab
