@@ -24,6 +24,7 @@
                     <li><a href="/resources/career/" class="text-gray-600 hover:text-blue-600">Career Advice Hub</a></li>
                     <li><a href="/resources/extra-income/" class="text-gray-600 hover:text-blue-600">Extra Income Ideas</a></li>
                     <li><a href="/resources/jobs/remote-jobs-begginers.php#remote-work-story-form" class="text-blue-600 hover:text-blue-800 font-medium">Share Your Remote Work Story</a></li>
+                    <li><a href="https://simple-job-tracker.com/landing.php" target="_blank" rel="noopener" class="text-emerald-600 hover:text-emerald-800 font-medium">Simple Job Tracker</a></li>
                     <?php if (isLoggedIn()): ?>
                         <li><a href="/profile.php" class="text-gray-600 hover:text-blue-600">Profile</a></li>
                         <li><a href="/cv.php" class="text-gray-600 hover:text-blue-600">View CV</a></li>
@@ -57,7 +58,7 @@
                             <a href="/#auth-section" class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-700 transition-colors">
                                 Create Free Account
                             </a>
-                            <a href="/subscription.php" class="inline-flex items-center justify-center rounded-lg border-2 border-blue-600 px-5 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50 transition-colors">
+                            <a href="/#pricing" class="inline-flex items-center justify-center rounded-lg border-2 border-blue-600 px-5 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50 transition-colors">
                                 Compare Plans
                             </a>
                         <?php endif; ?>

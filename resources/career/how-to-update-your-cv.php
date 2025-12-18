@@ -32,7 +32,7 @@ $sections = [
         ],
         'tip' => [
             'title' => 'Pro Tip',
-            'body' => 'Keep a “wins document” where you jot down achievements, positive feedback, and completed projects throughout the year. When it\'s time to update your CV, you\'ll have a ready-made list of accomplishments to draw from.',
+            'body' => 'Keep a “wins document” where you jot down achievements, positive feedback, and completed projects throughout the year. When it\'s time to update your CV, you\'ll have a ready-made list of accomplishments to draw from. Alternatively, use Simple Job Tracker to track your applications and achievements in one place—it helps you stay organised and never miss an opportunity.',
         ],
     ],
     [
@@ -154,7 +154,7 @@ $sections = [
         'title' => 'Keeping Your CV Updated Long-Term',
         'content' => [
             'Set a reminder every six months to review your CV, even if you\'re not job hunting.',
-            'Maintain a “wins list” to capture achievements and feedback in real time.',
+            'Maintain a “wins list” to capture achievements and feedback in real time. Tools like Simple Job Tracker can help you track applications and achievements together.',
             'Update your CV immediately after major projects, recognition, or new skills.',
         ],
         'tip' => [
@@ -333,7 +333,7 @@ $sections = [
                 <p class="mt-4 text-base text-slate-600">
                     Use Simple CV Builder to craft a polished, ATS-friendly CV in minutes. Unlock premium templates, QR codes, and PDF exports on our Pro plans.
                 </p>
-                <a href="/subscription.php" class="mt-6 inline-flex items-center justify-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-slate-800">
+                <a href="/#pricing" class="mt-6 inline-flex items-center justify-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-slate-800">
                     Compare plans
                 </a>
             </div>
