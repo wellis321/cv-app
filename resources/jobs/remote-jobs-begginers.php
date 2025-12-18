@@ -433,11 +433,76 @@ $gettingStartedTips = [
             <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg shadow-slate-900/5">
                 <h2 class="text-2xl font-semibold text-slate-900">Share your remote work story</h2>
                 <p class="mt-4 text-base text-slate-600">
-                    Have you landed a remote role recently? We’d love to feature real-world experiences. Replace this placeholder with a form or email CTA when you’re collecting case studies.
+                    Have you landed a remote role recently? We'd love to feature real-world experiences to inspire others. Share your story and help others on their remote work journey.
                 </p>
-                <button type="button" class="mt-6 inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:border-slate-400 hover:text-slate-900">
-                    Submit your story (placeholder)
-                </button>
+
+                <!-- Story Submission Form -->
+                <form id="remote-work-story-form" class="mt-6 space-y-4">
+                    <input type="hidden" name="<?php echo CSRF_TOKEN_NAME; ?>" value="<?php echo csrfToken(); ?>">
+
+                    <div>
+                        <label for="story_name" class="block text-sm font-medium text-slate-700 mb-1">Your Name</label>
+                        <input type="text" id="story_name" name="name" required
+                               class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               placeholder="John Smith">
+                    </div>
+
+                    <div>
+                        <label for="story_email" class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                        <input type="email" id="story_email" name="email" required
+                               class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               placeholder="john@example.com">
+                    </div>
+
+                    <div>
+                        <label for="story_job_title" class="block text-sm font-medium text-slate-700 mb-1">Job Title</label>
+                        <input type="text" id="story_job_title" name="job_title" required
+                               class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               placeholder="Virtual Assistant">
+                    </div>
+
+                    <div>
+                        <label for="story_company" class="block text-sm font-medium text-slate-700 mb-1">Company (optional)</label>
+                        <input type="text" id="story_company" name="company_name"
+                               class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               placeholder="Company Name">
+                    </div>
+
+                    <div>
+                        <label for="story_category" class="block text-sm font-medium text-slate-700 mb-1">Job Category (optional)</label>
+                        <select id="story_category" name="job_category"
+                                class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Select a category</option>
+                            <option value="Virtual Assistant">Virtual Assistant</option>
+                            <option value="Customer Support">Customer Support</option>
+                            <option value="Data Entry">Data Entry</option>
+                            <option value="Content Moderator">Content Moderator</option>
+                            <option value="Transcriptionist">Transcriptionist</option>
+                            <option value="Social Media Coordinator">Social Media Coordinator</option>
+                            <option value="Online Tutor">Online Tutor</option>
+                            <option value="Proofreader">Proofreader</option>
+                            <option value="Online Researcher">Online Researcher</option>
+                            <option value="Email Marketing">Email Marketing</option>
+                            <option value="Bookkeeper">Bookkeeper</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="story_text" class="block text-sm font-medium text-slate-700 mb-1">Your Story</label>
+                        <textarea id="story_text" name="story" required rows="5"
+                                  class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  placeholder="Tell us about your remote work journey... (minimum 50 characters)"></textarea>
+                        <p class="mt-1 text-xs text-slate-500">Share your experience, tips, or advice for others looking to start remote work.</p>
+                    </div>
+
+                    <div id="story-form-message" class="hidden rounded-lg p-3 text-sm"></div>
+
+                    <button type="submit"
+                            class="w-full inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                        Submit Your Story
+                    </button>
+                </form>
             </div>
         </div>
     </section>
@@ -463,5 +528,54 @@ $gettingStartedTips = [
 
 <?php partial('footer'); ?>
 <?php partial('auth-modals'); ?>
+
+<script>
+(function() {
+    const form = document.getElementById('remote-work-story-form');
+    const messageDiv = document.getElementById('story-form-message');
+
+    if (!form) return;
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const submitButton = form.querySelector('button[type="submit"]');
+        const originalText = submitButton.textContent;
+        submitButton.disabled = true;
+        submitButton.textContent = 'Submitting...';
+        messageDiv.classList.add('hidden');
+
+        const formData = new FormData(form);
+
+        try {
+            const response = await fetch('/api/submit-remote-work-story.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                messageDiv.className = 'rounded-lg p-3 text-sm bg-green-50 text-green-800 border border-green-200';
+                messageDiv.textContent = data.message;
+                messageDiv.classList.remove('hidden');
+                form.reset();
+            } else {
+                messageDiv.className = 'rounded-lg p-3 text-sm bg-red-50 text-red-800 border border-red-200';
+                messageDiv.textContent = data.error || (data.errors ? data.errors.join(', ') : 'Failed to submit story. Please try again.');
+                messageDiv.classList.remove('hidden');
+            }
+        } catch (error) {
+            messageDiv.className = 'rounded-lg p-3 text-sm bg-red-50 text-red-800 border border-red-200';
+            messageDiv.textContent = 'An error occurred. Please try again.';
+            messageDiv.classList.remove('hidden');
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = originalText;
+        }
+    });
+})();
+</script>
+
 </body>
 </html>
