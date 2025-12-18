@@ -582,9 +582,6 @@ if (isPost()) {
             const selectedContent = document.getElementById('tab-content-' + tabName);
             if (selectedContent) {
                 selectedContent.classList.remove('hidden');
-                selectedContent.style.display = 'block';
-            } else {
-                console.error('Tab content not found: tab-content-' + tabName);
             }
 
             // Add active styling to selected tab
