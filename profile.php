@@ -444,7 +444,7 @@ if (isPost()) {
 
                         <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
                             <p class="text-sm text-blue-800">
-                                <strong>Your CV URL:</strong> <span class="font-mono text-blue-600"><?php echo APP_URL; ?>/cv/@<?php echo e($profile['username'] ?? 'username'); ?></span>
+                                <strong>Your CV URL:</strong> <span class="font-mono text-blue-600"><?php echo defined('APP_URL') ? APP_URL : 'https://simple-cv-builder.com'; ?>/cv/@<?php echo e($profile['username'] ?? 'username'); ?></span>
                             </p>
                         </div>
 
