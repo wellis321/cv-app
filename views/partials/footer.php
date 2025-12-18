@@ -5,7 +5,7 @@
                 <a href="/" class="inline-block mb-4">
                     <img src="/static/images/logo/black-logo-300.jpg"
                          alt="Simple CV Builder"
-                         class="h-12 w-auto"
+                         class="h-16 sm:h-20 w-auto"
                          loading="lazy">
                 </a>
                 <p class="text-sm text-gray-600">

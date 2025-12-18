@@ -5,11 +5,12 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center py-4">
             <div class="flex items-center">
-                <a href="/" class="flex items-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded">
+                <a href="/" class="flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded">
                     <img src="/static/images/logo/black-logo-150.jpg"
                          alt="Simple CV Builder"
-                         class="h-8 sm:h-10 w-auto"
+                         class="h-10 sm:h-12 w-auto"
                          loading="eager">
+                    <span class="text-xl sm:text-2xl font-bold text-blue-600">Simple CV Builder</span>
                 </a>
             </div>
 
