@@ -38,8 +38,14 @@
                 </ul>
             </div>
         </div>
-        <div class="mt-8 pt-8 border-t border-gray-200 text-center text-sm text-gray-600">
-            <p>&copy; <?php echo date('Y'); ?> Simple CV Builder. All rights reserved.</p>
+        <div class="mt-8 pt-8 border-t border-gray-200 text-center">
+            <div class="flex items-center justify-center gap-3 mb-2">
+                <img src="/static/images/logo/black-logo-150.jpg"
+                     alt="Simple CV Builder"
+                     class="h-8 w-auto"
+                     loading="lazy">
+                <p class="text-sm text-gray-600">&copy; <?php echo date('Y'); ?> Simple CV Builder. All rights reserved.</p>
+            </div>
         </div>
     </div>
 </footer>

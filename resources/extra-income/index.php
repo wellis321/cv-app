@@ -102,17 +102,9 @@ $sections = [
     <section id="ideas" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-16">
         <?php foreach ($sections as $section): ?>
             <div class="space-y-6">
-                <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                    <div>
-                        <h2 class="text-2xl font-bold text-gray-900"><?php echo e($section['title']); ?></h2>
-                        <p class="mt-2 text-gray-600 max-w-3xl"><?php echo e($section['description']); ?></p>
-                    </div>
-                    <a href="#" class="inline-flex items-center gap-2 text-sm font-semibold text-orange-600 hover:text-orange-700">
-                        View all ideas
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                        </svg>
-                    </a>
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900"><?php echo e($section['title']); ?></h2>
+                    <p class="mt-2 text-gray-600 max-w-3xl"><?php echo e($section['description']); ?></p>
                 </div>
                 <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     <?php foreach ($section['articles'] as $article): ?>

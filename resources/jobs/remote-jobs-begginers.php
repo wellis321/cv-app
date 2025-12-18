@@ -365,10 +365,6 @@ $gettingStartedTips = [
                                 </div>
                             <?php endforeach; ?>
                         </div>
-                        <div class="mt-4 flex flex-wrap items-center gap-3 text-xs text-slate-500">
-                            <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 font-medium">Placeholder tag</span>
-                            <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 font-medium">Add success story CTA</span>
-                        </div>
                     </div>
                 </section>
             <?php endforeach; ?>
