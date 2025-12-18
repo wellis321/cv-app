@@ -11,10 +11,25 @@ $exampleCvUrl = APP_URL . '/cv/@simple-cv-example';
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <?php partial('head', [
+    <?php
+    // Prepare HowTo structured data for AI SEO
+    $howToSteps = [
+        ['name' => 'Create Your Free Account', 'text' => 'Sign up for a free account to get started. No credit card required.'],
+        ['name' => 'Complete Your Profile', 'text' => 'Add your personal information, including your name, contact details, and a professional strapline.'],
+        ['name' => 'Add Your Experience', 'text' => 'Build your CV by adding work experience, education, skills, projects, and more.'],
+        ['name' => 'Customise & Share', 'text' => 'Choose a template, customise colours, and share your CV with a simple link or download as PDF.']
+    ];
+
+    partial('head', [
         'pageTitle' => 'How It Works - Simple CV Builder',
         'metaDescription' => 'Learn how to use Simple CV Builder to create, customise, and share your professional CV.',
         'canonicalUrl' => APP_URL . '/how-it-works.php',
+        'structuredDataType' => 'howto',
+        'structuredData' => [
+            'name' => 'How to Create Your CV with Simple CV Builder',
+            'description' => 'Step-by-step guide to creating, customising, and sharing your professional CV.',
+            'steps' => $howToSteps
+        ],
     ]); ?>
     <style>
         .feature-section {

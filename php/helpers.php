@@ -218,7 +218,7 @@ function generateStructuredData($type = 'default', $data = []) {
 
     // Article schema (for resource/blog pages)
     if ($type === 'article' && !empty($data)) {
-        $schemas[] = [
+        $articleSchema = [
             '@context' => 'https://schema.org',
             '@type' => 'Article',
             'headline' => $data['title'] ?? '',
@@ -238,6 +238,46 @@ function generateStructuredData($type = 'default', $data = []) {
                     'url' => APP_URL . '/static/favicon.png'
                 ]
             ]
+        ];
+
+        // AI SEO enhancements
+        if (!empty($data['keywords'])) {
+            $articleSchema['keywords'] = is_array($data['keywords']) ? implode(', ', $data['keywords']) : $data['keywords'];
+        }
+        if (!empty($data['articleSection'])) {
+            $articleSchema['articleSection'] = $data['articleSection'];
+        }
+        if (!empty($data['abstract'])) {
+            $articleSchema['abstract'] = $data['abstract'];
+        }
+        if (!empty($data['wordCount'])) {
+            $articleSchema['wordCount'] = (int)$data['wordCount'];
+        }
+        if (!empty($data['timeRequired'])) {
+            $articleSchema['timeRequired'] = $data['timeRequired'];
+        }
+
+        $schemas[] = $articleSchema;
+    }
+
+    // HowTo schema (for tutorial/guide pages)
+    if ($type === 'howto' && !empty($data['steps'])) {
+        $howToSteps = [];
+        foreach ($data['steps'] as $index => $step) {
+            $howToSteps[] = [
+                '@type' => 'HowToStep',
+                'position' => $index + 1,
+                'name' => $step['name'] ?? '',
+                'text' => $step['text'] ?? ''
+            ];
+        }
+
+        $schemas[] = [
+            '@context' => 'https://schema.org',
+            '@type' => 'HowTo',
+            'name' => $data['name'] ?? 'How to Use Simple CV Builder',
+            'description' => $data['description'] ?? '',
+            'step' => $howToSteps
         ];
     }
 
