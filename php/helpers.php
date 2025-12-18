@@ -335,3 +335,103 @@ function outputStructuredData($schemas) {
         echo "\n" . '</script>' . "\n";
     }
 }
+
+/**
+ * Get all available articles with metadata
+ */
+function getAllArticles() {
+    return [
+        [
+            'title' => '11 Remote Jobs Perfect for Beginners in 2025',
+            'url' => '/resources/jobs/remote-jobs-begginers.php',
+            'excerpt' => 'Curated list of flexible remote roles ranging from customer success to data analysis.',
+            'category' => 'jobs',
+            'section' => 'Editor\'s Picks',
+        ],
+        [
+            'title' => 'Using AI in Your Job Applications: A Practical Guide',
+            'url' => '/resources/jobs/using-ai-in-job-applications.php',
+            'excerpt' => 'Harness tools like ChatGPT responsibly for CVs, cover letters, and interviews without losing authenticity.',
+            'category' => 'jobs',
+            'section' => 'Editor\'s Picks',
+        ],
+        [
+            'title' => 'Six Steps to Refreshing Your CV in 30 Minutes',
+            'url' => '/resources/jobs/how-to-refresh-your-cv-in-30-minutes.php',
+            'excerpt' => 'Quick wins to modernise your CV layout, keywords, and story.',
+            'category' => 'jobs',
+            'section' => 'Editor\'s Picks',
+        ],
+        [
+            'title' => 'How to Update Your CV: A Complete Guide',
+            'url' => '/resources/career/how-to-update-your-cv.php',
+            'excerpt' => 'Step-by-step advice for refreshing every section of your CV whenever opportunity knocks.',
+            'category' => 'career',
+            'section' => 'Job Search Playbooks',
+        ],
+        [
+            'title' => '20+ Legitimate Ways to Earn Money Online & From Home in 2025',
+            'url' => '/resources/extra-income/legitimate-ways-to-earn-money-online.php',
+            'excerpt' => 'Comprehensive guide covering surveys, market research, remote gigs, and long-term income builders.',
+            'category' => 'extra-income',
+            'section' => 'Evening & Weekend Projects',
+        ],
+        [
+            'title' => 'AI Prompt Cheat Sheet',
+            'url' => '/resources/jobs/ai-prompt-cheat-sheet.php',
+            'excerpt' => 'Ready-to-use AI prompts for job applications, CVs, and cover letters.',
+            'category' => 'jobs',
+            'section' => 'Job Search Playbooks',
+        ],
+    ];
+}
+
+/**
+ * Get related articles (excluding current article)
+ * @param string $currentUrl The URL of the current article
+ * @param int $limit Maximum number of related articles to return
+ * @return array Array of related articles
+ */
+function getRelatedArticles($currentUrl, $limit = 3) {
+    $allArticles = getAllArticles();
+    $related = [];
+
+    // Find current article to get its category
+    $currentArticle = null;
+    foreach ($allArticles as $article) {
+        if ($article['url'] === $currentUrl) {
+            $currentArticle = $article;
+            break;
+        }
+    }
+
+    // If current article found, prioritize same category
+    if ($currentArticle) {
+        $sameCategory = [];
+        $otherCategory = [];
+
+        foreach ($allArticles as $article) {
+            if ($article['url'] === $currentUrl) {
+                continue; // Skip current article
+            }
+
+            if ($article['category'] === $currentArticle['category']) {
+                $sameCategory[] = $article;
+            } else {
+                $otherCategory[] = $article;
+            }
+        }
+
+        // Mix: prefer same category, but include others
+        $related = array_merge($sameCategory, $otherCategory);
+    } else {
+        // Current article not found, return all except current URL
+        foreach ($allArticles as $article) {
+            if ($article['url'] !== $currentUrl) {
+                $related[] = $article;
+            }
+        }
+    }
+
+    return array_slice($related, 0, $limit);
+}
