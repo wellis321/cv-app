@@ -138,7 +138,7 @@ $sections = [
         </div>
     </article>
 
-    <section id="summary" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-16">
+    <section id="summary" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-16">
         <div class="rounded-3xl border border-slate-200 bg-white p-8 shadow-xl shadow-slate-900/5">
             <p class="text-base leading-relaxed text-slate-600">
                 When time is tight, focus on updates that dial up clarity, relevance, and proof of impact. The sections below are ordered by the influence they have on hiring decisions — start at the top and work down until the clock runs out.
@@ -156,12 +156,12 @@ $sections = [
             }
         ?>
             <section class="rounded-3xl border border-slate-200 bg-white p-8 shadow-lg shadow-slate-900/5">
-                <div class="flex gap-6 items-start">
+                <div class="flex gap-8 items-start">
                     <?php if ($isStep): ?>
-                        <div class="flex-shrink-0">
+                        <div class="flex-shrink-0 self-stretch flex items-start">
                             <img src="/static/images/numbers/<?php echo $numberImages[$stepNumber - 1]; ?>"
                                  alt="Step <?php echo $stepNumber; ?>"
-                                 class="w-24 sm:w-32 h-auto"
+                                 class="h-full max-h-[450px] w-auto object-contain"
                                  loading="lazy">
                         </div>
                     <?php endif; ?>
