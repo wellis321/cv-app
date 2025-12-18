@@ -38,6 +38,33 @@
                 </ul>
             </div>
         </div>
+        <div class="mt-8 pt-8 border-t border-gray-200">
+            <div class="rounded-2xl border-2 border-blue-500 bg-gradient-to-br from-blue-50 to-indigo-50 px-6 py-6 shadow-sm">
+                <div class="flex flex-col items-center text-center max-w-2xl mx-auto">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Ready to create a standout CV?</h3>
+                    <p class="text-sm text-gray-700 mb-4">
+                        Use Simple CV Builder to showcase your skills, highlight your experience, and export print-ready PDFs. Paid plans unlock unlimited sections, premium templates, and QR-code enabled CVs.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <?php if (isLoggedIn()): ?>
+                            <a href="/dashboard.php" class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-700 transition-colors">
+                                Build Your CV
+                            </a>
+                            <a href="/subscription.php" class="inline-flex items-center justify-center rounded-lg border-2 border-blue-600 px-5 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50 transition-colors">
+                                Upgrade to Pro
+                            </a>
+                        <?php else: ?>
+                            <a href="/#auth-section" class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-700 transition-colors">
+                                Create Free Account
+                            </a>
+                            <a href="/subscription.php" class="inline-flex items-center justify-center rounded-lg border-2 border-blue-600 px-5 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50 transition-colors">
+                                Compare Plans
+                            </a>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="mt-8 pt-8 border-t border-gray-200 text-center">
             <div class="flex items-center justify-center gap-3 mb-2">
                 <img src="/static/images/logo/black-logo-150.jpg"
