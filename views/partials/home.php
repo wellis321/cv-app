@@ -3,23 +3,25 @@
 ?>
 
 <!-- Beta Banner -->
-<div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-3 text-center sm:text-left">
-            <div class="flex items-center gap-2">
-                <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                <span class="font-semibold">We're in Beta!</span>
+<div class="bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+        <div class="flex flex-col lg:flex-row items-center justify-between gap-4 text-center lg:text-left">
+            <div class="flex-1">
+                <p class="text-base sm:text-lg font-medium mb-2">
+                    Simple CV Builder is currently in beta.
+                </p>
+                <p class="text-sm sm:text-base text-amber-50 leading-relaxed">
+                    While we build based on your feedback, get <strong class="font-semibold text-white">lifetime access for just £34.99</strong> - no recurring fees, forever.
+                </p>
+                <p class="text-xs text-amber-100 mt-2">
+                    Create a free account first, then upgrade from your dashboard.
+                </p>
             </div>
-            <p class="text-sm sm:text-base text-blue-100">
-                Simple CV Builder is currently in beta.<br>
-                While we build based on your feedback, get <strong>lifetime access for just £34.99</strong> - no recurring fees, forever.<br>
-                <span class="text-xs text-blue-200">Create a free account first, then upgrade from your dashboard</span>
-            </p>
-            <a href="#pricing" class="inline-flex items-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50 transition-colors whitespace-nowrap">
-                View Pricing
-            </a>
+            <div class="flex-shrink-0">
+                <a href="#pricing" class="inline-flex items-center rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-orange-600 hover:bg-amber-50 transition-colors shadow-sm whitespace-nowrap">
+                    View Pricing
+                </a>
+            </div>
         </div>
     </div>
 </div>
