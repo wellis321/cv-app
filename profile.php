@@ -358,8 +358,8 @@ if (isPost()) {
                     <div id="tab-content-photo" class="tab-content hidden">
                         <h2 class="text-xl font-semibold text-gray-900 mb-4">Profile Photo</h2>
 
-                    <div class="flex items-start gap-6">
-                        <div class="flex-shrink-0">
+                        <div class="flex items-start gap-6">
+                            <div class="flex-shrink-0">
                             <?php if (!empty($profile['photo_url'])): ?>
                                 <img id="photo-preview" src="<?php echo e($profile['photo_url']); ?>" alt="Profile Photo" class="w-32 h-32 rounded-full object-cover border-4 border-gray-200">
                             <?php else: ?>
@@ -369,10 +369,10 @@ if (isPost()) {
                                     </svg>
                                 </div>
                             <?php endif; ?>
-                        </div>
+                            </div>
 
-                        <div class="flex-1">
-                            <div class="flex gap-3 flex-wrap">
+                            <div class="flex-1">
+                                <div class="flex gap-3 flex-wrap">
                                 <label class="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 inline-flex items-center gap-2">
                                     <input type="file" id="photo-input" accept="image/*" capture="user" class="hidden" onchange="handlePhotoUpload(event)">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -396,9 +396,9 @@ if (isPost()) {
                                         <span>Delete Photo</span>
                                     </button>
                                 <?php endif; ?>
-                            </div>
+                                </div>
 
-                            <?php if (!empty($profile['photo_url'])): ?>
+                                <?php if (!empty($profile['photo_url'])): ?>
                                 <?php
                                 $showPhotoCv = isset($profile['show_photo']) ? (int)$profile['show_photo'] : 1;
                                 $showPhotoPdf = isset($profile['show_photo_pdf']) ? (int)$profile['show_photo_pdf'] : 1;
@@ -431,10 +431,11 @@ if (isPost()) {
                                         Sets the default for the PDF preview. You can still toggle the photo on or off while generating the PDF.
                                     </p>
                                 </div>
-                            <?php endif; ?>
+                                <?php endif; ?>
 
-                            <p class="mt-2 text-sm text-gray-500">Upload a professional photo. Supported formats: JPG, PNG, GIF, WebP (max 5MB)</p>
-                            <div id="photo-upload-status" class="mt-2"></div>
+                                <p class="mt-2 text-sm text-gray-500">Upload a professional photo. Supported formats: JPG, PNG, GIF, WebP (max 5MB)</p>
+                                <div id="photo-upload-status" class="mt-2"></div>
+                            </div>
                         </div>
                     </div>
 
@@ -565,6 +566,8 @@ if (isPost()) {
     <script>
         // Tab switching functionality
         function switchTab(tabName) {
+            console.log('Switching to tab:', tabName);
+
             // Hide all tab contents
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.add('hidden');
@@ -578,8 +581,12 @@ if (isPost()) {
 
             // Show selected tab content
             const selectedContent = document.getElementById('tab-content-' + tabName);
+            console.log('Selected content element:', selectedContent);
             if (selectedContent) {
                 selectedContent.classList.remove('hidden');
+                console.log('Content classes after removal:', selectedContent.className);
+            } else {
+                console.error('Tab content not found: tab-content-' + tabName);
             }
 
             // Add active styling to selected tab
