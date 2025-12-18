@@ -28,7 +28,7 @@ $faqs = [
     ],
     [
         'question' => 'What sections can I include in my CV?',
-        'answer' => 'You can include professional summary, work experience, education, projects, skills, certifications, professional qualification equivalence, professional memberships, and interests & activities. Each section can be customized to showcase your unique background.'
+        'answer' => 'You can include professional summary, work experience, education, projects, skills, certifications, professional qualification equivalence, professional memberships, and interests & activities. Each section can be customised to showcase your unique background.'
     ],
     [
         'question' => 'What\'s the difference between the free and premium plans?',
@@ -43,8 +43,8 @@ $faqs = [
         'answer' => 'Yes, we take your privacy seriously. Your data is encrypted and stored securely. You control who can see your CV through privacy settings. We never share your personal information with third parties. Read our Privacy Policy for more details.'
     ],
     [
-        'question' => 'Can I customize the appearance of my CV?',
-        'answer' => 'Yes! You can customize your CV header colors, choose whether to display your photo, and control various display options. Premium plans offer additional customization options and template choices.'
+        'question' => 'Can I customise the appearance of my CV?',
+        'answer' => 'Yes! You can customise your CV header colours, choose whether to display your photo, and control various display options. Premium plans offer additional customisation options and template choices.'
     ],
     [
         'question' => 'Do I need to verify my email address?',
