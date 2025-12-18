@@ -110,31 +110,6 @@ if (isPost()) {
             setFlash('error', 'Failed to add project. Please try again.');
         }
         redirect('/projects.php');
-            if ($data['description'] && planWordLimitExceeded($subscriptionContext, 'project_description', $data['description'])) {
-                setFlash('error', getPlanWordLimitMessage($subscriptionContext, 'project_description'));
-                redirect('/projects.php');
-            }
-            // Handle image upload if provided
-            if (isset($_FILES['project_image']) && $_FILES['project_image']['error'] === UPLOAD_ERR_OK) {
-                $uploadResult = uploadFile($_FILES['project_image'], $userId, 'projects');
-
-                if (!$uploadResult['success']) {
-                    setFlash('error', 'Image upload failed: ' . $uploadResult['error']);
-                    redirect('/projects.php');
-                }
-
-                $data['image_url'] = $uploadResult['url'];
-                $data['image_path'] = $uploadResult['path'] ?? str_replace(STORAGE_URL . '/', '', $uploadResult['url']);
-            }
-
-            try {
-                db()->insert('projects', $data);
-                setFlash('success', 'Project added successfully');
-            } catch (Exception $e) {
-                setFlash('error', 'Failed to add: ' . $e->getMessage());
-            }
-        }
-        redirect('/projects.php');
     } elseif ($action === 'update') {
         $id = post('id');
         $project = db()->fetchOne("SELECT * FROM projects WHERE id = ? AND profile_id = ?", [$id, $userId]);
