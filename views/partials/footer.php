@@ -17,14 +17,11 @@
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Links</h3>
                 <ul class="space-y-2 text-sm">
                     <li><a href="/" class="text-gray-600 hover:text-blue-600">Home</a></li>
-                    <li><a href="/how-it-works.php" class="text-gray-600 hover:text-blue-600">How It Works</a></li>
-                    <li><a href="/faq.php" class="text-gray-600 hover:text-blue-600">FAQ</a></li>
                     <li><a href="/resources/jobs/" class="text-gray-600 hover:text-blue-600">Job Market Insights</a></li>
                     <li><a href="/resources/passive-income/" class="text-gray-600 hover:text-blue-600">Passive Income Ideas</a></li>
                     <li><a href="/resources/career/" class="text-gray-600 hover:text-blue-600">Career Advice Hub</a></li>
                     <li><a href="/resources/extra-income/" class="text-gray-600 hover:text-blue-600">Extra Income Ideas</a></li>
                     <li><a href="/resources/jobs/remote-jobs-begginers.php#remote-work-story-form" class="text-blue-600 hover:text-blue-800 font-medium">Share Your Remote Work Story</a></li>
-                    <li><a href="https://simple-job-tracker.com/landing.php" target="_blank" rel="noopener" class="text-emerald-600 hover:text-emerald-800 font-medium">Simple Job Tracker</a></li>
                     <?php if (isLoggedIn()): ?>
                         <li><a href="/profile.php" class="text-gray-600 hover:text-blue-600">Profile</a></li>
                         <li><a href="/cv.php" class="text-gray-600 hover:text-blue-600">View CV</a></li>
@@ -32,8 +29,11 @@
                 </ul>
             </div>
             <div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Legal</h3>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Info</h3>
                 <ul class="space-y-2 text-sm">
+                    <li><a href="/how-it-works.php" class="text-gray-600 hover:text-blue-600">How It Works</a></li>
+                    <li><a href="/faq.php" class="text-gray-600 hover:text-blue-600">FAQ</a></li>
+                    <li><a href="https://simple-job-tracker.com/landing.php" target="_blank" rel="noopener" class="text-emerald-600 hover:text-emerald-800 font-medium">Simple Job Tracker</a></li>
                     <li><a href="/privacy.php" class="text-gray-600 hover:text-blue-600">Privacy Policy</a></li>
                     <li><a href="/terms.php" class="text-gray-600 hover:text-blue-600">Terms of Service</a></li>
                 </ul>
