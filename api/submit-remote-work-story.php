@@ -37,12 +37,14 @@ if (!$rateLimit['allowed']) {
 }
 
 // Get and validate input
-$name = sanitizeInput(post('name', ''));
-$email = sanitizeInput(post('email', ''));
-$jobTitle = sanitizeInput(post('job_title', ''));
-$companyName = sanitizeInput(post('company_name', ''));
-$story = sanitizeInput(post('story', ''));
-$jobCategory = sanitizeInput(post('job_category', ''));
+// Note: We sanitize for XSS checking, but store plain text in database
+// HTML encoding happens when displaying (using e() function)
+$name = trim(post('name', ''));
+$email = trim(post('email', ''));
+$jobTitle = trim(post('job_title', ''));
+$companyName = trim(post('company_name', ''));
+$story = trim(post('story', ''));
+$jobCategory = trim(post('job_category', ''));
 
 // Validation
 $errors = [];
@@ -82,14 +84,16 @@ if (!empty($errors)) {
 try {
     $storyId = generateUuid();
 
+    // Store plain text in database (PDO prepared statements prevent SQL injection)
+    // HTML encoding happens when displaying using e() function
     db()->insert('remote_work_stories', [
         'id' => $storyId,
-        'name' => $name,
-        'email' => $email,
-        'job_title' => $jobTitle,
-        'company_name' => $companyName ?: null,
-        'story' => strip_tags($story), // Remove HTML tags
-        'job_category' => $jobCategory ?: null,
+        'name' => strip_tags($name), // Remove any HTML tags
+        'email' => $email, // Email is validated separately
+        'job_title' => strip_tags($jobTitle), // Remove any HTML tags
+        'company_name' => $companyName ? strip_tags($companyName) : null, // Remove any HTML tags
+        'story' => strip_tags($story), // Remove HTML tags - store plain text
+        'job_category' => $jobCategory ? strip_tags($jobCategory) : null, // Remove any HTML tags
         'approved' => false, // Requires admin approval
         'featured' => false,
         'created_at' => date('Y-m-d H:i:s'),
