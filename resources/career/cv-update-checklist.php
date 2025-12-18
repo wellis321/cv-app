@@ -105,7 +105,7 @@ $checklistItems = [
             'File is saved with professional name (e.g., "Jane_Smith_CV.pdf")',
             'PDF version is ready for sending',
             '.docx version is available if needed',
-            'Someone else has reviewed the CV',
+            'Someone else has reviewed your CV',
         ],
     ],
 ];

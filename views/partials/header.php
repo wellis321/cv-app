@@ -48,6 +48,8 @@
                             <a href="/resources/passive-income/" role="menuitem" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:bg-gray-50">Passive Income Ideas</a>
                             <a href="/resources/career/" role="menuitem" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:bg-gray-50">Career Advice Hub</a>
                             <a href="/resources/extra-income/" role="menuitem" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:bg-gray-50">Extra Income Ideas</a>
+                            <div class="border-t border-gray-200 my-1"></div>
+                            <a href="https://simple-job-tracker.com/landing.php" target="_blank" rel="noopener" role="menuitem" class="block px-4 py-2 text-sm text-emerald-600 hover:bg-emerald-50 focus:outline-none focus:bg-emerald-50 font-medium">Simple Job Tracker</a>
                         </div>
                     </div>
                     <a href="/cv.php" class="text-gray-700 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded">View CV</a>
@@ -75,6 +77,8 @@
                             <a href="/resources/passive-income/" role="menuitem" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:bg-gray-50">Passive Income Ideas</a>
                             <a href="/resources/career/" role="menuitem" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:bg-gray-50">Career Advice Hub</a>
                             <a href="/resources/extra-income/" role="menuitem" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:bg-gray-50">Extra Income Ideas</a>
+                            <div class="border-t border-gray-200 my-1"></div>
+                            <a href="https://simple-job-tracker.com/landing.php" target="_blank" rel="noopener" role="menuitem" class="block px-4 py-2 text-sm text-emerald-600 hover:bg-emerald-50 focus:outline-none focus:bg-emerald-50 font-medium">Simple Job Tracker</a>
                         </div>
                     </div>
                     <button type="button"
@@ -121,6 +125,8 @@
                             <a href="/resources/passive-income/" class="block text-gray-600 hover:text-blue-600 px-4 py-2 rounded-md text-sm">Passive Income Ideas</a>
                             <a href="/resources/career/" class="block text-gray-600 hover:text-blue-600 px-4 py-2 rounded-md text-sm">Career Advice Hub</a>
                             <a href="/resources/extra-income/" class="block text-gray-600 hover:text-blue-600 px-4 py-2 rounded-md text-sm">Extra Income Ideas</a>
+                            <div class="border-t border-gray-200 my-2"></div>
+                            <a href="https://simple-job-tracker.com/landing.php" target="_blank" rel="noopener" class="block text-emerald-600 hover:text-emerald-700 px-4 py-2 rounded-md text-sm font-medium">Simple Job Tracker</a>
                         </div>
                     </div>
                     <a href="/cv.php" class="text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-4 py-2 rounded-md text-sm">View CV</a>
@@ -148,6 +154,8 @@
                             <a href="/resources/passive-income/" class="block text-gray-600 hover:text-blue-600 px-4 py-2 rounded-md text-sm">Passive Income Ideas</a>
                             <a href="/resources/career/" class="block text-gray-600 hover:text-blue-600 px-4 py-2 rounded-md text-sm">Career Advice Hub</a>
                             <a href="/resources/extra-income/" class="block text-gray-600 hover:text-blue-600 px-4 py-2 rounded-md text-sm">Extra Income Ideas</a>
+                            <div class="border-t border-gray-200 my-2"></div>
+                            <a href="https://simple-job-tracker.com/landing.php" target="_blank" rel="noopener" class="block text-emerald-600 hover:text-emerald-700 px-4 py-2 rounded-md text-sm font-medium">Simple Job Tracker</a>
                         </div>
                     </div>
                     <div class="px-4 py-2 space-y-2">

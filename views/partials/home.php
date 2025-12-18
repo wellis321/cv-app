@@ -382,7 +382,7 @@
 <!-- Simple Job Tracker Promotion -->
 <div class="bg-gradient-to-r from-blue-50 to-green-50 py-12 sm:py-16">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <a href="https://simple-job-tracker.com/" target="_blank" rel="noopener noreferrer" class="block overflow-hidden rounded-2xl border border-blue-200 bg-white shadow-xl transition hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+        <a href="https://simple-job-tracker.com/landing.php" target="_blank" rel="noopener noreferrer" class="block overflow-hidden rounded-2xl border border-blue-200 bg-white shadow-xl transition hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
             <div class="grid lg:grid-cols-2">
                 <!-- Left side: Content -->
                 <div class="flex flex-col justify-center px-6 py-12 sm:px-10 sm:py-16 lg:px-12">
