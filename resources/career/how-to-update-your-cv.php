@@ -207,8 +207,10 @@ $sections = [
     <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-16 text-base leading-relaxed text-slate-700">
         <?php foreach ($sections as $section): ?>
             <section id="<?php echo e($section['id']); ?>" class="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg shadow-slate-900/5">
-                <h2 class="text-2xl font-semibold text-slate-900"><?php echo e($section['title']); ?></h2>
-                <div class="mt-4 space-y-5">
+                <div class="flex flex-col lg:flex-row gap-6">
+                    <div class="flex-1">
+                        <h2 class="text-2xl font-semibold text-slate-900"><?php echo e($section['title']); ?></h2>
+                        <div class="mt-4 space-y-5">
                     <?php if (!empty($section['content'])): ?>
                         <?php foreach ($section['content'] as $paragraph): ?>
                             <p><?php echo e($paragraph); ?></p>
@@ -262,6 +264,35 @@ $sections = [
                             </ul>
                         </div>
                     <?php endif; ?>
+                        </div>
+                    </div>
+                    <div class="lg:w-64 lg:flex-shrink-0">
+                        <div class="rounded-xl overflow-hidden border border-slate-200 bg-gradient-to-br <?php
+                            $gradients = [
+                                'why-update' => 'from-indigo-100 via-purple-100 to-pink-100',
+                                'how-often' => 'from-blue-100 via-cyan-100 to-teal-100',
+                                'step-by-step' => 'from-violet-100 via-purple-100 to-fuchsia-100',
+                                'remove' => 'from-amber-100 via-orange-100 to-red-100',
+                                'mistakes' => 'from-red-100 via-rose-100 to-pink-100',
+                                'saving' => 'from-emerald-100 via-green-100 to-teal-100',
+                                'long-term' => 'from-sky-100 via-blue-100 to-indigo-100',
+                            ];
+                            echo $gradients[$section['id']] ?? 'from-slate-100 via-gray-100 to-slate-200';
+                        ?> h-48 lg:h-64 flex items-center justify-center">
+                            <?php
+                            $icons = [
+                                'why-update' => '<svg class="w-16 h-16 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
+                                'how-often' => '<svg class="w-16 h-16 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
+                                'step-by-step' => '<svg class="w-16 h-16 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>',
+                                'remove' => '<svg class="w-16 h-16 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>',
+                                'mistakes' => '<svg class="w-16 h-16 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>',
+                                'saving' => '<svg class="w-16 h-16 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>',
+                                'long-term' => '<svg class="w-16 h-16 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>',
+                            ];
+                            echo $icons[$section['id']] ?? '<svg class="w-16 h-16 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>';
+                            ?>
+                        </div>
+                    </div>
                 </div>
             </section>
         <?php endforeach; ?>
@@ -279,13 +310,16 @@ $sections = [
                 </a>
             </div>
             <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg shadow-slate-900/5">
-                <h2 class="text-2xl font-semibold text-slate-900">Download our CV update checklist</h2>
+                <h2 class="text-2xl font-semibold text-slate-900">CV Update Checklist</h2>
                 <p class="mt-4 text-base text-slate-600">
-                    Placeholder for your future lead magnet. Swap this copy and button once you have a downloadable template or email sign-up form ready.
+                    Use our comprehensive checklist to systematically update your CV. Print it out or keep it open while you work through each section.
                 </p>
-                <button type="button" class="mt-6 inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:border-slate-400 hover:text-slate-900">
-                    Download checklist (placeholder)
-                </button>
+                <a href="/resources/career/cv-update-checklist.php" class="mt-6 inline-flex items-center justify-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-indigo-700">
+                    View Checklist
+                    <svg class="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </a>
             </div>
         </div>
     </section>

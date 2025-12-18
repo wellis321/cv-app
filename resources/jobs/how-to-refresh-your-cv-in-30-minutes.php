@@ -238,8 +238,6 @@ $sections = [
         </div>
     </section>
     <?php endif; ?>
-
-    <?php partial('resources-footer-cta'); ?>
 </main>
 
 <?php partial('footer'); ?>

@@ -370,6 +370,13 @@ function getAllArticles() {
             'section' => 'Job Search Playbooks',
         ],
         [
+            'title' => 'CV Update Checklist',
+            'url' => '/resources/career/cv-update-checklist.php',
+            'excerpt' => 'A comprehensive printable checklist to systematically update your CV and ensure nothing is missed.',
+            'category' => 'career',
+            'section' => 'Job Search Playbooks',
+        ],
+        [
             'title' => '20+ Legitimate Ways to Earn Money Online & From Home in 2025',
             'url' => '/resources/extra-income/legitimate-ways-to-earn-money-online.php',
             'excerpt' => 'Comprehensive guide covering surveys, market research, remote gigs, and long-term income builders.',
