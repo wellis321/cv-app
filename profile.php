@@ -28,6 +28,9 @@ if ($profile) {
     if (!isset($profile['show_qr_code'])) {
         $profile['show_qr_code'] = $profile['show_photo'] ? 0 : 1;
     }
+    if (!isset($profile['cv_public'])) {
+        $profile['cv_public'] = 1; // Default to public
+    }
 }
 
 // Check if username is auto-generated (starts with "user" followed by 8 alphanumeric chars)
@@ -71,6 +74,11 @@ if (isPost()) {
 
     // For bio, allow plain text only (single line on CV, but store trimmed string)
     $data['bio'] = $normalise(post('bio', ''), true);
+
+    // Handle CV public visibility
+    $cvPublicInput = post('cv_public', '0');
+    $cvPublic = ($cvPublicInput === '1' || $cvPublicInput === 'on') ? 1 : 0;
+    $data['cv_public'] = $cvPublic;
 
     // Handle show photo options (always include these fields if a photo exists)
     if (!empty($profile['photo_url'])) {
@@ -289,6 +297,9 @@ if (isPost()) {
                         <button type="button" onclick="switchTab('photo')" id="tab-photo" class="tab-button py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
                             Photo
                         </button>
+                        <button type="button" onclick="switchTab('visibility')" id="tab-visibility" class="tab-button py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                            CV Visibility
+                        </button>
                         <button type="button" onclick="switchTab('colors')" id="tab-colors" class="tab-button py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
                             Header Colors
                         </button>
@@ -426,6 +437,35 @@ if (isPost()) {
                             <div id="photo-upload-status" class="mt-2"></div>
                         </div>
                     </div>
+
+                    <!-- CV Visibility Tab -->
+                    <div id="tab-content-visibility" class="tab-content hidden">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-4">CV Visibility</h2>
+
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                            <p class="text-sm text-blue-800">
+                                <strong>Your CV URL:</strong> <span class="font-mono text-blue-600"><?php echo APP_URL; ?>/cv/@<?php echo e($profile['username'] ?? 'username'); ?></span>
+                            </p>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="flex items-start gap-3">
+                                <input type="checkbox"
+                                       id="cv_public"
+                                       name="cv_public"
+                                       value="1"
+                                       <?php echo (isset($profile['cv_public']) ? (int)$profile['cv_public'] : 1) ? 'checked' : ''; ?>
+                                       class="mt-1 w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                <div class="flex-1">
+                                    <label for="cv_public" class="block text-sm font-medium text-gray-700 cursor-pointer">
+                                        Make my CV publicly accessible
+                                    </label>
+                                    <p class="mt-1 text-xs text-gray-500">
+                                        When enabled, anyone with your CV link can view your CV. When disabled, only you can view it when logged in. You can toggle this on or off at any time.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Header Colors Tab -->

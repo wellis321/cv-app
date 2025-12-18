@@ -23,6 +23,33 @@ if ($username) {
 
     if ($profile) {
         $profileUserId = $profile['id'];
+
+        // Check if CV is public (default to 1 if field doesn't exist yet)
+        $cvPublic = isset($profile['cv_public']) ? (int)$profile['cv_public'] : 1;
+
+        // If CV is not public and user is not the owner, show private message
+        if (!$cvPublic && (!isLoggedIn() || getUserId() !== $profileUserId)) {
+            http_response_code(403);
+            ?>
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>CV Not Available</title>
+                <script src="https://cdn.tailwindcss.com"></script>
+            </head>
+            <body class="bg-gray-50">
+                <div class="max-w-4xl mx-auto px-4 py-16 text-center">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-4">CV Not Available</h1>
+                    <p class="text-gray-600 mb-8">This CV is currently private and not accessible to the public.</p>
+                    <a href="/" class="text-blue-600 hover:text-blue-800">Return to Home</a>
+                </div>
+            </body>
+            </html>
+            <?php
+            exit;
+        }
     }
 } elseif ($userIdParam) {
     // Load by user ID (backward compatibility)
@@ -33,6 +60,33 @@ if ($username) {
 
     if ($profile) {
         $profileUserId = $profile['id'];
+
+        // Check if CV is public (default to 1 if field doesn't exist yet)
+        $cvPublic = isset($profile['cv_public']) ? (int)$profile['cv_public'] : 1;
+
+        // If CV is not public and user is not the owner, show private message
+        if (!$cvPublic && (!isLoggedIn() || getUserId() !== $profileUserId)) {
+            http_response_code(403);
+            ?>
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>CV Not Available</title>
+                <script src="https://cdn.tailwindcss.com"></script>
+            </head>
+            <body class="bg-gray-50">
+                <div class="max-w-4xl mx-auto px-4 py-16 text-center">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-4">CV Not Available</h1>
+                    <p class="text-gray-600 mb-8">This CV is currently private and not accessible to the public.</p>
+                    <a href="/" class="text-blue-600 hover:text-blue-800">Return to Home</a>
+                </div>
+            </body>
+            </html>
+            <?php
+            exit;
+        }
     }
 } elseif (isLoggedIn()) {
     // Logged in user viewing their own CV
