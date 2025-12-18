@@ -121,17 +121,60 @@ $checklistItems = [
     ]); ?>
     <style>
         @media print {
+            @page {
+                margin: 0.5in;
+                /* Remove default headers and footers */
+                margin-top: 0.5in;
+                margin-bottom: 0.5in;
+            }
             .no-print {
                 display: none !important;
             }
             body {
                 background: white;
+                margin: 0;
+                padding: 0;
             }
             .print-break {
                 page-break-after: always;
             }
+            /* Hide any elements that might appear in headers/footers */
+            header, footer, nav {
+                display: none !important;
+            }
+            /* Hide print instruction note */
+            .print-instruction {
+                display: none !important;
+            }
+        }
+        .print-instruction {
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            color: #92400e;
+        }
+        .print-instruction strong {
+            display: block;
+            margin-bottom: 0.25rem;
         }
     </style>
+    <script>
+        function printChecklist() {
+            // Show instruction before printing
+            const instruction = document.getElementById('print-instruction');
+            if (instruction) {
+                instruction.style.display = 'block';
+                // Hide it after a brief moment (it will be hidden in print media anyway)
+                setTimeout(() => {
+                    if (instruction) instruction.style.display = 'none';
+                }, 3000);
+            }
+            window.print();
+        }
+    </script>
 </head>
 <body class="bg-slate-50 text-slate-900">
 <?php partial('header'); ?>
@@ -155,7 +198,7 @@ $checklistItems = [
                     <a href="/resources/career/how-to-update-your-cv.php" class="inline-flex items-center justify-center rounded-lg bg-white px-5 py-2 text-sm font-semibold text-indigo-600 shadow hover:bg-indigo-50">
                         ← Back to Complete Guide
                     </a>
-                    <button onclick="window.print()" class="inline-flex items-center justify-center rounded-lg border border-white/40 bg-white/10 px-5 py-2 text-sm font-semibold text-white hover:bg-white/20">
+                    <button onclick="printChecklist()" class="inline-flex items-center justify-center rounded-lg border border-white/40 bg-white/10 px-5 py-2 text-sm font-semibold text-white hover:bg-white/20">
                         Print Checklist
                     </button>
                 </div>
@@ -165,6 +208,9 @@ $checklistItems = [
 
     <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div class="bg-white rounded-2xl border border-slate-200 shadow-lg shadow-slate-900/5 p-8">
+            <div id="print-instruction" class="print-instruction no-print" style="display: none;">
+                <strong>💡 Print Tip:</strong> In the print dialog, uncheck "Headers and Footers" to get a clean printout without page URLs or dates.
+            </div>
             <div class="mb-8 pb-6 border-b border-slate-200">
                 <h2 class="text-2xl font-semibold text-slate-900 mb-2">Your CV Update Checklist</h2>
                 <p class="text-slate-600">
