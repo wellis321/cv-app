@@ -32,7 +32,7 @@ $sections = [
         ],
         'tip' => [
             'title' => 'Pro Tip',
-            'body' => 'Keep a “wins document” where you jot down achievements, positive feedback, and completed projects throughout the year. When it\'s time to update your CV, you\'ll have a ready-made list of accomplishments to draw from. Alternatively, use Simple Job Tracker to track your applications and achievements in one place—it helps you stay organised and never miss an opportunity.',
+            'body' => 'Keep a "wins document" where you jot down achievements, positive feedback, and completed projects throughout the year. When it\'s time to update your CV, you\'ll have a ready-made list of accomplishments to draw from. Alternatively, use <a href="https://simple-job-tracker.com/landing.php" target="_blank" rel="noopener noreferrer" class="font-semibold text-emerald-700 hover:text-emerald-800 underline">Simple Job Tracker</a> to track your applications and achievements in one place—it helps you stay organised and never miss an opportunity.',
         ],
     ],
     [
@@ -257,7 +257,7 @@ $sections = [
 
                     <?php if (!empty($section['tip'])): ?>
                         <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-base text-emerald-800">
-                            <strong><?php echo e($section['tip']['title']); ?>:</strong> <?php echo e($section['tip']['body']); ?>
+                            <strong><?php echo e($section['tip']['title']); ?>:</strong> <?php echo $section['tip']['body']; ?>
                         </div>
                     <?php endif; ?>
 
