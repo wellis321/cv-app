@@ -87,8 +87,11 @@ $faqs = [
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div class="text-center mb-12">
                 <h1 class="text-4xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h1>
-                <p class="text-lg text-gray-600">
+                <p class="text-lg text-gray-600 mb-4">
                     Everything you need to know about Simple CV Builder
+                </p>
+                <p class="text-sm text-gray-500">
+                    Looking for step-by-step instructions? <a href="/how-it-works.php" class="text-blue-600 hover:text-blue-800 underline">Check out our How It Works guide</a>
                 </p>
             </div>
 

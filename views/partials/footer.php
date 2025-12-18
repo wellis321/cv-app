@@ -11,6 +11,7 @@
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Links</h3>
                 <ul class="space-y-2 text-sm">
                     <li><a href="/" class="text-gray-600 hover:text-blue-600">Home</a></li>
+                    <li><a href="/how-it-works.php" class="text-gray-600 hover:text-blue-600">How It Works</a></li>
                     <li><a href="/faq.php" class="text-gray-600 hover:text-blue-600">FAQ</a></li>
                     <li><a href="/resources/jobs/" class="text-gray-600 hover:text-blue-600">Job Market Insights</a></li>
                     <li><a href="/resources/passive-income/" class="text-gray-600 hover:text-blue-600">Passive Income Ideas</a></li>

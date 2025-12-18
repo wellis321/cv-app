@@ -369,7 +369,7 @@ $subscriptionFrontendContext = buildSubscriptionFrontendContext($subscriptionCon
                 // Get selected template
                 const selectedTemplate = getSelectedTemplate();
 
-                // Generate QR code if needed
+                // Generate QR code if needed (links to personal CV page)
                 let qrCodeImage = null;
                 if (includeQr && cvUrl) {
                     try {
@@ -440,7 +440,7 @@ $subscriptionFrontendContext = buildSubscriptionFrontendContext($subscriptionCon
                     profileWithPhoto,
                     config,
                     selectedTemplate,
-                    cvUrl,
+                    cvUrl, // QR code links to personal CV page
                     qrCodeImage
                 );
 

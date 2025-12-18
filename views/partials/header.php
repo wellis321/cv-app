@@ -20,6 +20,7 @@
                     <a href="/dashboard.php" class="<?php echo $isDashboard ? 'text-blue-600 font-medium underline' : 'text-gray-700 hover:text-blue-600'; ?>">Edit CV Sections</a>
                     <a href="/preview-cv.php" class="<?php echo $isPreview ? 'text-blue-600 font-medium' : 'text-gray-700 hover:text-blue-600'; ?>">Preview & PDF</a>
                     <a href="/subscription.php" class="<?php echo $isSubscription ? 'text-blue-600 font-medium' : 'text-gray-700 hover:text-blue-600'; ?>">Subscription</a>
+                    <a href="/how-it-works.php" class="text-gray-700 hover:text-blue-600">Help</a>
                     <div class="relative group">
                         <button type="button" aria-expanded="false" aria-haspopup="true" aria-label="Resources menu" class="flex items-center gap-1 text-gray-700 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded">
                             Resources
@@ -45,7 +46,7 @@
                     ?>
                     <a href="<?php echo e($featuresUrl); ?>" class="text-gray-700 hover:text-blue-600">Features</a>
                     <a href="<?php echo e($pricingUrl); ?>" class="text-gray-700 hover:text-blue-600">Pricing</a>
-                    <a href="<?php echo e($processUrl); ?>" class="text-gray-700 hover:text-blue-600">How it works</a>
+                    <a href="/how-it-works.php" class="text-gray-700 hover:text-blue-600">How it works</a>
                     <a href="/faq.php" class="text-gray-700 hover:text-blue-600">FAQ</a>
                     <div class="relative group">
                         <button type="button" aria-expanded="false" aria-haspopup="true" aria-label="Resources menu" class="flex items-center gap-1 text-gray-700 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded">
