@@ -6,7 +6,7 @@ $error = getFlash('error');
 $success = getFlash('success');
 $currentSectionId = 'education';
 
-$educationEntries = db()->fetchAll("SELECT * FROM education WHERE profile_id = ? ORDER BY start_date DESC", [$userId]);
+$educationEntries = db()->fetchAll("SELECT * FROM education WHERE profile_id = ? ORDER BY COALESCE(start_date, '1900-01-01') DESC, created_at DESC", [$userId]);
 $subscriptionContext = getUserSubscriptionContext($userId);
 $canAddEducation = planCanAddEntry($subscriptionContext, 'education', $userId, count($educationEntries));
 
@@ -28,20 +28,20 @@ if (isPost()) {
         $degree = sanitizeInput(post('degree', ''));
         $fieldOfStudy = sanitizeInput(post('field_of_study', ''));
 
-        // Validate required fields
-        if (empty($institution) || empty($degree) || empty(post('start_date', ''))) {
-            setFlash('error', 'Institution, degree, and start date are required');
+        // Validate required fields - only qualification is required
+        if (empty($degree)) {
+            setFlash('error', 'Qualification is required');
             redirect('/education.php');
         }
 
         // Check for XSS
-        if (checkForXss($institution)) {
+        if (!empty($institution) && checkForXss($institution)) {
             setFlash('error', 'Invalid content in institution name');
             redirect('/education.php');
         }
 
         if (checkForXss($degree)) {
-            setFlash('error', 'Invalid content in degree');
+            setFlash('error', 'Invalid content in qualification');
             redirect('/education.php');
         }
 
@@ -51,13 +51,13 @@ if (isPost()) {
         }
 
         // Length validation
-        if (strlen($institution) > 255) {
+        if (!empty($institution) && strlen($institution) > 255) {
             setFlash('error', 'Institution name must be 255 characters or less');
             redirect('/education.php');
         }
 
         if (strlen($degree) > 255) {
-            setFlash('error', 'Degree must be 255 characters or less');
+            setFlash('error', 'Qualification must be 255 characters or less');
             redirect('/education.php');
         }
 
@@ -69,10 +69,10 @@ if (isPost()) {
         $data = [
             'id' => generateUuid(),
             'profile_id' => $userId,
-            'institution' => $institution,
+            'institution' => !empty($institution) ? $institution : null,
             'degree' => $degree,
             'field_of_study' => !empty($fieldOfStudy) ? $fieldOfStudy : null,
-            'start_date' => post('start_date', ''),
+            'start_date' => post('start_date', '') ?: null,
             'end_date' => post('end_date', '') ?: null,
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s')
@@ -131,14 +131,14 @@ if (isPost()) {
                 <input type="hidden" name="<?php echo CSRF_TOKEN_NAME; ?>" value="<?php echo csrfToken(); ?>">
                 <input type="hidden" name="action" value="create">
                 <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                    <div><label for="institution" class="block text-sm font-medium text-gray-700">Institution *</label>
-                        <input type="text" id="institution" name="institution" required maxlength="255" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"></div>
-                    <div><label for="degree" class="block text-sm font-medium text-gray-700">Degree *</label>
-                        <input type="text" id="degree" name="degree" required maxlength="255" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"></div>
+                    <div><label for="degree" class="block text-sm font-medium text-gray-700">Qualification *</label>
+                        <input type="text" id="degree" name="degree" required maxlength="255" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="e.g. Bachelor's Degree, A-Levels, GCSE, Certificate, Diploma"></div>
+                    <div><label for="institution" class="block text-sm font-medium text-gray-700">Institution</label>
+                        <input type="text" id="institution" name="institution" maxlength="255" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"></div>
                     <div><label for="field_of_study" class="block text-sm font-medium text-gray-700">Field of Study</label>
                         <input type="text" id="field_of_study" name="field_of_study" maxlength="255" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"></div>
-                    <div><label for="start_date" class="block text-sm font-medium text-gray-700">Start Date *</label>
-                        <input type="date" id="start_date" name="start_date" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"></div>
+                    <div><label for="start_date" class="block text-sm font-medium text-gray-700">Start Date</label>
+                        <input type="date" id="start_date" name="start_date" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"></div>
                     <div><label for="end_date" class="block text-sm font-medium text-gray-700">End Date</label>
                         <input type="date" id="end_date" name="end_date" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"></div>
                 </div>
@@ -153,9 +153,13 @@ if (isPost()) {
                     <div class="flex justify-between">
                         <div>
                             <h3 class="text-xl font-semibold"><?php echo e($edu['degree']); ?></h3>
-                            <p class="text-lg text-gray-700"><?php echo e($edu['institution']); ?></p>
+                            <?php if ($edu['institution']): ?><p class="text-lg text-gray-700"><?php echo e($edu['institution']); ?></p><?php endif; ?>
                             <?php if ($edu['field_of_study']): ?><p class="text-gray-600"><?php echo e($edu['field_of_study']); ?></p><?php endif; ?>
-                            <p class="text-sm text-gray-500"><?php echo date('M Y', strtotime($edu['start_date'])); ?> - <?php echo $edu['end_date'] ? date('M Y', strtotime($edu['end_date'])) : 'Present'; ?></p>
+                            <?php if ($edu['start_date']): ?>
+                                <p class="text-sm text-gray-500"><?php echo date('M Y', strtotime($edu['start_date'])); ?> - <?php echo $edu['end_date'] ? date('M Y', strtotime($edu['end_date'])) : 'Present'; ?></p>
+                            <?php elseif ($edu['end_date']): ?>
+                                <p class="text-sm text-gray-500">Completed: <?php echo date('M Y', strtotime($edu['end_date'])); ?></p>
+                            <?php endif; ?>
                         </div>
                         <form method="POST" class="inline">
                             <input type="hidden" name="<?php echo CSRF_TOKEN_NAME; ?>" value="<?php echo csrfToken(); ?>">

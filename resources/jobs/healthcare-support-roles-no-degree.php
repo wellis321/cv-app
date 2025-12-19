@@ -481,6 +481,11 @@ $faqs = [
                             <p><?php echo e($job['requirements']); ?></p>
                         </div>
 
+                        <div>
+                            <h3 class="font-semibold text-slate-900 mb-2">How to Get Started</h3>
+                            <p><?php echo e($job['training']); ?></p>
+                        </div>
+
                         <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
                             <h3 class="font-semibold text-blue-900 mb-2">Salary & Career Path</h3>
                             <ul class="space-y-1 text-blue-800">
@@ -488,11 +493,6 @@ $faqs = [
                                     <li><?php echo e($item); ?></li>
                                 <?php endforeach; ?>
                             </ul>
-                        </div>
-
-                        <div>
-                            <h3 class="font-semibold text-slate-900 mb-2">How to Get Started</h3>
-                            <p><?php echo e($job['training']); ?></p>
                         </div>
                     </div>
                     <div class="clear-both"></div>
