@@ -146,16 +146,11 @@ $sections = [
     ]); ?>
     <style>
         /* Allow content to wrap around floated image in cv-usage section */
-        #cv-usage .space-y-6 {
+        #cv-usage > *:not(h2):not(.float-right) {
             max-width: calc(100% - 22rem);
         }
-        #cv-usage .rounded-xl.border-blue-200,
-        #cv-usage .rounded-xl.border-amber-200,
-        #cv-usage .rounded-2xl.border-purple-200 {
-            max-width: 100%;
-        }
         @media (max-width: 639px) {
-            #cv-usage .space-y-6 {
+            #cv-usage > *:not(h2):not(.float-right) {
                 max-width: 100%;
             }
         }
@@ -203,12 +198,11 @@ $sections = [
                 <?php if ($section['id'] === 'cv-usage' && $encodedImagePath): ?>
                     <!-- Text wrapping layout for "The Right Way to Use AI" section -->
                     <h2 class="text-2xl font-semibold text-slate-900 mb-4"><?php echo e($section['title']); ?></h2>
-                    <div class="overflow-hidden">
-                        <div class="float-right w-full sm:w-80 ml-6 mb-4 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-sm">
-                            <img src="<?php echo e($encodedImagePath); ?>"
-                                 alt="<?php echo e($imageAlt); ?>"
-                                 class="h-80 w-full object-cover" loading="lazy">
-                        </div>
+                    <div class="float-right w-full sm:w-80 ml-6 mb-4 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-sm">
+                        <img src="<?php echo e($encodedImagePath); ?>"
+                             alt="<?php echo e($imageAlt); ?>"
+                             class="h-80 w-full object-cover" loading="lazy">
+                    </div>
                 <?php else: ?>
                     <!-- Standard flexbox layout for other sections -->
                     <div class="flex flex-col gap-6 <?php echo $reverseLayout ? 'lg:flex-row-reverse' : 'lg:flex-row'; ?> lg:items-start">
@@ -290,7 +284,6 @@ $sections = [
                     <?php endif; ?>
                 <?php if ($section['id'] === 'cv-usage' && $encodedImagePath): ?>
                     <div class="clear-both"></div>
-                    </div>
                 <?php else: ?>
                         </div>
                     </div>
