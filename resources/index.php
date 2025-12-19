@@ -7,15 +7,6 @@ $canonicalUrl = APP_URL . '/resources/';
 // Get all articles with content
 $allArticles = getAllArticles();
 
-// Add the healthcare careers article (not in getAllArticles yet)
-$allArticles[] = [
-    'title' => 'Healthcare Career Paths: Start Your Journey Without a Degree',
-    'url' => '/resources/jobs/entry-level-healthcare-careers.php',
-    'excerpt' => 'Discover rewarding healthcare support roles you can start without a university degree. Learn about entry-level positions, training requirements, salaries, and how to begin your healthcare career today.',
-    'category' => 'jobs',
-    'section' => 'Popular Job Paths',
-];
-
 // Organize articles by category
 $articlesByCategory = [
     'jobs' => [
