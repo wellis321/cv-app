@@ -145,11 +145,19 @@ $sections = [
         ],
     ]); ?>
     <style>
-        /* Prevent info boxes from overlapping floated image in cv-usage section */
+        /* Allow info boxes to wrap around floated image in cv-usage section */
         #cv-usage .rounded-xl.border-blue-200,
         #cv-usage .rounded-xl.border-amber-200,
         #cv-usage .rounded-2xl.border-purple-200 {
-            clear: right;
+            margin-right: 0;
+            max-width: calc(100% - 22rem);
+        }
+        @media (max-width: 639px) {
+            #cv-usage .rounded-xl.border-blue-200,
+            #cv-usage .rounded-xl.border-amber-200,
+            #cv-usage .rounded-2xl.border-purple-200 {
+                max-width: 100%;
+            }
         }
     </style>
 </head>
