@@ -390,6 +390,13 @@ function getAllArticles() {
             'category' => 'jobs',
             'section' => 'Job Search Playbooks',
         ],
+        [
+            'title' => 'Top Healthcare Jobs You Can Start Without a Degree',
+            'url' => '/resources/jobs/healthcare-support-roles-no-degree.php',
+            'excerpt' => 'Explore 20 rewarding healthcare careers that don\'t require a university degree. Learn about salaries, training paths, and how to start your healthcare career today.',
+            'category' => 'jobs',
+            'section' => 'Editor\'s Picks',
+        ],
     ];
 }
 

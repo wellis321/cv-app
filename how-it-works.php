@@ -35,12 +35,6 @@ $exampleCvUrl = APP_URL . '/cv/@simple-cv-example';
         .feature-section {
             scroll-margin-top: 100px;
         }
-        .example-cv-embed {
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            overflow: hidden;
-            margin: 20px 0;
-        }
         .step-number {
             display: inline-flex;
             align-items: center;
@@ -52,6 +46,51 @@ $exampleCvUrl = APP_URL . '/cv/@simple-cv-example';
             border-radius: 50%;
             font-weight: bold;
             margin-right: 12px;
+        }
+        .sidebar-nav {
+            position: sticky;
+            top: 100px;
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+        }
+        .sidebar-nav::-webkit-scrollbar {
+            width: 6px;
+        }
+        .sidebar-nav::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .sidebar-nav::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        .sidebar-nav::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        @media (max-width: 1023px) {
+            .sidebar-nav {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 50;
+                background: rgba(0, 0, 0, 0.5);
+                max-height: 100vh;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                display: none;
+            }
+            .sidebar-nav.open {
+                display: block;
+                transform: translateX(0);
+            }
+            .sidebar-nav-content {
+                width: 280px;
+                height: 100%;
+                background: white;
+                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+                overflow-y: auto;
+            }
         }
     </style>
 </head>
@@ -66,35 +105,44 @@ $exampleCvUrl = APP_URL . '/cv/@simple-cv-example';
             </p>
         </div>
 
-        <!-- Example CV Preview -->
-        <div class="bg-white rounded-lg shadow-lg p-6 mb-12">
-            <h2 class="text-2xl font-semibold text-gray-900 mb-4">Example CV</h2>
-            <p class="text-gray-600 mb-4">
-                Here's an example of what your CV can look like. Click the link below to see it in action:
-            </p>
-            <a href="<?php echo e($exampleCvUrl); ?>" target="_blank" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium">
-                View Example CV →
-            </a>
-        </div>
-
-        <!-- Table of Contents -->
-        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-            <h2 class="text-xl font-semibold text-gray-900 mb-4">Quick Navigation</h2>
-            <nav class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <a href="#getting-started" class="text-blue-600 hover:text-blue-800">Getting Started</a>
-                <a href="#personal-profile" class="text-blue-600 hover:text-blue-800">Personal Profile</a>
-                <a href="#cv-visibility" class="text-blue-600 hover:text-blue-800">CV Visibility</a>
-                <a href="#profile-photo" class="text-blue-600 hover:text-blue-800">Profile Photo</a>
-                <a href="#work-experience" class="text-blue-600 hover:text-blue-800">Work Experience</a>
-                <a href="#education" class="text-blue-600 hover:text-blue-800">Education</a>
-                <a href="#skills" class="text-blue-600 hover:text-blue-800">Skills</a>
-                <a href="#projects" class="text-blue-600 hover:text-blue-800">Projects</a>
-                <a href="#certifications" class="text-blue-600 hover:text-blue-800">Certifications</a>
-                <a href="#interests" class="text-blue-600 hover:text-blue-800">Interests & Activities</a>
-                <a href="#templates" class="text-blue-600 hover:text-blue-800">Templates & Styling</a>
-                <a href="#pdf-export" class="text-blue-600 hover:text-blue-800">PDF Export</a>
+        <div class="flex gap-8">
+            <!-- Collapsing Sidebar Navigation -->
+            <nav id="sidebar-nav" class="sidebar-nav lg:block">
+                <div class="w-64 bg-white rounded-lg shadow-lg p-6 sidebar-nav-content">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-semibold text-gray-900">Quick Navigation</h2>
+                        <button id="sidebar-toggle" class="lg:hidden text-gray-500 hover:text-gray-700" aria-label="Close navigation">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="space-y-1">
+                        <a href="#getting-started" class="nav-link block px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors" data-section="getting-started">Getting Started</a>
+                        <a href="#personal-profile" class="nav-link block px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors" data-section="personal-profile">Personal Profile</a>
+                        <a href="#cv-visibility" class="nav-link block px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors" data-section="cv-visibility">CV Visibility</a>
+                        <a href="#profile-photo" class="nav-link block px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors" data-section="profile-photo">Profile Photo</a>
+                        <a href="#work-experience" class="nav-link block px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors" data-section="work-experience">Work Experience</a>
+                        <a href="#education" class="nav-link block px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors" data-section="education">Education</a>
+                        <a href="#skills" class="nav-link block px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors" data-section="skills">Skills</a>
+                        <a href="#projects" class="nav-link block px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors" data-section="projects">Projects</a>
+                        <a href="#certifications" class="nav-link block px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors" data-section="certifications">Certifications</a>
+                        <a href="#interests" class="nav-link block px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors" data-section="interests">Interests & Activities</a>
+                        <a href="#templates" class="nav-link block px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors" data-section="templates">Templates & Styling</a>
+                        <a href="#pdf-export" class="nav-link block px-3 py-2 rounded-md text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors" data-section="pdf-export">PDF Export</a>
+                    </div>
+                </div>
             </nav>
-        </div>
+
+            <!-- Mobile Menu Button -->
+            <button id="mobile-nav-toggle" class="lg:hidden fixed bottom-6 right-6 z-40 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-colors" aria-label="Open navigation">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+
+            <!-- Main Content -->
+            <div class="flex-1 min-w-0">
 
         <!-- Getting Started -->
         <section id="getting-started" class="feature-section bg-white rounded-lg shadow-lg p-8 mb-8">
@@ -515,8 +563,83 @@ $exampleCvUrl = APP_URL . '/cv/@simple-cv-example';
                 View Example CV →
             </a>
         </div>
+            </div>
+        </div>
     </main>
 
     <?php partial('footer'); ?>
+    <script>
+        (function() {
+            const sidebarNav = document.getElementById('sidebar-nav');
+            const mobileNavToggle = document.getElementById('mobile-nav-toggle');
+            const sidebarToggle = document.getElementById('sidebar-toggle');
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            // Mobile menu toggle
+            if (mobileNavToggle) {
+                mobileNavToggle.addEventListener('click', () => {
+                    sidebarNav.style.display = 'block';
+                    setTimeout(() => {
+                        sidebarNav.classList.add('open');
+                    }, 10);
+                });
+            }
+
+            // Close sidebar
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', () => {
+                    sidebarNav.classList.remove('open');
+                    setTimeout(() => {
+                        sidebarNav.style.display = 'none';
+                    }, 300);
+                });
+            }
+
+            // Close sidebar when clicking outside (mobile)
+            sidebarNav.addEventListener('click', (e) => {
+                if (e.target === sidebarNav) {
+                    sidebarNav.classList.remove('open');
+                }
+            });
+
+            // Close sidebar when clicking a link (mobile)
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth < 1024) {
+                        sidebarNav.classList.remove('open');
+                    }
+                });
+            });
+
+            // Highlight active section
+            function updateActiveSection() {
+                const sections = document.querySelectorAll('.feature-section');
+                const navLinks = document.querySelectorAll('.nav-link');
+
+                let currentSection = '';
+                sections.forEach(section => {
+                    const rect = section.getBoundingClientRect();
+                    if (rect.top <= 150 && rect.bottom >= 150) {
+                        currentSection = section.id;
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    const sectionId = link.getAttribute('data-section');
+                    if (sectionId === currentSection) {
+                        link.classList.add('bg-blue-100', 'text-blue-700', 'font-medium');
+                        link.classList.remove('text-gray-700');
+                    } else {
+                        link.classList.remove('bg-blue-100', 'text-blue-700', 'font-medium');
+                        link.classList.add('text-gray-700');
+                    }
+                });
+            }
+
+            // Update on scroll
+            window.addEventListener('scroll', updateActiveSection);
+            updateActiveSection();
+        })();
+    </script>
 </body>
 </html>
