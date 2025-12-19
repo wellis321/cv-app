@@ -6,61 +6,22 @@ $metaDescription = 'Explore rewarding healthcare careers that don\'t require a u
 
 $jobs = [
     [
-        'id' => 'nursing-assistant',
-        'title' => 'Nursing Assistant',
+        'id' => 'mental-health-support-assistant',
+        'title' => 'Mental Health Support Worker',
         'number' => 1,
-        'overview' => 'Nursing Assistants support registered nurses in delivering essential patient care across various healthcare settings. Daily responsibilities include assisting with personal hygiene, recording vital signs, preparing medical equipment, and supporting patient mobility and rehabilitation.',
-        'requirements' => 'No university degree required. Most positions accept GCSE-level education plus relevant healthcare training such as care certificates or introductory healthcare courses covering patient support, safeguarding, and infection control.',
+        'overview' => 'Mental Health Support Workers provide emotional and practical support to individuals facing mental health challenges, helping develop coping strategies and maintain daily routines.',
+        'requirements' => 'Compassion, communication skills, and relevant training. Mental Health or Counselling Support courses boost employability.',
         'salary' => [
-            'Entry Level: £20,000 - £26,000 annually',
-            'Progression: Senior Healthcare Assistant → Nursing Associate → Registered Nurse',
-            'Work Settings: NHS hospitals, care homes, mental health facilities, community services',
+            'Average: £22,000 - £32,000 annually',
+            'Senior/Specialised: £35,000+',
+            'Progression: Support Assistant → Counsellor → Mental Health Practitioner',
         ],
-        'training' => 'Begin with Level 2 or 3 Health & Social Care qualifications. Look for online courses that cover patient care fundamentals, communication techniques, and clinical support procedures.',
-    ],
-    [
-        'id' => 'health-social-care-assistant',
-        'title' => 'Health and Social Care Assistant / Support Worker',
-        'number' => 2,
-        'overview' => 'Support Workers help individuals live safely and comfortably through assistance with personal care, meal preparation, medication administration, and emotional support. They work across hospitals, residential homes, and community settings.',
-        'requirements' => 'Level 2 or Level 3 Health and Social Care certificate or equivalent training. Many employers provide on-the-job training for the right candidates.',
-        'salary' => [
-            'Entry Level: £19,000 - £23,000 annually',
-            'Experienced: Up to £28,000+ with night shifts or senior roles',
-            'Progression: Senior Care → Team Leader → Nursing Assistant',
-        ],
-        'training' => 'Pursue a Level 3 Diploma in Health and Social Care. Focus on learning safeguarding, person-centred care, and professional communication skills.',
-    ],
-    [
-        'id' => 'first-aid-responder',
-        'title' => 'First Aider / Workplace First Aid Responder',
-        'number' => 3,
-        'overview' => 'First Aid Responders handle medical emergencies before professional help arrives, providing immediate care during accidents, injuries, or sudden illnesses. They work across offices, schools, factories, and public facilities.',
-        'requirements' => 'First Aid at Work certificate or equivalent training. Many organisations cover training costs as part of health and safety compliance.',
-        'salary' => [
-            'Average: £20,000 - £30,000 annually',
-            'Progression: Health & Safety Officer → Emergency Care Assistant → Paramedic',
-            'Key Skills: CPR, emergency response, injury management',
-        ],
-        'training' => 'Obtain First Aid at Work certification covering life-saving skills, risk assessment, and UK workplace health and safety protocols.',
-    ],
-    [
-        'id' => 'health-safety-officer',
-        'title' => 'Health and Safety Officer',
-        'number' => 4,
-        'overview' => 'Health and Safety Officers ensure workplaces comply with safety laws, preventing accidents and injuries through risk assessments, policy implementation, employee training, and incident investigation.',
-        'requirements' => 'Level 3 Certificate in Health and Safety or equivalent accredited training. Many professionals begin as First Aid Responders before specialising.',
-        'salary' => [
-            'Average: £28,000 - £45,000 annually',
-            'Senior: £50,000+ for consultants and managers',
-            'Progression: Safety Advisor → HSE Manager → Compliance Consultant',
-        ],
-        'training' => 'Pursue Health and Safety training covering hazard identification, risk assessment, and safety culture promotion in workplace environments.',
+        'training' => 'Study mental health conditions, therapeutic communication, and crisis management through Counselling Skills training.',
     ],
     [
         'id' => 'child-mental-health-support',
         'title' => 'Child Mental Health Support Worker',
-        'number' => 5,
+        'number' => 2,
         'overview' => 'These professionals provide emotional and behavioural support to children experiencing mental health challenges, working in schools, care homes, or community settings to identify early signs of anxiety, depression, or trauma.',
         'requirements' => 'Training in child psychology, safeguarding, or counselling. Practical knowledge of supporting children with mental health issues is often valued over formal qualifications.',
         'salary' => [
@@ -71,22 +32,48 @@ $jobs = [
         'training' => 'Complete Child Mental Health Support Worker training covering emotional development, safeguarding, and child psychology fundamentals.',
     ],
     [
-        'id' => 'reflexology-practitioner',
-        'title' => 'Reflexology / Acupressure Practitioner',
-        'number' => 6,
-        'overview' => 'Practitioners help clients manage pain, anxiety, and stress through natural techniques stimulating the body\'s healing response. They apply pressure to specific points to promote relaxation and balance energy flow.',
-        'requirements' => 'Accredited reflexology or acupressure training. Most practitioners complete online qualifications before gaining wellness setting experience.',
+        'id' => 'emergency-care-assistant',
+        'title' => 'Emergency Care Assistant (ECA)',
+        'number' => 3,
+        'overview' => 'ECAs work alongside paramedics providing life-saving support in urgent situations, responding to emergency calls, transporting patients, and delivering vital first aid or CPR.',
+        'requirements' => 'First aid, patient care, and emergency response training. Many enter after completing healthcare support or ambulance care programmes.',
         'salary' => [
-            'Average: £25,000 - £40,000 annually',
-            'Self-Employed: High earning potential with established client base',
-            'Progression: Complementary Therapist → Holistic Health Specialist → Wellness Consultant',
+            'Entry Level: £22,000 - £28,000 annually',
+            'Experienced: £35,000+ as Paramedic or Technician',
+            'Progression: ECA → Ambulance Technician → Paramedic → Emergency Medical Dispatcher',
         ],
-        'training' => 'Complete reflexology and acupressure courses covering reflex zones, pressure point techniques, and client consultation methods.',
+        'training' => 'Learn patient assessment, trauma response, and essential life support through Emergency Care Assistant training.',
+    ],
+    [
+        'id' => 'first-aid-responder',
+        'title' => 'First Aider / Workplace First Aid Responder',
+        'number' => 4,
+        'overview' => 'First Aid Responders handle medical emergencies before professional help arrives, providing immediate care during accidents, injuries, or sudden illnesses. They work across offices, schools, factories, and public facilities.',
+        'requirements' => 'First Aid at Work certificate or equivalent training. Many organisations cover training costs as part of health and safety compliance.',
+        'salary' => [
+            'Average: £20,000 - £30,000 annually',
+            'Progression: Health & Safety Officer → Emergency Care Assistant → Paramedic',
+            'Key Skills: CPR, emergency response, injury management',
+        ],
+        'training' => 'Obtain First Aid at Work certification covering life-saving skills, risk assessment, and UK workplace health and safety protocols.',
+    ],
+    [
+        'id' => 'laboratory-assistant',
+        'title' => 'Laboratory Assistant / Medical Lab Technician',
+        'number' => 5,
+        'overview' => 'Laboratory Assistants collect and process biological samples, prepare equipment, record data, and assist scientists in testing and research critical for diagnosing and preventing disease.',
+        'requirements' => 'GCSEs (particularly science subjects) and practical lab skills. Medical Laboratory Assistant training provides technical grounding.',
+        'salary' => [
+            'Starting: £20,000 annually',
+            'Experienced: £30,000+ with specialisation',
+            'Progression: Lab Assistant → Lab Technician → Biomedical Scientist',
+        ],
+        'training' => 'Learn laboratory safety, sample handling, and data recording through Laboratory Assistant courses.',
     ],
     [
         'id' => 'medical-transcriptionist',
         'title' => 'Medical Transcriptionist',
-        'number' => 7,
+        'number' => 6,
         'overview' => 'Medical Transcriptionists convert recorded medical reports into written documents such as patient histories, referral letters, and discharge summaries, maintaining accuracy and confidentiality.',
         'requirements' => 'Strong English, grammar, and computer skills plus medical terminology knowledge. All can be learned through accredited training courses.',
         'salary' => [
@@ -98,74 +85,9 @@ $jobs = [
         'training' => 'Learn medical terminology, formatting standards, and transcription techniques through medical transcription training courses.',
     ],
     [
-        'id' => 'nutrition-advisor',
-        'title' => 'Nutrition Advisor / Health Coach',
-        'number' => 8,
-        'overview' => 'Nutrition Advisors help clients improve wellbeing through balanced diet plans, lifestyle guidance, and motivational support, educating on healthy eating habits and disease prevention.',
-        'requirements' => 'Nutrition training or diploma providing foundational knowledge of dietary science, metabolism, and health coaching techniques.',
-        'salary' => [
-            'Average: £22,000 - £35,000 annually',
-            'Freelance/Corporate: £40,000+ for consultants',
-            'Specialisations: Sports nutrition, weight management, clinical health coaching',
-        ],
-        'training' => 'Complete nutrition advisor courses covering evidence-based nutrition, dietary planning, and lifestyle support techniques.',
-    ],
-    [
-        'id' => 'care-home-support',
-        'title' => 'Care Home Support Worker / Residential Care Assistant',
-        'number' => 9,
-        'overview' => 'Care Home Support Workers provide daily assistance, companionship, and emotional support to residents, helping with meals, hygiene, mobility, and medication while ensuring dignity and comfort.',
-        'requirements' => 'Training in health and social care, safeguarding, or dementia awareness. Practical knowledge and caring attitude highly valued.',
-        'salary' => [
-            'Entry Level: £20,000 - £26,000 annually',
-            'Experienced: Up to £32,000+ for team leaders',
-            'Progression: Support Worker → Senior Care Worker → Care Home Manager',
-        ],
-        'training' => 'Pursue Health and Social Care training covering person-centred care, safeguarding, communication, and health and safety.',
-    ],
-    [
-        'id' => 'dental-assistant',
-        'title' => 'Dental Assistant / Dental Receptionist',
-        'number' => 10,
-        'overview' => 'Dental Assistants provide clinical and administrative support, preparing treatment rooms, sterilising instruments, assisting during procedures, and managing patient records and appointments.',
-        'requirements' => 'Dental support or medical administration training covering oral hygiene, infection control, and dental terminology.',
-        'salary' => [
-            'Entry Level: £21,000 - £26,000 annually',
-            'Experienced: £30,000+ in private practice',
-            'Progression: Dental Assistant → Dental Nurse → Practice Manager',
-        ],
-        'training' => 'Complete dental assistant courses covering procedures, communication, record management, and infection prevention.',
-    ],
-    [
-        'id' => 'emergency-care-assistant',
-        'title' => 'Emergency Care Assistant (ECA)',
-        'number' => 11,
-        'overview' => 'ECAs work alongside paramedics providing life-saving support in urgent situations, responding to emergency calls, transporting patients, and delivering vital first aid or CPR.',
-        'requirements' => 'First aid, patient care, and emergency response training. Many enter after completing healthcare support or ambulance care programmes.',
-        'salary' => [
-            'Entry Level: £22,000 - £28,000 annually',
-            'Experienced: £35,000+ as Paramedic or Technician',
-            'Progression: ECA → Ambulance Technician → Paramedic → Emergency Medical Dispatcher',
-        ],
-        'training' => 'Learn patient assessment, trauma response, and essential life support through Emergency Care Assistant training.',
-    ],
-    [
-        'id' => 'hospital-porter',
-        'title' => 'Hospital Porter / Healthcare Support Worker',
-        'number' => 12,
-        'overview' => 'Hospital Porters keep facilities running smoothly by transporting patients between departments, delivering equipment, assisting with meals, and maintaining cleanliness and safety standards.',
-        'requirements' => 'Most employers provide on-the-job training. Healthcare support training or background in health and safety beneficial.',
-        'salary' => [
-            'Entry Level: £20,000 - £25,000 annually',
-            'Experienced: £30,000+ in specialist wards',
-            'Progression: Hospital Porter → Healthcare Assistant → Nursing Associate',
-        ],
-        'training' => 'Gain foundation skills through Healthcare Assistant courses covering patient care, hygiene, communication, and workplace safety.',
-    ],
-    [
         'id' => 'pharmacy-assistant',
         'title' => 'Pharmacy Assistant / Pharmacy Dispenser',
-        'number' => 13,
+        'number' => 7,
         'overview' => 'Pharmacy Assistants support pharmacists in preparing prescriptions, managing stock, advising customers, and ensuring medications are dispensed accurately and safely.',
         'requirements' => 'Basic GCSEs and on-the-job training. Pharmacy Assistant training significantly improves employment prospects.',
         'salary' => [
@@ -178,7 +100,7 @@ $jobs = [
     [
         'id' => 'physiotherapy-assistant',
         'title' => 'Physiotherapy Assistant',
-        'number' => 14,
+        'number' => 8,
         'overview' => 'Physiotherapy Assistants help patients recover from injuries, illnesses, or surgeries by setting up treatment areas, guiding exercises, monitoring progress, and providing motivational support.',
         'requirements' => 'GCSEs and caring attitude. Physiotherapy assistant training or healthcare experience enhances employability.',
         'salary' => [
@@ -189,35 +111,74 @@ $jobs = [
         'training' => 'Study anatomy, rehabilitation techniques, and patient communication through physiotherapy courses.',
     ],
     [
-        'id' => 'laboratory-assistant',
-        'title' => 'Laboratory Assistant / Medical Lab Technician',
-        'number' => 15,
-        'overview' => 'Laboratory Assistants collect and process biological samples, prepare equipment, record data, and assist scientists in testing and research critical for diagnosing and preventing disease.',
-        'requirements' => 'GCSEs (particularly science subjects) and practical lab skills. Medical Laboratory Assistant training provides technical grounding.',
+        'id' => 'hospital-porter',
+        'title' => 'Hospital Porter / Healthcare Support Worker',
+        'number' => 9,
+        'overview' => 'Hospital Porters keep facilities running smoothly by transporting patients between departments, delivering equipment, assisting with meals, and maintaining cleanliness and safety standards.',
+        'requirements' => 'Most employers provide on-the-job training. Healthcare support training or background in health and safety beneficial.',
         'salary' => [
-            'Starting: £20,000 annually',
-            'Experienced: £30,000+ with specialisation',
-            'Progression: Lab Assistant → Lab Technician → Biomedical Scientist',
+            'Entry Level: £20,000 - £25,000 annually',
+            'Experienced: £30,000+ in specialist wards',
+            'Progression: Hospital Porter → Healthcare Assistant → Nursing Associate',
         ],
-        'training' => 'Learn laboratory safety, sample handling, and data recording through Laboratory Assistant courses.',
+        'training' => 'Gain foundation skills through Healthcare Assistant courses covering patient care, hygiene, communication, and workplace safety.',
     ],
     [
-        'id' => 'massage-therapist',
-        'title' => 'Massage Therapist / Holistic Therapist',
-        'number' => 16,
-        'overview' => 'Massage Therapists help clients relieve pain, reduce stress, and improve wellbeing through therapeutic techniques including sports massage, aromatherapy, and reflexology.',
-        'requirements' => 'Practical training and certification from massage therapy courses. University degree not required.',
+        'id' => 'care-home-support',
+        'title' => 'Care Home Support Worker / Residential Care Assistant',
+        'number' => 10,
+        'overview' => 'Care Home Support Workers provide daily assistance, companionship, and emotional support to residents, helping with meals, hygiene, mobility, and medication while ensuring dignity and comfort.',
+        'requirements' => 'Training in health and social care, safeguarding, or dementia awareness. Practical knowledge and caring attitude highly valued.',
         'salary' => [
-            'Average: £22,000 - £35,000 annually',
-            'Self-Employed: £50,000+ with established clientele',
-            'Specialisations: Sports rehabilitation, reflexology, holistic wellness',
+            'Entry Level: £20,000 - £26,000 annually',
+            'Experienced: Up to £32,000+ for team leaders',
+            'Progression: Support Worker → Senior Care Worker → Care Home Manager',
         ],
-        'training' => 'Complete massage therapy training covering anatomy, physiology, and professional massage techniques.',
+        'training' => 'Pursue Health and Social Care training covering person-centred care, safeguarding, communication, and health and safety.',
+    ],
+    [
+        'id' => 'health-social-care-assistant',
+        'title' => 'Health and Social Care Assistant / Support Worker',
+        'number' => 11,
+        'overview' => 'Support Workers help individuals live safely and comfortably through assistance with personal care, meal preparation, medication administration, and emotional support. They work across hospitals, residential homes, and community settings.',
+        'requirements' => 'Level 2 or Level 3 Health and Social Care certificate or equivalent training. Many employers provide on-the-job training for the right candidates.',
+        'salary' => [
+            'Entry Level: £19,000 - £23,000 annually',
+            'Experienced: Up to £28,000+ with night shifts or senior roles',
+            'Progression: Senior Care → Team Leader → Nursing Assistant',
+        ],
+        'training' => 'Pursue a Level 3 Diploma in Health and Social Care. Focus on learning safeguarding, person-centred care, and professional communication skills.',
+    ],
+    [
+        'id' => 'nursing-assistant',
+        'title' => 'Nursing Assistant',
+        'number' => 12,
+        'overview' => 'Nursing Assistants support registered nurses in delivering essential patient care across various healthcare settings. Daily responsibilities include assisting with personal hygiene, recording vital signs, preparing medical equipment, and supporting patient mobility and rehabilitation.',
+        'requirements' => 'No university degree required. Most positions accept GCSE-level education plus relevant healthcare training such as care certificates or introductory healthcare courses covering patient support, safeguarding, and infection control.',
+        'salary' => [
+            'Entry Level: £20,000 - £26,000 annually',
+            'Progression: Senior Healthcare Assistant → Nursing Associate → Registered Nurse',
+            'Work Settings: NHS hospitals, care homes, mental health facilities, community services',
+        ],
+        'training' => 'Begin with Level 2 or 3 Health & Social Care qualifications. Look for online courses that cover patient care fundamentals, communication techniques, and clinical support procedures.',
+    ],
+    [
+        'id' => 'dental-assistant',
+        'title' => 'Dental Assistant / Dental Receptionist',
+        'number' => 13,
+        'overview' => 'Dental Assistants provide clinical and administrative support, preparing treatment rooms, sterilising instruments, assisting during procedures, and managing patient records and appointments.',
+        'requirements' => 'Dental support or medical administration training covering oral hygiene, infection control, and dental terminology.',
+        'salary' => [
+            'Entry Level: £21,000 - £26,000 annually',
+            'Experienced: £30,000+ in private practice',
+            'Progression: Dental Assistant → Dental Nurse → Practice Manager',
+        ],
+        'training' => 'Complete dental assistant courses covering procedures, communication, record management, and infection prevention.',
     ],
     [
         'id' => 'sterile-services-technician',
         'title' => 'Clinical Cleaning Operative / Sterile Services Technician',
-        'number' => 17,
+        'number' => 14,
         'overview' => 'These professionals maintain hygiene and safety by disinfecting patient areas, sterilising surgical instruments, managing infection control protocols, and ensuring equipment meets hospital standards.',
         'requirements' => 'Entry-level positions with on-the-job training. Clinical cleaning or infection control training provides competitive advantage.',
         'salary' => [
@@ -228,17 +189,56 @@ $jobs = [
         'training' => 'Pursue clinical cleaning and infection control training covering sterilisation procedures and safety protocols.',
     ],
     [
-        'id' => 'mental-health-support-assistant',
-        'title' => 'Counselling Support Worker / Mental Health Support Assistant',
-        'number' => 18,
-        'overview' => 'Mental Health Support Workers provide emotional and practical support to individuals facing mental health challenges, helping develop coping strategies and maintain daily routines.',
-        'requirements' => 'Compassion, communication skills, and relevant training. Mental Health or Counselling Support courses boost employability.',
+        'id' => 'massage-therapist',
+        'title' => 'Massage Therapist / Holistic Therapist',
+        'number' => 15,
+        'overview' => 'Massage Therapists help clients relieve pain, reduce stress, and improve wellbeing through therapeutic techniques including sports massage, aromatherapy, and reflexology.',
+        'requirements' => 'Practical training and certification from massage therapy courses. University degree not required.',
         'salary' => [
-            'Average: £22,000 - £32,000 annually',
-            'Senior/Specialised: £35,000+',
-            'Progression: Support Assistant → Counsellor → Mental Health Practitioner',
+            'Average: £22,000 - £35,000 annually',
+            'Self-Employed: £50,000+ with established clientele',
+            'Specialisations: Sports rehabilitation, reflexology, holistic wellness',
         ],
-        'training' => 'Study mental health conditions, therapeutic communication, and crisis management through Counselling Skills training.',
+        'training' => 'Complete massage therapy training covering anatomy, physiology, and professional massage techniques.',
+    ],
+    [
+        'id' => 'reflexology-practitioner',
+        'title' => 'Reflexology / Acupressure Practitioner',
+        'number' => 16,
+        'overview' => 'Practitioners help clients manage pain, anxiety, and stress through natural techniques stimulating the body\'s healing response. They apply pressure to specific points to promote relaxation and balance energy flow.',
+        'requirements' => 'Accredited reflexology or acupressure training. Most practitioners complete online qualifications before gaining wellness setting experience.',
+        'salary' => [
+            'Average: £25,000 - £40,000 annually',
+            'Self-Employed: High earning potential with established client base',
+            'Progression: Complementary Therapist → Holistic Health Specialist → Wellness Consultant',
+        ],
+        'training' => 'Complete reflexology and acupressure courses covering reflex zones, pressure point techniques, and client consultation methods.',
+    ],
+    [
+        'id' => 'nutrition-advisor',
+        'title' => 'Nutrition Advisor / Health Coach',
+        'number' => 17,
+        'overview' => 'Nutrition Advisors help clients improve wellbeing through balanced diet plans, lifestyle guidance, and motivational support, educating on healthy eating habits and disease prevention.',
+        'requirements' => 'Nutrition training or diploma providing foundational knowledge of dietary science, metabolism, and health coaching techniques.',
+        'salary' => [
+            'Average: £22,000 - £35,000 annually',
+            'Freelance/Corporate: £40,000+ for consultants',
+            'Specialisations: Sports nutrition, weight management, clinical health coaching',
+        ],
+        'training' => 'Complete nutrition advisor courses covering evidence-based nutrition, dietary planning, and lifestyle support techniques.',
+    ],
+    [
+        'id' => 'health-safety-officer',
+        'title' => 'Health and Safety Officer',
+        'number' => 18,
+        'overview' => 'Health and Safety Officers ensure workplaces comply with safety laws, preventing accidents and injuries through risk assessments, policy implementation, employee training, and incident investigation.',
+        'requirements' => 'Level 3 Certificate in Health and Safety or equivalent accredited training. Many professionals begin as First Aid Responders before specialising.',
+        'salary' => [
+            'Average: £28,000 - £45,000 annually',
+            'Senior: £50,000+ for consultants and managers',
+            'Progression: Safety Advisor → HSE Manager → Compliance Consultant',
+        ],
+        'training' => 'Pursue Health and Safety training covering hazard identification, risk assessment, and safety culture promotion in workplace environments.',
     ],
 ];
 
@@ -440,7 +440,7 @@ $jobs = [
             </div>
 
             <div class="space-y-6 text-base leading-relaxed text-slate-700">
-                <p>Selecting the right healthcare career depends on your personality, interests, and lifestyle preferences. Consider these key factors:</p>
+                <p>Every healthcare role offers something unique. The key is matching your natural strengths and preferences to the right opportunity. Here's what to consider:</p>
 
                 <div class="relative">
                     <!-- Floating image on the right -->
@@ -453,10 +453,10 @@ $jobs = [
                     </div>
 
                     <div>
-                        <h3 class="font-semibold text-slate-900 mb-3">Your Work Style Preferences</h3>
-                        <p class="mb-2"><strong>Patient Contact:</strong> Do you enjoy direct interaction (nursing assistant, care worker) or prefer behind-the-scenes work (lab assistant, medical transcriptionist)?</p>
-                        <p class="mb-2"><strong>Physical Activity:</strong> Some roles are physically demanding (hospital porter, physiotherapy assistant) while others are more sedentary (medical transcriptionist, health and safety officer).</p>
-                        <p><strong>Work Environment:</strong> Consider whether you'd prefer hospitals, clinics, community settings, laboratories, or remote work.</p>
+                        <h3 class="font-semibold text-slate-900 mb-3">Consider Your Natural Strengths</h3>
+                        <p class="mb-2">Are you someone who thrives on helping others directly, or do you prefer supporting healthcare operations behind the scenes? Mental health support and care work involve regular interaction, while roles like medical transcription or laboratory work offer more independent, focused environments.</p>
+                        <p class="mb-2">Think about your energy levels too. Emergency care and hospital portering are active roles, whereas administrative positions offer more desk-based work. Both are equally valuable in healthcare.</p>
+                        <p>Location matters as well. Some roles take you into hospitals and clinics daily, while others allow remote work or community-based settings. Consider what environment helps you perform at your best.</p>
                     </div>
                     <div class="clear-both"></div>
                 </div>
@@ -472,21 +472,21 @@ $jobs = [
                     </div>
 
                     <div>
-                        <h3 class="font-semibold text-slate-900 mb-3">Schedule and Work-Life Balance</h3>
-                        <p class="mb-2"><strong>Shift Patterns:</strong> Many healthcare roles offer flexible shifts, including nights and weekends.</p>
-                        <p class="mb-2"><strong>Part-Time Options:</strong> Roles like massage therapy and nutrition coaching often allow part-time or freelance work.</p>
-                        <p><strong>Career Progression:</strong> Some paths offer clear advancement (nursing assistant to registered nurse) while others focus on specialisation (sports massage, dermatology).</p>
+                        <h3 class="font-semibold text-slate-900 mb-3">Flexibility and Growth Opportunities</h3>
+                        <p class="mb-2">Healthcare offers remarkable flexibility. Many positions accommodate part-time schedules, night shifts, or weekend work—perfect if you're balancing other commitments. Roles like nutrition coaching and massage therapy often allow self-employment, giving you control over your schedule.</p>
+                        <p class="mb-2">Career development paths vary by role. Some positions offer clear progression routes (like moving from healthcare assistant to nursing associate), while others encourage specialisation in areas like sports rehabilitation or holistic wellness.</p>
+                        <p>Remember, you're not locked into one path. Many healthcare professionals start in one area and transition to another as their interests evolve. The skills you gain are often transferable across different healthcare settings.</p>
                     </div>
                     <div class="clear-both"></div>
                 </div>
 
                 <div>
-                    <h3 class="font-semibold text-slate-900 mb-3">Getting Started</h3>
-                    <p>The beauty of healthcare careers is their accessibility. You don't need to commit to one path forever—many professionals start in one role and transition to another as they discover their interests and strengths.</p>
+                    <h3 class="font-semibold text-slate-900 mb-3">Making Your Decision</h3>
+                    <p>There's no single "right" healthcare career—only the one that fits you best. Start by identifying roles that align with your interests, then explore training options. Many entry-level positions provide on-the-job learning, while others benefit from completing accredited courses first.</p>
                 </div>
 
                 <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-base text-emerald-800">
-                    <strong>Pro Tip:</strong> Start with a single course that matches your interests—Health and Social Care, First Aid, or Mental Health Support—and grow your career step by step. Many courses can be completed online while you continue working.
+                    <strong>Pro Tip:</strong> Don't feel pressured to choose immediately. Many people start with a general healthcare course like Health and Social Care or Mental Health Support, then specialise once they've gained experience and discovered what they enjoy most.
                 </div>
             </div>
         </div>
@@ -505,7 +505,7 @@ $jobs = [
             </div>
 
             <div class="space-y-6 text-base leading-relaxed text-slate-700">
-                <p>The healthcare industry welcomes people from all backgrounds—no degree required. What matters most is compassion, commitment, and willingness to learn.</p>
+                <p>Starting a healthcare career is more accessible than many people realise. With the right training and determination, you can enter this rewarding field regardless of your educational background.</p>
 
                 <div class="relative">
                     <!-- Floating image on the right -->
@@ -518,12 +518,11 @@ $jobs = [
                     </div>
 
                     <div>
-                        <h3 class="font-semibold text-slate-900 mb-3">Why Choose Healthcare?</h3>
-                        <p class="mb-2"><strong>Job Security:</strong> Healthcare is one of the fastest-growing sectors with thousands of vacancies nationwide.</p>
-                        <p class="mb-2"><strong>Meaningful Work:</strong> Make a real difference in people's lives every day.</p>
-                        <p class="mb-2"><strong>Career Progression:</strong> Clear pathways from entry-level to senior positions.</p>
-                        <p class="mb-2"><strong>Flexible Learning:</strong> Train online while working, with accredited qualifications recognised across the industry.</p>
-                        <p><strong>Competitive Pay:</strong> Many roles offer good starting salaries with potential to earn £30,000-£50,000+ with experience.</p>
+                        <h3 class="font-semibold text-slate-900 mb-3">The Benefits of a Healthcare Career</h3>
+                        <p class="mb-2">Healthcare roles provide exceptional job security. With an ageing population and ongoing staffing needs, opportunities continue to grow across the UK. Whether you're interested in patient care, clinical support, or wellness services, there's consistent demand for skilled professionals.</p>
+                        <p class="mb-2">Beyond stability, healthcare careers offer genuine purpose. Every day, you'll contribute to improving people's wellbeing and quality of life. This sense of meaning often leads to high job satisfaction.</p>
+                        <p class="mb-2">The sector also provides clear advancement opportunities. Many professionals begin in entry-level positions and progress to senior roles through experience and additional training. Starting salaries are competitive, with many roles offering £20,000-£30,000+ and potential to reach £40,000-£50,000+ with specialisation.</p>
+                        <p>Training is flexible too. Accredited online courses allow you to learn while maintaining your current job or other commitments, making career transitions smoother.</p>
                     </div>
                     <div class="clear-both"></div>
                 </div>
@@ -539,13 +538,14 @@ $jobs = [
                     </div>
 
                     <div>
-                        <h3 class="font-semibold text-slate-900 mb-3">How to Get Started</h3>
-                        <ol class="list-decimal list-inside space-y-2 ml-2">
-                            <li><strong>Research Roles:</strong> Review the jobs above and identify which align with your interests and strengths</li>
-                            <li><strong>Choose Training:</strong> Select an accredited course that provides the foundation for your chosen path</li>
-                            <li><strong>Gain Experience:</strong> Look for volunteer opportunities, apprenticeships, or entry-level positions</li>
-                            <li><strong>Build Your CV:</strong> Highlight your training, any healthcare experience, and transferable skills from other jobs</li>
-                            <li><strong>Apply Strategically:</strong> Target NHS trusts, private clinics, care homes, or wellness centres depending on your interests</li>
+                        <h3 class="font-semibold text-slate-900 mb-3">Your Action Plan</h3>
+                        <p class="mb-3">Ready to begin? Follow these steps to launch your healthcare career:</p>
+                        <ol class="list-decimal list-inside space-y-3 ml-2">
+                            <li><strong>Explore Your Options:</strong> Review the roles listed above and note which ones resonate with your interests, skills, and lifestyle preferences.</li>
+                            <li><strong>Find the Right Training:</strong> Research accredited courses that match your chosen path. Look for programmes that offer practical skills and recognised certifications.</li>
+                            <li><strong>Build Experience:</strong> Consider volunteering, shadowing opportunities, or entry-level positions to gain hands-on experience and confirm your interest.</li>
+                            <li><strong>Create a Strong Application:</strong> Develop a CV that highlights your training, any relevant experience, and transferable skills from previous roles or life experience.</li>
+                            <li><strong>Apply with Confidence:</strong> Target employers that match your interests—whether that's the NHS, private healthcare providers, care homes, or wellness centres.</li>
                         </ol>
                     </div>
                     <div class="clear-both"></div>
