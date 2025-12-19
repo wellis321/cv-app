@@ -14,7 +14,6 @@ $jobs = [
         'salary' => [
             'Average: £22,000 - £32,000 annually',
             'Senior/Specialised: £35,000+',
-            'Support Assistant → Counsellor → Mental Health Practitioner',
         ],
         'training' => 'Study mental health conditions, therapeutic communication, and crisis management through Counselling Skills training.',
     ],
@@ -27,7 +26,6 @@ $jobs = [
         'salary' => [
             'Entry Level: £20,000 - £26,000 annually',
             'Experienced: Up to £32,000+ in educational settings',
-            'Child Wellbeing Practitioner → Mental Health Coordinator',
         ],
         'training' => 'Complete Child Mental Health Support Worker training covering emotional development, safeguarding, and child psychology fundamentals.',
     ],
@@ -40,7 +38,6 @@ $jobs = [
         'salary' => [
             'Entry Level: £22,000 - £28,000 annually',
             'Experienced: £35,000+ as Paramedic or Technician',
-            'ECA → Ambulance Technician → Paramedic → Emergency Medical Dispatcher',
         ],
         'training' => 'Learn patient assessment, trauma response, and essential life support through Emergency Care Assistant training.',
     ],
@@ -52,7 +49,6 @@ $jobs = [
         'requirements' => 'First Aid at Work certificate or equivalent training. Many organisations cover training costs as part of health and safety compliance.',
         'salary' => [
             'Average: £20,000 - £30,000 annually',
-            'Health & Safety Officer → Emergency Care Assistant → Paramedic',
             'Key Skills: CPR, emergency response, injury management',
         ],
         'training' => 'Obtain First Aid at Work certification covering life-saving skills, risk assessment, and UK workplace health and safety protocols.',
@@ -66,7 +62,6 @@ $jobs = [
         'salary' => [
             'Starting: £20,000 annually',
             'Experienced: £30,000+ with specialisation',
-            'Lab Assistant → Lab Technician → Biomedical Scientist',
         ],
         'training' => 'Learn laboratory safety, sample handling, and data recording through Laboratory Assistant courses.',
     ],
@@ -80,7 +75,6 @@ $jobs = [
             'Entry Level: £20,000 - £28,000 annually',
             'Experienced: Up to £35,000+ in specialised fields',
             'Benefits: Remote work options and flexible schedules',
-            'Transcriptionist → Transcription Editor → Medical Secretary',
         ],
         'training' => 'Learn medical terminology, formatting standards, and transcription techniques through medical transcription training courses.',
     ],
@@ -93,7 +87,6 @@ $jobs = [
         'salary' => [
             'Average: £20,000 - £27,000 annually',
             'Experienced: £30,000+ as Pharmacy Technician',
-            'Pharmacy Assistant → Pharmacy Technician → Senior Dispenser',
         ],
         'training' => 'Complete Pharmacy Assistant training covering pharmaceutical practice, stock control, and customer care.',
     ],
@@ -106,7 +99,6 @@ $jobs = [
         'salary' => [
             'Average: £21,000 - £29,000 annually',
             'Private Clinics: Up to £35,000+',
-            'Physiotherapy Assistant → Senior Assistant → Qualified Physiotherapist',
         ],
         'training' => 'Study anatomy, rehabilitation techniques, and patient communication through physiotherapy courses.',
     ],
@@ -119,7 +111,6 @@ $jobs = [
         'salary' => [
             'Entry Level: £20,000 - £25,000 annually',
             'Experienced: £30,000+ in specialist wards',
-            'Hospital Porter → Healthcare Assistant → Nursing Associate',
         ],
         'training' => 'Gain foundation skills through Healthcare Assistant courses covering patient care, hygiene, communication, and workplace safety.',
     ],
@@ -132,7 +123,6 @@ $jobs = [
         'salary' => [
             'Entry Level: £20,000 - £26,000 annually',
             'Experienced: Up to £32,000+ for team leaders',
-            'Support Worker → Senior Care Worker → Care Home Manager',
         ],
         'training' => 'Pursue Health and Social Care training covering person-centred care, safeguarding, communication, and health and safety.',
     ],
@@ -145,7 +135,6 @@ $jobs = [
         'salary' => [
             'Entry Level: £19,000 - £23,000 annually',
             'Experienced: Up to £28,000+ with night shifts or senior roles',
-            'Senior Care → Team Leader → Nursing Assistant',
         ],
         'training' => 'Pursue a Level 3 Diploma in Health and Social Care. Focus on learning safeguarding, person-centred care, and professional communication skills.',
     ],
@@ -157,7 +146,6 @@ $jobs = [
         'requirements' => 'No university degree required. Most positions accept GCSE-level education plus relevant healthcare training such as care certificates or introductory healthcare courses covering patient support, safeguarding, and infection control.',
         'salary' => [
             'Entry Level: £20,000 - £26,000 annually',
-            'Senior Healthcare Assistant → Nursing Associate → Registered Nurse',
             'Work Settings: NHS hospitals, care homes, mental health facilities, community services',
         ],
         'training' => 'Begin with Level 2 or 3 Health & Social Care qualifications. Look for online courses that cover patient care fundamentals, communication techniques, and clinical support procedures.',
@@ -171,7 +159,6 @@ $jobs = [
         'salary' => [
             'Entry Level: £21,000 - £26,000 annually',
             'Experienced: £30,000+ in private practice',
-            'Dental Assistant → Dental Nurse → Practice Manager',
         ],
         'training' => 'Complete dental assistant courses covering procedures, communication, record management, and infection prevention.',
     ],
@@ -210,7 +197,6 @@ $jobs = [
         'salary' => [
             'Average: £25,000 - £40,000 annually',
             'Self-Employed: High earning potential with established client base',
-            'Complementary Therapist → Holistic Health Specialist → Wellness Consultant',
         ],
         'training' => 'Complete reflexology and acupressure courses covering reflex zones, pressure point techniques, and client consultation methods.',
     ],
@@ -236,7 +222,6 @@ $jobs = [
         'salary' => [
             'Average: £28,000 - £45,000 annually',
             'Senior: £50,000+ for consultants and managers',
-            'Safety Advisor → HSE Manager → Compliance Consultant',
         ],
         'training' => 'Pursue Health and Safety training covering hazard identification, risk assessment, and safety culture promotion in workplace environments.',
     ],
