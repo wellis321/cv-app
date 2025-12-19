@@ -33,8 +33,8 @@ $sections = [
         'description' => 'Explore opportunities across industries and choose the next chapter of your career.',
         'articles' => [
             [
-                'title' => 'Healthcare Support Roles That Don\'t Require a Degree',
-                'excerpt' => 'Explore 20 rewarding healthcare careers that don\'t require a university degree. Learn about salaries, training paths, and how to start your healthcare career today.',
+                'title' => 'Healthcare Career Paths: Start Your Journey Without a Degree',
+                'excerpt' => 'Discover rewarding healthcare support roles you can start without a university degree. Learn about entry-level positions, training requirements, salaries, and how to begin your healthcare career today.',
                 'href' => '/resources/jobs/entry-level-healthcare-careers.php',
                 'cta' => 'Read full guide',
             ],

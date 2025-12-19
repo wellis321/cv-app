@@ -66,22 +66,9 @@ $jobs = [
         'training' => 'Learn laboratory safety, sample handling, and data recording through Laboratory Assistant courses.',
     ],
     [
-        'id' => 'medical-transcriptionist',
-        'title' => 'Medical Transcriptionist',
-        'number' => 6,
-        'overview' => 'Medical Transcriptionists convert recorded medical reports into written documents such as patient histories, referral letters, and discharge summaries, maintaining accuracy and confidentiality.',
-        'requirements' => 'Strong English, grammar, and computer skills plus medical terminology knowledge. All can be learned through accredited training courses.',
-        'salary' => [
-            'Entry Level: £20,000 - £28,000 annually',
-            'Experienced: Up to £35,000+ in specialised fields',
-            'Benefits: Remote work options and flexible schedules',
-        ],
-        'training' => 'Learn medical terminology, formatting standards, and transcription techniques through medical transcription training courses.',
-    ],
-    [
         'id' => 'pharmacy-assistant',
-        'title' => 'Pharmacy Assistant / Pharmacy Dispenser',
-        'number' => 7,
+        'title' => 'Pharmacy Assistant',
+        'number' => 6,
         'overview' => 'Pharmacy Assistants support pharmacists in preparing prescriptions, managing stock, advising customers, and ensuring medications are dispensed accurately and safely.',
         'requirements' => 'Basic GCSEs and on-the-job training. Pharmacy Assistant training significantly improves employment prospects.',
         'salary' => [
@@ -93,7 +80,7 @@ $jobs = [
     [
         'id' => 'physiotherapy-assistant',
         'title' => 'Physiotherapy Assistant',
-        'number' => 8,
+        'number' => 7,
         'overview' => 'Physiotherapy Assistants help patients recover from injuries, illnesses, or surgeries by setting up treatment areas, guiding exercises, monitoring progress, and providing motivational support.',
         'requirements' => 'GCSEs and caring attitude. Physiotherapy assistant training or healthcare experience enhances employability.',
         'salary' => [
@@ -105,7 +92,7 @@ $jobs = [
     [
         'id' => 'hospital-porter',
         'title' => 'Hospital Porter',
-        'number' => 9,
+        'number' => 8,
         'overview' => 'Hospital Porters keep facilities running smoothly by transporting patients between departments, delivering equipment, assisting with meals, and maintaining cleanliness and safety standards.',
         'requirements' => 'Most employers provide on-the-job training. Healthcare support training or background in health and safety beneficial.',
         'salary' => [
@@ -115,21 +102,9 @@ $jobs = [
         'training' => 'Gain foundation skills through Healthcare Assistant courses covering patient care, hygiene, communication, and workplace safety.',
     ],
     [
-        'id' => 'care-home-support',
-        'title' => 'Care Home Support Worker',
-        'number' => 10,
-        'overview' => 'Care Home Support Workers provide daily assistance, companionship, and emotional support to residents, helping with meals, hygiene, mobility, and medication while ensuring dignity and comfort.',
-        'requirements' => 'Training in health and social care, safeguarding, or dementia awareness. Practical knowledge and caring attitude highly valued.',
-        'salary' => [
-            'Entry Level: £20,000 - £26,000 annually',
-            'Experienced: Up to £32,000+ for team leaders',
-        ],
-        'training' => 'Pursue Health and Social Care training covering person-centred care, safeguarding, communication, and health and safety.',
-    ],
-    [
         'id' => 'health-social-care-assistant',
         'title' => 'Support Worker',
-        'number' => 11,
+        'number' => 9,
         'overview' => 'Support Workers help individuHealth and Social Care Assistantals live safely and comfortably through assistance with personal care, meal preparation, medication administration, and emotional support. They work across hospitals, residential homes, and community settings.',
         'requirements' => 'Level 2 or Level 3 Health and Social Care certificate or equivalent training. Many employers provide on-the-job training for the right candidates.',
         'salary' => [
@@ -141,7 +116,7 @@ $jobs = [
     [
         'id' => 'nursing-assistant',
         'title' => 'Nursing Assistant',
-        'number' => 12,
+        'number' => 10,
         'overview' => 'Nursing Assistants support registered nurses in delivering essential patient care across various healthcare settings. Daily responsibilities include assisting with personal hygiene, recording vital signs, preparing medical equipment, and supporting patient mobility and rehabilitation.',
         'requirements' => 'No university degree required. Most positions accept GCSE-level education plus relevant healthcare training such as care certificates or introductory healthcare courses covering patient support, safeguarding, and infection control.',
         'salary' => [
@@ -153,7 +128,7 @@ $jobs = [
     [
         'id' => 'dental-assistant',
         'title' => 'Dental Assistant',
-        'number' => 13,
+        'number' => 11,
         'overview' => 'Dental Assistants provide clinical and administrative support, preparing treatment rooms, sterilising instruments, assisting during procedures, and managing patient records and appointments.',
         'requirements' => 'Dental support or medical administration training covering oral hygiene, infection control, and dental terminology.',
         'salary' => [
@@ -165,7 +140,7 @@ $jobs = [
     [
         'id' => 'sterile-services-technician',
         'title' => 'Cleaning Services',
-        'number' => 14,
+        'number' => 12,
         'overview' => 'These professionals maintain hygiene and safety by disinfecting patient areas, sterilising surgical instruments, managing infection control protocols, and ensuring equipment meets hospital standards.',
         'requirements' => 'Entry-level positions with on-the-job training. Clinical cleaning or infection control training provides competitive advantage.',
         'salary' => [
@@ -178,7 +153,7 @@ $jobs = [
     [
         'id' => 'massage-therapist',
         'title' => 'Massage Therapist',
-        'number' => 15,
+        'number' => 13,
         'overview' => 'Massage Therapists help clients relieve pain, reduce stress, and improve wellbeing through therapeutic techniques including sports massage, aromatherapy, and reflexology.',
         'requirements' => 'Practical training and certification from massage therapy courses. University degree not required.',
         'salary' => [
@@ -191,7 +166,7 @@ $jobs = [
     [
         'id' => 'nutrition-advisor',
         'title' => 'Nutrition Coach',
-        'number' => 16,
+        'number' => 14,
         'overview' => 'Nutrition Advisors help clients improve wellbeing through balanced diet plans, lifestyle guidance, and motivational support, educating on healthy eating habits and disease prevention.',
         'requirements' => 'Nutrition training or diploma providing foundational knowledge of dietary science, metabolism, and health coaching techniques.',
         'salary' => [
@@ -204,7 +179,7 @@ $jobs = [
     [
         'id' => 'health-safety-officer',
         'title' => 'Health and Safety Officer',
-        'number' => 17,
+        'number' => 15,
         'overview' => 'Health and Safety Officers ensure workplaces comply with safety laws, preventing accidents and injuries through risk assessments, policy implementation, employee training, and incident investigation.',
         'requirements' => 'Level 3 Certificate in Health and Safety or equivalent accredited training. Many professionals begin as First Aid Responders before specialising.',
         'salary' => [
@@ -327,9 +302,7 @@ $jobs = [
             'first-aid-responder' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>',
             'health-safety-officer' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>',
             'child-mental-health-support' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>',
-            'medical-transcriptionist' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>',
             'nutrition-advisor' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>',
-            'care-home-support' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>',
             'dental-assistant' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>',
             'emergency-care-assistant' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>',
             'hospital-porter' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>',

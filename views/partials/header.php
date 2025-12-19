@@ -36,22 +36,7 @@
                     <a href="/preview-cv.php" class="<?php echo $isPreview ? 'text-blue-600 font-medium' : 'text-gray-700 hover:text-blue-600'; ?>">Preview & PDF</a>
                     <a href="/subscription.php" class="<?php echo $isSubscription ? 'text-blue-600 font-medium' : 'text-gray-700 hover:text-blue-600'; ?>">Subscription</a>
                     <a href="/how-it-works.php" class="text-gray-700 hover:text-blue-600">Help</a>
-                    <div class="relative group">
-                        <button type="button" aria-expanded="false" aria-haspopup="true" aria-label="Resources menu" class="flex items-center gap-1 text-gray-700 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded">
-                            Resources
-                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                            </svg>
-                        </button>
-                        <div role="menu" class="absolute right-0 top-full hidden min-w-[12rem] rounded-lg border border-gray-200 bg-white py-2 shadow-lg group-hover:block">
-                            <a href="/resources/jobs/" role="menuitem" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:bg-gray-50">Job Market Insights</a>
-                            <a href="/resources/passive-income/" role="menuitem" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:bg-gray-50">Passive Income Ideas</a>
-                            <a href="/resources/career/" role="menuitem" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:bg-gray-50">Career Advice Hub</a>
-                            <a href="/resources/extra-income/" role="menuitem" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:bg-gray-50">Extra Income Ideas</a>
-                            <div class="border-t border-gray-200 my-1"></div>
-                            <a href="https://simple-job-tracker.com/landing.php" target="_blank" rel="noopener" role="menuitem" class="block px-4 py-2 text-sm text-emerald-600 hover:bg-emerald-50 focus:outline-none focus:bg-emerald-50 font-medium">Simple Job Tracker</a>
-                        </div>
-                    </div>
+                    <a href="/resources/" class="text-gray-700 hover:text-blue-600">Resources</a>
                     <a href="/cv.php" class="text-gray-700 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded">View CV</a>
                     <a href="/logout.php" class="text-gray-700 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded">Sign Out</a>
                 <?php else: ?>
@@ -65,22 +50,7 @@
                     <a href="<?php echo e($pricingUrl); ?>" class="text-gray-700 hover:text-blue-600">Pricing</a>
                     <a href="/how-it-works.php" class="text-gray-700 hover:text-blue-600">How it works</a>
                     <a href="/faq.php" class="text-gray-700 hover:text-blue-600">FAQ</a>
-                    <div class="relative group">
-                        <button type="button" aria-expanded="false" aria-haspopup="true" aria-label="Resources menu" class="flex items-center gap-1 text-gray-700 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded">
-                            Resources
-                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                            </svg>
-                        </button>
-                        <div role="menu" class="absolute right-0 top-full hidden min-w-[12rem] rounded-lg border border-gray-200 bg-white py-2 shadow-lg group-hover:block">
-                            <a href="/resources/jobs/" role="menuitem" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:bg-gray-50">Job Market Insights</a>
-                            <a href="/resources/passive-income/" role="menuitem" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:bg-gray-50">Passive Income Ideas</a>
-                            <a href="/resources/career/" role="menuitem" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:bg-gray-50">Career Advice Hub</a>
-                            <a href="/resources/extra-income/" role="menuitem" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:bg-gray-50">Extra Income Ideas</a>
-                            <div class="border-t border-gray-200 my-1"></div>
-                            <a href="https://simple-job-tracker.com/landing.php" target="_blank" rel="noopener" role="menuitem" class="block px-4 py-2 text-sm text-emerald-600 hover:bg-emerald-50 focus:outline-none focus:bg-emerald-50 font-medium">Simple Job Tracker</a>
-                        </div>
-                    </div>
+                    <a href="/resources/" class="text-gray-700 hover:text-blue-600">Resources</a>
                     <button type="button"
                             data-open-login
                             aria-label="Log in"
@@ -113,22 +83,7 @@
                     <a href="/preview-cv.php" class="<?php echo $isPreview ? 'text-blue-600 font-medium bg-blue-50' : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'; ?> px-4 py-2 rounded-md text-sm">Preview & PDF</a>
                     <a href="/subscription.php" class="<?php echo $isSubscription ? 'text-blue-600 font-medium bg-blue-50' : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'; ?> px-4 py-2 rounded-md text-sm">Subscription</a>
                     <a href="/how-it-works.php" class="text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-4 py-2 rounded-md text-sm">Help</a>
-                    <div class="px-4 py-2">
-                        <button type="button" id="mobile-resources-toggle" class="flex items-center justify-between w-full text-gray-700 hover:text-blue-600 text-sm" aria-expanded="false">
-                            <span>Resources</span>
-                            <svg class="h-4 w-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                            </svg>
-                        </button>
-                        <div id="mobile-resources-menu" class="hidden mt-2 pl-4 space-y-1">
-                            <a href="/resources/jobs/" class="block text-gray-600 hover:text-blue-600 px-4 py-2 rounded-md text-sm">Job Market Insights</a>
-                            <a href="/resources/passive-income/" class="block text-gray-600 hover:text-blue-600 px-4 py-2 rounded-md text-sm">Passive Income Ideas</a>
-                            <a href="/resources/career/" class="block text-gray-600 hover:text-blue-600 px-4 py-2 rounded-md text-sm">Career Advice Hub</a>
-                            <a href="/resources/extra-income/" class="block text-gray-600 hover:text-blue-600 px-4 py-2 rounded-md text-sm">Extra Income Ideas</a>
-                            <div class="border-t border-gray-200 my-2"></div>
-                            <a href="https://simple-job-tracker.com/landing.php" target="_blank" rel="noopener" class="block text-emerald-600 hover:text-emerald-700 px-4 py-2 rounded-md text-sm font-medium">Simple Job Tracker</a>
-                        </div>
-                    </div>
+                    <a href="/resources/" class="text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-4 py-2 rounded-md text-sm">Resources</a>
                     <a href="/cv.php" class="text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-4 py-2 rounded-md text-sm">View CV</a>
                     <a href="/logout.php" class="text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-4 py-2 rounded-md text-sm">Sign Out</a>
                 <?php else: ?>
@@ -142,22 +97,7 @@
                     <a href="<?php echo e($pricingUrl); ?>" class="text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-4 py-2 rounded-md text-sm">Pricing</a>
                     <a href="/how-it-works.php" class="text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-4 py-2 rounded-md text-sm">How it works</a>
                     <a href="/faq.php" class="text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-4 py-2 rounded-md text-sm">FAQ</a>
-                    <div class="px-4 py-2">
-                        <button type="button" id="mobile-resources-toggle" class="flex items-center justify-between w-full text-gray-700 hover:text-blue-600 text-sm" aria-expanded="false">
-                            <span>Resources</span>
-                            <svg class="h-4 w-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                            </svg>
-                        </button>
-                        <div id="mobile-resources-menu" class="hidden mt-2 pl-4 space-y-1">
-                            <a href="/resources/jobs/" class="block text-gray-600 hover:text-blue-600 px-4 py-2 rounded-md text-sm">Job Market Insights</a>
-                            <a href="/resources/passive-income/" class="block text-gray-600 hover:text-blue-600 px-4 py-2 rounded-md text-sm">Passive Income Ideas</a>
-                            <a href="/resources/career/" class="block text-gray-600 hover:text-blue-600 px-4 py-2 rounded-md text-sm">Career Advice Hub</a>
-                            <a href="/resources/extra-income/" class="block text-gray-600 hover:text-blue-600 px-4 py-2 rounded-md text-sm">Extra Income Ideas</a>
-                            <div class="border-t border-gray-200 my-2"></div>
-                            <a href="https://simple-job-tracker.com/landing.php" target="_blank" rel="noopener" class="block text-emerald-600 hover:text-emerald-700 px-4 py-2 rounded-md text-sm font-medium">Simple Job Tracker</a>
-                        </div>
-                    </div>
+                    <a href="/resources/" class="text-gray-700 hover:text-blue-600 hover:bg-gray-50 px-4 py-2 rounded-md text-sm">Resources</a>
                     <div class="px-4 py-2 space-y-2">
                         <button type="button"
                                 data-open-login
@@ -182,8 +122,6 @@
 (function() {
     const mobileMenuButton = document.getElementById('mobile-menu-button');
     const mobileMenu = document.getElementById('mobile-menu');
-    const mobileResourcesToggle = document.getElementById('mobile-resources-toggle');
-    const mobileResourcesMenu = document.getElementById('mobile-resources-menu');
 
     if (mobileMenuButton && mobileMenu) {
         mobileMenuButton.addEventListener('click', function() {
@@ -199,20 +137,6 @@
                 } else {
                     icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>';
                 }
-            }
-        });
-    }
-
-    if (mobileResourcesToggle && mobileResourcesMenu) {
-        mobileResourcesToggle.addEventListener('click', function() {
-            const isExpanded = mobileResourcesToggle.getAttribute('aria-expanded') === 'true';
-            mobileResourcesToggle.setAttribute('aria-expanded', !isExpanded);
-            mobileResourcesMenu.classList.toggle('hidden');
-
-            // Rotate arrow icon
-            const arrow = mobileResourcesToggle.querySelector('svg');
-            if (arrow) {
-                arrow.classList.toggle('rotate-180');
             }
         });
     }
