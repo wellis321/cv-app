@@ -363,24 +363,21 @@ $faqs = [
     </article>
 
     <!-- Introduction Section -->
-    <section id="introduction" class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <section id="introduction" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg shadow-slate-900/5">
-            <div class="flex flex-col lg:flex-row gap-6">
-                <div class="flex-1">
-                    <h2 class="text-2xl font-semibold text-slate-900 mb-4">Your Path to a Healthcare Career Starts Here</h2>
-                    <div class="space-y-4 text-base leading-relaxed text-slate-700">
-                        <p>The healthcare sector is experiencing unprecedented growth. With an ageing population and persistent staffing shortages, opportunities have never been greater for those seeking meaningful work. The best part? Many healthcare careers are accessible through short training programmes rather than expensive university degrees.</p>
-                        <p>From patient care and emergency support to laboratory work and mental health assistance, entry-level roles form the foundation of the healthcare system. These positions help hospitals, clinics, and care facilities deliver safe, effective care every day.</p>
-                        <p>In this comprehensive guide, we'll explore 20 healthcare jobs you can pursue with accredited training courses, vocational qualifications, or on-the-job learning. Whether you're a career changer, school leaver, or seeking more fulfilling work, there's a healthcare path waiting for you.</p>
-                    </div>
-                </div>
-                <div class="lg:w-64 lg:flex-shrink-0">
-                    <div class="rounded-xl overflow-hidden border border-slate-200 bg-gradient-to-br from-emerald-100 via-teal-100 to-cyan-100 h-48 lg:h-64 flex items-center justify-center">
-                        <svg class="w-16 h-16 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                        </svg>
-                    </div>
-                </div>
+            <h2 class="text-2xl font-semibold text-slate-900 mb-6">Your Path to a Healthcare Career Starts Here</h2>
+
+            <!-- Full-width image -->
+            <div class="mb-6 rounded-xl overflow-hidden border border-slate-200 bg-gradient-to-br from-emerald-100 via-teal-100 to-cyan-100 h-64 flex items-center justify-center">
+                <svg class="w-24 h-24 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                </svg>
+            </div>
+
+            <div class="space-y-4 text-base leading-relaxed text-slate-700">
+                <p>The healthcare sector is experiencing unprecedented growth. With an ageing population and persistent staffing shortages, opportunities have never been greater for those seeking meaningful work. The best part? Many healthcare careers are accessible through short training programmes rather than expensive university degrees.</p>
+                <p>From patient care and emergency support to laboratory work and mental health assistance, entry-level roles form the foundation of the healthcare system. These positions help hospitals, clinics, and care facilities deliver safe, effective care every day.</p>
+                <p>In this comprehensive guide, we'll explore 20 healthcare jobs you can pursue with accredited training courses, vocational qualifications, or on-the-job learning. Whether you're a career changer, school leaver, or seeking more fulfilling work, there's a healthcare path waiting for you.</p>
             </div>
         </div>
     </section>
@@ -430,152 +427,245 @@ $faqs = [
             $iconIndex++;
         ?>
             <article id="<?php echo e($job['id']); ?>" class="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg shadow-slate-900/5">
-                <div class="flex flex-col lg:flex-row gap-6">
-                    <div class="flex-1">
-                        <div class="flex items-center gap-3 mb-4">
-                            <?php if (!empty($job['bonus'])): ?>
-                                <span class="inline-flex items-center rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">Bonus</span>
-                            <?php else: ?>
-                                <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white text-sm font-bold"><?php echo $job['number']; ?></span>
-                            <?php endif; ?>
-                            <h2 class="text-2xl font-semibold text-slate-900"><?php echo e($job['title']); ?></h2>
-                        </div>
+                <div class="flex items-center gap-3 mb-6">
+                    <?php if (!empty($job['bonus'])): ?>
+                        <span class="inline-flex items-center rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">Bonus</span>
+                    <?php else: ?>
+                        <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white text-sm font-bold"><?php echo $job['number']; ?></span>
+                    <?php endif; ?>
+                    <h2 class="text-2xl font-semibold text-slate-900"><?php echo e($job['title']); ?></h2>
+                </div>
 
-                        <div class="space-y-6 text-base leading-relaxed text-slate-700">
-                            <div>
-                                <h3 class="font-semibold text-slate-900 mb-2">What the Role Involves</h3>
-                                <p><?php echo e($job['overview']); ?></p>
-                            </div>
-
-                            <div>
-                                <h3 class="font-semibold text-slate-900 mb-2">Education Requirements</h3>
-                                <p><?php echo e($job['requirements']); ?></p>
-                            </div>
-
-                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                <h3 class="font-semibold text-blue-900 mb-2">Salary & Career Path</h3>
-                                <ul class="space-y-1 text-blue-800">
-                                    <?php foreach ($job['salary'] as $item): ?>
-                                        <li><?php echo e($item); ?></li>
-                                    <?php endforeach; ?>
-                                </ul>
-                            </div>
-
-                            <div>
-                                <h3 class="font-semibold text-slate-900 mb-2">How to Get Started</h3>
-                                <p><?php echo e($job['training']); ?></p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="lg:w-64 lg:flex-shrink-0">
+                <div class="relative">
+                    <!-- Floating image on the right -->
+                    <div class="float-right ml-6 mb-4 w-48 lg:w-64 flex-shrink-0">
                         <div class="rounded-xl overflow-hidden border border-slate-200 bg-gradient-to-br <?php echo $gradient; ?> h-48 lg:h-64 flex items-center justify-center">
                             <svg class="w-16 h-16 text-<?php echo $iconColor; ?>" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <?php echo $iconPath; ?>
                             </svg>
                         </div>
                     </div>
+
+                    <div class="space-y-6 text-base leading-relaxed text-slate-700">
+                        <div>
+                            <h3 class="font-semibold text-slate-900 mb-2">What the Role Involves</h3>
+                            <p><?php echo e($job['overview']); ?></p>
+                        </div>
+
+                        <div>
+                            <h3 class="font-semibold text-slate-900 mb-2">Education Requirements</h3>
+                            <p><?php echo e($job['requirements']); ?></p>
+                        </div>
+
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <h3 class="font-semibold text-blue-900 mb-2">Salary & Career Path</h3>
+                            <ul class="space-y-1 text-blue-800">
+                                <?php foreach ($job['salary'] as $item): ?>
+                                    <li><?php echo e($item); ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h3 class="font-semibold text-slate-900 mb-2">How to Get Started</h3>
+                            <p><?php echo e($job['training']); ?></p>
+                        </div>
+                    </div>
+                    <div class="clear-both"></div>
                 </div>
             </article>
         <?php endforeach; ?>
     </section>
 
     <!-- How to Choose Section -->
-    <section id="how-to-choose" class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <section id="how-to-choose" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg shadow-slate-900/5">
-            <div class="flex flex-col lg:flex-row gap-6">
-                <div class="flex-1">
-                    <h2 class="text-2xl font-semibold text-slate-900 mb-6">How to Choose the Right Healthcare Path for You</h2>
-                    <div class="space-y-6 text-base leading-relaxed text-slate-700">
-                        <p>Selecting the right healthcare career depends on your personality, interests, and lifestyle preferences. Consider these key factors:</p>
+            <h2 class="text-2xl font-semibold text-slate-900 mb-6">How to Choose the Right Healthcare Path for You</h2>
 
-                        <div>
-                            <h3 class="font-semibold text-slate-900 mb-3">Your Work Style Preferences</h3>
-                            <p class="mb-2"><strong>Patient Contact:</strong> Do you enjoy direct interaction (nursing assistant, care worker) or prefer behind-the-scenes work (lab assistant, medical transcriptionist)?</p>
-                            <p class="mb-2"><strong>Physical Activity:</strong> Some roles are physically demanding (hospital porter, physiotherapy assistant) while others are more sedentary (medical transcriptionist, health and safety officer).</p>
-                            <p><strong>Work Environment:</strong> Consider whether you'd prefer hospitals, clinics, community settings, laboratories, or remote work.</p>
-                        </div>
+            <!-- Full-width image -->
+            <div class="mb-6 rounded-xl overflow-hidden border border-slate-200 bg-gradient-to-br from-violet-100 via-purple-100 to-fuchsia-100 h-64 flex items-center justify-center">
+                <svg class="w-24 h-24 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                </svg>
+            </div>
 
-                        <div>
-                            <h3 class="font-semibold text-slate-900 mb-3">Schedule and Work-Life Balance</h3>
-                            <p class="mb-2"><strong>Shift Patterns:</strong> Many healthcare roles offer flexible shifts, including nights and weekends.</p>
-                            <p class="mb-2"><strong>Part-Time Options:</strong> Roles like massage therapy and nutrition coaching often allow part-time or freelance work.</p>
-                            <p><strong>Career Progression:</strong> Some paths offer clear advancement (nursing assistant to registered nurse) while others focus on specialisation (sports massage, dermatology).</p>
-                        </div>
+            <div class="space-y-6 text-base leading-relaxed text-slate-700">
+                <p>Selecting the right healthcare career depends on your personality, interests, and lifestyle preferences. Consider these key factors:</p>
 
-                        <div>
-                            <h3 class="font-semibold text-slate-900 mb-3">Getting Started</h3>
-                            <p>The beauty of healthcare careers is their accessibility. You don't need to commit to one path forever—many professionals start in one role and transition to another as they discover their interests and strengths.</p>
-                        </div>
-
-                        <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-base text-emerald-800">
-                            <strong>Pro Tip:</strong> Start with a single course that matches your interests—Health and Social Care, Phlebotomy, or Mental Health Support—and grow your career step by step. Many courses can be completed online while you continue working.
+                <div class="relative">
+                    <!-- Floating image on the right -->
+                    <div class="float-right ml-6 mb-4 w-48 flex-shrink-0">
+                        <div class="rounded-xl overflow-hidden border border-slate-200 bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100 h-48 flex items-center justify-center">
+                            <svg class="w-16 h-16 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
                         </div>
                     </div>
+
+                    <div>
+                        <h3 class="font-semibold text-slate-900 mb-3">Your Work Style Preferences</h3>
+                        <p class="mb-2"><strong>Patient Contact:</strong> Do you enjoy direct interaction (nursing assistant, care worker) or prefer behind-the-scenes work (lab assistant, medical transcriptionist)?</p>
+                        <p class="mb-2"><strong>Physical Activity:</strong> Some roles are physically demanding (hospital porter, physiotherapy assistant) while others are more sedentary (medical transcriptionist, health and safety officer).</p>
+                        <p><strong>Work Environment:</strong> Consider whether you'd prefer hospitals, clinics, community settings, laboratories, or remote work.</p>
+                    </div>
+                    <div class="clear-both"></div>
                 </div>
-                <div class="lg:w-64 lg:flex-shrink-0">
-                    <div class="rounded-xl overflow-hidden border border-slate-200 bg-gradient-to-br from-violet-100 via-purple-100 to-fuchsia-100 h-48 lg:h-64 flex items-center justify-center">
-                        <svg class="w-16 h-16 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-                        </svg>
+
+                <div class="relative">
+                    <!-- Floating image on the left -->
+                    <div class="float-left mr-6 mb-4 w-48 flex-shrink-0">
+                        <div class="rounded-xl overflow-hidden border border-slate-200 bg-gradient-to-br from-emerald-100 via-teal-100 to-cyan-100 h-48 flex items-center justify-center">
+                            <svg class="w-16 h-16 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
                     </div>
+
+                    <div>
+                        <h3 class="font-semibold text-slate-900 mb-3">Schedule and Work-Life Balance</h3>
+                        <p class="mb-2"><strong>Shift Patterns:</strong> Many healthcare roles offer flexible shifts, including nights and weekends.</p>
+                        <p class="mb-2"><strong>Part-Time Options:</strong> Roles like massage therapy and nutrition coaching often allow part-time or freelance work.</p>
+                        <p><strong>Career Progression:</strong> Some paths offer clear advancement (nursing assistant to registered nurse) while others focus on specialisation (sports massage, dermatology).</p>
+                    </div>
+                    <div class="clear-both"></div>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold text-slate-900 mb-3">Getting Started</h3>
+                    <p>The beauty of healthcare careers is their accessibility. You don't need to commit to one path forever—many professionals start in one role and transition to another as they discover their interests and strengths.</p>
+                </div>
+
+                <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-base text-emerald-800">
+                    <strong>Pro Tip:</strong> Start with a single course that matches your interests—Health and Social Care, Phlebotomy, or Mental Health Support—and grow your career step by step. Many courses can be completed online while you continue working.
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Next Steps Section -->
-    <section id="next-steps" class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <section id="next-steps" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg shadow-slate-900/5">
             <h2 class="text-2xl font-semibold text-slate-900 mb-6">Your Next Steps to Begin a Healthcare Career</h2>
+
+            <!-- Full-width image -->
+            <div class="mb-6 rounded-xl overflow-hidden border border-slate-200 bg-gradient-to-br from-amber-100 via-orange-100 to-red-100 h-64 flex items-center justify-center">
+                <svg class="w-24 h-24 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
+            </div>
+
             <div class="space-y-6 text-base leading-relaxed text-slate-700">
                 <p>The healthcare industry welcomes people from all backgrounds—no degree required. What matters most is compassion, commitment, and willingness to learn.</p>
 
-                <div>
-                    <h3 class="font-semibold text-slate-900 mb-3">Why Choose Healthcare?</h3>
-                    <p class="mb-2"><strong>Job Security:</strong> Healthcare is one of the fastest-growing sectors with thousands of vacancies nationwide.</p>
-                    <p class="mb-2"><strong>Meaningful Work:</strong> Make a real difference in people's lives every day.</p>
-                    <p class="mb-2"><strong>Career Progression:</strong> Clear pathways from entry-level to senior positions.</p>
-                    <p class="mb-2"><strong>Flexible Learning:</strong> Train online while working, with accredited qualifications recognised across the industry.</p>
-                    <p><strong>Competitive Pay:</strong> Many roles offer good starting salaries with potential to earn £30,000-£50,000+ with experience.</p>
+                <div class="relative">
+                    <!-- Floating image on the right -->
+                    <div class="float-right ml-6 mb-4 w-48 flex-shrink-0">
+                        <div class="rounded-xl overflow-hidden border border-slate-200 bg-gradient-to-br from-rose-100 via-pink-100 to-fuchsia-100 h-48 flex items-center justify-center">
+                            <svg class="w-16 h-16 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="font-semibold text-slate-900 mb-3">Why Choose Healthcare?</h3>
+                        <p class="mb-2"><strong>Job Security:</strong> Healthcare is one of the fastest-growing sectors with thousands of vacancies nationwide.</p>
+                        <p class="mb-2"><strong>Meaningful Work:</strong> Make a real difference in people's lives every day.</p>
+                        <p class="mb-2"><strong>Career Progression:</strong> Clear pathways from entry-level to senior positions.</p>
+                        <p class="mb-2"><strong>Flexible Learning:</strong> Train online while working, with accredited qualifications recognised across the industry.</p>
+                        <p><strong>Competitive Pay:</strong> Many roles offer good starting salaries with potential to earn £30,000-£50,000+ with experience.</p>
+                    </div>
+                    <div class="clear-both"></div>
                 </div>
 
-                <div>
-                    <h3 class="font-semibold text-slate-900 mb-3">How to Get Started</h3>
-                    <ol class="list-decimal list-inside space-y-2 ml-2">
-                        <li><strong>Research Roles:</strong> Review the jobs above and identify which align with your interests and strengths</li>
-                        <li><strong>Choose Training:</strong> Select an accredited course that provides the foundation for your chosen path</li>
-                        <li><strong>Gain Experience:</strong> Look for volunteer opportunities, apprenticeships, or entry-level positions</li>
-                        <li><strong>Build Your CV:</strong> Highlight your training, any healthcare experience, and transferable skills from other jobs</li>
-                        <li><strong>Apply Strategically:</strong> Target NHS trusts, private clinics, care homes, or wellness centres depending on your interests</li>
-                    </ol>
+                <div class="relative">
+                    <!-- Floating image on the left -->
+                    <div class="float-left mr-6 mb-4 w-48 flex-shrink-0">
+                        <div class="rounded-xl overflow-hidden border border-slate-200 bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100 h-48 flex items-center justify-center">
+                            <svg class="w-16 h-16 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="font-semibold text-slate-900 mb-3">How to Get Started</h3>
+                        <ol class="list-decimal list-inside space-y-2 ml-2">
+                            <li><strong>Research Roles:</strong> Review the jobs above and identify which align with your interests and strengths</li>
+                            <li><strong>Choose Training:</strong> Select an accredited course that provides the foundation for your chosen path</li>
+                            <li><strong>Gain Experience:</strong> Look for volunteer opportunities, apprenticeships, or entry-level positions</li>
+                            <li><strong>Build Your CV:</strong> Highlight your training, any healthcare experience, and transferable skills from other jobs</li>
+                            <li><strong>Apply Strategically:</strong> Target NHS trusts, private clinics, care homes, or wellness centres depending on your interests</li>
+                        </ol>
+                    </div>
+                    <div class="clear-both"></div>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- FAQ Section -->
-    <section id="faq" class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <section id="faq" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg shadow-slate-900/5">
             <h2 class="text-2xl font-semibold text-slate-900 mb-8">Frequently Asked Questions</h2>
+
+            <!-- Full-width image -->
+            <div class="mb-8 rounded-xl overflow-hidden border border-slate-200 bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 h-48 flex items-center justify-center">
+                <svg class="w-20 h-20 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+
             <div class="space-y-6">
-                <?php foreach ($faqs as $faq): ?>
+                <?php foreach ($faqs as $index => $faq): ?>
                     <div class="border-l-4 border-blue-500 pl-4">
                         <h3 class="font-semibold text-slate-900 mb-2"><?php echo e($faq['question']); ?></h3>
                         <p class="text-slate-700"><?php echo e($faq['answer']); ?></p>
                     </div>
+                    <?php if (($index + 1) % 3 === 0 && $index < count($faqs) - 1): ?>
+                        <!-- Add a floating image every 3 FAQs -->
+                        <div class="my-6 flex justify-center">
+                            <div class="rounded-xl overflow-hidden border border-slate-200 bg-gradient-to-br from-slate-100 via-gray-100 to-slate-100 w-48 h-32 flex items-center justify-center">
+                                <svg class="w-12 h-12 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    <?php endif; ?>
                 <?php endforeach; ?>
             </div>
         </div>
     </section>
 
     <!-- Conclusion Section -->
-    <section id="conclusion" class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <section id="conclusion" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg shadow-slate-900/5">
             <h2 class="text-2xl font-semibold text-slate-900 mb-6">Your Healthcare Career Starts Today</h2>
-            <div class="space-y-4 text-base leading-relaxed text-slate-700 mb-8">
-                <p>Whether you're drawn to direct patient care, clinical support, wellness services, or administrative roles, there's a healthcare career path waiting for you—no university degree required.</p>
-                <p>The opportunities are vast, the demand is real, and the impact you can make is immeasurable. With accredited training, dedication, and the right support tools like a professionally crafted CV, you're ready to take the first step toward a rewarding healthcare career.</p>
+
+            <!-- Full-width image -->
+            <div class="mb-6 rounded-xl overflow-hidden border border-slate-200 bg-gradient-to-br from-green-100 via-emerald-100 to-teal-100 h-64 flex items-center justify-center">
+                <svg class="w-24 h-24 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
             </div>
+
+            <div class="relative">
+                <!-- Floating image on the right -->
+                <div class="float-right ml-6 mb-4 w-48 flex-shrink-0">
+                    <div class="rounded-xl overflow-hidden border border-slate-200 bg-gradient-to-br from-blue-100 via-indigo-100 to-purple-100 h-48 flex items-center justify-center">
+                        <svg class="w-16 h-16 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="space-y-4 text-base leading-relaxed text-slate-700 mb-8">
+                    <p>Whether you're drawn to direct patient care, clinical support, wellness services, or administrative roles, there's a healthcare career path waiting for you—no university degree required.</p>
+                    <p>The opportunities are vast, the demand is real, and the impact you can make is immeasurable. With accredited training, dedication, and the right support tools like a professionally crafted CV, you're ready to take the first step toward a rewarding healthcare career.</p>
+                </div>
+                <div class="clear-both"></div>
+            </div>
+
             <div class="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6">
                 <h3 class="text-xl font-semibold text-slate-900 mb-3">Build Your Healthcare Career Today</h3>
                 <p class="text-slate-700 mb-4">Use our CV builder to create a standout application that showcases your training and passion for healthcare.</p>

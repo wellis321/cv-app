@@ -154,23 +154,34 @@
 <!-- Example CV CTA Section -->
 <div class="bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-600 py-16 sm:py-20">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="text-center">
-            <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                See It In Action
-            </h2>
-            <p class="mt-4 text-lg text-emerald-100 max-w-2xl mx-auto">
-                Want to see what your CV could look like? Check out our example CV to explore all the features, templates, and styling options available.
-            </p>
-            <p class="mt-2 text-base text-emerald-200 max-w-2xl mx-auto">
-                See how work experience, projects, skills, and certifications come together in a professional, shareable format. No account needed—just click and explore!
-            </p>
-            <div class="mt-8">
-                <a href="<?php echo APP_URL; ?>/cv/@simple-cv-example" target="_blank" class="inline-flex items-center justify-center rounded-lg bg-white px-8 py-3 text-base font-semibold text-emerald-600 shadow-lg hover:bg-emerald-50 transition-colors">
-                    View Example CV
-                    <svg class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                    </svg>
-                </a>
+        <div class="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-12">
+            <div class="text-center lg:text-left flex-1 max-w-2xl">
+                <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                    See It In Action
+                </h2>
+                <p class="mt-4 text-lg text-emerald-100">
+                    Want to see what your CV could look like? Check out our example CV to explore all the features, templates, and styling options available.
+                </p>
+                <p class="mt-2 text-base text-emerald-200">
+                    See how work experience, projects, skills, and certifications come together in a professional, shareable format. No account needed—just click and explore!
+                </p>
+                <p class="mt-4 text-sm text-emerald-300">
+                    Or scan the QR code with your phone to view it instantly!
+                </p>
+                <div class="mt-6">
+                    <a href="<?php echo APP_URL; ?>/cv/@simple-cv-example" target="_blank" class="inline-flex items-center justify-center rounded-lg bg-white px-8 py-3 text-base font-semibold text-emerald-600 shadow-lg hover:bg-emerald-50 transition-colors">
+                        View Example CV
+                        <svg class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            <div class="flex-shrink-0">
+                <div class="bg-white p-4 rounded-lg shadow-xl">
+                    <div id="home-example-qr-code"></div>
+                    <p class="text-xs text-emerald-900 mt-2 text-center font-medium">Scan to view example CV</p>
+                </div>
             </div>
         </div>
     </div>
@@ -804,5 +815,40 @@
         backToTopButton.addEventListener('click', () => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
+    })();
+</script>
+
+<!-- QR Code Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+    // Generate QR code for example CV on home page
+    (function() {
+        function generateQRCode() {
+            const qrContainer = document.getElementById('home-example-qr-code');
+            if (!qrContainer) return;
+
+            if (typeof QRCode !== 'undefined') {
+                // Clear any existing content
+                qrContainer.innerHTML = '';
+                new QRCode(qrContainer, {
+                    text: '<?php echo APP_URL; ?>/cv/@simple-cv-example',
+                    width: 200,
+                    height: 200,
+                    colorDark: '#059669',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            } else {
+                // Retry after a short delay if library hasn't loaded
+                setTimeout(generateQRCode, 100);
+            }
+        }
+
+        // Try to generate immediately, or wait for load
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', generateQRCode);
+        } else {
+            generateQRCode();
+        }
     })();
 </script>
