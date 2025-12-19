@@ -201,7 +201,6 @@ $sections = [
                                  alt="<?php echo e($imageAlt); ?>"
                                  class="h-80 w-full object-cover" loading="lazy">
                         </div>
-                        <div class="space-y-5">
                 <?php else: ?>
                     <!-- Standard flexbox layout for other sections -->
                     <div class="flex flex-col gap-6 <?php echo $reverseLayout ? 'lg:flex-row-reverse' : 'lg:flex-row'; ?> lg:items-start">
@@ -225,7 +224,7 @@ $sections = [
                     <?php if (!empty($section['subsections'])): ?>
                         <div class="space-y-6">
                             <?php foreach ($section['subsections'] as $sub): ?>
-                                <div class="<?php echo $section['id'] === 'cv-usage' ? 'clear-right' : ''; ?>">
+                                <div>
                                     <h3 class="text-lg font-semibold text-slate-900"><?php echo e($sub['title']); ?></h3>
                                     <div class="mt-3 space-y-3 text-base text-slate-600">
                                         <?php foreach ($sub['content'] as $paragraph): ?>
@@ -282,9 +281,8 @@ $sections = [
                         <?php endif; ?>
                     <?php endif; ?>
                 <?php if ($section['id'] === 'cv-usage' && $encodedImagePath): ?>
-                        </div>
-                    </div>
                     <div class="clear-both"></div>
+                    </div>
                 <?php else: ?>
                         </div>
                     </div>
