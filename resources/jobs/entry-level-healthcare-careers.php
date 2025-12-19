@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__ . '/../../php/helpers.php';
 
-$pageTitle = 'Top Healthcare Jobs You Can Start Without a Degree';
-$metaDescription = 'Explore rewarding healthcare careers that don\'t require a university degree. Learn about salaries, training paths, and how to start your healthcare career today.';
+$pageTitle = 'Healthcare Career Paths: Start Your Journey Without a Degree';
+$metaDescription = 'Discover rewarding healthcare support roles you can start without a university degree. Learn about entry-level positions, training requirements, salaries, and how to begin your healthcare career today.';
 
 $jobs = [
     [
@@ -128,7 +128,7 @@ $jobs = [
     ],
     [
         'id' => 'health-social-care-assistant',
-        'title' => ' / Support Worker',
+        'title' => 'Support Worker',
         'number' => 11,
         'overview' => 'Support Workers help individuHealth and Social Care Assistantals live safely and comfortably through assistance with personal care, meal preparation, medication administration, and emotional support. They work across hospitals, residential homes, and community settings.',
         'requirements' => 'Level 2 or Level 3 Health and Social Care certificate or equivalent training. Many employers provide on-the-job training for the right candidates.',
@@ -152,7 +152,7 @@ $jobs = [
     ],
     [
         'id' => 'dental-assistant',
-        'title' => 'Dental Assistant / Dental Receptionist',
+        'title' => 'Dental Assistant',
         'number' => 13,
         'overview' => 'Dental Assistants provide clinical and administrative support, preparing treatment rooms, sterilising instruments, assisting during procedures, and managing patient records and appointments.',
         'requirements' => 'Dental support or medical administration training covering oral hygiene, infection control, and dental terminology.',
@@ -164,7 +164,7 @@ $jobs = [
     ],
     [
         'id' => 'sterile-services-technician',
-        'title' => 'Clinical Cleaning Operative / Sterile Services Technician',
+        'title' => 'Cleaning Services',
         'number' => 14,
         'overview' => 'These professionals maintain hygiene and safety by disinfecting patient areas, sterilising surgical instruments, managing infection control protocols, and ensuring equipment meets hospital standards.',
         'requirements' => 'Entry-level positions with on-the-job training. Clinical cleaning or infection control training provides competitive advantage.',
@@ -177,7 +177,7 @@ $jobs = [
     ],
     [
         'id' => 'massage-therapist',
-        'title' => 'Massage Therapist / Holistic Therapist',
+        'title' => 'Massage Therapist',
         'number' => 15,
         'overview' => 'Massage Therapists help clients relieve pain, reduce stress, and improve wellbeing through therapeutic techniques including sports massage, aromatherapy, and reflexology.',
         'requirements' => 'Practical training and certification from massage therapy courses. University degree not required.',
@@ -189,21 +189,9 @@ $jobs = [
         'training' => 'Complete massage therapy training covering anatomy, physiology, and professional massage techniques.',
     ],
     [
-        'id' => 'reflexology-practitioner',
-        'title' => 'Reflexology / Acupressure Practitioner',
-        'number' => 16,
-        'overview' => 'Practitioners help clients manage pain, anxiety, and stress through natural techniques stimulating the body\'s healing response. They apply pressure to specific points to promote relaxation and balance energy flow.',
-        'requirements' => 'Accredited reflexology or acupressure training. Most practitioners complete online qualifications before gaining wellness setting experience.',
-        'salary' => [
-            'Average: £25,000 - £40,000 annually',
-            'Self-Employed: High earning potential with established client base',
-        ],
-        'training' => 'Complete reflexology and acupressure courses covering reflex zones, pressure point techniques, and client consultation methods.',
-    ],
-    [
         'id' => 'nutrition-advisor',
-        'title' => 'Nutrition Advisor / Health Coach',
-        'number' => 17,
+        'title' => 'Nutrition Coach',
+        'number' => 16,
         'overview' => 'Nutrition Advisors help clients improve wellbeing through balanced diet plans, lifestyle guidance, and motivational support, educating on healthy eating habits and disease prevention.',
         'requirements' => 'Nutrition training or diploma providing foundational knowledge of dietary science, metabolism, and health coaching techniques.',
         'salary' => [
@@ -216,7 +204,7 @@ $jobs = [
     [
         'id' => 'health-safety-officer',
         'title' => 'Health and Safety Officer',
-        'number' => 18,
+        'number' => 17,
         'overview' => 'Health and Safety Officers ensure workplaces comply with safety laws, preventing accidents and injuries through risk assessments, policy implementation, employee training, and incident investigation.',
         'requirements' => 'Level 3 Certificate in Health and Safety or equivalent accredited training. Many professionals begin as First Aid Responders before specialising.',
         'salary' => [
@@ -234,7 +222,7 @@ $jobs = [
     <?php partial('head', [
         'pageTitle' => $pageTitle . ' | Simple CV Builder',
         'metaDescription' => $metaDescription,
-        'canonicalUrl' => APP_URL . '/resources/jobs/healthcare-support-roles-no-degree.php',
+        'canonicalUrl' => APP_URL . '/resources/jobs/entry-level-healthcare-careers.php',
         'structuredDataType' => 'article',
         'structuredData' => [
             'title' => $pageTitle,
@@ -339,7 +327,6 @@ $jobs = [
             'first-aid-responder' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>',
             'health-safety-officer' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>',
             'child-mental-health-support' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>',
-            'reflexology-practitioner' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m-2 4c.5.5 1.5 1 2.5 1s2-.5 2.5-1m-5-4a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m-2 4c.5.5 1.5 1 2.5 1s2-.5 2.5-1m-5-4a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>',
             'medical-transcriptionist' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>',
             'nutrition-advisor' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>',
             'care-home-support' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>',
@@ -585,7 +572,7 @@ $jobs = [
     </section>
 
     <?php
-    $relatedArticles = getRelatedArticles('/resources/jobs/healthcare-support-roles-no-degree.php', 3);
+    $relatedArticles = getRelatedArticles('/resources/jobs/entry-level-healthcare-careers.php', 3);
     if (!empty($relatedArticles)):
     ?>
     <section class="bg-white border-y border-slate-200 py-16">
