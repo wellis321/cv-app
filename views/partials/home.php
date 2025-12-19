@@ -38,7 +38,7 @@
                     Create a professional CV that stands out, updates in real-time, and can be shared as a simple link.
                 </p>
                 <div class="mt-10">
-                    <a href="#auth-section" class="inline-block rounded-md border border-transparent bg-blue-600 px-8 py-3 text-center font-medium text-white hover:bg-blue-700">
+                    <a href="#" data-open-register class="inline-block rounded-md border border-transparent bg-blue-600 px-8 py-3 text-center font-medium text-white hover:bg-blue-700">
                         Start Building Your CV
                     </a>
                 </div>
@@ -232,7 +232,7 @@
                         '3 highlighted skills',
                         'Minimal template',
                     ],
-                    'button' => ['text' => 'Start for free', 'href' => '#auth-section'],
+                    'button' => ['text' => 'Start for free', 'href' => '#', 'dataAttribute' => 'data-open-register'],
                 ],
                 [
                     'label' => 'Lifetime',
@@ -247,7 +247,7 @@
                         'Priority email support',
                         'Lifetime access - no recurring fees',
                     ],
-                    'button' => ['text' => 'Create account to purchase', 'href' => '#auth-section', 'requiresAccount' => true],
+                    'button' => ['text' => 'Create account to purchase', 'href' => '#', 'dataAttribute' => 'data-open-register', 'requiresAccount' => true],
                 ],
                 [
                     'label' => 'Pro Monthly',
@@ -260,7 +260,7 @@
                         'Download print-ready PDFs',
                         'Priority email support',
                     ],
-                    'button' => ['text' => 'Create account to purchase', 'href' => '#auth-section', 'requiresAccount' => true],
+                    'button' => ['text' => 'Create account to purchase', 'href' => '#', 'dataAttribute' => 'data-open-register', 'requiresAccount' => true],
                 ],
                 [
                     'label' => 'Pro Annual',
@@ -273,7 +273,7 @@
                         'Annual billing with Stripe',
                         'Priority email support',
                     ],
-                    'button' => ['text' => 'Create account to purchase', 'href' => '#auth-section', 'requiresAccount' => true],
+                    'button' => ['text' => 'Create account to purchase', 'href' => '#', 'dataAttribute' => 'data-open-register', 'requiresAccount' => true],
                 ],
             ];
             foreach ($pricingCards as $card):
@@ -308,14 +308,16 @@
                     </ul>
                     <div class="mt-8">
                         <?php
-                        $buttonHref = $card['button']['href'] ?? '#auth-section';
+                        $buttonHref = $card['button']['href'] ?? '#';
                         $buttonPlan = $card['button']['plan'] ?? null;
                         $requiresAccount = $card['button']['requiresAccount'] ?? false;
+                        $dataAttribute = $card['button']['dataAttribute'] ?? '';
                         if ($buttonPlan && $buttonHref === '/subscription.php') {
                             $buttonHref .= '?plan=' . urlencode($buttonPlan);
                         }
                         ?>
                         <a href="<?php echo e($buttonHref); ?>"
+                           <?php if ($dataAttribute): ?> <?php echo e($dataAttribute); ?> <?php endif; ?>
                            class="inline-flex w-full items-center justify-center rounded-lg px-4 py-2 text-sm font-semibold transition
                            <?php echo $card['highlight']
                                ? 'bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white'

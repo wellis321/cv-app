@@ -211,7 +211,7 @@ $checklistItems = [
                                 Upgrade to Pro
                             </a>
                         <?php else: ?>
-                            <a href="/#auth-section" class="inline-flex items-center justify-center rounded-lg bg-indigo-600 px-5 py-2 text-sm font-semibold text-white shadow-md hover:bg-indigo-700 transition-colors">
+                            <a href="#" data-open-register class="inline-flex items-center justify-center rounded-lg bg-indigo-600 px-5 py-2 text-sm font-semibold text-white shadow-md hover:bg-indigo-700 transition-colors">
                                 Create Free Account
                             </a>
                             <a href="/#pricing" class="inline-flex items-center justify-center rounded-lg border-2 border-indigo-600 px-5 py-2 text-sm font-semibold text-indigo-600 hover:bg-indigo-50 transition-colors">
