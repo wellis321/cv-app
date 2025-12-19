@@ -180,8 +180,8 @@ $sections = [
                     Generative AI is everywhere—but using it well separates standout applications from forgettable ones. Here’s how to harness AI as a helpful ally without losing your authentic voice.
                 </p>
                 <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-                    <a href="/resources/jobs/" class="inline-flex items-center justify-center rounded-lg bg-white px-5 py-2 text-sm font-semibold text-slate-900 shadow hover:bg-slate-100">
-                        Back to job insights
+                    <a href="/resources/" class="inline-flex items-center justify-center rounded-lg bg-white px-5 py-2 text-sm font-semibold text-slate-900 shadow hover:bg-slate-100">
+                        Back to resources
                     </a>
                     <a href="#intro" class="inline-flex items-center justify-center rounded-lg border border-white/40 px-5 py-2 text-sm font-semibold text-white hover:bg-white/10">
                         Start reading
@@ -363,8 +363,8 @@ $sections = [
                 <?php endforeach; ?>
             </div>
             <div class="mt-8 text-center">
-                <a href="/resources/jobs/" class="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-5 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
-                    View all job market insights
+                <a href="/resources/" class="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-5 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
+                    View all resources
                     <svg class="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                     </svg>
