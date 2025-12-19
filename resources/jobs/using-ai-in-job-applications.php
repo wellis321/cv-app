@@ -184,17 +184,30 @@ $sections = [
             $reverseLayout = $index % 2 === 1;
             ?>
             <section id="<?php echo e($section['id']); ?>" class="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg shadow-slate-900/5">
-                <div class="flex flex-col gap-6 <?php echo $reverseLayout ? 'lg:flex-row-reverse' : 'lg:flex-row'; ?> lg:items-start">
-                    <?php if ($encodedImagePath): ?>
-                        <div class="w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-sm lg:w-5/12">
+                <?php if ($section['id'] === 'cv-usage' && $encodedImagePath): ?>
+                    <!-- Text wrapping layout for "The Right Way to Use AI" section -->
+                    <h2 class="text-2xl font-semibold text-slate-900 mb-4"><?php echo e($section['title']); ?></h2>
+                    <div class="overflow-hidden">
+                        <div class="float-left w-full sm:w-80 mr-6 mb-4 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-sm">
                             <img src="<?php echo e($encodedImagePath); ?>"
                                  alt="<?php echo e($imageAlt); ?>"
                                  class="h-80 w-full object-cover" loading="lazy">
                         </div>
-                    <?php endif; ?>
-                    <div class="<?php echo $encodedImagePath ? 'lg:w-7/12' : ''; ?>">
-                        <h2 class="text-2xl font-semibold text-slate-900"><?php echo e($section['title']); ?></h2>
-                        <div class="mt-4 space-y-5">
+                        <div class="space-y-5">
+                <?php else: ?>
+                    <!-- Standard flexbox layout for other sections -->
+                    <div class="flex flex-col gap-6 <?php echo $reverseLayout ? 'lg:flex-row-reverse' : 'lg:flex-row'; ?> lg:items-start">
+                        <?php if ($encodedImagePath): ?>
+                            <div class="w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-sm lg:w-5/12">
+                                <img src="<?php echo e($encodedImagePath); ?>"
+                                     alt="<?php echo e($imageAlt); ?>"
+                                     class="h-80 w-full object-cover" loading="lazy">
+                            </div>
+                        <?php endif; ?>
+                        <div class="<?php echo $encodedImagePath ? 'lg:w-7/12' : ''; ?>">
+                            <h2 class="text-2xl font-semibold text-slate-900"><?php echo e($section['title']); ?></h2>
+                            <div class="mt-4 space-y-5">
+                <?php endif; ?>
                     <?php if (!empty($section['content'])): ?>
                         <?php foreach ($section['content'] as $paragraph): ?>
                             <p><?php echo e($paragraph); ?></p>
@@ -260,7 +273,14 @@ $sections = [
                             </div>
                         <?php endif; ?>
                     <?php endif; ?>
-                </div>
+                <?php if ($section['id'] === 'cv-usage' && $encodedImagePath): ?>
+                        </div>
+                    </div>
+                    <div class="clear-both"></div>
+                <?php else: ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
             </section>
         <?php endforeach; ?>
     </section>
