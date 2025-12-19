@@ -3,22 +3,22 @@
 ?>
 
 <!-- Beta Banner -->
-<div class="bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg">
+<div class="bg-gradient-to-r from-slate-50 via-gray-50 to-slate-50 border-b-2 border-slate-200 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
         <div class="flex flex-col lg:flex-row items-center justify-between gap-4 text-center lg:text-left">
             <div class="flex-1">
-                <p class="text-base sm:text-lg font-medium mb-2">
+                <p class="text-base sm:text-lg font-semibold text-slate-900 mb-2">
                     Simple CV Builder is currently in beta.
                 </p>
-                <p class="text-sm sm:text-base text-amber-50 leading-relaxed">
-                    While we build based on your feedback, get <strong class="font-semibold text-white">lifetime access for just £34.99</strong> - no recurring fees, forever.
+                <p class="text-sm sm:text-base text-slate-700 leading-relaxed">
+                    While we build based on your feedback, get <strong class="font-semibold text-slate-900">lifetime access for just £34.99</strong> - no recurring fees, forever.
                 </p>
-                <p class="text-xs text-amber-100 mt-2">
+                <p class="text-xs text-slate-600 mt-2">
                     Create a free account first, then upgrade from your dashboard.
                 </p>
             </div>
             <div class="flex-shrink-0">
-                <a href="#pricing" class="inline-flex items-center rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-orange-600 hover:bg-amber-50 transition-colors shadow-sm whitespace-nowrap">
+                <a href="#pricing" class="inline-flex items-center rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 transition-colors shadow-sm whitespace-nowrap">
                     View Pricing
                 </a>
             </div>
@@ -152,20 +152,20 @@
 </div>
 
 <!-- Example CV CTA Section -->
-<div class="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 py-16 sm:py-20">
+<div class="bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-600 py-16 sm:py-20">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="text-center">
             <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">
                 See It In Action
             </h2>
-            <p class="mt-4 text-lg text-indigo-100 max-w-2xl mx-auto">
+            <p class="mt-4 text-lg text-emerald-100 max-w-2xl mx-auto">
                 Want to see what your CV could look like? Check out our example CV to explore all the features, templates, and styling options available.
             </p>
-            <p class="mt-2 text-base text-indigo-200 max-w-2xl mx-auto">
+            <p class="mt-2 text-base text-emerald-200 max-w-2xl mx-auto">
                 See how work experience, projects, skills, and certifications come together in a professional, shareable format. No account needed—just click and explore!
             </p>
             <div class="mt-8">
-                <a href="<?php echo APP_URL; ?>/cv/@simple-cv-example" target="_blank" class="inline-flex items-center justify-center rounded-lg bg-white px-8 py-3 text-base font-semibold text-indigo-600 shadow-lg hover:bg-indigo-50 transition-colors">
+                <a href="<?php echo APP_URL; ?>/cv/@simple-cv-example" target="_blank" class="inline-flex items-center justify-center rounded-lg bg-white px-8 py-3 text-base font-semibold text-emerald-600 shadow-lg hover:bg-emerald-50 transition-colors">
                     View Example CV
                     <svg class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
