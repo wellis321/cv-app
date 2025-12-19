@@ -235,6 +235,25 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
                 })
             }
 
+            if (edu.field_of_study) {
+                eduContent.push({
+                    text: decodeHtmlEntities(edu.field_of_study),
+                    fontSize: 8,
+                    color: template.colors.muted,
+                    margin: [0, 0, 0, 2]
+                })
+            }
+
+            if (edu.grade) {
+                eduContent.push({
+                    text: `Grade: ${decodeHtmlEntities(edu.grade)}`,
+                    fontSize: 8,
+                    bold: true,
+                    color: template.colors.body,
+                    margin: [0, 0, 0, 2]
+                })
+            }
+
             if (edu.start_date || edu.end_date) {
                 const startYear = edu.start_date ? new Date(edu.start_date).getFullYear() : ''
                 const endYear = edu.end_date ? new Date(edu.end_date).getFullYear() : 'Present'

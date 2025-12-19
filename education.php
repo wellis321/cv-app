@@ -27,6 +27,7 @@ if (isPost()) {
         $institution = sanitizeInput(post('institution', ''));
         $degree = sanitizeInput(post('degree', ''));
         $fieldOfStudy = sanitizeInput(post('field_of_study', ''));
+        $grade = sanitizeInput(post('grade', ''));
 
         // Validate required fields - only qualification is required
         if (empty($degree)) {
@@ -50,6 +51,11 @@ if (isPost()) {
             redirect('/education.php');
         }
 
+        if (!empty($grade) && checkForXss($grade)) {
+            setFlash('error', 'Invalid content in grade');
+            redirect('/education.php');
+        }
+
         // Length validation
         if (!empty($institution) && strlen($institution) > 255) {
             setFlash('error', 'Institution name must be 255 characters or less');
@@ -66,12 +72,18 @@ if (isPost()) {
             redirect('/education.php');
         }
 
+        if (!empty($grade) && strlen($grade) > 100) {
+            setFlash('error', 'Grade must be 100 characters or less');
+            redirect('/education.php');
+        }
+
         $data = [
             'id' => generateUuid(),
             'profile_id' => $userId,
             'institution' => !empty($institution) ? $institution : null,
             'degree' => $degree,
             'field_of_study' => !empty($fieldOfStudy) ? $fieldOfStudy : null,
+            'grade' => !empty($grade) ? $grade : null,
             'start_date' => post('start_date', '') ?: null,
             'end_date' => post('end_date', '') ?: null,
             'created_at' => date('Y-m-d H:i:s'),
@@ -137,6 +149,8 @@ if (isPost()) {
                         <input type="text" id="institution" name="institution" maxlength="255" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"></div>
                     <div><label for="field_of_study" class="block text-sm font-medium text-gray-700">Field of Study</label>
                         <input type="text" id="field_of_study" name="field_of_study" maxlength="255" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"></div>
+                    <div><label for="grade" class="block text-sm font-medium text-gray-700">Grade</label>
+                        <input type="text" id="grade" name="grade" maxlength="100" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md" placeholder="e.g. First Class Honours, A*, Distinction"></div>
                     <div><label for="start_date" class="block text-sm font-medium text-gray-700">Start Date</label>
                         <input type="date" id="start_date" name="start_date" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"></div>
                     <div><label for="end_date" class="block text-sm font-medium text-gray-700">End Date</label>
@@ -155,6 +169,7 @@ if (isPost()) {
                             <h3 class="text-xl font-semibold"><?php echo e($edu['degree']); ?></h3>
                             <?php if ($edu['institution']): ?><p class="text-lg text-gray-700"><?php echo e($edu['institution']); ?></p><?php endif; ?>
                             <?php if ($edu['field_of_study']): ?><p class="text-gray-600"><?php echo e($edu['field_of_study']); ?></p><?php endif; ?>
+                            <?php if ($edu['grade']): ?><p class="text-gray-600 font-medium">Grade: <?php echo e($edu['grade']); ?></p><?php endif; ?>
                             <?php if ($edu['start_date']): ?>
                                 <p class="text-sm text-gray-500"><?php echo date('M Y', strtotime($edu['start_date'])); ?> - <?php echo $edu['end_date'] ? date('M Y', strtotime($edu['end_date'])) : 'Present'; ?></p>
                             <?php elseif ($edu['end_date']): ?>

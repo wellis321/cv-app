@@ -114,6 +114,12 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
             if (edu.institution) {
                 html += `<p style="font-size: 10px; color: ${colors.muted}; margin: 0 0 4px 0;">${escapeHtml(edu.institution)}</p>`
             }
+            if (edu.field_of_study) {
+                html += `<p style="font-size: 10px; color: ${colors.muted}; margin: 0 0 4px 0;">${escapeHtml(edu.field_of_study)}</p>`
+            }
+            if (edu.grade) {
+                html += `<p style="font-size: 10px; font-weight: bold; color: ${colors.body}; margin: 0 0 4px 0;">Grade: ${escapeHtml(edu.grade)}</p>`
+            }
             if (edu.start_date || edu.end_date) {
                 const startYear = edu.start_date ? new Date(edu.start_date).getFullYear() : ''
                 const endYear = edu.end_date ? new Date(edu.end_date).getFullYear() : 'Present'

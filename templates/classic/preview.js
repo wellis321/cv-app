@@ -148,6 +148,10 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
                 html += `<p style="font-size: 13px; color: ${colors.muted}; margin: 0 0 4px 0;">${escapeHtml(edu.field_of_study)}</p>`
             }
 
+            if (edu.grade) {
+                html += `<p style="font-size: 13px; font-weight: bold; color: ${colors.body}; margin: 0 0 4px 0;">Grade: ${escapeHtml(edu.grade)}</p>`
+            }
+
             if (edu.start_date || edu.end_date) {
                 const dateRange = formatDateRange(edu.start_date, edu.end_date)
                 html += `<p style="font-size: 12px; color: ${colors.muted}; margin: 0;">${dateRange}</p>`

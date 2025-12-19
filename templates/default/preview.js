@@ -144,6 +144,9 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
             if (item.field_of_study) {
                 html += `<p class="text-sm" style="color:${mutedColor};">${escapeHtml(item.field_of_study)}</p>`;
             }
+            if (item.grade) {
+                html += `<p class="text-sm font-medium" style="color:${bodyColor};">Grade: ${escapeHtml(item.grade)}</p>`;
+            }
             html += `<p class="text-xs mt-1" style="color:${mutedColor};">${formatCvPreviewDate(item.start_date)}${item.end_date ? ' - ' + formatCvPreviewDate(item.end_date) : ' - Present'}</p>`;
             html += '</div>';
         });

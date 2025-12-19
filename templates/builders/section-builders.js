@@ -174,6 +174,17 @@ export function buildEducationSection(education, template, options = {}) {
             })
         }
 
+        // Grade
+        if (edu.grade) {
+            eduContent.push({
+                text: `Grade: ${decodeHtmlEntities(edu.grade)}`,
+                fontSize: fontSize - 0.5,
+                color: bodyColor,
+                bold: true,
+                margin: [0, 0, 0, 2]
+            })
+        }
+
         // Dates
         if (showDates && (edu.start_date || edu.end_date)) {
             eduContent.push({

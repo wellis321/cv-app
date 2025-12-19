@@ -281,6 +281,9 @@ function formatCvDate($date, $format = null) {
                                         <?php if (!empty($edu['field_of_study'])): ?>
                                             <p class="text-gray-600 text-sm"><?php echo e($edu['field_of_study']); ?></p>
                                         <?php endif; ?>
+                                        <?php if (!empty($edu['grade'])): ?>
+                                            <p class="text-gray-900 text-sm font-medium">Grade: <?php echo e($edu['grade']); ?></p>
+                                        <?php endif; ?>
                                         <p class="text-gray-600 text-xs mt-1">
                                             <?php echo formatCvDate($edu['start_date']); ?>
                                             <?php if (!empty($edu['end_date'])): ?>
