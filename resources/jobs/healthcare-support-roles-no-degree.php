@@ -340,19 +340,11 @@ $faqs = [
             margin-left: 1.5rem;
             margin-bottom: 1rem;
         }
-        /* Ensure info boxes clear the float and don't overlap */
+        /* Ensure info boxes clear the float and go full width */
         .job-content-wrapper .bg-blue-50 {
             clear: both;
             margin-top: 1.5rem;
             width: 100%;
-        }
-        /* On larger screens, allow text to wrap but ensure boxes don't overlap */
-        @media (min-width: 1024px) {
-            .job-content-wrapper .bg-blue-50 {
-                clear: both;
-                width: auto;
-                max-width: calc(100% - 18rem); /* Leave space for image */
-            }
         }
         @media (max-width: 1023px) {
             .job-content-wrapper .float-right {
@@ -360,9 +352,6 @@ $faqs = [
                 margin: 0 auto 1.5rem;
                 width: 100%;
                 max-width: 300px;
-            }
-            .job-content-wrapper .bg-blue-50 {
-                width: 100%;
             }
         }
     </style>
