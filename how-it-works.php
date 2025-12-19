@@ -149,15 +149,15 @@ $exampleCvUrl = APP_URL . '/cv/@simple-cv-example';
 
             <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
                 <h3 class="font-semibold text-blue-900 mb-2">What You Can Add:</h3>
-                <ul class="list-disc list-inside text-blue-800 space-y-1">
-                    <li><strong>Full Name</strong> - Your professional name (required)</li>
-                    <li><strong>Username</strong> - Used in your CV URL: <code class="bg-blue-100 px-1 rounded">/cv/@yourusername</code></li>
-                    <li><strong>Location</strong> - Your city or region</li>
-                    <li><strong>Phone Number</strong> - Contact phone number</li>
-                    <li><strong>Email</strong> - Your professional email address</li>
-                    <li><strong>LinkedIn URL</strong> - Link to your LinkedIn profile</li>
-                    <li><strong>Strapline</strong> - A short professional tagline or summary</li>
-                </ul>
+                <p class="text-blue-800 mb-2">
+                    Your personal profile includes your <strong>full name</strong> (required), which appears prominently at the top of your CV. You can also add a <strong>username</strong> that creates your unique CV URL (<code class="bg-blue-100 px-1 rounded">/cv/@yourusername</code>), making it easy to share your CV with employers.
+                </p>
+                <p class="text-blue-800 mb-2">
+                    Include your <strong>location</strong> (city or region), <strong>phone number</strong>, and <strong>professional email address</strong> so employers can easily contact you. You can also add a <strong>LinkedIn URL</strong> to connect your online professional profile.
+                </p>
+                <p class="text-blue-800">
+                    Finally, add a <strong>strapline</strong>—a short professional tagline or summary that captures your professional identity in a few words. This appears right below your name and helps employers quickly understand who you are.
+                </p>
             </div>
 
             <p class="text-sm text-gray-500">
@@ -177,10 +177,12 @@ $exampleCvUrl = APP_URL . '/cv/@simple-cv-example';
 
             <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
                 <h3 class="font-semibold text-green-900 mb-2">How It Works:</h3>
-                <ul class="list-disc list-inside text-green-800 space-y-2">
-                    <li><strong>Public (On):</strong> Anyone with your CV link can view it - perfect for sharing with employers</li>
-                    <li><strong>Private (Off):</strong> Only you can view it when logged in - great for privacy or when you're still editing</li>
-                </ul>
+                <p class="text-green-800 mb-2">
+                    When your CV is set to <strong>Public (On)</strong>, anyone with your CV link can view it. This is perfect for sharing with employers, recruiters, or networking contacts. Your CV becomes accessible to anyone who has the link, making it easy to distribute during your job search.
+                </p>
+                <p class="text-green-800">
+                    When set to <strong>Private (Off)</strong>, only you can view your CV when logged in. This is great for privacy when you're still editing, or if you want to keep your CV hidden until you're ready to share it. Even if someone has your CV link, they won't be able to access it when it's private.
+                </p>
             </div>
 
             <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
@@ -206,12 +208,15 @@ $exampleCvUrl = APP_URL . '/cv/@simple-cv-example';
 
             <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
                 <h3 class="font-semibold text-blue-900 mb-2">Photo Options:</h3>
-                <ul class="list-disc list-inside text-blue-800 space-y-2">
-                    <li><strong>Upload or Take Photo:</strong> Add a professional headshot (JPG, PNG, GIF, or WebP, max 5MB)</li>
-                    <li><strong>Show on Online CV:</strong> Display your photo on your public CV page</li>
-                    <li><strong>Show in PDF:</strong> Include your photo when generating PDFs</li>
-                    <li><strong>QR Code Alternative:</strong> If you hide your photo, a QR code linking to your CV will appear instead</li>
-                </ul>
+                <p class="text-blue-800 mb-2">
+                    You can <strong>upload or take a photo</strong> directly from your device. We support JPG, PNG, GIF, or WebP formats with a maximum file size of 5MB. Choose a professional headshot that presents you well.
+                </p>
+                <p class="text-blue-800 mb-2">
+                    Control where your photo appears with two separate options: <strong>Show on Online CV</strong> displays your photo on your public CV page, while <strong>Show in PDF</strong> includes your photo when generating PDF downloads. You can enable one, both, or neither option depending on your preferences.
+                </p>
+                <p class="text-blue-800">
+                    If you choose to hide your photo, a <strong>QR code alternative</strong> will appear instead. This QR code links directly to your CV, allowing employers to quickly scan and access your live CV online from your printed PDF.
+                </p>
             </div>
 
             <p class="text-sm text-gray-500">
@@ -231,13 +236,15 @@ $exampleCvUrl = APP_URL . '/cv/@simple-cv-example';
 
             <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
                 <h3 class="font-semibold text-blue-900 mb-2">For Each Job, You Can Add:</h3>
-                <ul class="list-disc list-inside text-blue-800 space-y-1">
-                    <li><strong>Job Title / Position</strong> - Your role title</li>
-                    <li><strong>Company Name</strong> - Employer name</li>
-                    <li><strong>Start & End Dates</strong> - Employment period (or mark as "Current Job")</li>
-                    <li><strong>Description</strong> - Overview of your role</li>
-                    <li><strong>Key Responsibilities</strong> - Organise responsibilities by categories with bullet points</li>
-                </ul>
+                <p class="text-blue-800 mb-2">
+                    Start with the basics: your <strong>job title or position</strong> and the <strong>company name</strong>. Add your <strong>start and end dates</strong> to show your employment period, or mark the position as "Current Job" if you're still working there.
+                </p>
+                <p class="text-blue-800 mb-2">
+                    Include a <strong>description</strong> that provides an overview of your role and the company. This gives context to employers about your position and the organisation you worked for.
+                </p>
+                <p class="text-blue-800">
+                    Most importantly, add your <strong>key responsibilities</strong> organised by categories with bullet points. This allows you to group your achievements logically—for example, separating project management tasks from technical achievements or client relations.
+                </p>
             </div>
 
             <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
@@ -265,12 +272,12 @@ $exampleCvUrl = APP_URL . '/cv/@simple-cv-example';
 
             <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <h3 class="font-semibold text-blue-900 mb-2">Education Details Include:</h3>
-                <ul class="list-disc list-inside text-blue-800 space-y-1">
-                    <li><strong>Degree / Course</strong> - Qualification name</li>
-                    <li><strong>Institution</strong> - School or university name</li>
-                    <li><strong>Field of Study</strong> - Your major or specialization</li>
-                    <li><strong>Dates</strong> - Start and end dates of your studies</li>
-                </ul>
+                <p class="text-blue-800 mb-2">
+                    For each qualification, include the <strong>degree or course name</strong>, the <strong>institution</strong> (school or university), and your <strong>field of study</strong> or major. This helps employers understand your educational background and specialisation.
+                </p>
+                <p class="text-blue-800">
+                    Add the <strong>start and end dates</strong> of your studies to show when you completed your education. List your qualifications in reverse chronological order, with the most recent first.
+                </p>
             </div>
         </section>
 
@@ -286,11 +293,12 @@ $exampleCvUrl = APP_URL . '/cv/@simple-cv-example';
 
             <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <h3 class="font-semibold text-blue-900 mb-2">Skill Features:</h3>
-                <ul class="list-disc list-inside text-blue-800 space-y-1">
-                    <li><strong>Skill Name</strong> - The skill or technology</li>
-                    <li><strong>Category</strong> - Group skills (e.g., "Technical", "Languages", "Software")</li>
-                    <li><strong>Level</strong> - Optional proficiency level (e.g., "Beginner", "Intermediate", "Expert")</li>
-                </ul>
+                <p class="text-blue-800 mb-2">
+                    Add each <strong>skill or technology</strong> you want to highlight. Organise your skills into <strong>categories</strong> like "Technical", "Languages", or "Software" to make it easy for employers to see your competencies at a glance.
+                </p>
+                <p class="text-blue-800">
+                    Optionally, you can add a <strong>proficiency level</strong> (such as "Beginner", "Intermediate", or "Expert") to indicate your level of expertise with each skill. This helps employers understand your capabilities more precisely.
+                </p>
             </div>
         </section>
 
@@ -306,13 +314,15 @@ $exampleCvUrl = APP_URL . '/cv/@simple-cv-example';
 
             <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <h3 class="font-semibold text-blue-900 mb-2">Project Details:</h3>
-                <ul class="list-disc list-inside text-blue-800 space-y-1">
-                    <li><strong>Project Title</strong> - Name of your project</li>
-                    <li><strong>Description</strong> - What the project is about</li>
-                    <li><strong>Dates</strong> - When you worked on it</li>
-                    <li><strong>Project URL</strong> - Link to live project or GitHub repository</li>
-                    <li><strong>Project Image</strong> - Optional screenshot or image</li>
-                </ul>
+                <p class="text-blue-800 mb-2">
+                    Start with a <strong>project title</strong> and a <strong>description</strong> that explains what the project is about and what you accomplished. Include the <strong>dates</strong> when you worked on it to show the timeline of your work.
+                </p>
+                <p class="text-blue-800 mb-2">
+                    If your project is live or available online, add a <strong>project URL</strong> linking to the live project or your GitHub repository. This allows employers to see your work in action.
+                </p>
+                <p class="text-blue-800">
+                    You can also upload a <strong>project image</strong>—a screenshot or visual representation of your project. This helps employers quickly understand what you built and makes your CV more visually engaging.
+                </p>
             </div>
         </section>
 
@@ -328,12 +338,12 @@ $exampleCvUrl = APP_URL . '/cv/@simple-cv-example';
 
             <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <h3 class="font-semibold text-blue-900 mb-2">Certification Information:</h3>
-                <ul class="list-disc list-inside text-blue-800 space-y-1">
-                    <li><strong>Certification Name</strong> - Name of the certification</li>
-                    <li><strong>Issuer</strong> - Organization that issued it</li>
-                    <li><strong>Date Obtained</strong> - When you earned it</li>
-                    <li><strong>Expiry Date</strong> - If applicable, when it expires</li>
-                </ul>
+                <p class="text-blue-800 mb-2">
+                    For each certification, include the <strong>certification name</strong> and the <strong>issuer</strong>—the organisation that issued it. This helps employers verify your credentials and understand the source of your certification.
+                </p>
+                <p class="text-blue-800">
+                    Add the <strong>date obtained</strong> to show when you earned the certification. If your certification has an expiry date, include that as well so employers know whether your certification is still current.
+                </p>
             </div>
         </section>
 
@@ -349,13 +359,15 @@ $exampleCvUrl = APP_URL . '/cv/@simple-cv-example';
 
             <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
                 <h3 class="font-semibold text-blue-900 mb-2">What to Include:</h3>
-                <ul class="list-disc list-inside text-blue-800 space-y-1">
-                    <li>Hobbies and interests</li>
-                    <li>Volunteer work</li>
-                    <li>Sports and activities</li>
-                    <li>Professional memberships</li>
-                    <li>Any other relevant activities</li>
-                </ul>
+                <p class="text-blue-800 mb-2">
+                    Include your <strong>hobbies and interests</strong> to show your personality and what you enjoy outside of work. This helps employers get a sense of who you are as a person.
+                </p>
+                <p class="text-blue-800 mb-2">
+                    Add any <strong>volunteer work</strong> you've done, as this demonstrates your commitment to giving back and can showcase relevant skills. Include <strong>sports and activities</strong> that highlight teamwork, discipline, or leadership qualities.
+                </p>
+                <p class="text-blue-800">
+                    Don't forget to mention any <strong>professional memberships</strong> or other relevant activities that demonstrate your engagement with your industry or community. These details help paint a complete picture of your professional and personal development.
+                </p>
             </div>
         </section>
 
@@ -371,22 +383,22 @@ $exampleCvUrl = APP_URL . '/cv/@simple-cv-example';
 
             <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
                 <h3 class="font-semibold text-blue-900 mb-2">Available Templates:</h3>
-                <ul class="list-disc list-inside text-blue-800 space-y-2">
-                    <li><strong>Professional Blue</strong> - Classic business layout with blue accents</li>
-                    <li><strong>Minimal</strong> - Clean, simple design with subtle dividers</li>
-                    <li><strong>Classic</strong> - Traditional formal layout</li>
-                    <li><strong>Modern</strong> - Contemporary two-column design</li>
-                </ul>
+                <p class="text-blue-800 mb-2">
+                    Choose from four professional templates designed for different styles and industries. <strong>Professional Blue</strong> offers a classic business layout with blue accents, perfect for corporate roles. <strong>Minimal</strong> provides a clean, simple design with subtle dividers for a modern, understated look.
+                </p>
+                <p class="text-blue-800">
+                    The <strong>Classic</strong> template features a traditional formal layout ideal for conservative industries, while <strong>Modern</strong> uses a contemporary two-column design that maximises space and visual appeal.
+                </p>
             </div>
 
             <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
                 <h3 class="font-semibold text-gray-900 mb-2">Customisation Options:</h3>
-                <ul class="list-disc list-inside text-gray-700 space-y-1">
-                    <li>Customise header colours with gradient options</li>
-                    <li>Choose from predefined colour schemes</li>
-                    <li>Select which sections to include</li>
-                    <li>Control photo and QR code visibility</li>
-                </ul>
+                <p class="text-gray-700 mb-2">
+                    Personalise your CV's appearance by customising header colours with gradient options or choosing from predefined colour schemes. This allows you to match your CV to your personal brand or industry standards.
+                </p>
+                <p class="text-gray-700">
+                    You have full control over which sections to include in your CV, and you can manage photo and QR code visibility independently. This flexibility lets you tailor your CV for different applications while maintaining a consistent professional look.
+                </p>
             </div>
         </section>
 
@@ -402,13 +414,15 @@ $exampleCvUrl = APP_URL . '/cv/@simple-cv-example';
 
             <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
                 <h3 class="font-semibold text-blue-900 mb-2">PDF Features:</h3>
-                <ul class="list-disc list-inside text-blue-800 space-y-2">
-                    <li><strong>Choose Sections:</strong> Select which sections to include in your PDF</li>
-                    <li><strong>Include Photo:</strong> Optionally add your profile photo</li>
-                    <li><strong>QR Code:</strong> Add a QR code that links directly to your personal CV page - when scanned, it opens your live CV online</li>
-                    <li><strong>Template Matching:</strong> PDF matches your selected template design</li>
-                    <li><strong>Print Ready:</strong> Optimised for A4 paper size</li>
-                </ul>
+                <p class="text-blue-800 mb-2">
+                    When generating your PDF, you can <strong>choose which sections to include</strong>, giving you complete control over what employers see. This is perfect for tailoring your CV to specific job applications. You can also <strong>optionally include your profile photo</strong> if you want a more personal touch.
+                </p>
+                <p class="text-blue-800 mb-2">
+                    One of our standout features is the <strong>QR code</strong> option. When included, the QR code links directly to your personal CV page. Employers can simply scan it with their phone to instantly view your live, up-to-date CV online—perfect for networking events or printed CVs.
+                </p>
+                <p class="text-blue-800">
+                    Your PDF will <strong>match your selected template design</strong> exactly, ensuring consistency between your online and printed CV. All PDFs are <strong>optimised for A4 paper size</strong> and print-ready, so you can confidently share them via email or print them for interviews.
+                </p>
             </div>
 
             <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
@@ -441,13 +455,9 @@ $exampleCvUrl = APP_URL . '/cv/@simple-cv-example';
 
                 <div class="bg-green-50 border border-green-200 rounded-lg p-4">
                     <h3 class="font-semibold text-green-900 mb-2">PDF Download</h3>
-                    <p class="text-green-800 mb-2">Generate a PDF version for:</p>
-                    <ul class="list-disc list-inside text-green-700 space-y-1">
-                        <li>Email attachments</li>
-                        <li>Printing</li>
-                        <li>Job application portals</li>
-                        <li>Offline sharing</li>
-                    </ul>
+                    <p class="text-green-800 mb-2">
+                        Generate a professional PDF version of your CV for <strong>email attachments</strong>, <strong>printing</strong>, <strong>job application portals</strong>, or <strong>offline sharing</strong>. PDFs preserve your formatting perfectly, ensuring your CV looks professional regardless of how it's viewed.
+                    </p>
                     <p class="text-sm text-green-700 mt-3">
                         <strong>💡 QR Code Feature:</strong> When you include a QR code in your PDF, it links directly to your personal CV page (<code class="bg-green-100 px-1 rounded"><?php echo APP_URL; ?>/cv/@yourusername</code>). Employers can scan it with their phone to instantly view your live, up-to-date CV online!
                     </p>

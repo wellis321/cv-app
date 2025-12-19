@@ -151,6 +151,31 @@
     </div>
 </div>
 
+<!-- Example CV CTA Section -->
+<div class="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 py-16 sm:py-20">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="text-center">
+            <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                See It In Action
+            </h2>
+            <p class="mt-4 text-lg text-indigo-100 max-w-2xl mx-auto">
+                Want to see what your CV could look like? Check out our example CV to explore all the features, templates, and styling options available.
+            </p>
+            <p class="mt-2 text-base text-indigo-200 max-w-2xl mx-auto">
+                See how work experience, projects, skills, and certifications come together in a professional, shareable format. No account needed—just click and explore!
+            </p>
+            <div class="mt-8">
+                <a href="<?php echo APP_URL; ?>/cv/@simple-cv-example" target="_blank" class="inline-flex items-center justify-center rounded-lg bg-white px-8 py-3 text-base font-semibold text-indigo-600 shadow-lg hover:bg-indigo-50 transition-colors">
+                    View Example CV
+                    <svg class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- How It Works Section -->
 <div class="bg-white py-12 sm:py-16" id="process">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
