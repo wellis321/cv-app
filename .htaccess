@@ -9,6 +9,10 @@ RewriteRule ^ - [L]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
+# Handle /resources/ directory - redirect to index.php
+RewriteCond %{REQUEST_URI} ^/resources/?$
+RewriteRule ^resources/?$ /resources/index.php [L]
+
 # Handle storage files - serve directly via proxy
 RewriteCond %{REQUEST_URI} ^/storage/
 RewriteRule ^storage/(.*)$ api/storage-proxy.php?path=$1 [L,QSA]
