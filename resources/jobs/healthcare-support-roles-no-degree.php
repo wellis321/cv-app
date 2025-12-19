@@ -240,51 +240,6 @@ $jobs = [
         ],
         'training' => 'Study mental health conditions, therapeutic communication, and crisis management through Counselling Skills training.',
     ],
-    [
-        'id' => 'occupational-therapy-assistant',
-        'title' => 'Occupational Therapy Assistant (OTA)',
-        'number' => 21,
-        'overview' => 'OTAs support occupational therapists in helping individuals regain independence after illness, injury, or disability by assisting with daily activities, adapting environments, and tracking recovery progress.',
-        'requirements' => 'GCSEs and healthcare experience or occupational therapy assistant training introducing therapy principles, patient support, and rehabilitation.',
-        'salary' => [
-            'Entry Level: £21,000 - £28,000 annually',
-            'Senior OTA: £35,000+',
-            'Progression: OTA → Senior OTA → Qualified Occupational Therapist',
-        ],
-        'training' => 'Complete Occupational Therapy courses covering patient care essentials, mobility assistance, and adaptive techniques.',
-        'bonus' => true,
-    ],
-];
-
-$faqs = [
-    [
-        'question' => 'What is the highest-paying healthcare job without a degree in the UK?',
-        'answer' => 'Health and Safety Officers, Senior Healthcare Assistants, and experienced Healthcare Support Workers can earn £30,000-£45,000+ annually with experience and accredited training.',
-    ],
-    [
-        'question' => 'Can I work for the NHS without a degree?',
-        'answer' => 'Yes, the NHS offers numerous roles including Healthcare Assistant, First Aider, and Clinical Support Worker that don\'t require degrees. Completing accredited training courses strengthens your application.',
-    ],
-    [
-        'question' => 'What is the easiest healthcare job to get into in the UK?',
-        'answer' => 'Healthcare Assistant and Support Worker roles are typically the most accessible. With Level 2-3 Health and Social Care training, you can become job-ready within weeks.',
-    ],
-    [
-        'question' => 'How long does it take to qualify for a healthcare job without a degree?',
-        'answer' => 'Most accredited healthcare courses take 4-12 weeks to complete. Once certified, you can immediately begin applying for entry-level positions.',
-    ],
-    [
-        'question' => 'Can I be successful in healthcare without a degree?',
-        'answer' => 'Absolutely. Many UK healthcare professionals build rewarding careers through vocational training and continuous learning. With experience, you can progress to supervisory or specialist roles earning competitive salaries.',
-    ],
-    [
-        'question' => 'What healthcare careers can I start with short online training?',
-        'answer' => 'You can quickly train for roles like First Aider, Mental Health Support Worker, Nutrition Advisor, and Medical Transcriptionist with short, flexible online courses.',
-    ],
-    [
-        'question' => 'Are healthcare jobs in high demand?',
-        'answer' => 'Yes. Healthcare Assistants, First Aiders, Mental Health Support Workers, and Occupational Therapy Assistants are among the most in-demand roles, with consistent vacancies across the UK.',
-    ],
 ];
 
 ?>
@@ -412,7 +367,6 @@ $faqs = [
             'massage-therapist' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>',
             'sterile-services-technician' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>',
             'mental-health-support-assistant' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>',
-            'occupational-therapy-assistant' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>',
         ];
 
         $iconIndex = 0;
@@ -473,10 +427,10 @@ $faqs = [
         <?php endforeach; ?>
     </section>
 
-    <!-- How to Choose Section -->
-    <section id="how-to-choose" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <!-- Finding Your Fit Section -->
+    <section id="finding-your-fit" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg shadow-slate-900/5">
-            <h2 class="text-2xl font-semibold text-slate-900 mb-6">How to Choose the Right Healthcare Path for You</h2>
+            <h2 class="text-2xl font-semibold text-slate-900 mb-6">Finding Your Perfect Healthcare Role</h2>
 
             <!-- Full-width image -->
             <div class="mb-6 rounded-xl overflow-hidden border border-slate-200 bg-gradient-to-br from-violet-100 via-purple-100 to-fuchsia-100 h-64 flex items-center justify-center">
@@ -538,10 +492,10 @@ $faqs = [
         </div>
     </section>
 
-    <!-- Next Steps Section -->
-    <section id="next-steps" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <!-- Getting Started Section -->
+    <section id="getting-started" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg shadow-slate-900/5">
-            <h2 class="text-2xl font-semibold text-slate-900 mb-6">Your Next Steps to Begin a Healthcare Career</h2>
+            <h2 class="text-2xl font-semibold text-slate-900 mb-6">Getting Started in Healthcare</h2>
 
             <!-- Full-width image -->
             <div class="mb-6 rounded-xl overflow-hidden border border-slate-200 bg-gradient-to-br from-amber-100 via-orange-100 to-red-100 h-64 flex items-center justify-center">
@@ -596,39 +550,6 @@ $faqs = [
                     </div>
                     <div class="clear-both"></div>
                 </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- FAQ Section -->
-    <section id="faq" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg shadow-slate-900/5">
-            <h2 class="text-2xl font-semibold text-slate-900 mb-8">Frequently Asked Questions</h2>
-
-            <!-- Full-width image -->
-            <div class="mb-8 rounded-xl overflow-hidden border border-slate-200 bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 h-48 flex items-center justify-center">
-                <svg class="w-20 h-20 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-            </div>
-
-            <div class="space-y-6">
-                <?php foreach ($faqs as $index => $faq): ?>
-                    <div class="border-l-4 border-blue-500 pl-4">
-                        <h3 class="font-semibold text-slate-900 mb-2"><?php echo e($faq['question']); ?></h3>
-                        <p class="text-slate-700"><?php echo e($faq['answer']); ?></p>
-                    </div>
-                    <?php if (($index + 1) % 3 === 0 && $index < count($faqs) - 1): ?>
-                        <!-- Add a floating image every 3 FAQs -->
-                        <div class="my-6 flex justify-center">
-                            <div class="rounded-xl overflow-hidden border border-slate-200 bg-gradient-to-br from-slate-100 via-gray-100 to-slate-100 w-48 h-32 flex items-center justify-center">
-                                <svg class="w-12 h-12 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
-                            </div>
-                        </div>
-                    <?php endif; ?>
-                <?php endforeach; ?>
             </div>
         </div>
     </section>
