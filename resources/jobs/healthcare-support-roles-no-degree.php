@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../../php/helpers.php';
 
 $pageTitle = 'Top Healthcare Jobs You Can Start Without a Degree';
-$metaDescription = 'Explore 20 rewarding healthcare careers that don\'t require a university degree. Learn about salaries, training paths, and how to start your healthcare career today.';
+$metaDescription = 'Explore rewarding healthcare careers that don\'t require a university degree. Learn about salaries, training paths, and how to start your healthcare career today.';
 
 $jobs = [
     [
@@ -32,22 +32,9 @@ $jobs = [
         'training' => 'Pursue a Level 3 Diploma in Health and Social Care. Focus on learning safeguarding, person-centred care, and professional communication skills.',
     ],
     [
-        'id' => 'phlebotomist',
-        'title' => 'Phlebotomist',
-        'number' => 3,
-        'overview' => 'Phlebotomists collect blood samples for testing, transfusions, donations, and research. Working in hospitals, GP surgeries, and private clinics, they ensure samples are safely taken using sterile techniques while providing a calm presence for nervous patients.',
-        'requirements' => 'No degree needed. Many start through phlebotomy courses that teach anatomy, infection control, and venepuncture techniques. NHS trusts often provide apprenticeships or on-the-job training.',
-        'salary' => [
-            'Starting: £21,000 - £26,000 (NHS Band 2-3)',
-            'Experienced: Up to £30,000+ in private diagnostics',
-            'Progression: Senior Phlebotomist → Laboratory Technician → Healthcare Management',
-        ],
-        'training' => 'Complete accredited phlebotomy training covering venepuncture procedures, sample labelling, infection prevention, and patient communication.',
-    ],
-    [
         'id' => 'first-aid-responder',
         'title' => 'First Aider / Workplace First Aid Responder',
-        'number' => 4,
+        'number' => 3,
         'overview' => 'First Aid Responders handle medical emergencies before professional help arrives, providing immediate care during accidents, injuries, or sudden illnesses. They work across offices, schools, factories, and public facilities.',
         'requirements' => 'First Aid at Work certificate or equivalent training. Many organisations cover training costs as part of health and safety compliance.',
         'salary' => [
@@ -59,8 +46,8 @@ $jobs = [
     ],
     [
         'id' => 'health-safety-officer',
-        'title' => 'Health and Safety Officer / Advisor',
-        'number' => 5,
+        'title' => 'Health and Safety Officer',
+        'number' => 4,
         'overview' => 'Health and Safety Officers ensure workplaces comply with safety laws, preventing accidents and injuries through risk assessments, policy implementation, employee training, and incident investigation.',
         'requirements' => 'Level 3 Certificate in Health and Safety or equivalent accredited training. Many professionals begin as First Aid Responders before specialising.',
         'salary' => [
@@ -73,7 +60,7 @@ $jobs = [
     [
         'id' => 'child-mental-health-support',
         'title' => 'Child Mental Health Support Worker',
-        'number' => 6,
+        'number' => 5,
         'overview' => 'These professionals provide emotional and behavioural support to children experiencing mental health challenges, working in schools, care homes, or community settings to identify early signs of anxiety, depression, or trauma.',
         'requirements' => 'Training in child psychology, safeguarding, or counselling. Practical knowledge of supporting children with mental health issues is often valued over formal qualifications.',
         'salary' => [
@@ -84,22 +71,9 @@ $jobs = [
         'training' => 'Complete Child Mental Health Support Worker training covering emotional development, safeguarding, and child psychology fundamentals.',
     ],
     [
-        'id' => 'dermatology-assistant',
-        'title' => 'Dermatology Assistant / Aesthetic Therapist',
-        'number' => 7,
-        'overview' => 'Dermatology Assistants support specialists in performing cosmetic and medical treatments, preparing patients, assisting during procedures, sterilising equipment, and advising on skincare routines.',
-        'requirements' => 'Professional skincare or aesthetics training through accredited courses in skin therapy, facial treatment, or dermatology support.',
-        'salary' => [
-            'Entry Level: £22,000 - £28,000 annually',
-            'Experienced: £35,000+ as Aesthetic Practitioner',
-            'Progression: Dermatology Assistant → Laser Technician → Clinic Supervisor',
-        ],
-        'training' => 'Study dermatology and skin care courses covering skin anatomy, acne treatment, facial techniques, and client safety.',
-    ],
-    [
         'id' => 'reflexology-practitioner',
         'title' => 'Reflexology / Acupressure Practitioner',
-        'number' => 8,
+        'number' => 6,
         'overview' => 'Practitioners help clients manage pain, anxiety, and stress through natural techniques stimulating the body\'s healing response. They apply pressure to specific points to promote relaxation and balance energy flow.',
         'requirements' => 'Accredited reflexology or acupressure training. Most practitioners complete online qualifications before gaining wellness setting experience.',
         'salary' => [
@@ -112,7 +86,7 @@ $jobs = [
     [
         'id' => 'medical-transcriptionist',
         'title' => 'Medical Transcriptionist',
-        'number' => 9,
+        'number' => 7,
         'overview' => 'Medical Transcriptionists convert recorded medical reports into written documents such as patient histories, referral letters, and discharge summaries, maintaining accuracy and confidentiality.',
         'requirements' => 'Strong English, grammar, and computer skills plus medical terminology knowledge. All can be learned through accredited training courses.',
         'salary' => [
@@ -126,7 +100,7 @@ $jobs = [
     [
         'id' => 'nutrition-advisor',
         'title' => 'Nutrition Advisor / Health Coach',
-        'number' => 10,
+        'number' => 8,
         'overview' => 'Nutrition Advisors help clients improve wellbeing through balanced diet plans, lifestyle guidance, and motivational support, educating on healthy eating habits and disease prevention.',
         'requirements' => 'Nutrition training or diploma providing foundational knowledge of dietary science, metabolism, and health coaching techniques.',
         'salary' => [
@@ -139,7 +113,7 @@ $jobs = [
     [
         'id' => 'care-home-support',
         'title' => 'Care Home Support Worker / Residential Care Assistant',
-        'number' => 11,
+        'number' => 9,
         'overview' => 'Care Home Support Workers provide daily assistance, companionship, and emotional support to residents, helping with meals, hygiene, mobility, and medication while ensuring dignity and comfort.',
         'requirements' => 'Training in health and social care, safeguarding, or dementia awareness. Practical knowledge and caring attitude highly valued.',
         'salary' => [
@@ -152,7 +126,7 @@ $jobs = [
     [
         'id' => 'dental-assistant',
         'title' => 'Dental Assistant / Dental Receptionist',
-        'number' => 12,
+        'number' => 10,
         'overview' => 'Dental Assistants provide clinical and administrative support, preparing treatment rooms, sterilising instruments, assisting during procedures, and managing patient records and appointments.',
         'requirements' => 'Dental support or medical administration training covering oral hygiene, infection control, and dental terminology.',
         'salary' => [
@@ -165,7 +139,7 @@ $jobs = [
     [
         'id' => 'emergency-care-assistant',
         'title' => 'Emergency Care Assistant (ECA)',
-        'number' => 13,
+        'number' => 11,
         'overview' => 'ECAs work alongside paramedics providing life-saving support in urgent situations, responding to emergency calls, transporting patients, and delivering vital first aid or CPR.',
         'requirements' => 'First aid, patient care, and emergency response training. Many enter after completing healthcare support or ambulance care programmes.',
         'salary' => [
@@ -178,7 +152,7 @@ $jobs = [
     [
         'id' => 'hospital-porter',
         'title' => 'Hospital Porter / Healthcare Support Worker',
-        'number' => 14,
+        'number' => 12,
         'overview' => 'Hospital Porters keep facilities running smoothly by transporting patients between departments, delivering equipment, assisting with meals, and maintaining cleanliness and safety standards.',
         'requirements' => 'Most employers provide on-the-job training. Healthcare support training or background in health and safety beneficial.',
         'salary' => [
@@ -191,7 +165,7 @@ $jobs = [
     [
         'id' => 'pharmacy-assistant',
         'title' => 'Pharmacy Assistant / Pharmacy Dispenser',
-        'number' => 15,
+        'number' => 13,
         'overview' => 'Pharmacy Assistants support pharmacists in preparing prescriptions, managing stock, advising customers, and ensuring medications are dispensed accurately and safely.',
         'requirements' => 'Basic GCSEs and on-the-job training. Pharmacy Assistant training significantly improves employment prospects.',
         'salary' => [
@@ -204,7 +178,7 @@ $jobs = [
     [
         'id' => 'physiotherapy-assistant',
         'title' => 'Physiotherapy Assistant',
-        'number' => 16,
+        'number' => 14,
         'overview' => 'Physiotherapy Assistants help patients recover from injuries, illnesses, or surgeries by setting up treatment areas, guiding exercises, monitoring progress, and providing motivational support.',
         'requirements' => 'GCSEs and caring attitude. Physiotherapy assistant training or healthcare experience enhances employability.',
         'salary' => [
@@ -217,7 +191,7 @@ $jobs = [
     [
         'id' => 'laboratory-assistant',
         'title' => 'Laboratory Assistant / Medical Lab Technician',
-        'number' => 17,
+        'number' => 15,
         'overview' => 'Laboratory Assistants collect and process biological samples, prepare equipment, record data, and assist scientists in testing and research critical for diagnosing and preventing disease.',
         'requirements' => 'GCSEs (particularly science subjects) and practical lab skills. Medical Laboratory Assistant training provides technical grounding.',
         'salary' => [
@@ -230,7 +204,7 @@ $jobs = [
     [
         'id' => 'massage-therapist',
         'title' => 'Massage Therapist / Holistic Therapist',
-        'number' => 18,
+        'number' => 16,
         'overview' => 'Massage Therapists help clients relieve pain, reduce stress, and improve wellbeing through therapeutic techniques including sports massage, aromatherapy, and reflexology.',
         'requirements' => 'Practical training and certification from massage therapy courses. University degree not required.',
         'salary' => [
@@ -243,7 +217,7 @@ $jobs = [
     [
         'id' => 'sterile-services-technician',
         'title' => 'Clinical Cleaning Operative / Sterile Services Technician',
-        'number' => 19,
+        'number' => 17,
         'overview' => 'These professionals maintain hygiene and safety by disinfecting patient areas, sterilising surgical instruments, managing infection control protocols, and ensuring equipment meets hospital standards.',
         'requirements' => 'Entry-level positions with on-the-job training. Clinical cleaning or infection control training provides competitive advantage.',
         'salary' => [
@@ -256,7 +230,7 @@ $jobs = [
     [
         'id' => 'mental-health-support-assistant',
         'title' => 'Counselling Support Worker / Mental Health Support Assistant',
-        'number' => 20,
+        'number' => 18,
         'overview' => 'Mental Health Support Workers provide emotional and practical support to individuals facing mental health challenges, helping develop coping strategies and maintain daily routines.',
         'requirements' => 'Compassion, communication skills, and relevant training. Mental Health or Counselling Support courses boost employability.',
         'salary' => [
@@ -285,11 +259,11 @@ $jobs = [
 $faqs = [
     [
         'question' => 'What is the highest-paying healthcare job without a degree in the UK?',
-        'answer' => 'Health and Safety Officers, Senior Healthcare Assistants, and Private Phlebotomists can earn £30,000-£45,000+ annually with experience and accredited training.',
+        'answer' => 'Health and Safety Officers, Senior Healthcare Assistants, and experienced Healthcare Support Workers can earn £30,000-£45,000+ annually with experience and accredited training.',
     ],
     [
         'question' => 'Can I work for the NHS without a degree?',
-        'answer' => 'Yes, the NHS offers numerous roles including Healthcare Assistant, Phlebotomist, and Clinical Support Worker that don\'t require degrees. Completing accredited training courses strengthens your application.',
+        'answer' => 'Yes, the NHS offers numerous roles including Healthcare Assistant, First Aider, and Clinical Support Worker that don\'t require degrees. Completing accredited training courses strengthens your application.',
     ],
     [
         'question' => 'What is the easiest healthcare job to get into in the UK?',
@@ -305,11 +279,11 @@ $faqs = [
     ],
     [
         'question' => 'What healthcare careers can I start with short online training?',
-        'answer' => 'You can quickly train for roles like Phlebotomist, First Aider, Mental Health Support Worker, Nutrition Advisor, and Medical Transcriptionist with short, flexible online courses.',
+        'answer' => 'You can quickly train for roles like First Aider, Mental Health Support Worker, Nutrition Advisor, and Medical Transcriptionist with short, flexible online courses.',
     ],
     [
         'question' => 'Are healthcare jobs in high demand?',
-        'answer' => 'Yes. Healthcare Assistants, Phlebotomists, Mental Health Support Workers, and Occupational Therapy Assistants are among the most in-demand roles, with consistent vacancies across the UK.',
+        'answer' => 'Yes. Healthcare Assistants, First Aiders, Mental Health Support Workers, and Occupational Therapy Assistants are among the most in-demand roles, with consistent vacancies across the UK.',
     ],
 ];
 
@@ -401,7 +375,7 @@ $faqs = [
             <div class="space-y-4 text-base leading-relaxed text-slate-700">
                 <p>The healthcare sector is experiencing unprecedented growth. With an ageing population and persistent staffing shortages, opportunities have never been greater for those seeking meaningful work. The best part? Many healthcare careers are accessible through short training programmes rather than expensive university degrees.</p>
                 <p>From patient care and emergency support to laboratory work and mental health assistance, entry-level roles form the foundation of the healthcare system. These positions help hospitals, clinics, and care facilities deliver safe, effective care every day.</p>
-                <p>In this comprehensive guide, we'll explore 20 healthcare jobs you can pursue with accredited training courses, vocational qualifications, or on-the-job learning. Whether you're a career changer, school leaver, or seeking more fulfilling work, there's a healthcare path waiting for you.</p>
+                <p>In this comprehensive guide, we'll explore healthcare jobs you can pursue with accredited training courses, vocational qualifications, or on-the-job learning. Whether you're a career changer, school leaver, or seeking more fulfilling work, there's a healthcare path waiting for you.</p>
             </div>
         </div>
     </section>
@@ -422,11 +396,9 @@ $faqs = [
         $healthcareIcons = [
             'nursing-assistant' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>',
             'health-social-care-assistant' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>',
-            'phlebotomist' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>',
             'first-aid-responder' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>',
             'health-safety-officer' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>',
             'child-mental-health-support' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>',
-            'dermatology-assistant' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>',
             'reflexology-practitioner' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m-2 4c.5.5 1.5 1 2.5 1s2-.5 2.5-1m-5-4a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m-2 4c.5.5 1.5 1 2.5 1s2-.5 2.5-1m-5-4a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>',
             'medical-transcriptionist' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>',
             'nutrition-advisor' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>',
@@ -472,7 +444,7 @@ $faqs = [
 
                     <div class="space-y-6 text-base leading-relaxed text-slate-700">
                         <div>
-                            <h3 class="font-semibold text-slate-900 mb-2">What the Role Involves</h3>
+                            <h3 class="font-semibold text-slate-900 mb-2">Overview</h3>
                             <p><?php echo e($job['overview']); ?></p>
                         </div>
 
@@ -560,7 +532,7 @@ $faqs = [
                 </div>
 
                 <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-base text-emerald-800">
-                    <strong>Pro Tip:</strong> Start with a single course that matches your interests—Health and Social Care, Phlebotomy, or Mental Health Support—and grow your career step by step. Many courses can be completed online while you continue working.
+                    <strong>Pro Tip:</strong> Start with a single course that matches your interests—Health and Social Care, First Aid, or Mental Health Support—and grow your career step by step. Many courses can be completed online while you continue working.
                 </div>
             </div>
         </div>
