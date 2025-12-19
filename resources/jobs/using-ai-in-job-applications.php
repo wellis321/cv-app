@@ -188,7 +188,7 @@ $sections = [
                     <!-- Text wrapping layout for "The Right Way to Use AI" section -->
                     <h2 class="text-2xl font-semibold text-slate-900 mb-4"><?php echo e($section['title']); ?></h2>
                     <div class="overflow-hidden">
-                        <div class="float-left w-full sm:w-80 mr-6 mb-4 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-sm">
+                        <div class="float-right w-full sm:w-80 ml-6 mb-4 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-sm">
                             <img src="<?php echo e($encodedImagePath); ?>"
                                  alt="<?php echo e($imageAlt); ?>"
                                  class="h-80 w-full object-cover" loading="lazy">
