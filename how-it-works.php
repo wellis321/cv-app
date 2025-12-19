@@ -105,6 +105,25 @@ $exampleCvUrl = APP_URL . '/cv/@simple-cv-example';
             </p>
         </div>
 
+        <!-- QR Code Demo Section -->
+        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg shadow-lg p-8 mb-12 border border-blue-200">
+            <div class="flex flex-col md:flex-row items-center justify-center gap-8">
+                <div class="text-center md:text-left flex-1">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-3">Try the QR Code Feature</h2>
+                    <p class="text-gray-700 mb-4">
+                        Scan this QR code with your phone to instantly view our example CV. This is the same QR code feature that appears in your PDF exports!
+                    </p>
+                    <p class="text-sm text-gray-600">
+                        The QR code links directly to: <code class="bg-white px-2 py-1 rounded text-xs"><?php echo e($exampleCvUrl); ?></code>
+                    </p>
+                </div>
+                <div class="flex-shrink-0">
+                    <div id="example-qr-code" class="bg-white p-4 rounded-lg shadow-md"></div>
+                    <p class="text-xs text-gray-600 mt-2 text-center">Scan to view example CV</p>
+                </div>
+            </div>
+        </div>
+
         <div class="flex gap-8">
             <!-- Collapsing Sidebar Navigation -->
             <nav id="sidebar-nav" class="sidebar-nav lg:block">
@@ -568,7 +587,39 @@ $exampleCvUrl = APP_URL . '/cv/@simple-cv-example';
     </main>
 
     <?php partial('footer'); ?>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
+        // Generate QR code for example CV
+        (function() {
+            function generateQRCode() {
+                const qrContainer = document.getElementById('example-qr-code');
+                if (!qrContainer) return;
+
+                if (typeof QRCode !== 'undefined') {
+                    // Clear any existing content
+                    qrContainer.innerHTML = '';
+                    new QRCode(qrContainer, {
+                        text: '<?php echo e($exampleCvUrl); ?>',
+                        width: 200,
+                        height: 200,
+                        colorDark: '#1e40af',
+                        colorLight: '#ffffff',
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+                } else {
+                    // Retry after a short delay if library hasn't loaded
+                    setTimeout(generateQRCode, 100);
+                }
+            }
+
+            // Try to generate immediately, or wait for load
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', generateQRCode);
+            } else {
+                generateQRCode();
+            }
+        })();
+
         (function() {
             const sidebarNav = document.getElementById('sidebar-nav');
             const mobileNavToggle = document.getElementById('mobile-nav-toggle');

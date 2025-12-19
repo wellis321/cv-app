@@ -34,7 +34,9 @@ $sections = [
         'articles' => [
             [
                 'title' => 'Healthcare Support Roles That Don\'t Require a Degree',
-                'excerpt' => 'Look at patient care, admin, and allied health positions with fast-track training.',
+                'excerpt' => 'Explore 20 rewarding healthcare careers that don\'t require a university degree. Learn about salaries, training paths, and how to start your healthcare career today.',
+                'href' => '/resources/jobs/healthcare-support-roles-no-degree.php',
+                'cta' => 'Read full guide',
             ],
             [
                 'title' => 'Creative Freelance Projects You Can Land This Month',
