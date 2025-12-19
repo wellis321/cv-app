@@ -331,6 +331,41 @@ $faqs = [
             'articleSection' => 'Job Market Insights',
         ],
     ]); ?>
+    <style>
+        /* Prevent image overlap with info boxes */
+        .job-content-wrapper {
+            overflow: hidden;
+        }
+        .job-content-wrapper .float-right {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        /* Ensure info boxes clear the float and don't overlap */
+        .job-content-wrapper .bg-blue-50 {
+            clear: both;
+            margin-top: 1.5rem;
+            width: 100%;
+        }
+        /* On larger screens, allow text to wrap but ensure boxes don't overlap */
+        @media (min-width: 1024px) {
+            .job-content-wrapper .bg-blue-50 {
+                clear: both;
+                width: auto;
+                max-width: calc(100% - 18rem); /* Leave space for image */
+            }
+        }
+        @media (max-width: 1023px) {
+            .job-content-wrapper .float-right {
+                float: none;
+                margin: 0 auto 1.5rem;
+                width: 100%;
+                max-width: 300px;
+            }
+            .job-content-wrapper .bg-blue-50 {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body class="bg-slate-50 text-slate-900">
 <?php partial('header'); ?>
@@ -436,7 +471,7 @@ $faqs = [
                     <h2 class="text-2xl font-semibold text-slate-900"><?php echo e($job['title']); ?></h2>
                 </div>
 
-                <div class="relative">
+                <div class="job-content-wrapper">
                     <!-- Floating image on the right -->
                     <div class="float-right ml-6 mb-4 w-48 lg:w-64 flex-shrink-0">
                         <div class="rounded-xl overflow-hidden border border-slate-200 bg-gradient-to-br <?php echo $gradient; ?> h-48 lg:h-64 flex items-center justify-center">
