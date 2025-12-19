@@ -144,6 +144,14 @@ $sections = [
             'dateModified' => date('Y-m-d'),
         ],
     ]); ?>
+    <style>
+        /* Prevent info boxes from overlapping floated image in cv-usage section */
+        #cv-usage .rounded-xl.border-blue-200,
+        #cv-usage .rounded-xl.border-amber-200,
+        #cv-usage .rounded-2xl.border-purple-200 {
+            clear: right;
+        }
+    </style>
 </head>
 <body class="bg-slate-50 text-slate-900">
 <?php partial('header'); ?>
@@ -217,7 +225,7 @@ $sections = [
                     <?php if (!empty($section['subsections'])): ?>
                         <div class="space-y-6">
                             <?php foreach ($section['subsections'] as $sub): ?>
-                                <div>
+                                <div class="<?php echo $section['id'] === 'cv-usage' ? 'clear-right' : ''; ?>">
                                     <h3 class="text-lg font-semibold text-slate-900"><?php echo e($sub['title']); ?></h3>
                                     <div class="mt-3 space-y-3 text-base text-slate-600">
                                         <?php foreach ($sub['content'] as $paragraph): ?>
@@ -225,7 +233,7 @@ $sections = [
                                         <?php endforeach; ?>
                                     </div>
                                     <?php if (!empty($sub['extra']) && $sub['extra']['type'] === 'tip'): ?>
-                                        <div class="mt-4 rounded-xl border border-blue-200 bg-blue-50 px-5 py-4 text-base text-slate-600">
+                                        <div class="mt-4 rounded-xl border border-blue-200 bg-blue-50 px-5 py-4 text-base text-slate-600 <?php echo $section['id'] === 'cv-usage' ? 'clear-right' : ''; ?>">
                                             <strong><?php echo e($sub['extra']['title']); ?>:</strong> <?php echo e($sub['extra']['body']); ?>
                                         </div>
                                     <?php endif; ?>
