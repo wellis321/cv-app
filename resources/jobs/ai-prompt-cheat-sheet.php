@@ -235,9 +235,9 @@ $promptCategories = [
                 <div class="space-y-6">
                     <?php foreach ($category['prompts'] as $prompt): ?>
                         <div class="rounded-xl border border-slate-200 bg-slate-50 p-6">
-                            <h3 class="text-lg font-semibold text-slate-900 mb-2"><?php echo e($prompt['title']); ?></h3>
+                            <h3 class="text-lg font-semibold text-slate-900 mb-3"><?php echo e($prompt['title']); ?></h3>
                             <?php if (!empty($prompt['description'])): ?>
-                                <p class="text-sm text-slate-600 mb-4"><?php echo e($prompt['description']); ?></p>
+                                <p class="text-base font-medium text-slate-700 mb-5 leading-relaxed"><?php echo e($prompt['description']); ?></p>
                             <?php endif; ?>
                             <div class="prompt-box relative rounded-lg border border-slate-300 bg-white p-4">
                                 <button

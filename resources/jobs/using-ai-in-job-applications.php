@@ -222,8 +222,8 @@ $sections = [
                     <?php endif; ?>
 
                     <?php if (!empty($section['doDont'])): ?>
-                        <div class="grid gap-6 md:grid-cols-2">
-                        <div class="rounded-2xl border border-emerald-200 bg-emerald-50 px-6 py-5 lg:shadow">
+                        <div class="space-y-6">
+                            <div class="rounded-2xl border border-emerald-200 bg-emerald-50 px-6 py-5 lg:shadow">
                                 <h3 class="text-sm font-semibold uppercase tracking-wide text-emerald-700">Do</h3>
                                 <ul class="mt-3 space-y-2 text-base text-slate-600 list-disc pl-5">
                                     <?php foreach ($section['doDont']['do'] as $item): ?>
@@ -231,8 +231,8 @@ $sections = [
                                     <?php endforeach; ?>
                                 </ul>
                             </div>
-                        <div class="rounded-2xl border border-rose-200 bg-rose-50 px-6 py-5 lg:shadow">
-                                <h3 class="text-sm font-semibold uppercase tracking-wide text-rose-700">Don’t</h3>
+                            <div class="rounded-2xl border border-rose-200 bg-rose-50 px-6 py-5 lg:shadow">
+                                <h3 class="text-sm font-semibold uppercase tracking-wide text-rose-700">Don't</h3>
                                 <ul class="mt-3 space-y-2 text-base text-slate-600 list-disc pl-5">
                                     <?php foreach ($section['doDont']['dont'] as $item): ?>
                                         <li><?php echo e($item); ?></li>
