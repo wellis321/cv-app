@@ -146,11 +146,16 @@ $sections = [
     ]); ?>
     <style>
         /* Allow content to wrap around floated image in cv-usage section */
-        #cv-usage > *:not(h2):not(.float-right) {
+        #cv-usage .cv-usage-content {
             max-width: calc(100% - 22rem);
         }
+        #cv-usage .cv-usage-content .rounded-xl.border-blue-200,
+        #cv-usage .cv-usage-content .rounded-xl.border-amber-200,
+        #cv-usage .cv-usage-content .rounded-2xl.border-purple-200 {
+            max-width: 100%;
+        }
         @media (max-width: 639px) {
-            #cv-usage > *:not(h2):not(.float-right) {
+            #cv-usage .cv-usage-content {
                 max-width: 100%;
             }
         }
@@ -203,6 +208,7 @@ $sections = [
                              alt="<?php echo e($imageAlt); ?>"
                              class="h-80 w-full object-cover" loading="lazy">
                     </div>
+                    <div class="cv-usage-content">
                 <?php else: ?>
                     <!-- Standard flexbox layout for other sections -->
                     <div class="flex flex-col gap-6 <?php echo $reverseLayout ? 'lg:flex-row-reverse' : 'lg:flex-row'; ?> lg:items-start">
@@ -234,7 +240,7 @@ $sections = [
                                         <?php endforeach; ?>
                                     </div>
                                     <?php if (!empty($sub['extra']) && $sub['extra']['type'] === 'tip'): ?>
-                                        <div class="mt-4 rounded-xl border border-blue-200 bg-blue-50 px-5 py-4 text-base text-slate-600 <?php echo $section['id'] === 'cv-usage' ? 'clear-right' : ''; ?>">
+                                        <div class="mt-4 rounded-xl border border-blue-200 bg-blue-50 px-5 py-4 text-base text-slate-600">
                                             <strong><?php echo e($sub['extra']['title']); ?>:</strong> <?php echo e($sub['extra']['body']); ?>
                                         </div>
                                     <?php endif; ?>
@@ -283,6 +289,7 @@ $sections = [
                         <?php endif; ?>
                     <?php endif; ?>
                 <?php if ($section['id'] === 'cv-usage' && $encodedImagePath): ?>
+                    </div>
                     <div class="clear-both"></div>
                 <?php else: ?>
                         </div>
@@ -370,5 +377,116 @@ $sections = [
 
     <?php partial('footer'); ?>
     <?php partial('auth-modals'); ?>
+<script>
+// #region agent log
+(function() {
+    setTimeout(() => {
+        const cvUsageSection = document.getElementById('cv-usage');
+        if (!cvUsageSection) {
+            fetch('http://127.0.0.1:7243/ingest/6a36a6a1-4d8d-40d8-aee7-65a65040c4e0', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    location: 'using-ai-in-job-applications.php:debug',
+                    message: 'CV Usage section not found',
+                    data: {},
+                    timestamp: Date.now(),
+                    sessionId: 'debug-session',
+                    runId: 'run1',
+                    hypothesisId: 'A'
+                })
+            }).catch(() => {});
+            return;
+        }
+
+        const imageContainer = cvUsageSection.querySelector('.float-right');
+        const allChildren = Array.from(cvUsageSection.children);
+        const subsectionsContainer = cvUsageSection.querySelector('.space-y-6');
+        const infoBoxes = cvUsageSection.querySelectorAll('.rounded-xl.border-blue-200');
+
+        const logData = {
+            location: 'using-ai-in-job-applications.php:debug',
+            message: 'CV Usage section layout debug',
+            data: {
+                sectionId: cvUsageSection.id,
+                directChildrenCount: allChildren.length,
+                directChildrenTags: allChildren.map(c => c.tagName.toLowerCase()),
+                hasImageContainer: !!imageContainer,
+                imageContainerClasses: imageContainer ? imageContainer.className : null,
+                imageComputedStyle: imageContainer ? {
+                    float: window.getComputedStyle(imageContainer).float,
+                    width: window.getComputedStyle(imageContainer).width,
+                    marginLeft: window.getComputedStyle(imageContainer).marginLeft,
+                    display: window.getComputedStyle(imageContainer).display,
+                    position: window.getComputedStyle(imageContainer).position
+                } : null,
+                hasSubsectionsContainer: !!subsectionsContainer,
+                subsectionsContainerClasses: subsectionsContainer ? subsectionsContainer.className : null,
+                subsectionsComputedStyle: subsectionsContainer ? {
+                    maxWidth: window.getComputedStyle(subsectionsContainer).maxWidth,
+                    width: window.getComputedStyle(subsectionsContainer).width,
+                    display: window.getComputedStyle(subsectionsContainer).display,
+                    position: window.getComputedStyle(subsectionsContainer).position,
+                    marginRight: window.getComputedStyle(subsectionsContainer).marginRight
+                } : null,
+                infoBoxCount: infoBoxes.length,
+                firstInfoBoxStyle: infoBoxes[0] ? {
+                    maxWidth: window.getComputedStyle(infoBoxes[0]).maxWidth,
+                    width: window.getComputedStyle(infoBoxes[0]).width,
+                    clear: window.getComputedStyle(infoBoxes[0]).clear,
+                    marginRight: window.getComputedStyle(infoBoxes[0]).marginRight,
+                    position: window.getComputedStyle(infoBoxes[0]).position
+                } : null,
+                imageRect: imageContainer ? {
+                    top: imageContainer.getBoundingClientRect().top,
+                    left: imageContainer.getBoundingClientRect().left,
+                    width: imageContainer.getBoundingClientRect().width,
+                    height: imageContainer.getBoundingClientRect().height
+                } : null,
+                subsectionsRect: subsectionsContainer ? {
+                    top: subsectionsContainer.getBoundingClientRect().top,
+                    left: subsectionsContainer.getBoundingClientRect().left,
+                    width: subsectionsContainer.getBoundingClientRect().width,
+                    height: subsectionsContainer.getBoundingClientRect().height
+                } : null,
+                firstInfoBoxRect: infoBoxes[0] ? {
+                    top: infoBoxes[0].getBoundingClientRect().top,
+                    left: infoBoxes[0].getBoundingClientRect().left,
+                    width: infoBoxes[0].getBoundingClientRect().width,
+                    height: infoBoxes[0].getBoundingClientRect().height
+                } : null,
+                cssRules: (() => {
+                    const sheets = Array.from(document.styleSheets);
+                    const cvUsageRules = [];
+                    sheets.forEach(sheet => {
+                        try {
+                            const rules = Array.from(sheet.cssRules || []);
+                            rules.forEach(rule => {
+                                if (rule.selectorText && rule.selectorText.includes('#cv-usage')) {
+                                    cvUsageRules.push({
+                                        selector: rule.selectorText,
+                                        styles: rule.style.cssText
+                                    });
+                                }
+                            });
+                        } catch(e) {}
+                    });
+                    return cvUsageRules;
+                })()
+            },
+            timestamp: Date.now(),
+            sessionId: 'debug-session',
+            runId: 'run1',
+            hypothesisId: 'A'
+        };
+        fetch('http://127.0.0.1:7243/ingest/6a36a6a1-4d8d-40d8-aee7-65a65040c4e0', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(logData)
+        }).catch(() => {});
+    }, 500);
+})();
+// #endregion
+</script>
 </body>
 </html>
