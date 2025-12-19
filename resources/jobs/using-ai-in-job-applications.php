@@ -145,17 +145,17 @@ $sections = [
         ],
     ]); ?>
     <style>
-        /* Allow info boxes to wrap around floated image in cv-usage section */
+        /* Allow content to wrap around floated image in cv-usage section */
+        #cv-usage .space-y-6 {
+            max-width: calc(100% - 22rem);
+        }
         #cv-usage .rounded-xl.border-blue-200,
         #cv-usage .rounded-xl.border-amber-200,
         #cv-usage .rounded-2xl.border-purple-200 {
-            margin-right: 0;
-            max-width: calc(100% - 22rem);
+            max-width: 100%;
         }
         @media (max-width: 639px) {
-            #cv-usage .rounded-xl.border-blue-200,
-            #cv-usage .rounded-xl.border-amber-200,
-            #cv-usage .rounded-2xl.border-purple-200 {
+            #cv-usage .space-y-6 {
                 max-width: 100%;
             }
         }
