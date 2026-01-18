@@ -1044,6 +1044,7 @@ $canonicalUrl = APP_URL . '/resources/ai/setup-ollama.php';
     </main>
 
     <?php partial('footer'); ?>
+    <?php partial('auth-modals'); ?>
 
     <style>
         /* Smooth scrolling for anchor links */
