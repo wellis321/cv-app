@@ -199,11 +199,11 @@ if (checkForXss($fieldValue)) {
 
 ---
 
-### 9. Performance Optimization
+### 9. Performance Optimisation
 
 **Recommendation:**
 - Add database indexes where needed
-- Optimize queries (check for N+1 problems)
+- Optimise queries (check for N+1 problems)
 - Add caching where appropriate
 
 **Priority:** 🟢 LOW

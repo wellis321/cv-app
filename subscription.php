@@ -250,7 +250,7 @@ function renderPlanFeatures(string $planId, array $planConfig): array {
                 <div class="mt-4 space-y-3 text-sm text-gray-600">
                     <p>Stay on the Free plan to build a simple, public CV with a QR code to share.</p>
                     <p>Upgrade whenever you want to unlock unlimited content and premium features, or switch to the annual plan for the biggest savings.</p>
-                    <p class="font-medium text-gray-900">Have questions? <a href="mailto:support@simple-cv-builder.com" class="text-blue-600 hover:text-blue-800 underline">Email support</a> and we’ll be happy to help.</p>
+                    <p class="font-medium text-gray-900">Have questions? <a href="mailto:noreply@simple-job-tracker.com" class="text-blue-600 hover:text-blue-800 underline">Email support</a> and we'll be happy to help.</p>
                 </div>
             </div>
         </div>

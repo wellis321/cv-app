@@ -47,7 +47,7 @@ This implementation plan outlines the changes made to enhance the CV template sy
 
 ## Future Enhancements
 
-- Implement custom color scheme selections for each template
+- Implement custom colour scheme selections for each template
 - Add industry-specific template variants
 - Enable custom section ordering per template
 - Develop additional templates based on user feedback

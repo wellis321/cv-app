@@ -109,7 +109,7 @@ All API endpoints from `src/routes/api/`:
 2. **CV Display**
    - Complete CV rendering
    - Public CV by username
-   - Theme colors and customization
+   - Theme colours and customisation
 
 3. **PDF Generation**
    - Convert CV to PDF

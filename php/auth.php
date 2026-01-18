@@ -43,7 +43,7 @@ function getCurrentUser() {
 
     $userId = getUserId();
     return db()->fetchOne(
-        "SELECT id, email, full_name, username FROM profiles WHERE id = ?",
+        "SELECT id, email, full_name, username, is_super_admin FROM profiles WHERE id = ?",
         [$userId]
     );
 }
@@ -97,8 +97,8 @@ function registerUser($email, $password, $fullName = null) {
             'full_name' => $fullName,
             'username' => 'user' . substr(str_replace('-', '', $userId), 0, 8),
             'email_verified' => 0,
-            'verification_token' => $verificationToken,
-            'verification_token_expires_at' => $verificationExpires,
+            'email_verification_token' => $verificationToken,
+            'email_verification_expires' => $verificationExpires,
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s')
         ]);
@@ -217,7 +217,7 @@ function createPasswordResetRequest($email) {
     try {
         $db->update('profiles', [
             'password_reset_token' => $token,
-            'password_reset_expires_at' => $expiresAt,
+            'password_reset_expires' => $expiresAt,
             'updated_at' => date('Y-m-d H:i:s')
         ], 'id = ?', [$user['id']]);
 
@@ -243,7 +243,7 @@ function createPasswordResetRequest($email) {
 function resetPasswordWithToken($token, $newPassword) {
     $db = db();
     $user = $db->fetchOne(
-        "SELECT id, password_reset_expires_at FROM profiles WHERE password_reset_token = ?",
+        "SELECT id, password_reset_expires FROM profiles WHERE password_reset_token = ?",
         [$token]
     );
 
@@ -251,7 +251,7 @@ function resetPasswordWithToken($token, $newPassword) {
         return ['success' => false, 'error' => 'Invalid or expired reset link.'];
     }
 
-    if (empty($user['password_reset_expires_at']) || strtotime($user['password_reset_expires_at']) < time()) {
+    if (empty($user['password_reset_expires']) || strtotime($user['password_reset_expires']) < time()) {
         return ['success' => false, 'error' => 'This reset link has expired. Please request a new one.'];
     }
 
@@ -264,7 +264,7 @@ function resetPasswordWithToken($token, $newPassword) {
         $db->update('profiles', [
             'password_hash' => hashPassword($newPassword),
             'password_reset_token' => null,
-            'password_reset_expires_at' => null,
+            'password_reset_expires' => null,
             'updated_at' => date('Y-m-d H:i:s')
         ], 'id = ?', [$user['id']]);
 

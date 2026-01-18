@@ -114,7 +114,7 @@ The following data is collected for each page visit:
 ### Performance Considerations
 
 - Client-side tracking is lightweight and asynchronous
-- Database indexes optimize query performance
+- Database indexes optimise query performance
 - Aggregated views reduce computation for common queries
 - Row-level security ensures data isolation
 
@@ -127,7 +127,7 @@ Access to the analytics dashboard is restricted to administrators. Currently, th
 
 ## Customizing Admin Access
 
-To customize which users have admin access:
+To customise which users have admin access:
 
 1. Open `src/routes/+layout.svelte`
 2. Find the `checkAdmin()` function

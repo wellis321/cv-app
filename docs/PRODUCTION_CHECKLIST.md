@@ -55,7 +55,7 @@ This checklist should be completed before deploying the CV application to produc
 
 ## Performance
 
-- [ ] **Optimization**
+- [ ] **Optimisation**
 
   - [ ] Assets are properly optimized (images, scripts, styles)
   - [ ] Lazy loading is implemented for non-critical resources
@@ -73,7 +73,7 @@ This checklist should be completed before deploying the CV application to produc
   - [ ] Server errors are properly logged
 
 - [ ] **Analytics**
-  - [ ] Basic analytics are set up to track user behavior
+  - [ ] Basic analytics are set up to track user behaviour
   - [ ] Performance metrics are being collected
 
 ## Deployment

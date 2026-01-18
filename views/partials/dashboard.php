@@ -14,7 +14,7 @@ $cvSections = [
     ['id' => 'projects', 'name' => 'Projects', 'path' => '/projects.php', 'description' => 'Notable projects you\'ve worked on'],
     ['id' => 'certifications', 'name' => 'Certifications', 'path' => '/certifications.php', 'description' => 'Professional certifications'],
     ['id' => 'qualification-equivalence', 'name' => 'Professional Qualification Equivalence', 'path' => '/qualification-equivalence.php', 'description' => 'Show how international and other qualifications align with local standards'],
-    ['id' => 'memberships', 'name' => 'Professional Memberships', 'path' => '/memberships.php', 'description' => 'Professional organizations'],
+    ['id' => 'memberships', 'name' => 'Professional Memberships', 'path' => '/memberships.php', 'description' => 'Professional organisations'],
     ['id' => 'interests', 'name' => 'Interests & Activities', 'path' => '/interests.php', 'description' => 'Your hobbies and interests'],
 ];
 
@@ -100,6 +100,51 @@ unset($section);
         <p class="mt-2 text-lg text-gray-600">
             Complete each section to create your professional CV.
         </p>
+    </div>
+
+    <!-- AI Features Banner -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+        <div class="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-6">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <svg class="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                </div>
+                <div class="ml-4 flex-1">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-1">New: AI-Powered CV Tools</h3>
+                    <p class="text-sm text-gray-700 mb-3">
+                        Generate job-specific CVs automatically and get AI-powered quality feedback. Perfect for tailoring your CV to each job application.
+                    </p>
+                    <div class="flex flex-wrap gap-3">
+                        <a href="/cv-variants/rewrite.php" class="inline-flex items-center px-3 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                            Generate AI CV
+                        </a>
+                        <a href="/cv-quality.php" class="inline-flex items-center px-3 py-2 border border-purple-600 text-purple-600 text-sm font-medium rounded-lg hover:bg-purple-50 transition-colors">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Assess CV Quality
+                        </a>
+                        <a href="/cv-template-customizer.php" class="inline-flex items-center px-3 py-2 border border-purple-600 text-purple-600 text-sm font-medium rounded-lg hover:bg-purple-50 transition-colors">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                            </svg>
+                            Customise Template
+                        </a>
+                        <a href="/cv-variants.php" class="inline-flex items-center px-3 py-2 text-purple-600 text-sm font-medium hover:text-purple-700 transition-colors">
+                            Manage CV Variants →
+                        </a>
+                        <a href="/resources/ai/setup-ollama.php" class="inline-flex items-center px-3 py-2 text-purple-600 text-sm font-medium hover:text-purple-700 transition-colors">
+                            Setup Local AI →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- CV Sections Grid -->

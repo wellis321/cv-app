@@ -5,62 +5,14 @@ $pageTitle = 'Extra Income Ideas';
 $canonicalUrl = APP_URL . '/resources/extra-income/';
 $sections = [
     [
-        'title' => 'Evening & Weekend Projects',
-        'description' => 'Short bursts of effort that fit around a full-time schedule.',
+        'title' => 'Practical Extra Income Ideas',
+        'description' => 'Flexible ways to boost your income that you can start this week.',
         'articles' => [
             [
                 'title' => '20+ Legitimate Ways to Earn Money Online & From Home in 2025',
                 'excerpt' => 'Comprehensive guide covering surveys, market research, remote gigs, and long-term income builders.',
                 'href' => '/resources/extra-income/legitimate-ways-to-earn-money-online.php',
                 'cta' => 'Read full guide',
-            ],
-            [
-                'title' => 'Paid User Testing Platforms',
-                'excerpt' => 'Earn money sharing feedback on websites, apps, and physical products in your spare time.',
-            ],
-            [
-                'title' => 'Micro Freelance Gigs You Can Deliver in Under 60 Minutes',
-                'excerpt' => 'Simple services—like Canva templates or quick copy edits—that are easy to offer on marketplaces.',
-            ],
-            [
-                'title' => 'Virtual Event Staffing',
-                'excerpt' => 'Support webinars, digital conferences, and online workshops without leaving home.',
-            ],
-        ],
-    ],
-    [
-        'title' => 'On-Demand Work',
-        'description' => 'Flexible shifts you can pick up whenever you need to top-up your income.',
-        'articles' => [
-            [
-                'title' => 'Rideshare and Delivery: What’s Worth It in 2025?',
-                'excerpt' => 'Compare UK-friendly platforms, expected earnings, and mileage considerations.',
-            ],
-            [
-                'title' => 'Hospitality Temp Agencies',
-                'excerpt' => 'Jump into evening banqueting gigs, hotel shifts, or bar work with minimal notice.',
-            ],
-            [
-                'title' => 'Tasker Marketplaces',
-                'excerpt' => 'From assembling flat-pack furniture to clerical catch-up days, explore gigs in your area.',
-            ],
-        ],
-    ],
-    [
-        'title' => 'Creative Cash Boosters',
-        'description' => 'Ways to monetise your hobbies without turning them into a full business.',
-        'articles' => [
-            [
-                'title' => 'Selling Digital Printables and Downloadables',
-                'excerpt' => 'Design planners, worksheets, or party resources and sell via Etsy or your own storefront.',
-            ],
-            [
-                'title' => 'Short-Form Video Commissions',
-                'excerpt' => 'Offer personalised TikTok/Reels intros, video edits, or podcast audiograms per brief.',
-            ],
-            [
-                'title' => 'Rent Out Household Items',
-                'excerpt' => 'List appliances, tools, or camera gear on peer-to-peer rental sites when you’re not using them.',
             ],
         ],
     ],

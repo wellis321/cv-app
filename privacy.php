@@ -21,7 +21,7 @@ require_once __DIR__ . '/php/helpers.php';
         <div class="bg-white shadow rounded-lg p-8">
             <h1 class="text-4xl font-bold text-gray-900 mb-8">Privacy Policy</h1>
 
-            <p class="text-gray-600 mb-8">Last updated: 5 November 2025</p>
+            <p class="text-gray-600 mb-8">Last updated: <?php echo date('j F Y'); ?></p>
 
             <div class="prose max-w-none">
                 <section class="mb-8">
@@ -43,6 +43,12 @@ require_once __DIR__ . '/php/helpers.php';
                         <li>Professional information (work experience, education, skills)</li>
                         <li>Profile photo (if you choose to upload one)</li>
                         <li>Biography and additional CV details</li>
+                        <li>Job application information (job titles, companies, application dates, status, notes, uploaded documents)</li>
+                        <li>Organisation membership information (if you are part of an organisation account)</li>
+                        <li>AI service preferences and configuration (if you use AI features)</li>
+                        <li>User-provided API keys for third-party AI services (encrypted and stored securely)</li>
+                        <li>Custom CV templates and designs (if you use AI template generation)</li>
+                        <li>CV variants and versions (multiple versions of your CV for different job applications)</li>
                     </ul>
 
                     <h3 class="text-xl font-semibold text-gray-900 mb-3">Automatically Collected Information</h3>
@@ -54,6 +60,7 @@ require_once __DIR__ . '/php/helpers.php';
                         <li>Usage data (pages visited, time spent on site)</li>
                         <li>IP address and general location information</li>
                         <li>Referrer information</li>
+                        <li>System capabilities (CPU cores, memory, GPU information) - only when you explicitly request a system check</li>
                     </ul>
                 </section>
 
@@ -67,9 +74,15 @@ require_once __DIR__ . '/php/helpers.php';
                         <li>Provide, operate, and improve our service</li>
                         <li>Generate PDF downloads of your CV</li>
                         <li>Share your CV via online links</li>
+                        <li>Track and manage your job applications</li>
+                        <li>Process CV data through AI services for rewriting, quality assessment, and template generation (when you choose to use these features)</li>
+                        <li>Store and manage multiple CV variants for different job applications</li>
+                        <li>Store uploaded documents (CVs, job descriptions) associated with job applications</li>
+                        <li>Manage organisation accounts and member access (for organisation administrators)</li>
                         <li>Analyze usage patterns to improve our service</li>
                         <li>Send important service notifications</li>
                         <li>Respond to your inquiries and provide customer support</li>
+                        <li>Provide system capability recommendations (only when you explicitly request this feature)</li>
                     </ul>
                 </section>
 
@@ -92,9 +105,51 @@ require_once __DIR__ . '/php/helpers.php';
                 </section>
 
                 <section class="mb-8">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-4">AI Services and Third-Party Processing</h2>
+                    <p class="text-gray-700 mb-4">
+                        Our service offers AI-powered features for CV rewriting, quality assessment, and custom template generation. When you choose to use these features, your CV data may be processed by third-party AI services:
+                    </p>
+                    <ul class="list-disc list-inside text-gray-700 mb-4 space-y-2">
+                        <li><strong>Local AI (Ollama):</strong> If you configure local AI on your device, your CV data is processed entirely on your computer and never sent to external servers. We do not have access to this data during processing.</li>
+                        <li><strong>Browser-Based AI:</strong> If you use browser-based AI, models run entirely in your browser. Your CV data is processed locally and never sent to external servers. Models are cached in your browser's storage.</li>
+                        <li><strong>Cloud AI Services (User API Keys):</strong> If you provide your own API keys for cloud-based AI services (OpenAI, Anthropic, Google Gemini, xAI Grok, Hugging Face), your CV data will be sent to these third-party providers for processing. Your API keys are encrypted and stored securely. We do not have access to your API keys in plain text. These services have their own privacy policies and data handling practices.</li>
+                        <li><strong>Site Default AI:</strong> If you use the site's default AI service, your CV data may be processed by our configured AI provider. This is subject to the provider's privacy policy.</li>
+                        <li><strong>AI-Generated Content:</strong> Content generated by AI services (including CV variants, templates, and assessments) is stored in your account and treated the same as manually created content under this Privacy Policy.</li>
+                    </ul>
+                    <p class="text-gray-700 mb-4">
+                        <strong>API Key Security:</strong> When you provide API keys for third-party AI services, we encrypt them using industry-standard encryption before storing them in our database. We cannot access your API keys in plain text. You are responsible for managing your API key usage and costs with the respective providers.
+                    </p>
+                    <p class="text-gray-700 mb-4">
+                        We recommend reviewing the privacy policies of any third-party AI services you choose to use. You can opt to use local AI or browser-based AI exclusively to keep all processing on your device.
+                    </p>
+                </section>
+
+                <section class="mb-8">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-4">Organisation Accounts and Data Sharing</h2>
+                    <p class="text-gray-700 mb-4">
+                        If you are part of an organisation account:
+                    </p>
+                    <ul class="list-disc list-inside text-gray-700 mb-4 space-y-2">
+                        <li>Organisation administrators may have access to view member CVs and job application data within the organisation</li>
+                        <li>Your account information (name, email, role) is visible to organisation administrators</li>
+                        <li>Organisation administrators can manage member access and permissions</li>
+                        <li>You may be removed from an organisation by an administrator, which will revoke your access to organisation-specific features</li>
+                    </ul>
+                    <p class="text-gray-700 mb-4">
+                        If you are an organisation administrator, you are responsible for ensuring that member data is handled in accordance with applicable privacy laws and this Privacy Policy.
+                    </p>
+                </section>
+
+                <section class="mb-8">
                     <h2 class="text-2xl font-semibold text-gray-900 mb-4">Data Storage and Security</h2>
                     <p class="text-gray-700 mb-4">
                         Your data is stored securely in MySQL database. We implement appropriate technical and organisational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction.
+                    </p>
+                    <p class="text-gray-700 mb-4">
+                        <strong>Encryption:</strong> Sensitive data, including API keys you provide, is encrypted using industry-standard encryption (AES-256-GCM) before storage. We cannot access your encrypted API keys in plain text.
+                    </p>
+                    <p class="text-gray-700 mb-4">
+                        <strong>File Storage:</strong> Uploaded documents (such as job application files) are stored securely and are only accessible to you (and organisation administrators if you are part of an organisation account).
                     </p>
                     <p class="text-gray-700 mb-4">
                         While we strive to use commercially acceptable means to protect your personal information, no method of transmission over the Internet or method of electronic storage is 100% secure.

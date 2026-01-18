@@ -9,10 +9,12 @@ require_once __DIR__ . '/php/helpers.php';
 // Get username or user ID from query parameters
 $username = get('username');
 $userIdParam = get('userid');
+$variantId = get('variant_id'); // Support CV variants
 
 // Determine which profile to load
 $profile = null;
 $profileUserId = null;
+$cvVariant = null;
 
 if ($username) {
     // Load by username (public view)
@@ -67,8 +69,83 @@ if (!$profile) {
     exit;
 }
 
-// Load all CV data using shared function
-$cvData = loadCvData($profileUserId);
+// Check CV visibility/access permissions
+$currentUserId = getUserId();
+$canView = false;
+$cvVisibility = $profile['cv_visibility'] ?? 'public';
+
+// Owner can always view their own CV
+if ($currentUserId && $currentUserId === $profileUserId) {
+    $canView = true;
+}
+// Public CVs can be viewed by anyone
+elseif ($cvVisibility === 'public') {
+    $canView = true;
+}
+// Organisation-visible CVs require membership check
+elseif ($cvVisibility === 'organisation' && $currentUserId && $profile['organisation_id']) {
+    // Check if current user is in the same organisation
+    $viewerMembership = db()->fetchOne(
+        "SELECT id FROM organisation_members
+         WHERE user_id = ? AND organisation_id = ? AND is_active = 1",
+        [$currentUserId, $profile['organisation_id']]
+    );
+    $canView = !empty($viewerMembership);
+}
+// Private CVs can only be viewed by the owner (already checked above)
+elseif ($cvVisibility === 'private') {
+    $canView = false;
+}
+
+// Show access denied if can't view
+if (!$canView) {
+    http_response_code(403);
+    ?>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Access Denied</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+    <body class="bg-gray-50">
+        <div class="max-w-4xl mx-auto px-4 py-16 text-center">
+            <h1 class="text-3xl font-bold text-gray-900 mb-4">Access Denied</h1>
+            <p class="text-gray-600 mb-8">This CV is not publicly available. Please contact the owner or your organisation administrator for access.</p>
+            <?php if (!isLoggedIn()): ?>
+                <a href="/?redirect=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>" class="text-blue-600 hover:text-blue-800">Log in to continue</a>
+            <?php else: ?>
+                <a href="/" class="text-blue-600 hover:text-blue-800">Return to Home</a>
+            <?php endif; ?>
+        </div>
+    </body>
+    </html>
+    <?php
+    exit;
+}
+
+// Load CV data - either from variant or master CV
+$cvData = null;
+if ($variantId && isLoggedIn() && $currentUserId === $profileUserId) {
+    // Load variant data
+    $cvVariant = getCvVariant($variantId, $profileUserId);
+    if ($cvVariant) {
+        $cvData = loadCvVariantData($variantId);
+        // Variant data includes 'variant' key, but we still need profile for display
+        // Add profile data to variant data structure
+        if ($cvData && isset($cvData['variant'])) {
+            $cvData['profile'] = $profile; // Use existing profile data
+        } else {
+            $cvData = null; // Fallback to master if variant data invalid
+        }
+    }
+}
+
+// Fallback to master CV if variant not found or not specified
+if (!$cvData) {
+    $cvData = loadCvData($profileUserId);
+}
 
 // Format date helper - show only month and year (MM/YYYY)
 function formatCvDate($date, $format = null) {
@@ -80,6 +157,99 @@ function formatCvDate($date, $format = null) {
     // Format as MM/YYYY (month/year only, matching original implementation)
     // date('m') gives zero-padded month (01-12), date('Y') gives 4-digit year
     return date('m/Y', $timestamp);
+}
+
+// Check for custom template (new system: cv_templates table)
+require_once __DIR__ . '/php/cv-templates.php';
+
+// Check if a specific template is requested via query parameter
+$requestedTemplateId = $_GET['template'] ?? null;
+$activeTemplate = null;
+
+if ($requestedTemplateId) {
+    // Get the requested template (must belong to the user)
+    $activeTemplate = getCvTemplate($requestedTemplateId, $profileUserId);
+} else {
+    // Get the active template for the user
+    $activeTemplate = getActiveCvTemplate($profileUserId);
+}
+
+// Fallback to old system (profiles table) for backward compatibility
+if (!$activeTemplate && !empty($profile['custom_cv_template_active']) && !empty($profile['custom_cv_template_html'])) {
+    $activeTemplate = [
+        'template_html' => $profile['custom_cv_template_html'],
+        'template_css' => $profile['custom_cv_template_css'] ?? '',
+        'template_name' => 'Custom Template'
+    ];
+}
+
+if ($activeTemplate) {
+    // Render custom template
+    $customHtml = $activeTemplate['template_html'];
+    $customCss = $activeTemplate['template_css'] ?? '';
+    
+    // Extract and execute PHP code from template
+    // Variables $profile, $cvData, and formatCvDate() are available in the template scope
+    ob_start();
+    eval('?>' . $customHtml);
+    $renderedContent = ob_get_clean();
+    
+    // Output custom template
+    ?>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title><?php echo e($profile['full_name'] ?? 'CV'); ?> - CV</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <?php if (!empty($customCss)): ?>
+            <style><?php echo $customCss; ?></style>
+        <?php endif; ?>
+        <style>
+            @media print {
+                .no-print { display: none !important; }
+            }
+        </style>
+    </head>
+    <body class="bg-gray-100">
+        <?php partial('header'); ?>
+        <main id="main-content" role="main">
+            <?php if (isLoggedIn() && getUserId() === $profileUserId): ?>
+                <div class="no-print bg-white shadow-sm border-b">
+                    <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div class="text-sm sm:text-base">
+                            <a href="/" class="text-blue-600 hover:text-blue-800">← Back to Dashboard</a>
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                            <a href="/cv-template-customizer.php" class="inline-flex items-center justify-center px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 text-sm sm:text-base transition-colors">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                                </svg>
+                                Customise Template
+                            </a>
+                            <a href="/preview-cv.php" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 inline-block text-center text-sm sm:text-base">
+                                Generate PDF
+                            </a>
+                            <button onclick="window.print()" class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 text-sm sm:text-base">
+                                Print
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+            
+            <div class="w-full px-4 sm:px-6 lg:px-8 py-8">
+                <div class="bg-white cv-container max-w-6xl mx-auto shadow-md rounded-xl overflow-hidden">
+                    <?php echo $renderedContent; ?>
+                </div>
+            </div>
+        </main>
+        <?php partial('footer'); ?>
+    </body>
+    </html>
+    <?php
+    exit; // Stop here, don't render default template
 }
 
 ?>
@@ -181,9 +351,21 @@ function formatCvDate($date, $format = null) {
                         <?php endif; ?>
                     </div>
                     <?php if (!empty($profile['photo_url']) && (!isset($profile['show_photo']) || $profile['show_photo'] == 1)): ?>
-                        <img src="<?php echo e($profile['photo_url']); ?>"
+                        <?php
+                        // Get responsive image attributes for profile photo (context: 'cv' for CV page)
+                        $photoResponsiveData = isset($profile['photo_responsive']) ? $profile['photo_responsive'] : null;
+                        $photoImgAttrs = getResponsiveImageAttributes($photoResponsiveData, $profile['photo_url'], 'cv');
+                        ?>
+                        <img src="<?php echo e($photoImgAttrs['src']); ?>"
+                             <?php if (!empty($photoImgAttrs['srcset'])): ?>
+                                 srcset="<?php echo e($photoImgAttrs['srcset']); ?>"
+                                 sizes="<?php echo e($photoImgAttrs['sizes']); ?>"
+                             <?php endif; ?>
                              alt="<?php echo e($profile['full_name'] ?? 'Profile'); ?>"
-                             class="w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 rounded-full object-cover border-4 border-white/20 mx-auto lg:mx-0">
+                             class="w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 rounded-full object-cover border-4 border-white/20 mx-auto lg:mx-0"
+                             loading="lazy"
+                             width="192"
+                             height="192">
                     <?php endif; ?>
                 </div>
             </div>
@@ -436,17 +618,73 @@ function formatCvDate($date, $format = null) {
                                         } elseif (!empty($projectImagePath)) {
                                             $projectImageUrl = '/api/storage-proxy?path=' . urlencode($projectImagePath);
                                         }
+                                        
+                                        // Get responsive image attributes (context: 'cv' for CV page)
+                                        $responsiveData = isset($project['image_responsive']) ? $project['image_responsive'] : null;
+                                        // #region agent log
+                                        file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'cv.php:497','message'=>'Project image data check','data'=>['projectId'=>$project['id']??'unknown','projectTitle'=>$project['title']??'unknown','hasImageUrl'=>!empty($projectImageUrl),'imageUrl'=>$projectImageUrl,'hasImagePath'=>!empty($projectImagePath),'imagePath'=>$projectImagePath,'hasResponsiveData'=>!empty($responsiveData),'responsiveDataType'=>gettype($responsiveData),'responsiveDataPreview'=>is_string($responsiveData)?substr($responsiveData,0,200):'not string'],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C1'])."\n", FILE_APPEND);
+                                        // #endregion
+                                        $imgAttrs = getResponsiveImageAttributes($responsiveData, $projectImageUrl, 'cv');
+                                        // #region agent log
+                                        file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'cv.php:500','message'=>'Image attributes generated','data'=>['hasSrcset'=>!empty($imgAttrs['srcset']),'srcsetLength'=>strlen($imgAttrs['srcset']??''),'srcsetPreview'=>substr($imgAttrs['srcset']??'',0,200),'sizes'=>$imgAttrs['sizes']??'','src'=>$imgAttrs['src']??''],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C1'])."\n", FILE_APPEND);
+                                        // #endregion
                                         ?>
-                                        <?php if (!empty($projectImageUrl)): ?>
+                                        <?php 
+                                        // #region agent log
+                                        file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'cv.php:506','message'=>'About to render image','data'=>['hasSrc'=>!empty($imgAttrs['src']),'hasSrcset'=>!empty($imgAttrs['srcset']),'srcsetLength'=>strlen($imgAttrs['srcset']??''),'srcsetValue'=>$imgAttrs['srcset']??'EMPTY','projectTitle'=>$project['title']??'unknown'],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C7'])."\n", FILE_APPEND);
+                                        // #endregion
+                                        if (!empty($imgAttrs['src'])): ?>
                                             <div class="mt-3">
                                                 <?php if (!empty($projectUrl)): ?>
-                                                    <a href="<?php echo e($projectUrl); ?>" target="_blank">
-                                                        <img src="<?php echo e($projectImageUrl); ?>" alt="<?php echo e($project['title']); ?>"
-                                                             class="w-full rounded-md border border-gray-200">
+                                                    <a href="<?php echo e($projectUrl); ?>" target="_blank" aria-label="View <?php echo e($project['title']); ?> project">
+                                                        <img 
+                                                            src="<?php echo e($imgAttrs['src']); ?>" 
+                                                            <?php if (!empty($imgAttrs['srcset'])): ?>
+                                                                srcset="<?php echo e($imgAttrs['srcset']); ?>"
+                                                                sizes="<?php echo e($imgAttrs['sizes']); ?>"
+                                                                <?php 
+                                                                // #region agent log
+                                                                file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'cv.php:515','message'=>'Rendering srcset in HTML','data'=>['srcsetValue'=>$imgAttrs['srcset'],'sizesValue'=>$imgAttrs['sizes']],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C7'])."\n", FILE_APPEND);
+                                                                // #endregion
+                                                                ?>
+                                                            <?php else: ?>
+                                                                <?php 
+                                                                // #region agent log
+                                                                file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'cv.php:520','message'=>'srcset is empty - not rendering','data'=>['imgAttrsKeys'=>array_keys($imgAttrs),'srcsetValue'=>$imgAttrs['srcset']??'NULL'],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C7'])."\n", FILE_APPEND);
+                                                                // #endregion
+                                                                ?>
+                                                            <?php endif; ?>
+                                                            alt="<?php echo e($project['title']); ?> - Project image"
+                                                            class="w-full rounded-md border border-gray-200"
+                                                            loading="lazy"
+                                                            width="800"
+                                                            height="600"
+                                                            decoding="async">
                                                     </a>
                                                 <?php else: ?>
-                                                    <img src="<?php echo e($projectImageUrl); ?>" alt="<?php echo e($project['title']); ?>"
-                                                         class="w-full rounded-md border border-gray-200">
+                                                    <img 
+                                                        src="<?php echo e($imgAttrs['src']); ?>" 
+                                                        <?php if (!empty($imgAttrs['srcset'])): ?>
+                                                            srcset="<?php echo e($imgAttrs['srcset']); ?>"
+                                                            sizes="<?php echo e($imgAttrs['sizes']); ?>"
+                                                            <?php 
+                                                            // #region agent log
+                                                            file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'cv.php:531','message'=>'Rendering srcset in HTML (no link)','data'=>['srcsetValue'=>$imgAttrs['srcset'],'sizesValue'=>$imgAttrs['sizes']],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C7'])."\n", FILE_APPEND);
+                                                            // #endregion
+                                                            ?>
+                                                        <?php else: ?>
+                                                            <?php 
+                                                            // #region agent log
+                                                            file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'cv.php:536','message'=>'srcset is empty - not rendering (no link)','data'=>['imgAttrsKeys'=>array_keys($imgAttrs),'srcsetValue'=>$imgAttrs['srcset']??'NULL'],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C7'])."\n", FILE_APPEND);
+                                                            // #endregion
+                                                            ?>
+                                                        <?php endif; ?>
+                                                        alt="<?php echo e($project['title']); ?> - Project image"
+                                                        class="w-full rounded-md border border-gray-200"
+                                                        loading="lazy"
+                                                        width="800"
+                                                        height="600"
+                                                        decoding="async">
                                                 <?php endif; ?>
                                             </div>
                                         <?php endif; ?>
@@ -534,6 +772,8 @@ function formatCvDate($date, $format = null) {
     </main>
 
     <?php partial('footer'); ?>
+    
+    <?php partial('auth-modals'); ?>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {

@@ -141,3 +141,111 @@ function sendUsernameReminderEmail($email, $fullName, $username) {
 
     return sendEmail($email, $subject, $message);
 }
+
+/**
+ * Send candidate invitation email
+ */
+function sendCandidateInvitationEmail($email, $fullName, $organisationName, $inviterName, $token, $personalMessage = null) {
+    $acceptUrl = APP_URL . '/accept-invitation.php?token=' . urlencode($token) . '&type=candidate';
+
+    $subject = 'You\'ve been invited to create your CV with ' . $organisationName;
+
+    $personalMessageHtml = $personalMessage
+        ? '<div style="background-color: #f3f4f6; padding: 15px; border-radius: 5px; margin: 20px 0;">
+               <p style="margin: 0; font-style: italic;">"' . htmlspecialchars($personalMessage) . '"</p>
+               <p style="margin: 10px 0 0 0; font-size: 12px; color: #666;">- ' . htmlspecialchars($inviterName) . '</p>
+           </div>'
+        : '';
+
+    $message = '
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .button { display: inline-block; padding: 12px 24px; background-color: #2563eb; color: #ffffff; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+            .button:hover { background-color: #1d4ed8; }
+            .footer { margin-top: 30px; font-size: 12px; color: #666; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>You\'re Invited!</h1>
+            <p>Hello ' . htmlspecialchars($fullName ?: 'there') . ',</p>
+            <p><strong>' . htmlspecialchars($inviterName) . '</strong> from <strong>' . htmlspecialchars($organisationName) . '</strong> has invited you to create your professional CV using our platform.</p>
+            ' . $personalMessageHtml . '
+            <p>Click the button below to accept the invitation and get started:</p>
+            <p><a href="' . htmlspecialchars($acceptUrl) . '" class="button">Accept Invitation</a></p>
+            <p>Or copy and paste this link into your browser:</p>
+            <p style="word-break: break-all; color: #2563eb;">' . htmlspecialchars($acceptUrl) . '</p>
+            <p>This invitation will expire in 7 days.</p>
+            <div class="footer">
+                <p>Best regards,<br>The ' . htmlspecialchars($organisationName) . ' Team</p>
+            </div>
+        </div>
+    </body>
+    </html>';
+
+    return sendEmail($email, $subject, $message);
+}
+
+/**
+ * Send team member invitation email
+ */
+function sendTeamInvitationEmail($email, $organisationName, $role, $inviterName, $token, $personalMessage = null) {
+    $acceptUrl = APP_URL . '/accept-invitation.php?token=' . urlencode($token) . '&type=team';
+
+    $roleDescriptions = [
+        'admin' => 'an Administrator with full access to manage candidates and team settings',
+        'recruiter' => 'a Recruiter with the ability to invite and manage candidates',
+        'viewer' => 'a Viewer with read-only access to candidate information'
+    ];
+
+    $roleDescription = $roleDescriptions[$role] ?? 'a team member';
+
+    $subject = 'You\'ve been invited to join ' . $organisationName;
+
+    $personalMessageHtml = $personalMessage
+        ? '<div style="background-color: #f3f4f6; padding: 15px; border-radius: 5px; margin: 20px 0;">
+               <p style="margin: 0; font-style: italic;">"' . htmlspecialchars($personalMessage) . '"</p>
+               <p style="margin: 10px 0 0 0; font-size: 12px; color: #666;">- ' . htmlspecialchars($inviterName) . '</p>
+           </div>'
+        : '';
+
+    $message = '
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .button { display: inline-block; padding: 12px 24px; background-color: #2563eb; color: #ffffff; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+            .button:hover { background-color: #1d4ed8; }
+            .footer { margin-top: 30px; font-size: 12px; color: #666; }
+            .role-badge { display: inline-block; background-color: #dbeafe; color: #1e40af; padding: 4px 12px; border-radius: 15px; font-weight: bold; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Join Our Team!</h1>
+            <p>Hello,</p>
+            <p><strong>' . htmlspecialchars($inviterName) . '</strong> has invited you to join <strong>' . htmlspecialchars($organisationName) . '</strong> as ' . $roleDescription . '.</p>
+            <p>Your role: <span class="role-badge">' . ucfirst(htmlspecialchars($role)) . '</span></p>
+            ' . $personalMessageHtml . '
+            <p>Click the button below to accept the invitation and join the team:</p>
+            <p><a href="' . htmlspecialchars($acceptUrl) . '" class="button">Accept Invitation</a></p>
+            <p>Or copy and paste this link into your browser:</p>
+            <p style="word-break: break-all; color: #2563eb;">' . htmlspecialchars($acceptUrl) . '</p>
+            <p>This invitation will expire in 7 days.</p>
+            <div class="footer">
+                <p>Best regards,<br>The ' . htmlspecialchars($organisationName) . ' Team</p>
+            </div>
+        </div>
+    </body>
+    </html>';
+
+    return sendEmail($email, $subject, $message);
+}

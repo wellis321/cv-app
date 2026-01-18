@@ -310,3 +310,4 @@ Extensive documentation in `docs/`:
 - Manual testing required for changes
 - Test in both development and production environments
 - Verify CSRF protection, authentication, and authorization for all endpoints
+

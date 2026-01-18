@@ -90,7 +90,7 @@ if (isPost()) {
 
         // Handle image upload if provided
         if (isset($_FILES['project_image']) && $_FILES['project_image']['error'] === UPLOAD_ERR_OK) {
-            $uploadResult = uploadFile($_FILES['project_image'], $userId, 'projects');
+            $uploadResult = uploadFile($_FILES['project_image'], $userId, 'projects', true); // Generate responsive versions
 
             if (!$uploadResult['success']) {
                 error_log("Project image upload error: " . ($uploadResult['error'] ?? 'Unknown error'));
@@ -100,6 +100,10 @@ if (isPost()) {
 
             $data['image_url'] = $uploadResult['url'];
             $data['image_path'] = $uploadResult['path'] ?? str_replace(STORAGE_URL . '/', '', $uploadResult['url']);
+            // Store responsive versions as JSON
+            if (!empty($uploadResult['responsive'])) {
+                $data['image_responsive'] = json_encode($uploadResult['responsive']);
+            }
         }
 
         try {
@@ -108,31 +112,6 @@ if (isPost()) {
         } catch (Exception $e) {
             error_log("Project creation error: " . $e->getMessage());
             setFlash('error', 'Failed to add project. Please try again.');
-        }
-        redirect('/projects.php');
-            if ($data['description'] && planWordLimitExceeded($subscriptionContext, 'project_description', $data['description'])) {
-                setFlash('error', getPlanWordLimitMessage($subscriptionContext, 'project_description'));
-                redirect('/projects.php');
-            }
-            // Handle image upload if provided
-            if (isset($_FILES['project_image']) && $_FILES['project_image']['error'] === UPLOAD_ERR_OK) {
-                $uploadResult = uploadFile($_FILES['project_image'], $userId, 'projects');
-
-                if (!$uploadResult['success']) {
-                    setFlash('error', 'Image upload failed: ' . $uploadResult['error']);
-                    redirect('/projects.php');
-                }
-
-                $data['image_url'] = $uploadResult['url'];
-                $data['image_path'] = $uploadResult['path'] ?? str_replace(STORAGE_URL . '/', '', $uploadResult['url']);
-            }
-
-            try {
-                db()->insert('projects', $data);
-                setFlash('success', 'Project added successfully');
-            } catch (Exception $e) {
-                setFlash('error', 'Failed to add: ' . $e->getMessage());
-            }
         }
         redirect('/projects.php');
     } elseif ($action === 'update') {
@@ -197,6 +176,7 @@ if (isPost()) {
             'url' => !empty($url) ? $url : null,
             'image_url' => $imageUrlInput !== '' ? $imageUrlInput : null,
             'image_path' => $imagePathInput !== '' ? $imagePathInput : null,
+            'image_responsive' => $imageResponsiveInput !== '' ? $imageResponsiveInput : null,
             'updated_at' => date('Y-m-d H:i:s')
         ];
 
@@ -207,7 +187,7 @@ if (isPost()) {
 
         // Handle new image upload if provided
         if (isset($_FILES['project_image']) && $_FILES['project_image']['error'] === UPLOAD_ERR_OK) {
-            $uploadResult = uploadFile($_FILES['project_image'], $userId, 'projects');
+            $uploadResult = uploadFile($_FILES['project_image'], $userId, 'projects', true); // Generate responsive versions
 
             if (!$uploadResult['success']) {
                 error_log("Project image upload error: " . ($uploadResult['error'] ?? 'Unknown error'));
@@ -230,6 +210,10 @@ if (isPost()) {
 
             $data['image_url'] = $uploadResult['url'];
             $data['image_path'] = $uploadResult['path'] ?? str_replace(STORAGE_URL . '/', '', $uploadResult['url']);
+            // Store responsive versions as JSON
+            if (!empty($uploadResult['responsive'])) {
+                $data['image_responsive'] = json_encode($uploadResult['responsive']);
+            }
         } else {
             // If image fields cleared, remove old stored image
             if (empty($data['image_url']) && empty($data['image_path'])) {
@@ -248,11 +232,17 @@ if (isPost()) {
         }
 
         try {
+            // Log the data being updated for debugging
+            error_log("Updating project with data: " . json_encode($data));
+            
             db()->update('projects', $data, 'id = ? AND profile_id = ?', [$id, $userId]);
             setFlash('success', 'Project updated successfully');
         } catch (Exception $e) {
             error_log("Project update error: " . $e->getMessage());
-            setFlash('error', 'Failed to update project. Please try again.');
+            error_log("Project update data: " . print_r($data, true));
+            error_log("Project ID: " . $id . ", User ID: " . $userId);
+            error_log("Stack trace: " . $e->getTraceAsString());
+            setFlash('error', 'Failed to update project: ' . ($e->getMessage() ?? 'Unknown error'));
             redirect('/projects.php?edit=' . urlencode($id));
         }
 
@@ -341,12 +331,25 @@ if ($editingId) {
                     <?php
                     $initialImagePath = $editingProject['image_path'] ?? '';
                     $initialImageUrl = $editingProject['image_url'] ?? '';
+                    $initialResponsive = $editingProject['image_responsive'] ?? null;
                     $previewImageSrc = '';
 
                     if (!empty($initialImageUrl)) {
                         $previewImageSrc = $initialImageUrl;
                     } elseif (!empty($initialImagePath)) {
                         $previewImageSrc = '/api/storage-proxy?path=' . urlencode($initialImagePath);
+                    }
+                    
+                    // Use responsive image if available (prefer small or thumb for preview)
+                    if (!empty($initialResponsive)) {
+                        $responsive = is_string($initialResponsive) ? json_decode($initialResponsive, true) : $initialResponsive;
+                        if (is_array($responsive)) {
+                            if (!empty($responsive['small']['url'])) {
+                                $previewImageSrc = $responsive['small']['url'];
+                            } elseif (!empty($responsive['thumb']['url'])) {
+                                $previewImageSrc = $responsive['thumb']['url'];
+                            }
+                        }
                     }
                     ?>
                     <div class="sm:col-span-2"><label for="title" class="block text-sm font-medium text-gray-700">Project Title *</label>
@@ -376,8 +379,8 @@ if ($editingId) {
                                 <button type="button" onclick="clearProjectImage()" class="mt-2 text-sm text-red-600 hover:text-red-800 <?php echo $previewImageSrc ? '' : 'hidden'; ?>" id="project-image-clear">Remove image</button>
                             </div>
                         </div>
-                        <input type="hidden" id="image_url" name="image_url" value="<?php echo $editingProject ? e($editingProject['image_url']) : ''; ?>">
-                        <input type="hidden" id="image_path" name="image_path" value="<?php echo $editingProject ? e($editingProject['image_path']) : ''; ?>">
+                        <input type="hidden" id="image_url" name="image_url" value="<?php echo $editingProject && !empty($editingProject['image_url']) ? e($editingProject['image_url']) : ''; ?>">
+                        <input type="hidden" id="image_path" name="image_path" value="<?php echo $editingProject && !empty($editingProject['image_path']) ? e($editingProject['image_path']) : ''; ?>">
                     </div>
                 </div>
                 <div class="mt-6 flex items-center gap-3">
@@ -412,11 +415,26 @@ if ($editingId) {
                         } elseif (!empty($projectImagePath)) {
                             $projectImageUrl = '/api/storage-proxy?path=' . urlencode($projectImagePath);
                         }
+                        
+                        // Get responsive image attributes (context: 'list' for projects list page)
+                        $responsiveData = isset($project['image_responsive']) ? $project['image_responsive'] : null;
+                        $imgAttrs = getResponsiveImageAttributes($responsiveData, $projectImageUrl, 'list');
                         ?>
                         <div class="flex flex-col items-start gap-3 md:items-end">
-                            <?php if (!empty($projectImageUrl)): ?>
+                            <?php if (!empty($imgAttrs['src'])): ?>
                                 <div class="md:w-48 md:flex-shrink-0">
-                                    <img src="<?php echo e($projectImageUrl); ?>" alt="<?php echo e($project['title']); ?>" class="w-full h-32 object-cover rounded-md border border-gray-200">
+                                    <img 
+                                        src="<?php echo e($imgAttrs['src']); ?>" 
+                                        <?php if (!empty($imgAttrs['srcset'])): ?>
+                                            srcset="<?php echo e($imgAttrs['srcset']); ?>"
+                                            sizes="<?php echo e($imgAttrs['sizes']); ?>"
+                                        <?php endif; ?>
+                                        alt="<?php echo e($project['title']); ?> - Project image" 
+                                        class="w-full h-32 object-cover rounded-md border border-gray-200"
+                                        loading="lazy"
+                                        width="192"
+                                        height="128"
+                                        decoding="async">
                                 </div>
                             <?php endif; ?>
                             <div class="flex gap-4 text-sm">
@@ -444,6 +462,7 @@ if ($editingId) {
         const projectImageClear = document.getElementById('project-image-clear');
         const projectImageUrlInput = document.getElementById('image_url');
         const projectImagePathInput = document.getElementById('image_path');
+        const projectImageResponsiveInput = document.getElementById('image_responsive');
 
         function showProjectImageStatus(message, type) {
             const classes = {
@@ -473,11 +492,28 @@ if ($editingId) {
             setProjectImagePreview('');
             projectImageUrlInput.value = '';
             projectImagePathInput.value = '';
+            if (projectImageResponsiveInput) {
+                projectImageResponsiveInput.value = '';
+            }
         }
 
+        let isUploading = false;
+        
         function handleProjectImageUpload(event) {
+            // #region agent log
+            fetch('http://127.0.0.1:7250/ingest/02ed2acd-ae27-46f6-8e5d-0a67a71118e5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'projects.php:499',message:'handleProjectImageUpload called',data:{isUploading:isUploading,fileName:event.target.files[0]?.name},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A1'})}).catch(()=>{});
+            // #endregion
             const file = event.target.files[0];
             if (!file) {
+                return;
+            }
+            
+            // Prevent multiple simultaneous uploads
+            if (isUploading) {
+                // #region agent log
+                fetch('http://127.0.0.1:7250/ingest/02ed2acd-ae27-46f6-8e5d-0a67a71118e5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'projects.php:507',message:'Upload blocked - already in progress',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A1'})}).catch(()=>{});
+                // #endregion
+                showProjectImageStatus('Upload already in progress. Please wait...', 'info');
                 return;
             }
 
@@ -503,19 +539,49 @@ if ($editingId) {
             formData.append('project_image', file);
             formData.append('<?php echo CSRF_TOKEN_NAME; ?>', csrfToken);
 
+            isUploading = true;
             showProjectImageStatus('Uploading image...', 'info');
 
+            // #region agent log
+            fetch('http://127.0.0.1:7250/ingest/02ed2acd-ae27-46f6-8e5d-0a67a71118e5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'projects.php:536',message:'Starting fetch upload',data:{fileName:file.name,fileSize:file.size},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId':'A1'})}).catch(()=>{});
+            // #endregion
             fetch('/api/upload-project-image.php', {
                 method: 'POST',
                 body: formData
             })
-                .then((response) => response.json())
+                .then((response) => {
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        return response.json();
+                    } else {
+                        return response.text().then(text => {
+                            try {
+                                return JSON.parse(text);
+                            } catch (e) {
+                                throw new Error(text || 'Upload failed. Server returned invalid response.');
+                            }
+                        });
+                    }
+                })
                 .then((data) => {
+                    // #region agent log
+                    fetch('http://127.0.0.1:7250/ingest/02ed2acd-ae27-46f6-8e5d-0a67a71118e5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'projects.php:520',message:'Upload response received',data:{success:data.success,url:data.url,responsiveCount:data.responsive?Object.keys(data.responsive).length:0},timestamp:Date.now(),sessionId:'debug-session',runId':'run1','hypothesisId':'A1'})}).catch(()=>{});
+                    // #endregion
+                    isUploading = false;
                     if (data.success && data.url) {
                         projectImageUrlInput.value = data.url;
                         projectImagePathInput.value = data.path || '';
+                        // Store responsive versions if available
+                        if (projectImageResponsiveInput && data.responsive) {
+                            projectImageResponsiveInput.value = JSON.stringify(data.responsive);
+                            // #region agent log
+                            fetch('http://127.0.0.1:7250/ingest/02ed2acd-ae27-46f6-8e5d-0a67a71118e5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'projects.php:527',message:'Responsive data stored in hidden input',data:{responsiveKeys:Object.keys(data.responsive)},timestamp:Date.now(),sessionId:'debug-session','runId':'run1','hypothesisId':'A5'})}).catch(()=>{});
+                            // #endregion
+                        }
                         showProjectImageStatus('Image uploaded successfully.', 'success');
                         setProjectImagePreview(data.url);
+                        // Log for debugging
+                        console.log('Image uploaded - URL:', data.url, 'Path:', data.path, 'Responsive:', data.responsive);
                     } else {
                         const errorMessage = data.error || 'Upload failed. Please try again.';
                         showProjectImageStatus(errorMessage, 'error');
@@ -524,6 +590,7 @@ if ($editingId) {
                     }
                 })
                 .catch((error) => {
+                    isUploading = false;
                     showProjectImageStatus('Error uploading image: ' + error.message, 'error');
                     projectImageInput.value = '';
                     resetProjectImagePreview();

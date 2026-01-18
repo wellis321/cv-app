@@ -14,8 +14,8 @@ if (!empty($token)) {
 
     // Find user with this verification token
     $user = $db->fetchOne(
-        "SELECT id, email, email_verified, verification_token_expires_at FROM profiles
-         WHERE verification_token = ?",
+        "SELECT id, email, email_verified, email_verification_expires FROM profiles
+         WHERE email_verification_token = ?",
         [$token]
     );
 
@@ -23,15 +23,15 @@ if (!empty($token)) {
         $error = 'Invalid verification token.';
     } elseif (!empty($user['email_verified']) && $user['email_verified'] == 1) {
         $success = 'Your email has already been verified. You can now log in.';
-    } elseif (strtotime($user['verification_token_expires_at']) < time()) {
+    } elseif (strtotime($user['email_verification_expires']) < time()) {
         $error = 'This verification link has expired. Please request a new verification email.';
     } else {
         // Verify the email
         try {
             $db->update('profiles', [
                 'email_verified' => 1,
-                'verification_token' => null,
-                'verification_token_expires_at' => null,
+                'email_verification_token' => null,
+                'email_verification_expires' => null,
                 'updated_at' => date('Y-m-d H:i:s')
             ], 'id = ?', [$user['id']]);
 

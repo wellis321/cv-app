@@ -1,0 +1,460 @@
+<?php
+/**
+ * CV Template Customiser
+ * Allows users to generate and manage custom CV templates using AI
+ */
+
+require_once __DIR__ . '/php/helpers.php';
+
+if (!isLoggedIn()) {
+    redirect('/?redirect=' . urlencode($_SERVER['REQUEST_URI']));
+}
+
+$user = getCurrentUser();
+require_once __DIR__ . '/php/cv-templates.php';
+
+// Get all templates for the user
+$templates = getUserCvTemplates($user['id']);
+$stats = getCvTemplateStats($user['id']);
+$activeTemplate = getActiveCvTemplate($user['id']);
+
+$success = getFlash('success');
+$error = getFlash('error');
+
+$pageTitle = 'Customise CV Template';
+$canonicalUrl = APP_URL . '/cv-template-customizer.php';
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <?php partial('head', [
+        'pageTitle' => $pageTitle . ' | Simple CV Builder',
+        'metaDescription' => 'Create a custom CV template with AI. Describe your ideal design and let AI generate it for you.',
+        'canonicalUrl' => $canonicalUrl,
+    ]); ?>
+</head>
+<body class="bg-gray-50">
+    <?php partial('header'); ?>
+
+    <main id="main-content" role="main">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900">Customise Your CV Template</h1>
+                <p class="mt-2 text-gray-600">Describe your ideal CV design and let AI generate a custom template for you.</p>
+            </div>
+
+            <!-- Success/Error Messages -->
+            <?php if ($success): ?>
+                <div class="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
+                    <p class="text-sm font-medium text-green-800"><?php echo e($success); ?></p>
+                </div>
+            <?php endif; ?>
+
+            <?php if ($error): ?>
+                <div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+                    <p class="text-sm font-medium text-red-800"><?php echo e($error); ?></p>
+                </div>
+            <?php endif; ?>
+
+            <!-- Template Statistics -->
+            <div class="mb-6 bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-900">Your Templates</h3>
+                        <p class="mt-1 text-sm text-gray-600">
+                            <?php echo $stats['count']; ?> of <?php echo $stats['max_templates']; ?> templates 
+                            (<?php echo $stats['total_size_kb']; ?> KB total)
+                        </p>
+                    </div>
+                    <?php if ($stats['count'] >= $stats['max_templates']): ?>
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2">
+                            <p class="text-xs font-medium text-yellow-800">
+                                Template limit reached. Delete a template to create a new one.
+                            </p>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- Templates List -->
+            <?php if (!empty($templates)): ?>
+                <div class="mb-6 bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                        <h3 class="text-lg font-semibold text-gray-900">Your Templates</h3>
+                    </div>
+                    <div class="divide-y divide-gray-200">
+                        <?php foreach ($templates as $template): ?>
+                            <div class="px-6 py-4 hover:bg-gray-50 transition-colors">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2">
+                                            <h4 class="text-base font-semibold text-gray-900">
+                                                <?php echo e($template['template_name']); ?>
+                                            </h4>
+                                            <?php if ($template['is_active']): ?>
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                                                    Active
+                                                </span>
+                                            <?php endif; ?>
+                                        </div>
+                                        <?php if (!empty($template['template_description'])): ?>
+                                            <p class="mt-1 text-sm text-gray-600">
+                                                <?php echo e($template['template_description']); ?>
+                                            </p>
+                                        <?php endif; ?>
+                                        <p class="mt-1 text-xs text-gray-500">
+                                            Created: <?php echo date('M j, Y', strtotime($template['created_at'])); ?>
+                                            • Size: <?php echo round((strlen($template['template_html'] ?? '') + strlen($template['template_css'] ?? '')) / 1024, 2); ?> KB
+                                        </p>
+                                    </div>
+                                    <div class="ml-4 flex gap-2">
+                                        <a href="/cv.php?template=<?php echo e($template['id']); ?>" target="_blank" class="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                                            Preview
+                                        </a>
+                                        <?php if (!$template['is_active']): ?>
+                                            <form method="POST" action="/api/activate-cv-template.php" class="inline">
+                                                <input type="hidden" name="csrf_token" value="<?php echo csrfToken(); ?>">
+                                                <input type="hidden" name="template_id" value="<?php echo e($template['id']); ?>">
+                                                <button type="submit" class="inline-flex items-center px-3 py-1.5 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors">
+                                                    Activate
+                                                </button>
+                                            </form>
+                                        <?php else: ?>
+                                            <form method="POST" action="/api/deactivate-cv-template.php" class="inline">
+                                                <input type="hidden" name="csrf_token" value="<?php echo csrfToken(); ?>">
+                                                <button type="submit" class="inline-flex items-center px-3 py-1.5 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition-colors">
+                                                    Deactivate
+                                                </button>
+                                            </form>
+                                        <?php endif; ?>
+                                        <form method="POST" action="/api/delete-cv-template.php" class="inline" onsubmit="return confirm('Are you sure you want to delete this template? This cannot be undone.');">
+                                            <input type="hidden" name="csrf_token" value="<?php echo csrfToken(); ?>">
+                                            <input type="hidden" name="template_id" value="<?php echo e($template['id']); ?>">
+                                            <button type="submit" class="inline-flex items-center px-3 py-1.5 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
+
+            <!-- Template Generator Form -->
+            <div class="bg-white rounded-lg shadow-lg border border-gray-200 p-6 md:p-8">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Generate New Template</h2>
+                <p class="text-gray-600 mb-6">
+                    Describe how you want your CV to look. Be as specific as possible about colors, layout, fonts, and style.
+                </p>
+
+                <form id="template-generator-form" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" value="<?php echo csrfToken(); ?>">
+                    
+                    <div class="mb-6">
+                        <label for="description" class="block text-sm font-semibold text-gray-900 mb-2">
+                            Describe Your Ideal CV Design
+                        </label>
+                        <textarea 
+                            id="description" 
+                            name="description" 
+                            rows="6"
+                            class="block w-full rounded-lg border-2 border-gray-300 px-4 py-3 text-base text-gray-900 shadow-sm focus:border-blue-600 focus:ring-4 focus:ring-blue-200 focus:outline-none resize-y"
+                            placeholder="Example: I want a modern, minimalist design with a dark blue header, two-column layout with photo on the right, clean typography, and subtle shadows. Use a professional color scheme with blue and gray accents. Or: I want my CV to look similar to the design I'm uploading below. (Optional if you provide a URL or image)"></textarea>
+                        <p class="mt-2 text-sm text-gray-500">
+                            Be specific about: colors, layout (single/two columns), photo placement, typography style, and overall aesthetic. You can also upload an image or provide a URL of a website you'd like to emulate. At least one of description, URL, or image is required.
+                        </p>
+                    </div>
+
+                    <!-- Reference Options -->
+                    <div class="mb-6 space-y-4">
+                        <div>
+                            <label for="reference-url" class="block text-sm font-semibold text-gray-900 mb-2">
+                                Reference Website URL (Optional)
+                            </label>
+                            <input 
+                                type="url" 
+                                id="reference-url" 
+                                name="reference_url"
+                                class="block w-full rounded-lg border-2 border-gray-300 px-4 py-3 text-base text-gray-900 shadow-sm focus:border-blue-600 focus:ring-4 focus:ring-blue-200 focus:outline-none"
+                                placeholder="https://example.com/cv-page"
+                            />
+                            <p class="mt-2 text-sm text-gray-500">
+                                Enter the URL of a website or CV page you'd like to use as inspiration.
+                            </p>
+                        </div>
+
+                        <div>
+                            <label for="reference-image" class="block text-sm font-semibold text-gray-900 mb-2">
+                                Upload Reference Image (Optional)
+                            </label>
+                            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-blue-400 transition-colors">
+                                <div class="space-y-1 text-center w-full">
+                                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                    <div class="flex text-sm text-gray-600">
+                                        <label for="reference-image" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                            <span>Upload an image</span>
+                                            <input id="reference-image" name="reference_image" type="file" class="sr-only" accept="image/jpeg,image/png,image/gif,image/webp" />
+                                        </label>
+                                        <p class="pl-1">or drag and drop</p>
+                                    </div>
+                                    <p class="text-xs text-gray-500">PNG, JPG, GIF, WEBP up to 10MB</p>
+                                    <div id="image-preview-container" class="hidden mt-4">
+                                        <img id="image-preview" src="" alt="Preview" class="max-w-full max-h-64 mx-auto rounded-lg border border-gray-300" />
+                                        <button type="button" id="remove-image" class="mt-2 text-sm text-red-600 hover:text-red-800">Remove image</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <label for="layout" class="block text-sm font-semibold text-gray-900 mb-2">
+                                Layout Preference (Optional)
+                            </label>
+                            <select 
+                                id="layout" 
+                                name="layout"
+                                class="block w-full rounded-lg border-2 border-gray-300 px-4 py-3 text-base text-gray-900 shadow-sm focus:border-blue-600 focus:ring-4 focus:ring-blue-200 focus:outline-none">
+                                <option value="">Let AI decide</option>
+                                <option value="single-column">Single Column</option>
+                                <option value="two-column">Two Column</option>
+                                <option value="three-column">Three Column</option>
+                                <option value="sidebar">Sidebar Layout</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="color-scheme" class="block text-sm font-semibold text-gray-900 mb-2">
+                                Color Scheme (Optional)
+                            </label>
+                            <select 
+                                id="color-scheme" 
+                                name="color_scheme"
+                                class="block w-full rounded-lg border-2 border-gray-300 px-4 py-3 text-base text-gray-900 shadow-sm focus:border-blue-600 focus:ring-4 focus:ring-blue-200 focus:outline-none">
+                                <option value="">Let AI decide</option>
+                                <option value="professional-blue">Professional Blue</option>
+                                <option value="modern-gray">Modern Gray</option>
+                                <option value="bold-colorful">Bold & Colorful</option>
+                                <option value="minimal-black-white">Minimal Black & White</option>
+                                <option value="warm-tones">Warm Tones</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end gap-3">
+                        <button 
+                            type="button" 
+                            onclick="window.location.href='/cv.php'"
+                            class="px-6 py-3 border-2 border-gray-300 rounded-lg text-base font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                            Cancel
+                        </button>
+                        <button 
+                            type="submit" 
+                            id="generate-btn"
+                            <?php if ($stats['count'] >= $stats['max_templates']): ?>disabled<?php endif; ?>
+                            class="px-6 py-3 border border-transparent rounded-lg text-base font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                            <span id="generate-btn-text">Generate Template</span>
+                            <span id="generate-btn-loading" class="hidden">Generating...</span>
+                        </button>
+                    </div>
+                    <?php if ($stats['count'] >= $stats['max_templates']): ?>
+                        <p class="mt-3 text-sm text-red-600 text-right">
+                            You've reached the template limit. Please delete an existing template to create a new one.
+                        </p>
+                    <?php endif; ?>
+                </form>
+
+                <!-- Loading Indicator -->
+                <div id="loading-overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+                    <div class="bg-white rounded-lg p-8 max-w-md mx-4 text-center">
+                        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Generating Your Template</h3>
+                        <p class="text-gray-600">This may take 30-60 seconds. Please don't close this page.</p>
+                    </div>
+                </div>
+
+                <!-- Results -->
+                <div id="results" class="hidden mt-8">
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                        <p class="text-sm text-green-800">
+                            <strong>Template generated successfully!</strong> Preview it below or activate it to use on your CV page.
+                        </p>
+                    </div>
+                    <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Preview</h3>
+                        <iframe id="template-preview" class="w-full border border-gray-300 rounded" style="height: 600px;"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <?php partial('footer'); ?>
+
+    <script>
+        // Image preview functionality
+        const imageInput = document.getElementById('reference-image');
+        const imagePreview = document.getElementById('image-preview');
+        const imagePreviewContainer = document.getElementById('image-preview-container');
+        const removeImageBtn = document.getElementById('remove-image');
+        
+        if (imageInput) {
+            imageInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        imagePreview.src = e.target.result;
+                        imagePreviewContainer.classList.remove('hidden');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+        
+        if (removeImageBtn) {
+            removeImageBtn.addEventListener('click', function() {
+                imageInput.value = '';
+                imagePreview.src = '';
+                imagePreviewContainer.classList.add('hidden');
+            });
+        }
+        
+        // Drag and drop functionality
+        const dropZone = document.querySelector('.border-dashed');
+        if (dropZone) {
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => {
+                    dropZone.classList.add('border-blue-400', 'bg-blue-50');
+                }, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => {
+                    dropZone.classList.remove('border-blue-400', 'bg-blue-50');
+                }, false);
+            });
+            
+            dropZone.addEventListener('drop', function(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                if (files.length > 0 && imageInput) {
+                    imageInput.files = files;
+                    const event = new Event('change', { bubbles: true });
+                    imageInput.dispatchEvent(event);
+                }
+            }, false);
+        }
+        
+        document.getElementById('template-generator-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const form = e.target;
+            const generateBtn = document.getElementById('generate-btn');
+            const generateBtnText = document.getElementById('generate-btn-text');
+            const generateBtnLoading = document.getElementById('generate-btn-loading');
+            const loadingOverlay = document.getElementById('loading-overlay');
+            const results = document.getElementById('results');
+            
+            // Validate that at least one input is provided
+            const description = document.getElementById('description').value.trim();
+            const referenceUrl = document.getElementById('reference-url').value.trim();
+            const imageInput = document.getElementById('reference-image');
+            const hasImage = imageInput && imageInput.files && imageInput.files[0];
+            
+            if (!description && !referenceUrl && !hasImage) {
+                alert('Please provide at least one of the following: a description, a reference URL, or an image.');
+                return;
+            }
+            
+            // Show loading
+            generateBtn.disabled = true;
+            generateBtnText.classList.add('hidden');
+            generateBtnLoading.classList.remove('hidden');
+            loadingOverlay.classList.remove('hidden');
+            results.classList.add('hidden');
+            
+            const formData = new FormData(form);
+            const options = {
+                layout_preference: document.getElementById('layout').value,
+                color_scheme: document.getElementById('color-scheme').value,
+                reference_url: referenceUrl
+            };
+            formData.append('options', JSON.stringify(options));
+            
+            // Add image file if selected
+            if (hasImage) {
+                formData.append('reference_image', imageInput.files[0]);
+            }
+            
+            try {
+                const response = await fetch('/api/ai-generate-cv-template.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Show preview
+                    const previewFrame = document.getElementById('template-preview');
+                    const previewDoc = previewFrame.contentDocument || previewFrame.contentWindow.document;
+                    
+                    // Clean HTML/CSS content - remove PHP tags
+                    let cssContent = (result.css || '').replace(/<\?php[\s\S]*?\?>/g, '');
+                    let htmlContent = (result.html || '').replace(/<\?php[\s\S]*?\?>/g, '<!-- PHP code removed for preview -->');
+                    
+                    // Use DOM methods to safely insert content
+                    previewDoc.open();
+                    previewDoc.write('<!DOCTYPE html><html><head></head><body></body></html>');
+                    previewDoc.close();
+                    
+                    // Add Tailwind script
+                    const script = previewDoc.createElement('script');
+                    script.src = 'https://cdn.tailwindcss.com';
+                    previewDoc.head.appendChild(script);
+                    
+                    // Add CSS
+                    const style = previewDoc.createElement('style');
+                    style.textContent = cssContent;
+                    previewDoc.head.appendChild(style);
+                    
+                    // Add HTML content to body
+                    previewDoc.body.innerHTML = htmlContent;
+                    
+                    results.classList.remove('hidden');
+                    // Reload after a short delay to show updated status
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    alert('Error: ' + (result.error || 'Failed to generate template'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error generating template. Please try again.');
+            } finally {
+                generateBtn.disabled = false;
+                generateBtnText.classList.remove('hidden');
+                generateBtnLoading.classList.add('hidden');
+                loadingOverlay.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
+

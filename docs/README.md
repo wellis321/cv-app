@@ -19,6 +19,7 @@ This folder contains all project documentation, including:
 - `STRIPE_SETUP_INSTRUCTIONS.md` - Detailed Stripe setup instructions
 - `TRIAL_SYSTEM_README.md` - Trial system documentation
 - `IMPORT_DATABASE.md` - Database import instructions
+- `AI_CV_FEATURES.md` - AI-powered CV rewriting and quality assessment features
 
 ## Development & Migration
 - `CONVERSION_SUMMARY.md` - SvelteKit to PHP conversion summary
@@ -36,4 +37,4 @@ This folder contains all project documentation, including:
 
 ---
 
-**Note:** All documentation has been moved here for better organization. Future documentation should also be stored in this folder.
+**Note:** All documentation has been moved here for better organisation. Future documentation should also be stored in this folder.

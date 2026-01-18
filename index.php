@@ -1,9 +1,40 @@
 <?php
 /**
  * Main entry point - Home page
+ * Also acts as router for PHP built-in server
  */
 
 require_once __DIR__ . '/php/helpers.php';
+
+// If this is a request for an existing PHP file (not the homepage), serve it directly
+$requestUri = $_SERVER['REQUEST_URI'] ?? '/';
+$requestPath = parse_url($requestUri, PHP_URL_PATH);
+
+// Handle CV routes: /cv/@username -> cv.php?username=username
+// This is needed for PHP built-in server which doesn't process .htaccess
+if (preg_match('#^/cv/@([a-z0-9][a-z0-9\-_]+)$#', $requestPath, $matches)) {
+    $_GET['username'] = $matches[1];
+    require __DIR__ . '/cv.php';
+    exit;
+}
+
+// Handle CV routes: /cv/userid -> cv.php?userid=userid (for backward compatibility)
+if (preg_match('#^/cv/([a-f0-9\-]{36})$#', $requestPath, $matches)) {
+    $_GET['userid'] = $matches[1];
+    require __DIR__ . '/cv.php';
+    exit;
+}
+
+// Don't process as homepage if it's a specific file request
+if ($requestPath !== '/' && $requestPath !== '/index.php' && $requestPath !== '') {
+    // Check if the requested file exists
+    $filePath = __DIR__ . $requestPath;
+    if (file_exists($filePath) && is_file($filePath) && pathinfo($filePath, PATHINFO_EXTENSION) === 'php') {
+        // Serve the file directly
+        require $filePath;
+        exit;
+    }
+}
 
 // Handle login/register
 if (isPost()) {
@@ -99,30 +130,42 @@ if (isPost()) {
     }
 }
 
-// Redirect logged-in users to dashboard
-if (isLoggedIn()) {
+// Redirect logged-in users to dashboard (only if we're on the homepage)
+// Don't redirect if we're already on a specific page to avoid redirect loops
+$requestUri = $_SERVER['REQUEST_URI'] ?? '/';
+$requestPath = parse_url($requestUri, PHP_URL_PATH);
+$isHomepage = ($requestPath === '/' || $requestPath === '/index.php' || empty($requestPath) || $requestPath === '');
+if (isLoggedIn() && $isHomepage) {
     redirect('/dashboard.php');
 }
 
-// Get user data if logged in
-$user = isLoggedIn() ? getCurrentUser() : null;
+// Get user data if logged in (with error handling)
+$user = null;
+if (isLoggedIn()) {
+    try {
+        $user = getCurrentUser();
+    } catch (Exception $e) {
+        // Log error but don't break the page
+        error_log("Error getting current user: " . $e->getMessage());
+        // Clear invalid session
+        session_unset();
+        session_destroy();
+        session_start();
+    }
+}
 $error = getFlash('error') ?: null;
 $success = getFlash('success') ?: null;
 $needsVerification = getFlash('needs_verification') ?: false;
 $verificationEmail = getFlash('verification_email') ?: null;
 $oldLoginEmail = getFlash('old_login_email') ?: null;
 
-// Enable error reporting for debugging (remove in production)
-// ini_set('display_errors', 1);
-// error_reporting(E_ALL);
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <?php partial('head', [
-        'pageTitle' => 'Simple CV Builder | Your CV, Reimagined',
-        'metaDescription' => 'Create a modern CV that updates in real-time, share it instantly, and unlock premium templates with Simple CV Builder.',
+        'pageTitle' => 'Simple CV Builder | CV Management for Recruitment Agencies',
+        'metaDescription' => 'Professional CV management platform for recruitment agencies. Manage candidate CVs efficiently, provide branded CV building tools, and streamline your recruitment process.',
         'canonicalUrl' => APP_URL . '/',
         'structuredDataType' => 'homepage',
     ]); ?>

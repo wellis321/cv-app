@@ -51,7 +51,7 @@
 
 ### Analytics & Monitoring
 11. **Track rankings** in Google Search Console
-12. **Monitor user behavior** with Google Analytics
+12. **Monitor user behaviour** with Google Analytics
 13. **Set up conversion tracking** to see how many sign-ups come from organic search
 
 ### Keyword Strategy

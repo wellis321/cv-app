@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../php/helpers.php';
 
-$pageTitle = '11 Remote Jobs Perfect for Beginners in 2025';
+$pageTitle = '11 Remote Jobs Perfect for Beginners in 2026';
 $metaDescription = 'Discover 11 beginner-friendly remote jobs that require little to no experience. Learn about salaries, skills needed, and where to find these opportunities.';
 
 $jobs = [
@@ -316,10 +316,41 @@ $gettingStartedTips = [
                             $encodedImagePath = str_replace(' ', '%20', $imagePath);
                             $imageAlt = $job['image_alt'] ?? $job['title'];
                         ?>
+                            <?php
+                            // Generate responsive image URLs for article images
+                            $imageBasePath = dirname($encodedImagePath);
+                            $imageFileName = basename($encodedImagePath);
+                            $pathInfo = pathinfo($imageFileName);
+                            $baseName = $pathInfo['filename'];
+                            $ext = $pathInfo['extension'] ?? 'jpg';
+                            
+                            $responsiveSizes = [
+                                'thumb' => ['width' => 150, 'height' => 150],
+                                'small' => ['width' => 400, 'height' => 400],
+                                'medium' => ['width' => 800, 'height' => 800],
+                                'large' => ['width' => 1200, 'height' => 1200]
+                            ];
+                            
+                            $srcsetParts = [];
+                            foreach ($responsiveSizes as $sizeName => $dimensions) {
+                                $responsiveFileName = $baseName . '_' . $sizeName . '.' . $ext;
+                                $responsivePath = '/' . $imageBasePath . '/' . $responsiveFileName;
+                                $srcsetParts[] = $responsivePath . ' ' . $dimensions['width'] . 'w';
+                            }
+                            $srcset = implode(', ', $srcsetParts);
+                            $sizesAttr = '(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 800px';
+                            ?>
                             <div class="overflow-hidden rounded-xl border border-slate-200 bg-slate-100 shadow-sm">
                                 <img src="/<?php echo e($encodedImagePath); ?>"
+                                     <?php if (!empty($srcset)): ?>
+                                         srcset="<?php echo e($srcset); ?>"
+                                         sizes="<?php echo e($sizesAttr); ?>"
+                                     <?php endif; ?>
                                      alt="<?php echo e($imageAlt); ?>"
-                                     class="h-88 w-full object-cover" loading="lazy">
+                                     class="h-88 w-full object-cover" 
+                                     loading="lazy"
+                                     width="800"
+                                     height="352">
                             </div>
                         <?php endif; ?>
                         <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -406,7 +437,7 @@ $gettingStartedTips = [
                                 Upgrade to Pro
                             </a>
                         <?php else: ?>
-                            <a href="/#auth-section" class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-6 py-3 text-base font-semibold text-white shadow-md hover:bg-blue-700 transition-colors">
+                            <a href="/?register=1" data-open-register class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-6 py-3 text-base font-semibold text-white shadow-md hover:bg-blue-700 transition-colors">
                                 Create Free Account
                             </a>
                             <a href="/#pricing" class="inline-flex items-center justify-center rounded-lg border-2 border-blue-600 px-6 py-3 text-base font-semibold text-blue-600 hover:bg-blue-50 transition-colors">
@@ -420,26 +451,59 @@ $gettingStartedTips = [
     </section>
 
     <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-base leading-relaxed text-slate-700">
-        <div class="grid gap-8 lg:grid-cols-2">
-            <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg shadow-slate-900/5">
-                <h2 class="text-2xl font-semibold text-slate-900">Ready to create a standout CV?</h2>
-                <p class="mt-4 text-base text-slate-600">
-                    Use Simple CV Builder to showcase remote-friendly skills, highlight your tech stack, and export print-ready PDFs. Paid plans unlock unlimited sections, premium templates, and QR-code enabled CVs.
-                </p>
-                <a href="/subscription.php" class="mt-6 inline-flex items-center justify-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-slate-800">
-                    Compare plans
-                </a>
+            <div id="remote-work-story-form" class="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg shadow-slate-900/5 scroll-mt-24">
+                <div id="story-form-message" class="hidden mb-6"></div>
+                <div id="story-form-content">
+                    <h2 class="text-2xl font-semibold text-slate-900">Share your remote work story</h2>
+                    <p class="mt-4 text-base text-slate-600">
+                        Have you landed a remote role recently? We'd love to feature real-world experiences to inspire others. Share your story and help others on their remote work journey.
+                    </p>
+                    <form id="remote-work-story-form-element" method="POST" action="/api/remote-work-story.php" class="mt-6 space-y-4">
+                    <input type="hidden" name="<?php echo CSRF_TOKEN_NAME; ?>" value="<?php echo csrfToken(); ?>">
+                    <div>
+                        <label for="story-name" class="block text-sm font-medium text-slate-700 mb-1">Your Name</label>
+                        <input type="text" id="story-name" name="name" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="story-email" class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                        <input type="email" id="story-email" name="email" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="story-job-title" class="block text-sm font-medium text-slate-700 mb-1">Job Title</label>
+                        <input type="text" id="story-job-title" name="job_title" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="story-company" class="block text-sm font-medium text-slate-700 mb-1">Company (optional)</label>
+                        <input type="text" id="story-company" name="company" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="story-category" class="block text-sm font-medium text-slate-700 mb-1">Job Category (optional)</label>
+                        <select id="story-category" name="category" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Select a category</option>
+                            <option value="Virtual Assistant">Virtual Assistant</option>
+                            <option value="Customer Support">Customer Support</option>
+                            <option value="Data Entry">Data Entry</option>
+                            <option value="Content Moderator">Content Moderator</option>
+                            <option value="Transcriptionist">Transcriptionist</option>
+                            <option value="Social Media Coordinator">Social Media Coordinator</option>
+                            <option value="Online Tutor">Online Tutor</option>
+                            <option value="Proofreader">Proofreader</option>
+                            <option value="Online Researcher">Online Researcher</option>
+                            <option value="Email Marketing">Email Marketing</option>
+                            <option value="Bookkeeper">Bookkeeper</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="story-content" class="block text-sm font-medium text-slate-700 mb-1">Your Story</label>
+                        <textarea id="story-content" name="story" rows="5" required placeholder="Share your experience, tips, or advice for others looking to start remote work." class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+                    <button type="submit" class="w-full inline-flex items-center justify-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-slate-800 transition-colors">
+                        Submit Your Story
+                    </button>
+                    </form>
+                </div>
             </div>
-            <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg shadow-slate-900/5">
-                <h2 class="text-2xl font-semibold text-slate-900">Share your remote work story</h2>
-                <p class="mt-4 text-base text-slate-600">
-                    Have you landed a remote role recently? We’d love to feature real-world experiences. Replace this placeholder with a form or email CTA when you’re collecting case studies.
-                </p>
-                <button type="button" class="mt-6 inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:border-slate-400 hover:text-slate-900">
-                    Submit your story (placeholder)
-                </button>
-            </div>
-        </div>
     </section>
 
     <section class="bg-slate-900 text-slate-100">
@@ -463,5 +527,96 @@ $gettingStartedTips = [
 
 <?php partial('footer'); ?>
 <?php partial('auth-modals'); ?>
+
+<script>
+    // Handle remote work story form submission
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('remote-work-story-form-element');
+        if (form) {
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const submitButton = form.querySelector('button[type="submit"]');
+                const messageDiv = document.getElementById('story-form-message');
+                const formContent = document.getElementById('story-form-content');
+                const formData = new FormData(form);
+                
+                // Disable submit button
+                submitButton.disabled = true;
+                submitButton.textContent = 'Submitting...';
+                messageDiv.classList.add('hidden');
+                
+                try {
+                    const response = await fetch('/api/remote-work-story.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        // Hide form and show prominent success message
+                        formContent.style.display = 'none';
+                        messageDiv.className = 'rounded-2xl border-2 border-green-500 bg-gradient-to-br from-green-50 to-emerald-50 p-8 text-center';
+                        messageDiv.innerHTML = `
+                            <div class="flex flex-col items-center">
+                                <div class="rounded-full bg-green-500 p-4 mb-4">
+                                    <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                </div>
+                                <h3 class="text-2xl font-bold text-green-900 mb-2">Thank You!</h3>
+                                <p class="text-lg text-green-800 mb-4">${data.message}</p>
+                                <button type="button" onclick="location.reload()" class="inline-flex items-center justify-center rounded-lg bg-green-600 px-6 py-3 text-base font-semibold text-white shadow hover:bg-green-700 transition-colors">
+                                    Submit Another Story
+                                </button>
+                            </div>
+                        `;
+                        messageDiv.classList.remove('hidden');
+                        
+                        // Scroll to top of form section
+                        document.getElementById('remote-work-story-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    } else {
+                        // Show error message above form
+                        formContent.style.display = 'block';
+                        messageDiv.className = 'rounded-lg border-2 border-red-500 bg-red-50 p-6 mb-6';
+                        messageDiv.innerHTML = `
+                            <div class="flex items-start">
+                                <svg class="h-6 w-6 text-red-600 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <div>
+                                    <h3 class="text-lg font-semibold text-red-900 mb-1">Error</h3>
+                                    <p class="text-red-800">${data.error || 'An error occurred. Please try again.'}</p>
+                                </div>
+                            </div>
+                        `;
+                        messageDiv.classList.remove('hidden');
+                        messageDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                } catch (error) {
+                    formContent.style.display = 'block';
+                    messageDiv.className = 'rounded-lg border-2 border-red-500 bg-red-50 p-6 mb-6';
+                    messageDiv.innerHTML = `
+                        <div class="flex items-start">
+                            <svg class="h-6 w-6 text-red-600 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <div>
+                                <h3 class="text-lg font-semibold text-red-900 mb-1">Error</h3>
+                                <p class="text-red-800">An error occurred. Please try again or contact us directly at noreply@simple-job-tracker.com</p>
+                            </div>
+                        </div>
+                    `;
+                    messageDiv.classList.remove('hidden');
+                    messageDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                } finally {
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Submit Your Story';
+                }
+            });
+        }
+    });
+</script>
 </body>
 </html>

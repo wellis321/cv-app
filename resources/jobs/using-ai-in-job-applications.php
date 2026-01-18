@@ -186,10 +186,44 @@ $sections = [
             <section id="<?php echo e($section['id']); ?>" class="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg shadow-slate-900/5">
                 <div class="flex flex-col gap-6 <?php echo $reverseLayout ? 'lg:flex-row-reverse' : 'lg:flex-row'; ?> lg:items-center">
                     <?php if ($encodedImagePath): ?>
+                        <?php
+                        // For static article images, generate responsive URLs based on naming convention
+                        // Extract base path and filename
+                        $imageBasePath = dirname($encodedImagePath);
+                        $imageFileName = basename($encodedImagePath);
+                        $pathInfo = pathinfo($imageFileName);
+                        $baseName = $pathInfo['filename'];
+                        $ext = $pathInfo['extension'] ?? 'jpg';
+                        
+                        // Generate responsive image URLs (assuming they follow the same naming convention)
+                        $responsiveSizes = [
+                            'thumb' => ['width' => 150, 'height' => 150],
+                            'small' => ['width' => 400, 'height' => 400],
+                            'medium' => ['width' => 800, 'height' => 800],
+                            'large' => ['width' => 1200, 'height' => 1200]
+                        ];
+                        
+                        $srcsetParts = [];
+                        foreach ($responsiveSizes as $sizeName => $dimensions) {
+                            $responsiveFileName = $baseName . '_' . $sizeName . '.' . $ext;
+                            $responsivePath = $imageBasePath . '/' . $responsiveFileName;
+                            // Check if responsive version exists, or use original if not
+                            $srcsetParts[] = $responsivePath . ' ' . $dimensions['width'] . 'w';
+                        }
+                        $srcset = implode(', ', $srcsetParts);
+                        $sizesAttr = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 800px';
+                        ?>
                         <div class="w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-sm lg:w-5/12">
                             <img src="<?php echo e($encodedImagePath); ?>"
+                                 <?php if (!empty($srcset)): ?>
+                                     srcset="<?php echo e($srcset); ?>"
+                                     sizes="<?php echo e($sizesAttr); ?>"
+                                 <?php endif; ?>
                                  alt="<?php echo e($imageAlt); ?>"
-                                 class="h-80 w-full object-cover" loading="lazy">
+                                 class="h-80 w-full object-cover" 
+                                 loading="lazy"
+                                 width="800"
+                                 height="320">
                         </div>
                     <?php endif; ?>
                     <div class="<?php echo $encodedImagePath ? 'lg:w-7/12' : ''; ?>">

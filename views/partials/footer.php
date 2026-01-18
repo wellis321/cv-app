@@ -1,8 +1,11 @@
 <footer class="bg-white border-t border-gray-200 mt-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
             <div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Simple CV Builder</h3>
+                <a href="/" class="inline-flex items-center space-x-3 mb-4">
+                    <img src="/static/images/logo/black-logo-300.jpg" alt="Simple CV Builder" class="h-12 w-auto" />
+                    <span class="text-2xl font-bold text-blue-600">Simple CV Builder</span>
+                </a>
                 <p class="text-sm text-gray-600">
                     Create a professional CV that stands out, updates in real-time, and can be shared as a simple link.
                 </p>
@@ -11,27 +14,51 @@
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Links</h3>
                 <ul class="space-y-2 text-sm">
                     <li><a href="/" class="text-gray-600 hover:text-blue-600">Home</a></li>
-                    <li><a href="/faq.php" class="text-gray-600 hover:text-blue-600">FAQ</a></li>
                     <li><a href="/resources/jobs/" class="text-gray-600 hover:text-blue-600">Job Market Insights</a></li>
-                    <li><a href="/resources/passive-income/" class="text-gray-600 hover:text-blue-600">Passive Income Ideas</a></li>
                     <li><a href="/resources/career/" class="text-gray-600 hover:text-blue-600">Career Advice Hub</a></li>
                     <li><a href="/resources/extra-income/" class="text-gray-600 hover:text-blue-600">Extra Income Ideas</a></li>
-                    <?php if (isLoggedIn()): ?>
-                        <li><a href="/profile.php" class="text-gray-600 hover:text-blue-600">Profile</a></li>
-                        <li><a href="/cv.php" class="text-gray-600 hover:text-blue-600">View CV</a></li>
-                    <?php endif; ?>
+                    <li><a href="/resources/jobs/remote-jobs-begginers.php#remote-work-story-form" class="text-gray-600 hover:text-blue-600">Share Your Remote Work Story</a></li>
                 </ul>
             </div>
             <div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Legal</h3>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Info</h3>
                 <ul class="space-y-2 text-sm">
+                    <li><a href="/organisations.php" class="text-gray-600 hover:text-blue-600">For Organisations</a></li>
+                    <li><a href="/individual-users.php" class="text-gray-600 hover:text-blue-600">For Individuals</a></li>
+                    <li><a href="/faq.php" class="text-gray-600 hover:text-blue-600">FAQ</a></li>
+                    <li><a href="/job-applications-features.php" class="text-green-600 hover:text-green-700 font-medium">Job Application Tracker</a></li>
                     <li><a href="/privacy.php" class="text-gray-600 hover:text-blue-600">Privacy Policy</a></li>
                     <li><a href="/terms.php" class="text-gray-600 hover:text-blue-600">Terms of Service</a></li>
                 </ul>
             </div>
         </div>
-        <div class="mt-8 pt-8 border-t border-gray-200 text-center text-sm text-gray-600">
-            <p>&copy; <?php echo date('Y'); ?> Simple CV Builder. All rights reserved.</p>
+        
+        <!-- Ready to create section -->
+        <div class="mb-10 rounded-2xl border-2 border-blue-500 bg-gradient-to-br from-blue-50 to-indigo-50 px-6 py-6 shadow-sm">
+            <div class="flex flex-col items-center text-center max-w-2xl mx-auto">
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">Ready to create a standout CV?</h3>
+                <p class="text-sm text-gray-700 mb-4">
+                    Use Simple CV Builder to showcase your skills, highlight your experience, and export print-ready PDFs. Paid plans unlock unlimited sections, premium templates, and QR-code enabled CVs.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <a href="/?register=1" data-open-register class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-700 transition-colors">
+                        Create Free Account
+                    </a>
+                    <a href="/#pricing" class="inline-flex items-center justify-center rounded-lg border-2 border-blue-600 px-5 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50 transition-colors">
+                        Compare Plans
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bottom section with logo and copyright -->
+        <div class="pt-8 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a href="/" class="flex items-center">
+                <img src="/static/images/logo/black-logo-300.jpg" alt="Simple CV Builder" class="h-6 w-auto opacity-50" />
+            </a>
+            <p class="text-sm text-gray-500">
+                &copy; <?php echo date('Y'); ?> Simple CV Builder. All rights reserved.
+            </p>
         </div>
     </div>
 </footer>
@@ -96,5 +123,42 @@
         if (declineBtn) {
             declineBtn.addEventListener('click', () => closeBanner('declined'));
         }
+    })();
+</script>
+
+<script>
+    // Handle registration link in footer - works on all pages
+    (function() {
+        document.querySelectorAll('footer [data-open-register]').forEach((link) => {
+            link.addEventListener('click', function(e) {
+                // Check if modal system exists on current page
+                const registerModal = document.querySelector('[data-modal="register"]');
+                
+                if (registerModal) {
+                    // Modal exists on this page, try to open it
+                    e.preventDefault();
+                    
+                    // Try to find and call openModal function
+                    const modalMap = new Map();
+                    document.querySelectorAll('[data-modal]').forEach((modal) => {
+                        modalMap.set(modal.getAttribute('data-modal'), modal);
+                    });
+                    
+                    const modal = modalMap.get('register');
+                    if (modal) {
+                        modal.classList.remove('hidden');
+                        modal.setAttribute('aria-hidden', 'false');
+                        document.body.classList.add('overflow-hidden');
+                        
+                        // Focus first input
+                        const firstInput = modal.querySelector('input[type="email"], input[type="text"]');
+                        if (firstInput) {
+                            setTimeout(() => firstInput.focus(), 100);
+                        }
+                    }
+                }
+                // If modal doesn't exist, let the href="/?register=1" handle the redirect
+            });
+        });
     })();
 </script>

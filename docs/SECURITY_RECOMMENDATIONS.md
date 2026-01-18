@@ -231,7 +231,7 @@
 **Priority**: 🔵
 **Actions**:
 
-- [ ] Implement standardized error handling that doesn't expose sensitive information:
+- [ ] Implement standardised error handling that doesn't expose sensitive information:
 
   ```ts
   // Example secure error handler

@@ -61,9 +61,25 @@ if ($action === 'delete') {
             }
         }
 
+        // Delete responsive versions if they exist
+        if (!empty($profile['photo_responsive'])) {
+            $responsive = json_decode($profile['photo_responsive'], true);
+            if (is_array($responsive)) {
+                foreach ($responsive as $size => $data) {
+                    if (isset($data['path'])) {
+                        $responsivePath = STORAGE_PATH . '/' . $data['path'];
+                        if (file_exists($responsivePath)) {
+                            @unlink($responsivePath);
+                        }
+                    }
+                }
+            }
+        }
+        
         // Update database
         db()->update('profiles', [
             'photo_url' => null,
+            'photo_responsive' => null,
             'updated_at' => date('Y-m-d H:i:s')
         ], 'id = ?', [$userId]);
 
@@ -83,8 +99,8 @@ if ($action === 'delete') {
 
     $file = $_FILES['photo'];
 
-    // Upload file using storage function
-    $result = uploadFile($file, $userId, 'profiles');
+    // Upload file using storage function (with responsive generation)
+    $result = uploadFile($file, $userId, 'profiles', true);
 
     if (!$result['success']) {
         http_response_code(400);
@@ -92,9 +108,9 @@ if ($action === 'delete') {
         exit;
     }
 
-    // Delete old photo if exists
+    // Delete old photo and responsive versions if exists
     try {
-        $profile = db()->fetchOne("SELECT photo_url FROM profiles WHERE id = ?", [$userId]);
+        $profile = db()->fetchOne("SELECT photo_url, photo_responsive FROM profiles WHERE id = ?", [$userId]);
 
         if (!empty($profile['photo_url'])) {
             $oldUrl = $profile['photo_url'];
@@ -104,17 +120,59 @@ if ($action === 'delete') {
             if (file_exists($oldFullPath)) {
                 @unlink($oldFullPath);
             }
+            
+            // Delete responsive versions if they exist
+            if (!empty($profile['photo_responsive'])) {
+                $responsive = json_decode($profile['photo_responsive'], true);
+                if (is_array($responsive)) {
+                    foreach ($responsive as $size => $data) {
+                        if (isset($data['path'])) {
+                            $responsivePath = STORAGE_PATH . '/' . $data['path'];
+                            if (file_exists($responsivePath)) {
+                                @unlink($responsivePath);
+                            }
+                        }
+                    }
+                }
+            }
         }
 
-        // Update profile with new photo URL
-        db()->update('profiles', [
+        // Update profile with new photo URL and responsive data
+        $updateData = [
             'photo_url' => $result['url'],
+            'photo_responsive' => !empty($result['responsive']) ? json_encode($result['responsive']) : null,
             'updated_at' => date('Y-m-d H:i:s')
-        ], 'id = ?', [$userId]);
+        ];
+        
+        $updateResult = db()->update('profiles', $updateData, 'id = ?', [$userId]);
+        
+        // Log the update attempt
+        error_log("Photo update attempt - User ID: {$userId}, URL: {$result['url']}, Rows affected: {$updateResult}");
+
+        // Verify the update worked by querying the database
+        $updatedProfile = db()->fetchOne("SELECT photo_url FROM profiles WHERE id = ?", [$userId]);
+        
+        if (empty($updatedProfile['photo_url'])) {
+            error_log("ERROR: Photo URL not found after update. User ID: {$userId}, Expected URL: {$result['url']}, Rows affected: {$updateResult}");
+            http_response_code(500);
+            echo json_encode([
+                'success' => false,
+                'error' => 'Photo uploaded but database update failed. Please try again.',
+                'debug' => DEBUG ? ['rows_affected' => $updateResult, 'expected_url' => $result['url']] : null
+            ]);
+            exit;
+        }
+        
+        // Double-check the URL matches
+        if ($updatedProfile['photo_url'] !== $result['url']) {
+            error_log("WARNING: Photo URL mismatch. Expected: {$result['url']}, Got: {$updatedProfile['photo_url']}");
+        }
 
         echo json_encode([
             'success' => true,
-            'url' => $result['url']
+            'url' => $updatedProfile['photo_url'], // Return the actual stored URL
+            'responsive' => !empty($result['responsive']) ? $result['responsive'] : null,
+            'rows_affected' => $updateResult
         ]);
     } catch (Exception $e) {
         error_log("Photo update error: " . $e->getMessage());

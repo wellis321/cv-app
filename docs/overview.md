@@ -102,7 +102,7 @@ The completed CV can be:
    - Each section (Personal Profile, Work Experience, Education, etc.) can be toggled on/off
    - Photo from Personal Profile can be included or excluded based on user preference
    - Users can choose from multiple layout templates for the PDF export
-   - Order of sections can be customized for the PDF
+   - Order of sections can be customised for the PDF
 
 ## Technical Features
 

@@ -17,6 +17,11 @@ $profile = db()->fetchOne(
     [$userId]
 );
 
+// Debug: Log photo_url if it exists (remove in production)
+if (DEBUG && !empty($profile['photo_url'])) {
+    error_log("Profile photo_url: " . $profile['photo_url']);
+}
+
 // Ensure default visibility settings exist to avoid undefined indexes
 if ($profile) {
     if (!isset($profile['show_photo'])) {
@@ -73,7 +78,9 @@ if (isPost()) {
     $data['bio'] = $normalise(post('bio', ''), true);
 
     // Handle show photo options (always include these fields if a photo exists)
-    if (!empty($profile['photo_url'])) {
+    // Get current photo_url (may have been normalized above)
+    $currentPhotoUrl = $profile['photo_url'] ?? null;
+    if (!empty($currentPhotoUrl)) {
         $showPhotoCvInput = post('show_photo_cv', '0');
         $showPhotoCv = ($showPhotoCvInput === '1' || $showPhotoCvInput === 'on') ? 1 : 0;
         $data['show_photo'] = $showPhotoCv;
@@ -158,9 +165,21 @@ if (isPost()) {
 
     // Update profile
     try {
+        // CRITICAL: Preserve photo_url when updating other fields
+        // Get current photo_url from database to ensure we don't lose it
+        $currentProfile = db()->fetchOne("SELECT photo_url FROM profiles WHERE id = ?", [$userId]);
+        if (!empty($currentProfile['photo_url'])) {
+            // Only preserve if we're not explicitly clearing it (which we never do in this form)
+            $data['photo_url'] = $currentProfile['photo_url'];
+        }
+        
         // Ensure we have at least updated_at even if all fields null
         if (empty(array_filter($data, fn($value) => !is_null($value) && $value !== ''))) {
             $data = ['updated_at' => date('Y-m-d H:i:s')];
+            // Still preserve photo_url even if all other fields are empty
+            if (!empty($currentProfile['photo_url'])) {
+                $data['photo_url'] = $currentProfile['photo_url'];
+            }
         } else {
             $data['updated_at'] = date('Y-m-d H:i:s');
         }
@@ -349,8 +368,27 @@ if (isPost()) {
 
                     <div class="flex items-start gap-6">
                         <div class="flex-shrink-0">
-                            <?php if (!empty($profile['photo_url'])): ?>
-                                <img id="photo-preview" src="<?php echo e($profile['photo_url']); ?>" alt="Profile Photo" class="w-32 h-32 rounded-full object-cover border-4 border-gray-200">
+                            <?php 
+                            // Get photo URL from profile - use as-is, don't normalize on display
+                            $photoUrl = $profile['photo_url'] ?? null;
+                            ?>
+                            <?php if (!empty($photoUrl)): ?>
+                                <?php
+                                // Get responsive image attributes for profile photo (context: 'full' for profile page)
+                                $photoResponsiveData = isset($profile['photo_responsive']) ? $profile['photo_responsive'] : null;
+                                $photoImgAttrs = getResponsiveImageAttributes($photoResponsiveData, $photoUrl, 'full');
+                                ?>
+                                <img id="photo-preview" 
+                                     src="<?php echo e($photoImgAttrs['src']); ?>"
+                                     <?php if (!empty($photoImgAttrs['srcset'])): ?>
+                                         srcset="<?php echo e($photoImgAttrs['srcset']); ?>"
+                                         sizes="<?php echo e($photoImgAttrs['sizes']); ?>"
+                                     <?php endif; ?>
+                                     alt="Profile Photo" 
+                                     class="w-32 h-32 rounded-full object-cover border-4 border-gray-200"
+                                     loading="lazy"
+                                     width="128"
+                                     height="128">
                             <?php else: ?>
                                 <div id="photo-preview" class="w-32 h-32 rounded-full bg-gray-200 border-4 border-gray-200 flex items-center justify-center">
                                     <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -377,7 +415,7 @@ if (isPost()) {
                                     </svg>
                                     <span>Upload Photo</span>
                                 </label>
-                                <?php if (!empty($profile['photo_url'])): ?>
+                                <?php if (!empty($photoUrl)): ?>
                                     <button type="button" onclick="deletePhoto()" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 inline-flex items-center gap-2">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -387,7 +425,7 @@ if (isPost()) {
                                 <?php endif; ?>
                             </div>
 
-                            <?php if (!empty($profile['photo_url'])): ?>
+                            <?php if (!empty($photoUrl)): ?>
                                 <?php
                                 $showPhotoCv = isset($profile['show_photo']) ? (int)$profile['show_photo'] : 1;
                                 $showPhotoPdf = isset($profile['show_photo_pdf']) ? (int)$profile['show_photo_pdf'] : 1;
@@ -648,10 +686,38 @@ if (isPost()) {
             .then(data => {
                 if (data.success) {
                     showStatus('Photo uploaded successfully!', 'success');
-                    // Update preview with server URL
-                    document.getElementById('photo-preview').src = data.url + '?t=' + Date.now();
+                    // Update preview with server URL immediately
+                    const preview = document.getElementById('photo-preview');
+                    if (preview.tagName === 'IMG') {
+                        preview.src = data.url + '?t=' + Date.now();
+                    } else {
+                        // Replace div with img
+                        const img = document.createElement('img');
+                        img.id = 'photo-preview';
+                        img.src = data.url + '?t=' + Date.now();
+                        img.alt = 'Profile Photo';
+                        img.className = 'w-32 h-32 rounded-full object-cover border-4 border-gray-200';
+                        preview.parentNode.replaceChild(img, preview);
+                    }
+                    // Show delete button and photo options if they were hidden
+                    const deleteButton = document.querySelector('button[onclick="deletePhoto()"]');
+                    if (!deleteButton && document.querySelector('.flex.gap-3.flex-wrap')) {
+                        const buttonsContainer = document.querySelector('.flex.gap-3.flex-wrap');
+                        const deleteBtn = document.createElement('button');
+                        deleteBtn.type = 'button';
+                        deleteBtn.onclick = deletePhoto;
+                        deleteBtn.className = 'bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 inline-flex items-center gap-2';
+                        deleteBtn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg><span>Delete Photo</span>';
+                        buttonsContainer.appendChild(deleteBtn);
+                    }
+                    // Show photo visibility checkboxes
+                    const photoOptions = document.querySelector('#tab-content-photo .mt-4.space-y-4');
+                    if (photoOptions) {
+                        photoOptions.style.display = 'block';
+                    }
                 } else {
                     showStatus('Error: ' + (data.error || 'Upload failed'), 'error');
+                    console.error('Upload error:', data);
                 }
             })
             .catch(error => {

@@ -1,0 +1,556 @@
+<?php
+/**
+ * Job Application Management Functions
+ * Integrated from job-tracker app
+ */
+
+require_once __DIR__ . '/utils.php';
+
+/**
+ * Get all job applications for a user
+ */
+function getUserJobApplications($userId = null, $filters = []) {
+    if ($userId === null) {
+        $userId = getUserId();
+    }
+    
+    if (!$userId) {
+        return [];
+    }
+    
+    $params = [$userId];
+    $sql = "SELECT 
+                ja.*,
+                COALESCE(
+                    JSON_ARRAYAGG(
+                        CASE WHEN jaf.id IS NOT NULL THEN
+                            JSON_OBJECT(
+                                'id', jaf.id,
+                                'original_name', jaf.original_name,
+                                'custom_name', jaf.custom_name,
+                                'file_name', jaf.file_name,
+                                'mime_type', jaf.mime_type,
+                                'size', jaf.size,
+                                'file_purpose', jaf.file_purpose,
+                                'uploaded_at', jaf.uploaded_at
+                            )
+                        END
+                    ),
+                    JSON_ARRAY()
+                ) as files
+            FROM job_applications ja
+            LEFT JOIN job_application_files jaf ON ja.id = jaf.application_id
+            WHERE ja.user_id = ?";
+    
+    // Add filters
+    if (!empty($filters['status'])) {
+        $sql .= " AND ja.status = ?";
+        $params[] = $filters['status'];
+    }
+    
+    if (!empty($filters['search'])) {
+        $sql .= " AND (ja.company_name LIKE ? OR ja.job_title LIKE ?)";
+        $searchTerm = '%' . $filters['search'] . '%';
+        $params[] = $searchTerm;
+        $params[] = $searchTerm;
+    }
+    
+    $sql .= " GROUP BY ja.id ORDER BY ja.created_at DESC";
+    
+    if (!empty($filters['limit'])) {
+        $sql .= " LIMIT ?";
+        $params[] = (int)$filters['limit'];
+    }
+    
+    $rows = db()->fetchAll($sql, $params);
+    
+    $applications = [];
+    foreach ($rows as $row) {
+        $application = [
+            'id' => $row['id'],
+            'company_name' => $row['company_name'],
+            'job_title' => $row['job_title'],
+            'job_description' => $row['job_description'],
+            'application_date' => $row['application_date'],
+            'status' => $row['status'],
+            'salary_range' => $row['salary_range'],
+            'job_location' => $row['job_location'],
+            'remote_type' => $row['remote_type'],
+            'application_url' => $row['application_url'],
+            'notes' => $row['notes'],
+            'next_follow_up' => $row['next_follow_up'],
+            'had_interview' => (bool)$row['had_interview'],
+            'created_at' => $row['created_at'],
+            'updated_at' => $row['updated_at']
+        ];
+        
+        // Parse files JSON
+        $files = json_decode($row['files'], true);
+        if (!is_array($files)) {
+            $files = [];
+        }
+        $application['files'] = array_filter($files, function($file) {
+            return $file !== null && isset($file['id']);
+        });
+        
+        // Add URLs to files
+        foreach ($application['files'] as &$file) {
+            if (isset($file['stored_name'])) {
+                $file['url'] = STORAGE_URL . '/' . $file['stored_name'];
+            }
+        }
+        
+        $applications[] = $application;
+    }
+    
+    return $applications;
+}
+
+/**
+ * Get a single job application by ID
+ */
+function getJobApplication($applicationId, $userId = null) {
+    if ($userId === null) {
+        $userId = getUserId();
+    }
+    
+    if (!$userId) {
+        return null;
+    }
+    
+    $row = db()->fetchOne(
+        "SELECT 
+            ja.*,
+            COALESCE(
+                JSON_ARRAYAGG(
+                    CASE WHEN jaf.id IS NOT NULL THEN
+                        JSON_OBJECT(
+                            'id', jaf.id,
+                            'original_name', jaf.original_name,
+                            'custom_name', jaf.custom_name,
+                            'file_name', jaf.file_name,
+                            'mime_type', jaf.mime_type,
+                            'size', jaf.size,
+                            'file_purpose', jaf.file_purpose,
+                            'uploaded_at', jaf.uploaded_at
+                        )
+                    END
+                ),
+                JSON_ARRAY()
+            ) as files
+         FROM job_applications ja
+         LEFT JOIN job_application_files jaf ON ja.id = jaf.application_id
+         WHERE ja.id = ? AND ja.user_id = ?
+         GROUP BY ja.id",
+        [$applicationId, $userId]
+    );
+    
+    if (!$row) {
+        return null;
+    }
+    
+    $application = [
+        'id' => $row['id'],
+        'company_name' => $row['company_name'],
+        'job_title' => $row['job_title'],
+        'job_description' => $row['job_description'],
+        'application_date' => $row['application_date'],
+        'status' => $row['status'],
+        'salary_range' => $row['salary_range'],
+        'job_location' => $row['job_location'],
+        'remote_type' => $row['remote_type'],
+        'application_url' => $row['application_url'],
+        'notes' => $row['notes'],
+        'next_follow_up' => $row['next_follow_up'],
+        'had_interview' => (bool)$row['had_interview'],
+        'created_at' => $row['created_at'],
+        'updated_at' => $row['updated_at']
+    ];
+    
+    // Parse files JSON
+    $files = json_decode($row['files'], true);
+    if (!is_array($files)) {
+        $files = [];
+    }
+    $application['files'] = array_filter($files, function($file) {
+        return $file !== null && isset($file['id']);
+    });
+    
+    return $application;
+}
+
+/**
+ * Create a new job application
+ */
+function createJobApplication($data, $userId = null) {
+    if ($userId === null) {
+        $userId = getUserId();
+    }
+    
+    if (!$userId) {
+        return ['success' => false, 'error' => 'User not authenticated'];
+    }
+    
+    // Validate required fields
+    if (empty($data['company_name']) || empty($data['job_title'])) {
+        return ['success' => false, 'error' => 'Company name and job title are required'];
+    }
+    
+    // Validate status
+    $validStatuses = ['applied', 'interviewing', 'offered', 'rejected', 'accepted', 'withdrawn', 'in_progress'];
+    $status = in_array($data['status'] ?? 'applied', $validStatuses) ? ($data['status'] ?? 'applied') : 'applied';
+    
+    // Validate remote_type
+    $validRemoteTypes = ['onsite', 'hybrid', 'remote'];
+    $remoteType = in_array($data['remote_type'] ?? 'onsite', $validRemoteTypes) ? ($data['remote_type'] ?? 'onsite') : 'onsite';
+    
+    try {
+        $applicationId = generateUuid();
+        
+        // Convert date-only format to datetime format for application_date
+        $applicationDate = !empty($data['application_date']) ? $data['application_date'] : date('Y-m-d H:i:s');
+        if (!empty($data['application_date']) && strlen($data['application_date']) === 10) {
+            // Date-only format (Y-m-d), convert to datetime
+            $applicationDate = $data['application_date'] . ' 00:00:00';
+        }
+        
+        db()->insert('job_applications', [
+            'id' => $applicationId,
+            'user_id' => $userId,
+            'company_name' => sanitizeInput($data['company_name']),
+            'job_title' => sanitizeInput($data['job_title']),
+            'job_description' => sanitizeInput($data['job_description'] ?? null),
+            'application_date' => $applicationDate,
+            'status' => $status,
+            'salary_range' => sanitizeInput($data['salary_range'] ?? null),
+            'job_location' => sanitizeInput($data['job_location'] ?? null),
+            'remote_type' => $remoteType,
+            'application_url' => sanitizeInput($data['application_url'] ?? null),
+            'notes' => sanitizeInput($data['notes'] ?? null),
+            'next_follow_up' => !empty($data['next_follow_up']) ? $data['next_follow_up'] : null,
+            'had_interview' => !empty($data['had_interview']) ? 1 : 0,
+            'created_at' => date('Y-m-d H:i:s'),
+            'updated_at' => date('Y-m-d H:i:s')
+        ]);
+        
+        // Log activity if user is in an organisation
+        $org = null;
+        if (function_exists('getUserOrganisation')) {
+            $org = getUserOrganisation();
+        }
+        if ($org) {
+            if (function_exists('logActivity')) {
+                logActivity('job_application.created', null, [
+                    'application_id' => $applicationId,
+                    'company_name' => $data['company_name'],
+                    'job_title' => $data['job_title']
+                ], $org['organisation_id']);
+            }
+        }
+        
+        return ['success' => true, 'id' => $applicationId];
+    } catch (Exception $e) {
+        if (DEBUG) {
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+        return ['success' => false, 'error' => 'Failed to create job application'];
+    }
+}
+
+/**
+ * Update a job application
+ */
+function updateJobApplication($applicationId, $data, $userId = null) {
+    if ($userId === null) {
+        $userId = getUserId();
+    }
+    
+    if (!$userId) {
+        return ['success' => false, 'error' => 'User not authenticated'];
+    }
+    
+    // Verify ownership
+    $existing = db()->fetchOne(
+        "SELECT id FROM job_applications WHERE id = ? AND user_id = ?",
+        [$applicationId, $userId]
+    );
+    
+    if (!$existing) {
+        return ['success' => false, 'error' => 'Application not found'];
+    }
+    
+    // Validate status if provided
+    $updateData = [];
+    if (isset($data['status'])) {
+        $validStatuses = ['applied', 'interviewing', 'offered', 'rejected', 'accepted', 'withdrawn', 'in_progress'];
+        if (in_array($data['status'], $validStatuses)) {
+            $updateData['status'] = $data['status'];
+        }
+    }
+    
+    // Validate remote_type if provided
+    if (isset($data['remote_type'])) {
+        $validRemoteTypes = ['onsite', 'hybrid', 'remote'];
+        if (in_array($data['remote_type'], $validRemoteTypes)) {
+            $updateData['remote_type'] = $data['remote_type'];
+        }
+    }
+    
+    // Update other fields
+    $allowedFields = ['company_name', 'job_title', 'job_description', 'application_date', 
+                      'salary_range', 'job_location', 'application_url', 'notes', 
+                      'next_follow_up', 'had_interview'];
+    
+    foreach ($allowedFields as $field) {
+        if (isset($data[$field])) {
+            if ($field === 'had_interview') {
+                $updateData[$field] = $data[$field] ? 1 : 0;
+            } elseif ($field === 'application_date' || $field === 'next_follow_up') {
+                $updateData[$field] = !empty($data[$field]) ? $data[$field] : null;
+            } else {
+                $updateData[$field] = sanitizeInput($data[$field]);
+            }
+        }
+    }
+    
+    if (empty($updateData)) {
+        return ['success' => false, 'error' => 'No valid fields to update'];
+    }
+    
+    $updateData['updated_at'] = date('Y-m-d H:i:s');
+    
+    try {
+        db()->update('job_applications', $updateData, 'id = ?', [$applicationId]);
+        
+        // Log activity if user is in an organisation
+        $org = getUserOrganisation();
+        if ($org) {
+            logActivity('job_application.updated', null, [
+                'application_id' => $applicationId
+            ], $org['organisation_id']);
+        }
+        
+        return ['success' => true];
+    } catch (Exception $e) {
+        if (DEBUG) {
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+        return ['success' => false, 'error' => 'Failed to update job application'];
+    }
+}
+
+/**
+ * Delete a job application
+ */
+function deleteJobApplication($applicationId, $userId = null) {
+    if ($userId === null) {
+        $userId = getUserId();
+    }
+    
+    if (!$userId) {
+        return ['success' => false, 'error' => 'User not authenticated'];
+    }
+    
+    // Verify ownership
+    $existing = db()->fetchOne(
+        "SELECT id FROM job_applications WHERE id = ? AND user_id = ?",
+        [$applicationId, $userId]
+    );
+    
+    if (!$existing) {
+        return ['success' => false, 'error' => 'Application not found'];
+    }
+    
+    try {
+        // Delete associated files first (handled by foreign key CASCADE, but we'll clean up storage)
+        $files = db()->fetchAll(
+            "SELECT stored_name FROM job_application_files WHERE application_id = ?",
+            [$applicationId]
+        );
+        
+        foreach ($files as $file) {
+            $filePath = STORAGE_PATH . '/job-applications/' . $file['stored_name'];
+            if (file_exists($filePath)) {
+                @unlink($filePath);
+            }
+        }
+        
+        // Delete the application (files will be deleted by CASCADE)
+        db()->delete('job_applications', 'id = ?', [$applicationId]);
+        
+        // Log activity if user is in an organisation
+        $org = getUserOrganisation();
+        if ($org) {
+            logActivity('job_application.deleted', null, [
+                'application_id' => $applicationId
+            ], $org['organisation_id']);
+        }
+        
+        return ['success' => true];
+    } catch (Exception $e) {
+        if (DEBUG) {
+            return ['success' => false, 'error' => $e->getMessage()];
+        }
+        return ['success' => false, 'error' => 'Failed to delete job application'];
+    }
+}
+
+/**
+ * Get job application statistics for a user
+ */
+function getJobApplicationStats($userId = null) {
+    if ($userId === null) {
+        $userId = getUserId();
+    }
+    
+    if (!$userId) {
+        return [];
+    }
+    
+    $stats = db()->fetchOne(
+        "SELECT 
+            COUNT(*) as total,
+            SUM(CASE WHEN status = 'applied' THEN 1 ELSE 0 END) as applied,
+            SUM(CASE WHEN status = 'interviewing' THEN 1 ELSE 0 END) as interviewing,
+            SUM(CASE WHEN status = 'offered' THEN 1 ELSE 0 END) as offered,
+            SUM(CASE WHEN status = 'accepted' THEN 1 ELSE 0 END) as accepted,
+            SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) as rejected,
+            SUM(CASE WHEN had_interview = 1 THEN 1 ELSE 0 END) as had_interview,
+            SUM(CASE WHEN next_follow_up IS NOT NULL AND next_follow_up <= DATE_ADD(NOW(), INTERVAL 7 DAY) THEN 1 ELSE 0 END) as upcoming_followups
+         FROM job_applications
+         WHERE user_id = ?",
+        [$userId]
+    );
+    
+    return $stats ?: [
+        'total' => 0,
+        'applied' => 0,
+        'interviewing' => 0,
+        'offered' => 0,
+        'accepted' => 0,
+        'rejected' => 0,
+        'had_interview' => 0,
+        'upcoming_followups' => 0
+    ];
+}
+
+/**
+ * Get files for a job application
+ */
+function getJobApplicationFiles($applicationId, $userId = null) {
+    if ($userId === null) {
+        $userId = getUserId();
+    }
+    
+    if (!$userId) {
+        return [];
+    }
+    
+    // Verify application ownership
+    $application = db()->fetchOne(
+        "SELECT id FROM job_applications WHERE id = ? AND user_id = ?",
+        [$applicationId, $userId]
+    );
+    
+    if (!$application) {
+        return [];
+    }
+    
+    $files = db()->fetchAll(
+        "SELECT * FROM job_application_files WHERE application_id = ? AND user_id = ? ORDER BY uploaded_at DESC",
+        [$applicationId, $userId]
+    );
+    
+    // Add full URL to each file
+    foreach ($files as &$file) {
+        $file['url'] = STORAGE_URL . '/' . $file['stored_name'];
+    }
+    
+    return $files;
+}
+
+/**
+ * Get a single file by ID
+ */
+function getJobApplicationFile($fileId, $userId = null) {
+    if ($userId === null) {
+        $userId = getUserId();
+    }
+    
+    if (!$userId) {
+        return null;
+    }
+    
+    $file = db()->fetchOne(
+        "SELECT * FROM job_application_files WHERE id = ? AND user_id = ?",
+        [$fileId, $userId]
+    );
+    
+    if ($file) {
+        $file['url'] = STORAGE_URL . '/' . $file['stored_name'];
+    }
+    
+    return $file;
+}
+
+/**
+ * Extract text from a job application file
+ */
+function extractJobApplicationFileText($fileId, $userId = null) {
+    if ($userId === null) {
+        $userId = getUserId();
+    }
+    
+    if (!$userId) {
+        return ['success' => false, 'error' => 'User not authenticated'];
+    }
+    
+    $file = getJobApplicationFile($fileId, $userId);
+    if (!$file) {
+        return ['success' => false, 'error' => 'File not found'];
+    }
+    
+    require_once __DIR__ . '/document-extractor.php';
+    
+    $filePath = STORAGE_PATH . '/' . $file['stored_name'];
+    if (!file_exists($filePath)) {
+        return ['success' => false, 'error' => 'File not found on disk'];
+    }
+    
+    return extractDocumentText($filePath, $file['mime_type']);
+}
+
+/**
+ * Get all files for a job application that can be used for AI CV generation
+ * Returns files with extracted text content
+ */
+function getJobApplicationFilesForAI($applicationId, $userId = null) {
+    if ($userId === null) {
+        $userId = getUserId();
+    }
+    
+    if (!$userId) {
+        return [];
+    }
+    
+    $files = getJobApplicationFiles($applicationId, $userId);
+    $filesWithText = [];
+    
+    require_once __DIR__ . '/document-extractor.php';
+    
+    foreach ($files as $file) {
+        $filePath = STORAGE_PATH . '/' . $file['stored_name'];
+        if (file_exists($filePath)) {
+            $extractionResult = extractDocumentText($filePath, $file['mime_type']);
+            if ($extractionResult['success'] && !empty($extractionResult['text'])) {
+                $filesWithText[] = [
+                    'file' => $file,
+                    'text' => $extractionResult['text']
+                ];
+            }
+        }
+    }
+    
+    return $filesWithText;
+}
+

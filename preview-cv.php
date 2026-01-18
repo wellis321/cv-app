@@ -523,8 +523,27 @@ $subscriptionFrontendContext = buildSubscriptionFrontendContext($subscriptionCon
 
             const templateSelectEl = document.getElementById('template-select');
             if (templateSelectEl) {
-                const allTemplates = listTemplates();
-                let availableTemplates = allTemplates.filter((templateMeta) => {
+                // Check if listTemplates is available
+                if (typeof listTemplates !== 'function') {
+                    console.error('listTemplates is not a function. Available:', typeof listTemplates, listTemplates);
+                    templateSelectEl.innerHTML = '<option value="professional">Professional Blue (default)</option>';
+                    selectedTemplate = DEFAULT_TEMPLATE_ID || 'professional';
+                    updateTemplateDescription(selectedTemplate);
+                } else {
+                    let allTemplates;
+                    try {
+                        allTemplates = listTemplates();
+                        console.log('Templates loaded:', allTemplates);
+                        if (!Array.isArray(allTemplates) || allTemplates.length === 0) {
+                            console.warn('listTemplates() returned invalid data, using fallback');
+                            allTemplates = [{ id: DEFAULT_TEMPLATE_ID || 'professional', name: 'Professional Blue', description: 'Clean layout with blue accent accents and structured typography.' }];
+                        }
+                    } catch (error) {
+                        console.error('Error calling listTemplates():', error);
+                        allTemplates = [{ id: DEFAULT_TEMPLATE_ID || 'professional', name: 'Professional Blue', description: 'Clean layout with blue accent accents and structured typography.' }];
+                    }
+                    
+                    let availableTemplates = allTemplates.filter((templateMeta) => {
                     if (allowedTemplateIds.size === 0) {
                         return true;
                     }
@@ -571,6 +590,7 @@ $subscriptionFrontendContext = buildSubscriptionFrontendContext($subscriptionCon
                     updateTemplateDescription(selectedTemplate);
                     renderPreview();
                 });
+                } // Close the else block for listTemplates check
             } else {
                 updateTemplateDescription(selectedTemplate);
             }

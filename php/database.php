@@ -11,17 +11,35 @@ class Database {
 
     private function __construct() {
         $dsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=" . DB_CHARSET;
+        
         $options = [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             PDO::ATTR_EMULATE_PREPARES => false,
         ];
+        
+        // For PHP < 8.5, use the init command option (deprecated in 8.5+)
+        // PHP 8.4 and earlier: Use PDO::MYSQL_ATTR_INIT_COMMAND (not deprecated)
+        // PHP 8.5+: Execute command after connection to avoid deprecation warning
+        if (version_compare(PHP_VERSION, '8.5.0', '<')) {
+            $options[PDO::MYSQL_ATTR_INIT_COMMAND] = "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci";
+        }
 
         try {
             $this->pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
+            // Set connection attributes after connection to handle MySQL 8.0 auth
+            $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            // For PHP 8.5+, execute charset command after connection (deprecated option removed)
+            if (version_compare(PHP_VERSION, '8.5.0', '>=')) {
+                $this->pdo->exec("SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci");
+            }
         } catch (PDOException $e) {
+            // Ensure headers are set before outputting error
+            if (!headers_sent()) {
+                header('Content-Type: text/html; charset=UTF-8');
+            }
             if (DEBUG) {
-                die("Database connection failed: " . $e->getMessage());
+                die("Database connection failed: " . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8'));
             } else {
                 die("Database connection failed. Please try again later.");
             }

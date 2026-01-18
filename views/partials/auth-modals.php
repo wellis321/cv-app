@@ -29,6 +29,9 @@ $oldLoginEmail = getFlash('old_login_email') ?: null;
             <form method="POST" action="/">
                 <input type="hidden" name="action" value="login">
                 <input type="hidden" name="<?php echo CSRF_TOKEN_NAME; ?>" value="<?php echo csrfToken(); ?>">
+                <?php if (!empty($redirect ?? null)): ?>
+                    <input type="hidden" name="redirect" value="<?php echo e($redirect); ?>">
+                <?php endif; ?>
 
                 <div class="mb-4">
                     <label for="modal-login-email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
@@ -52,6 +55,10 @@ $oldLoginEmail = getFlash('old_login_email') ?: null;
                 <button type="submit" class="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                     Log in
                 </button>
+
+                <div class="mt-4 text-center text-sm text-gray-600">
+                    <p>Don't have an account yet? <button type="button" data-open-register class="text-blue-600 hover:text-blue-800 font-semibold underline">Register here</button></p>
+                </div>
 
                 <div class="mt-4 text-right text-xs text-gray-500 space-y-1">
                     <div>
@@ -193,11 +200,22 @@ $oldLoginEmail = getFlash('old_login_email') ?: null;
         };
 
         document.querySelectorAll('[data-open-login]').forEach((trigger) => {
-            trigger.addEventListener('click', () => openModal('login'));
+            trigger.addEventListener('click', (e) => {
+                e.preventDefault();
+                openModal('login');
+            });
         });
 
         document.querySelectorAll('[data-open-register]').forEach((trigger) => {
-            trigger.addEventListener('click', () => openModal('register'));
+            trigger.addEventListener('click', (e) => {
+                e.preventDefault();
+                // Close login modal if it's open
+                const loginModal = modalMap.get('login');
+                if (loginModal && !loginModal.classList.contains('hidden')) {
+                    closeModal(loginModal);
+                }
+                openModal('register');
+            });
         });
 
         document.querySelectorAll('[data-close-modal]').forEach((closeTrigger) => {

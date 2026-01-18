@@ -38,8 +38,8 @@ if (isPost()) {
 
                 try {
                     $db->update('profiles', [
-                        'verification_token' => $verificationToken,
-                        'verification_token_expires_at' => $verificationExpires,
+                        'email_verification_token' => $verificationToken,
+                        'email_verification_expires' => $verificationExpires,
                         'updated_at' => date('Y-m-d H:i:s')
                     ], 'id = ?', [$user['id']]);
 

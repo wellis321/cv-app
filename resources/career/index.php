@@ -5,58 +5,20 @@ $pageTitle = 'Career Advice Hub';
 $canonicalUrl = APP_URL . '/resources/career/';
 $sections = [
     [
-        'title' => 'Career Planning',
-        'description' => 'Figure out your next move with practical frameworks and reflection prompts.',
-        'articles' => [
-            [
-                'title' => 'Goal Setting Workshop',
-                'excerpt' => 'Define a 12-month career roadmap with milestones, learning objectives, and accountability.',
-            ],
-            [
-                'title' => 'Skills Gap Assessment Template',
-                'excerpt' => 'Audit your current strengths and identify the skills that unlock your next promotion.',
-            ],
-            [
-                'title' => 'How To Switch Careers Without Starting Over',
-                'excerpt' => 'Strategies to repurpose your experience and tell a compelling transition story.',
-            ],
-        ],
-    ],
-    [
         'title' => 'CVs, Applications & Interviews',
         'description' => 'Support to help you stand out through every stage of the hiring process.',
         'articles' => [
             [
                 'title' => 'How to Update Your CV: A Complete Guide',
-                'excerpt' => 'Step-by-step guidance for refreshing every section of your CV whenever opportunity knocks.',
+                'excerpt' => 'Step-by-step advice for refreshing every section of your CV whenever opportunity knocks.',
                 'href' => '/resources/career/how-to-update-your-cv.php',
                 'cta' => 'Read full guide',
             ],
             [
-                'title' => 'Mastering Online Application Portals',
-                'excerpt' => 'Organise job alerts, customise responses quickly, and avoid common mistakes.',
-            ],
-            [
-                'title' => 'Interview Confidence Toolkit',
-                'excerpt' => 'Body language, storytelling, and follow-up etiquette to leave a lasting impression.',
-            ],
-        ],
-    ],
-    [
-        'title' => 'Early Career Corner',
-        'description' => 'Ideal for students, graduates, and career changers building experience from scratch.',
-        'articles' => [
-            [
-                'title' => 'Landing Internships & Work Experience',
-                'excerpt' => 'Where to look, how to pitch yourself, and tips to make the most of each placement.',
-            ],
-            [
-                'title' => 'Portfolio Ideas for Non-Tech Roles',
-                'excerpt' => 'Showcase projects for marketing, operations, admin, and service-based careers.',
-            ],
-            [
-                'title' => 'Professional Etiquette Basics',
-                'excerpt' => 'Simple guidelines for email, meetings, and workplace collaboration.',
+                'title' => 'CV Update Checklist',
+                'excerpt' => 'A comprehensive printable checklist to systematically update your CV and ensure nothing is missed.',
+                'href' => '/resources/career/how-to-update-your-cv.php#checklist',
+                'cta' => 'View checklist',
             ],
         ],
     ],

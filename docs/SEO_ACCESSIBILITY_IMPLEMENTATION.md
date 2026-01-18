@@ -108,7 +108,7 @@
 ### Low Priority
 - [ ] Add Review/Rating schema (if testimonials added)
 - [ ] Add Video schema (if video content added)
-- [ ] Performance optimization (WebP images, lazy loading improvements)
+- [ ] Performance optimisation (WebP images, lazy loading improvements)
 
 ---
 

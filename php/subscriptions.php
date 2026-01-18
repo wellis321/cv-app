@@ -346,3 +346,234 @@ function getPlanIdForStripePrice(string $priceId): ?string {
     }
     return null;
 }
+
+// =========================================================================
+// Organisation Subscription Functions
+// =========================================================================
+
+/**
+ * Get organisation subscription plans configuration
+ */
+function getOrganisationPlansConfig(): array {
+    static $plans = null;
+
+    if ($plans === null) {
+        $plans = [
+            'agency_basic' => [
+                'label' => 'Basic',
+                'description' => 'Perfect for small agencies getting started.',
+                'price_monthly' => 49,
+                'price_currency' => 'GBP',
+                'max_candidates' => 10,
+                'max_team_members' => 3,
+                'features' => [
+                    'candidate_management' => true,
+                    'team_roles' => true,
+                    'cv_templates' => ['minimal', 'classic'],
+                    'pdf_export' => true,
+                    'custom_branding' => false,
+                    'bulk_export' => false,
+                    'api_access' => false,
+                    'priority_support' => false,
+                ],
+            ],
+            'agency_pro' => [
+                'label' => 'Professional',
+                'description' => 'For growing agencies with larger teams.',
+                'price_monthly' => 149,
+                'price_currency' => 'GBP',
+                'max_candidates' => 50,
+                'max_team_members' => 10,
+                'features' => [
+                    'candidate_management' => true,
+                    'team_roles' => true,
+                    'cv_templates' => ['minimal', 'classic', 'modern', 'professional'],
+                    'pdf_export' => true,
+                    'custom_branding' => true,
+                    'bulk_export' => true,
+                    'api_access' => false,
+                    'priority_support' => true,
+                ],
+            ],
+            'agency_enterprise' => [
+                'label' => 'Enterprise',
+                'description' => 'Unlimited candidates with premium support.',
+                'price_monthly' => 499,
+                'price_currency' => 'GBP',
+                'max_candidates' => PHP_INT_MAX, // Unlimited
+                'max_team_members' => PHP_INT_MAX, // Unlimited
+                'features' => [
+                    'candidate_management' => true,
+                    'team_roles' => true,
+                    'cv_templates' => ['minimal', 'classic', 'modern', 'professional'],
+                    'pdf_export' => true,
+                    'custom_branding' => true,
+                    'bulk_export' => true,
+                    'api_access' => true,
+                    'priority_support' => true,
+                    'dedicated_support' => true,
+                    'custom_domain' => true,
+                ],
+            ],
+        ];
+    }
+
+    return $plans;
+}
+
+/**
+ * Get organisation subscription context
+ */
+function getOrganisationSubscriptionContext(string $organisationId): array {
+    static $cache = [];
+
+    if (isset($cache[$organisationId])) {
+        return $cache[$organisationId];
+    }
+
+    $org = db()->fetchOne(
+        "SELECT plan, subscription_status, subscription_current_period_end,
+                stripe_customer_id, stripe_subscription_id, subscription_cancel_at,
+                max_candidates, max_team_members
+         FROM organisations WHERE id = ?",
+        [$organisationId]
+    );
+
+    if (!$org) {
+        return [];
+    }
+
+    $planId = $org['plan'] ?? 'agency_basic';
+    $plans = getOrganisationPlansConfig();
+    $config = $plans[$planId] ?? $plans['agency_basic'];
+
+    $context = [
+        'organisation_id' => $organisationId,
+        'plan' => $planId,
+        'status' => $org['subscription_status'] ?? 'inactive',
+        'current_period_end' => $org['subscription_current_period_end'] ?? null,
+        'cancel_at' => $org['subscription_cancel_at'] ?? null,
+        'stripe_customer_id' => $org['stripe_customer_id'] ?? null,
+        'stripe_subscription_id' => $org['stripe_subscription_id'] ?? null,
+        'config' => $config,
+        'max_candidates' => $org['max_candidates'] ?? $config['max_candidates'],
+        'max_team_members' => $org['max_team_members'] ?? $config['max_team_members'],
+        'is_active' => in_array($org['subscription_status'], ['active', 'trialing']),
+    ];
+
+    $cache[$organisationId] = $context;
+    return $context;
+}
+
+/**
+ * Check if organisation has a feature enabled
+ */
+function organisationHasFeature(string $organisationId, string $feature): bool {
+    $context = getOrganisationSubscriptionContext($organisationId);
+
+    if (empty($context) || empty($context['config']['features'])) {
+        return false;
+    }
+
+    $featureValue = $context['config']['features'][$feature] ?? false;
+    return !empty($featureValue);
+}
+
+/**
+ * Get allowed templates for organisation
+ */
+function getOrganisationAllowedTemplates(string $organisationId): array {
+    $context = getOrganisationSubscriptionContext($organisationId);
+
+    if (empty($context) || empty($context['config']['features']['cv_templates'])) {
+        return ['minimal', 'classic'];
+    }
+
+    return $context['config']['features']['cv_templates'];
+}
+
+/**
+ * Update organisation subscription from Stripe webhook
+ */
+function updateOrganisationSubscription(string $stripeCustomerId, array $subscriptionData): bool {
+    $org = db()->fetchOne(
+        "SELECT id FROM organisations WHERE stripe_customer_id = ?",
+        [$stripeCustomerId]
+    );
+
+    if (!$org) {
+        return false;
+    }
+
+    try {
+        $planId = getOrganisationPlanIdForStripePrice($subscriptionData['price_id'] ?? '');
+
+        $updateData = [
+            'subscription_status' => $subscriptionData['status'],
+            'stripe_subscription_id' => $subscriptionData['subscription_id'],
+            'updated_at' => date('Y-m-d H:i:s'),
+        ];
+
+        if ($planId) {
+            $plans = getOrganisationPlansConfig();
+            $planConfig = $plans[$planId] ?? null;
+
+            if ($planConfig) {
+                $updateData['plan'] = $planId;
+                $updateData['max_candidates'] = $planConfig['max_candidates'];
+                $updateData['max_team_members'] = $planConfig['max_team_members'];
+            }
+        }
+
+        if (!empty($subscriptionData['current_period_end'])) {
+            $updateData['subscription_current_period_end'] = date('Y-m-d H:i:s', $subscriptionData['current_period_end']);
+        }
+
+        if (!empty($subscriptionData['cancel_at'])) {
+            $updateData['subscription_cancel_at'] = date('Y-m-d H:i:s', $subscriptionData['cancel_at']);
+        }
+
+        db()->update('organisations', $updateData, 'id = ?', [$org['id']]);
+
+        return true;
+    } catch (Exception $e) {
+        if (DEBUG) {
+            error_log('Organisation subscription update error: ' . $e->getMessage());
+        }
+        return false;
+    }
+}
+
+/**
+ * Map Stripe price ID to organisation plan ID
+ * Note: These constants should be defined in config.php
+ */
+function getOrganisationPlanIdForStripePrice(string $priceId): ?string {
+    // These constants should be defined in config.php
+    if (defined('STRIPE_PRICE_AGENCY_BASIC') && $priceId === STRIPE_PRICE_AGENCY_BASIC) {
+        return 'agency_basic';
+    }
+    if (defined('STRIPE_PRICE_AGENCY_PRO') && $priceId === STRIPE_PRICE_AGENCY_PRO) {
+        return 'agency_pro';
+    }
+    if (defined('STRIPE_PRICE_AGENCY_ENTERPRISE') && $priceId === STRIPE_PRICE_AGENCY_ENTERPRISE) {
+        return 'agency_enterprise';
+    }
+    return null;
+}
+
+/**
+ * Get Stripe price ID for organisation plan
+ */
+function getStripePriceIdForOrganisationPlan(string $planId): ?string {
+    switch ($planId) {
+        case 'agency_basic':
+            return defined('STRIPE_PRICE_AGENCY_BASIC') ? STRIPE_PRICE_AGENCY_BASIC : null;
+        case 'agency_pro':
+            return defined('STRIPE_PRICE_AGENCY_PRO') ? STRIPE_PRICE_AGENCY_PRO : null;
+        case 'agency_enterprise':
+            return defined('STRIPE_PRICE_AGENCY_ENTERPRISE') ? STRIPE_PRICE_AGENCY_ENTERPRISE : null;
+        default:
+            return null;
+    }
+}

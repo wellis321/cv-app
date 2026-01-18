@@ -37,6 +37,9 @@ function sanitizeInput($input) {
     if (is_array($input)) {
         return array_map('sanitizeInput', $input);
     }
+    if ($input === null) {
+        return null;
+    }
     return htmlspecialchars(strip_tags(trim($input)), ENT_QUOTES, 'UTF-8');
 }
 
@@ -79,6 +82,9 @@ function validateUrl($url) {
  * Escape for HTML output
  */
 function e($string) {
+    if ($string === null) {
+        return '';
+    }
     return htmlspecialchars($string, ENT_QUOTES, 'UTF-8');
 }
 
@@ -235,6 +241,11 @@ function logAuthAttempt($type, $email, $success, $reason = null) {
  * Set security headers
  */
 function setSecurityHeaders() {
+    // Set Content-Type with charset (must be set early, before any output)
+    if (!headers_sent()) {
+        header('Content-Type: text/html; charset=UTF-8');
+    }
+
     // Prevent clickjacking
     header('X-Frame-Options: SAMEORIGIN');
 
@@ -251,7 +262,9 @@ function setSecurityHeaders() {
     header('Permissions-Policy: geolocation=(), microphone=(), camera=()');
 
     // Content Security Policy (basic)
-    $csp = "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self';";
+    // Allow connections to localhost for Ollama and other local services
+    // Allow cdnjs.cloudflare.com for pdfmake and other libraries
+    $csp = "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' http://localhost:* http://127.0.0.1:* ws://localhost:* ws://127.0.0.1:*;";
     header("Content-Security-Policy: {$csp}");
 
     // HSTS (only if HTTPS)

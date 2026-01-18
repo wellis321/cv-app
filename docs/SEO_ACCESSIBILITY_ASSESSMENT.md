@@ -76,7 +76,7 @@
 - ❌ Article schema for blog/resource pages
 - ❌ Proper heading hierarchy enforcement
 - ❌ Internal linking strategy
-- ❌ Image optimization (WebP, lazy loading partially implemented)
+- ❌ Image optimisation (WebP, lazy loading partially implemented)
 
 ---
 
@@ -136,7 +136,7 @@
    - Video schema (if applicable)
 
 8. **Performance Optimizations**
-   - Image optimization (WebP)
+   - Image optimisation (WebP)
    - Lazy loading improvements
 
 ---

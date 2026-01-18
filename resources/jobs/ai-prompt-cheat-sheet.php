@@ -304,7 +304,7 @@ $promptCategories = [
                                 Upgrade to Pro
                             </a>
                         <?php else: ?>
-                            <a href="/#auth-section" class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-6 py-3 text-base font-semibold text-white shadow-md hover:bg-blue-700 transition-colors">
+                            <a href="/?register=1" data-open-register class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-6 py-3 text-base font-semibold text-white shadow-md hover:bg-blue-700 transition-colors">
                                 Create Free Account
                             </a>
                             <a href="/#pricing" class="inline-flex items-center justify-center rounded-lg border-2 border-blue-600 px-6 py-3 text-base font-semibold text-blue-600 hover:bg-blue-50 transition-colors">
