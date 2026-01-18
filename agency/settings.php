@@ -655,10 +655,19 @@ $orgAiSettings = [
             <!-- Custom Homepage -->
             <div class="bg-white shadow rounded-lg">
                 <div class="px-4 py-5 sm:p-6">
-                    <h2 class="text-lg font-medium text-gray-900 mb-4">Custom Homepage</h2>
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-medium text-gray-900">Custom Homepage</h2>
+                        <a href="/agency/custom-homepage-guide.php" class="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium">
+                            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            View Guide
+                        </a>
+                    </div>
                     <p class="text-sm text-gray-500 mb-6">
                         Create a fully customised homepage for your organisation's public page at <code class="bg-gray-100 px-1 py-0.5 rounded text-xs">/agency/<?php echo e($organisation['slug']); ?></code>. 
-                        You can use HTML and CSS to design your own unique landing page.
+                        You can use HTML and CSS to design your own unique landing page. 
+                        <a href="/agency/custom-homepage-guide.php" class="text-blue-600 hover:text-blue-800 underline">Read the full guide</a> for detailed instructions and examples.
                     </p>
 
                     <form method="POST">
