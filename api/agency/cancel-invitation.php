@@ -13,13 +13,20 @@ error_reporting(E_ALL);
 
 require_once __DIR__ . '/../../php/helpers.php';
 
-header('Content-Type: application/json');
+// Check if this is an AJAX request
+$isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
 
 // Only allow POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     ob_end_clean();
-    http_response_code(405);
-    echo json_encode(['success' => false, 'error' => 'Method not allowed']);
+    if ($isAjax) {
+        header('Content-Type: application/json');
+        http_response_code(405);
+        echo json_encode(['success' => false, 'error' => 'Method not allowed']);
+    } else {
+        setFlash('error', 'Method not allowed');
+        redirect('/agency/candidates.php');
+    }
     exit;
 }
 
@@ -31,8 +38,14 @@ $user = getCurrentUser();
 $csrfToken = post(CSRF_TOKEN_NAME) ?? $_POST['csrf_token'] ?? '';
 if (!verifyCsrfToken($csrfToken)) {
     ob_end_clean();
-    http_response_code(403);
-    echo json_encode(['success' => false, 'error' => 'Invalid CSRF token']);
+    if ($isAjax) {
+        header('Content-Type: application/json');
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'Invalid CSRF token']);
+    } else {
+        setFlash('error', 'Invalid security token. Please try again.');
+        redirect('/agency/candidates.php');
+    }
     exit;
 }
 
@@ -68,18 +81,39 @@ try {
     ], $organisationId);
     
     ob_end_clean();
-    echo json_encode([
-        'success' => true,
-        'message' => 'Invitation cancelled successfully'
-    ]);
+    
+    // Return JSON for AJAX requests, redirect for form submissions
+    if ($isAjax) {
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success' => true,
+            'message' => 'Invitation cancelled successfully'
+        ]);
+    } else {
+        // Determine redirect URL based on invitation type
+        $redirectUrl = ($type === 'candidate') ? '/agency/candidates/create.php' : '/agency/team/create.php';
+        setFlash('success', 'Invitation cancelled successfully');
+        redirect($redirectUrl);
+    }
     
 } catch (Exception $e) {
     ob_end_clean();
-    http_response_code(400);
     error_log("Cancel invitation error: " . $e->getMessage());
-    echo json_encode([
-        'success' => false,
-        'error' => $e->getMessage()
-    ]);
+    
+    // Return JSON for AJAX requests, redirect for form submissions
+    if ($isAjax) {
+        header('Content-Type: application/json');
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'error' => $e->getMessage()
+        ]);
+    } else {
+        // Determine redirect URL based on invitation type
+        $type = sanitizeInput(post('type') ?? 'candidate');
+        $redirectUrl = ($type === 'candidate') ? '/agency/candidates/create.php' : '/agency/team/create.php';
+        setFlash('error', $e->getMessage());
+        redirect($redirectUrl);
+    }
 }
 
