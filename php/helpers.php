@@ -62,6 +62,23 @@ if (!headers_sent()) {
 }
 
 /**
+ * Safely write debug log (only in development and if directory exists)
+ */
+function debugLog($data) {
+    if (!defined('DEBUG') || !DEBUG) {
+        return; // Skip in production
+    }
+    
+    $debugLogPath = __DIR__ . '/../.cursor/debug.log';
+    $debugLogDir = dirname($debugLogPath);
+    
+    // Only write if directory exists (development environment)
+    if (is_dir($debugLogDir)) {
+        @file_put_contents($debugLogPath, json_encode($data) . "\n", FILE_APPEND);
+    }
+}
+
+/**
  * Render a view/template
  */
 function render($template, $data = []) {
@@ -317,13 +334,13 @@ function getResponsiveImageAttributes($imageData, $fallbackUrl = '', $context = 
         // Check if JSON decode failed or returned null/empty/invalid
         if (json_last_error() !== JSON_ERROR_NONE || empty($decoded) || !is_array($decoded)) {
             // #region agent log
-            file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:317','message'=>'JSON decode failed or empty','data'=>['jsonLength'=>strlen($imageData),'jsonError'=>json_last_error_msg(),'preview'=>substr($imageData,0,100),'decodedIsArray'=>is_array($decoded),'decodedCount'=>is_array($decoded)?count($decoded):0],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C5'])."\n", FILE_APPEND);
+            debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:317','message'=>'JSON decode failed or empty','data'=>['jsonLength'=>strlen($imageData),'jsonError'=>json_last_error_msg(),'preview'=>substr($imageData,0,100),'decodedIsArray'=>is_array($decoded),'decodedCount'=>is_array($decoded)?count($decoded):0],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C5']);
             // #endregion
             $responsive = []; // Treat as empty, will trigger on-the-fly generation
         } else {
             $responsive = $decoded;
             // #region agent log
-            file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:325','message'=>'Parsed responsive JSON','data'=>['jsonLength'=>strlen($imageData),'parsedCount'=>count($responsive),'keys'=>array_keys($responsive)],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C4'])."\n", FILE_APPEND);
+            debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:325','message'=>'Parsed responsive JSON','data'=>['jsonLength'=>strlen($imageData),'parsedCount'=>count($responsive),'keys'=>array_keys($responsive)],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C4']);
             // #endregion
         }
     } elseif (is_array($imageData)) {
@@ -353,7 +370,7 @@ function getResponsiveImageAttributes($imageData, $fallbackUrl = '', $context = 
             $isProductionUrl = (strpos($fallbackUrl, 'https://') === 0 || strpos($fallbackUrl, 'http://') === 0) && strpos($fallbackUrl, APP_URL) === false;
             
             // #region agent log
-            file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:333','message'=>'Checking for existing responsive images','data'=>['fallbackUrl'=>$fallbackUrl,'relativePath'=>$relativePath,'fullPath'=>$fullPath,'fileExists'=>file_exists($fullPath),'isProductionUrl'=>$isProductionUrl,'storagePath'=>STORAGE_PATH],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C4'])."\n", FILE_APPEND);
+            debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:333','message'=>'Checking for existing responsive images','data'=>['fallbackUrl'=>$fallbackUrl,'relativePath'=>$relativePath,'fullPath'=>$fullPath,'fileExists'=>file_exists($fullPath),'isProductionUrl'=>$isProductionUrl,'storagePath'=>STORAGE_PATH],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C4']);
             // #endregion
             
             // If original file exists locally, check for responsive versions
@@ -396,7 +413,7 @@ function getResponsiveImageAttributes($imageData, $fallbackUrl = '', $context = 
                 
                 if (!empty($foundResponsive)) {
                     // #region agent log
-                    file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:380','message'=>'Found/generated responsive images locally','data'=>['foundCount'=>count($foundResponsive),'sizes'=>array_keys($foundResponsive)],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C4'])."\n", FILE_APPEND);
+                    debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:380','message'=>'Found/generated responsive images locally','data'=>['foundCount'=>count($foundResponsive),'sizes'=>array_keys($foundResponsive)],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C4']);
                     // #endregion
                     $responsive = $foundResponsive;
                 }
@@ -429,7 +446,7 @@ function getResponsiveImageAttributes($imageData, $fallbackUrl = '', $context = 
                 
                 if (!empty($foundResponsive)) {
                     // #region agent log
-                    file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:410','message'=>'Generated responsive URLs for production','data'=>['foundCount'=>count($foundResponsive),'sizes'=>array_keys($foundResponsive),'baseUrl'=>$baseUrl],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C6'])."\n", FILE_APPEND);
+                    debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:410','message'=>'Generated responsive URLs for production','data'=>['foundCount'=>count($foundResponsive),'sizes'=>array_keys($foundResponsive),'baseUrl'=>$baseUrl],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C6']);
                     // #endregion
                     $responsive = $foundResponsive;
                 }
@@ -439,7 +456,7 @@ function getResponsiveImageAttributes($imageData, $fallbackUrl = '', $context = 
         // If still no responsive data, return fallback
         if (empty($responsive)) {
             // #region agent log
-            file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:417','message'=>'No responsive data - using fallback','data'=>['fallbackUrl'=>$fallbackUrl],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C4'])."\n", FILE_APPEND);
+            debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:417','message'=>'No responsive data - using fallback','data'=>['fallbackUrl'=>$fallbackUrl],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C4']);
             // #endregion
             return [
                 'srcset' => '',
@@ -449,7 +466,7 @@ function getResponsiveImageAttributes($imageData, $fallbackUrl = '', $context = 
         }
     } elseif (empty($responsive)) {
         // #region agent log
-        file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:390','message'=>'No responsive data and no fallback - returning empty','data'=>['fallbackUrl'=>$fallbackUrl],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C4'])."\n", FILE_APPEND);
+        debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:390','message'=>'No responsive data and no fallback - returning empty','data'=>['fallbackUrl'=>$fallbackUrl],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C4']);
         // #endregion
         return [
             'srcset' => '',
@@ -468,7 +485,7 @@ function getResponsiveImageAttributes($imageData, $fallbackUrl = '', $context = 
             // New format: Build URL from path using current APP_URL
             $normalized = STORAGE_URL . '/' . $path;
             // #region agent log
-            file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:468','message'=>'Normalizing URL from path','data'=>['path'=>$path,'normalized'=>$normalized,'storageUrl'=>STORAGE_URL],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C2'])."\n", FILE_APPEND);
+            debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:468','message'=>'Normalizing URL from path','data'=>['path'=>$path,'normalized'=>$normalized,'storageUrl'=>STORAGE_URL],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C2']);
             // #endregion
             return $normalized;
         }
@@ -480,7 +497,7 @@ function getResponsiveImageAttributes($imageData, $fallbackUrl = '', $context = 
         if ($isProductionUrl) {
             // Preserve production URLs as-is
             // #region agent log
-            file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:478','message'=>'Preserving production URL','data'=>['url'=>$url,'appUrl'=>APP_URL],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C2'])."\n", FILE_APPEND);
+            debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:478','message'=>'Preserving production URL','data'=>['url'=>$url,'appUrl'=>APP_URL],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C2']);
             // #endregion
             return $url;
         }
@@ -489,13 +506,13 @@ function getResponsiveImageAttributes($imageData, $fallbackUrl = '', $context = 
             // Extract the path part and rebuild with current STORAGE_URL
             $normalized = STORAGE_URL . $matches[1];
             // #region agent log
-            file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:486','message'=>'Normalizing URL from old format','data'=>['originalUrl'=>$url,'extractedPath'=>$matches[1],'normalized'=>$normalized,'storageUrl'=>STORAGE_URL],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C2'])."\n", FILE_APPEND);
+            debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:486','message'=>'Normalizing URL from old format','data'=>['originalUrl'=>$url,'extractedPath'=>$matches[1],'normalized'=>$normalized,'storageUrl'=>STORAGE_URL],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C2']);
             // #endregion
             return $normalized;
         }
         // Already correct domain
         // #region agent log
-        file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:492','message'=>'URL already normalized','data'=>['url'=>$url],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C2'])."\n", FILE_APPEND);
+        debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:492','message'=>'URL already normalized','data'=>['url'=>$url],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C2']);
         // #endregion
         return $url;
     };
@@ -505,7 +522,7 @@ function getResponsiveImageAttributes($imageData, $fallbackUrl = '', $context = 
     foreach ($order as $size) {
         if (isset($responsive[$size])) {
             // #region agent log
-            file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:369','message'=>'Processing responsive size','data'=>['size'=>$size,'hasUrl'=>isset($responsive[$size]['url']),'hasPath'=>isset($responsive[$size]['path']),'url'=>$responsive[$size]['url']??null,'path'=>$responsive[$size]['path']??null,'width'=>$responsive[$size]['width']??0],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C3'])."\n", FILE_APPEND);
+            debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:369','message'=>'Processing responsive size','data'=>['size'=>$size,'hasUrl'=>isset($responsive[$size]['url']),'hasPath'=>isset($responsive[$size]['path']),'url'=>$responsive[$size]['url']??null,'path'=>$responsive[$size]['path']??null,'width'=>$responsive[$size]['width']??0],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C3']);
             // #endregion
             // Support both old format (with 'url') and new format (with 'path' only)
             $imageUrl = $normalizeUrl(
@@ -518,21 +535,21 @@ function getResponsiveImageAttributes($imageData, $fallbackUrl = '', $context = 
                 if ($width > 0) {
                     $srcsetParts[] = $imageUrl . ' ' . $width . 'w';
                     // #region agent log
-                    file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:382','message'=>'Added to srcset','data'=>['size'=>$size,'imageUrl'=>$imageUrl,'width'=>$width],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C3'])."\n", FILE_APPEND);
+                    debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:382','message'=>'Added to srcset','data'=>['size'=>$size,'imageUrl'=>$imageUrl,'width'=>$width],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C3']);
                     // #endregion
                 } else {
                     // #region agent log
-                    file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:387','message'=>'Skipped - no width','data'=>['size'=>$size],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C3'])."\n", FILE_APPEND);
+                    debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:387','message'=>'Skipped - no width','data'=>['size'=>$size],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C3']);
                     // #endregion
                 }
             } else {
                 // #region agent log
-                file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:391','message'=>'Skipped - no URL','data'=>['size'=>$size],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C3'])."\n", FILE_APPEND);
+                debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:391','message'=>'Skipped - no URL','data'=>['size'=>$size],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C3']);
                 // #endregion
             }
         } else {
             // #region agent log
-            file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:395','message'=>'Size not found in responsive data','data'=>['size'=>$size,'availableKeys'=>array_keys($responsive)],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C3'])."\n", FILE_APPEND);
+            debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:395','message'=>'Size not found in responsive data','data'=>['size'=>$size,'availableKeys'=>array_keys($responsive)],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C3']);
             // #endregion
         }
     }
@@ -589,7 +606,7 @@ function getResponsiveImageAttributes($imageData, $fallbackUrl = '', $context = 
     }
     
     // #region agent log
-    file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:365','message'=>'getResponsiveImageAttributes result','data'=>['srcset'=>$srcset,'sizes'=>$sizesAttr,'context'=>$context,'fallback'=>$fallback,'responsiveKeys'=>array_keys($responsive)],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'A5'])."\n", FILE_APPEND);
+    debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:365','message'=>'getResponsiveImageAttributes result','data'=>['srcset'=>$srcset,'sizes'=>$sizesAttr,'context'=>$context,'fallback'=>$fallback,'responsiveKeys'=>array_keys($responsive)],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'A5']);
     // #endregion
     
     return [
