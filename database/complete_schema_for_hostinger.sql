@@ -782,19 +782,21 @@ CREATE TABLE IF NOT EXISTS cv_variant_supporting_evidence (
 -- =====================================================
 CREATE TABLE IF NOT EXISTS cv_quality_assessments (
     id VARCHAR(36) PRIMARY KEY,
-    cv_variant_id VARCHAR(36) NOT NULL,
-    job_description TEXT,
-    ats_compatibility_score INT,
-    content_quality_score INT,
+    user_id VARCHAR(36) NOT NULL,
+    cv_variant_id VARCHAR(36) NULL,
+    overall_score INT,
+    ats_score INT,
+    content_score INT,
     formatting_score INT,
     keyword_match_score INT,
-    overall_score INT,
     recommendations JSON,
     enhanced_recommendations JSON,
-    ai_generated BOOLEAN DEFAULT FALSE,
+    strengths JSON,
+    weaknesses JSON,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE,
     FOREIGN KEY (cv_variant_id) REFERENCES cv_variants(id) ON DELETE CASCADE,
+    INDEX idx_user_id (user_id),
     INDEX idx_cv_variant_id (cv_variant_id),
     INDEX idx_created_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
