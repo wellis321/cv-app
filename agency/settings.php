@@ -1174,6 +1174,57 @@ $orgAiSettings = [
                 </div>
             </div>
 
+            <!-- Email Settings -->
+            <div id="email-settings" class="bg-white shadow rounded-lg scroll-mt-24">
+                <div class="px-4 py-5 sm:p-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-4">Email Settings</h2>
+                    <p class="text-sm text-gray-500 mb-4">
+                        Configure the email address used for sending invitations and other organisation emails. 
+                        If not set, the system default will be used.
+                    </p>
+
+                    <form method="POST">
+                        <input type="hidden" name="<?php echo CSRF_TOKEN_NAME; ?>" value="<?php echo csrfToken(); ?>">
+                        <input type="hidden" name="action" value="update_email_settings">
+
+                        <div class="space-y-6">
+                            <div>
+                                <label for="organisation_email" class="block text-base font-semibold text-gray-900 mb-3">Email Address</label>
+                                <input type="email"
+                                       name="organisation_email"
+                                       id="organisation_email"
+                                       value="<?php echo e($organisation['organisation_email'] ?? ''); ?>"
+                                       placeholder="team@yourcompany.com"
+                                       class="block w-full rounded-lg border-2 border-gray-400 bg-white px-4 py-3 text-base font-medium text-gray-900 shadow-sm transition-colors focus:border-blue-600 focus:ring-4 focus:ring-blue-200 focus:outline-none">
+                                <p class="mt-2 text-sm text-gray-600 font-medium">
+                                    All organisation emails (invitations, notifications) will be sent from this address.
+                                </p>
+                            </div>
+
+                            <div>
+                                <label for="organisation_email_name" class="block text-base font-semibold text-gray-900 mb-3">Display Name</label>
+                                <input type="text"
+                                       name="organisation_email_name"
+                                       id="organisation_email_name"
+                                       value="<?php echo e($organisation['organisation_email_name'] ?? ''); ?>"
+                                       placeholder="<?php echo e($organisation['name'] ?? 'Organisation'); ?> Team"
+                                       class="block w-full rounded-lg border-2 border-gray-400 bg-white px-4 py-3 text-base font-medium text-gray-900 shadow-sm transition-colors focus:border-blue-600 focus:ring-4 focus:ring-blue-200 focus:outline-none">
+                                <p class="mt-2 text-sm text-gray-600 font-medium">
+                                    The display name shown in the "From" field (e.g., "Acme Recruiting Team"). If not set, it will default to "<?php echo e($organisation['name'] ?? 'Organisation'); ?> Team".
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="mt-6">
+                            <button type="submit"
+                                    class="inline-flex justify-center rounded-lg bg-blue-600 px-6 py-3 text-base font-bold text-white shadow-lg hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:ring-4 focus-visible:ring-blue-200 transition-all">
+                                Save Email Settings
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             <!-- Organisation AI Settings (Owner/Admin only) -->
             <?php if (in_array($org['role'], ['owner', 'admin'])): ?>
             <div id="organisation-ai" class="bg-white shadow rounded-lg border-2 border-yellow-200 scroll-mt-24">
