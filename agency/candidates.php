@@ -31,7 +31,7 @@ if ($search) {
     $filters['search'] = $search;
 }
 
-if ($statusFilter) {
+if ($statusFilter && $statusFilter !== 'pending') {
     $filters['cv_status'] = $statusFilter;
 }
 
@@ -45,15 +45,60 @@ if ($org['role'] === 'recruiter') {
     $recruiterId = $recruiterFilter;
 }
 
-// Get candidates
-$candidates = getOrganisationCandidates($org['organisation_id'], $recruiterId, $filters);
+// If status filter is "pending", show pending invitations instead of candidates
+if ($statusFilter === 'pending') {
+    // Get pending invitations
+    $pendingInvitations = getPendingCandidateInvitations($org['organisation_id']);
+    
+    // Filter by recruiter if specified
+    if ($recruiterId !== null) {
+        $pendingInvitations = array_filter($pendingInvitations, function($inv) use ($recruiterId) {
+            return $inv['assigned_recruiter'] === $recruiterId;
+        });
+    }
+    
+    // Apply search filter
+    if ($search) {
+        $searchLower = strtolower($search);
+        $pendingInvitations = array_filter($pendingInvitations, function($inv) use ($searchLower) {
+            return strpos(strtolower($inv['email'] ?? ''), $searchLower) !== false ||
+                   strpos(strtolower($inv['full_name'] ?? ''), $searchLower) !== false;
+        });
+    }
+    
+    // Convert to candidate-like format for display
+    $pendingFormatted = [];
+    foreach ($pendingInvitations as $inv) {
+        $pendingFormatted[] = [
+            'id' => $inv['id'],
+            'full_name' => $inv['full_name'] ?? '',
+            'email' => $inv['email'],
+            'username' => null, // Pending invitations don't have usernames yet
+            'photo_url' => null,
+            'cv_status' => 'pending',
+            'recruiter_name' => $inv['recruiter_name'] ?? null,
+            'recruiter_id' => $inv['assigned_recruiter'] ?? null,
+            'created_at' => $inv['created_at'],
+            'expires_at' => $inv['expires_at'],
+            'is_pending' => true // Flag to identify pending invitations
+        ];
+    }
+    
+    // Apply pagination
+    $totalCandidates = count($pendingFormatted);
+    $totalPages = ceil($totalCandidates / $perPage);
+    $candidates = array_slice($pendingFormatted, $offset, $perPage);
+} else {
+    // Get candidates (normal flow)
+    $candidates = getOrganisationCandidates($org['organisation_id'], $recruiterId, $filters);
 
-// Get total count for pagination
-$totalFilters = $filters;
-unset($totalFilters['limit'], $totalFilters['offset']);
-$allCandidates = getOrganisationCandidates($org['organisation_id'], $recruiterId, $totalFilters);
-$totalCandidates = count($allCandidates);
-$totalPages = ceil($totalCandidates / $perPage);
+    // Get total count for pagination
+    $totalFilters = $filters;
+    unset($totalFilters['limit'], $totalFilters['offset']);
+    $allCandidates = getOrganisationCandidates($org['organisation_id'], $recruiterId, $totalFilters);
+    $totalCandidates = count($allCandidates);
+    $totalPages = ceil($totalCandidates / $perPage);
+}
 
 // Get team members for filter dropdown (admins/owners only)
 $teamMembers = [];
@@ -188,6 +233,7 @@ $canManage = in_array($org['role'], ['owner', 'admin', 'recruiter']);
                                 id="status"
                                 class="block w-full rounded-md border-0 py-2 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-blue-600 sm:text-sm sm:leading-6">
                             <option value="">All statuses</option>
+                            <option value="pending" <?php echo $statusFilter === 'pending' ? 'selected' : ''; ?>>Pending</option>
                             <option value="draft" <?php echo $statusFilter === 'draft' ? 'selected' : ''; ?>>Draft</option>
                             <option value="complete" <?php echo $statusFilter === 'complete' ? 'selected' : ''; ?>>Complete</option>
                             <option value="published" <?php echo $statusFilter === 'published' ? 'selected' : ''; ?>>Published</option>
@@ -280,6 +326,7 @@ $canManage = in_array($org['role'], ['owner', 'admin', 'recruiter']);
                                             <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium
                                                 <?php
                                                 $statusClasses = [
+                                                    'pending' => 'bg-orange-100 text-orange-800',
                                                     'draft' => 'bg-gray-100 text-gray-800',
                                                     'complete' => 'bg-green-100 text-green-800',
                                                     'published' => 'bg-blue-100 text-blue-800',
@@ -289,16 +336,24 @@ $canManage = in_array($org['role'], ['owner', 'admin', 'recruiter']);
                                                 ?>">
                                                 <?php echo ucfirst($candidate['cv_status'] ?? 'draft'); ?>
                                             </span>
-                                            <?php if (in_array($org['role'], ['owner', 'admin']) && $candidate['recruiter_name']): ?>
+                                            <?php if (isset($candidate['is_pending']) && $candidate['is_pending']): ?>
+                                                <span class="text-xs text-gray-500">Expires <?php echo date('j M Y', strtotime($candidate['expires_at'])); ?></span>
+                                            <?php elseif (in_array($org['role'], ['owner', 'admin']) && $candidate['recruiter_name']): ?>
                                                 <span class="text-xs text-gray-500">Assigned: <?php echo e($candidate['recruiter_name']); ?></span>
                                             <?php endif; ?>
                                         </div>
-                                        <p class="text-xs text-gray-500 mt-1">Added <?php echo date('j M Y', strtotime($candidate['created_at'])); ?></p>
+                                        <p class="text-xs text-gray-500 mt-1">
+                                            <?php if (isset($candidate['is_pending']) && $candidate['is_pending']): ?>
+                                                Invited <?php echo date('j M Y', strtotime($candidate['created_at'])); ?>
+                                            <?php else: ?>
+                                                Added <?php echo date('j M Y', strtotime($candidate['created_at'])); ?>
+                                            <?php endif; ?>
+                                        </p>
                                     </div>
                                 </div>
-                                <?php if ($canManage): ?>
+                                <?php if ($canManage && (!isset($candidate['is_pending']) || !$candidate['is_pending'])): ?>
                                     <div class="ml-2">
-                                        <a href="/agency/candidates.php?id=<?php echo e($candidate['id']); ?>" 
+                                        <a href="/agency/candidate.php?id=<?php echo e($candidate['id']); ?>" 
                                            class="inline-flex items-center px-2 py-1 text-xs font-medium text-blue-600 hover:text-blue-800">
                                             View
                                         </a>
@@ -352,6 +407,7 @@ $canManage = in_array($org['role'], ['owner', 'admin', 'recruiter']);
                                         <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
                                             <?php
                                             $statusClasses = [
+                                                'pending' => 'bg-orange-100 text-orange-800',
                                                 'draft' => 'bg-gray-100 text-gray-800',
                                                 'complete' => 'bg-green-100 text-green-800',
                                                 'published' => 'bg-blue-100 text-blue-800',
@@ -361,6 +417,9 @@ $canManage = in_array($org['role'], ['owner', 'admin', 'recruiter']);
                                             ?>">
                                             <?php echo ucfirst($candidate['cv_status'] ?? 'draft'); ?>
                                         </span>
+                                        <?php if (isset($candidate['is_pending']) && $candidate['is_pending']): ?>
+                                            <span class="ml-2 text-xs text-gray-500">Expires <?php echo date('j M Y', strtotime($candidate['expires_at'])); ?></span>
+                                        <?php endif; ?>
                                     </td>
                                     <?php if (in_array($org['role'], ['owner', 'admin'])): ?>
                                         <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
@@ -368,27 +427,35 @@ $canManage = in_array($org['role'], ['owner', 'admin', 'recruiter']);
                                         </td>
                                     <?php endif; ?>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                        <?php echo date('j M Y', strtotime($candidate['created_at'])); ?>
+                                        <?php if (isset($candidate['is_pending']) && $candidate['is_pending']): ?>
+                                            Invited <?php echo date('j M Y', strtotime($candidate['created_at'])); ?>
+                                        <?php else: ?>
+                                            <?php echo date('j M Y', strtotime($candidate['created_at'])); ?>
+                                        <?php endif; ?>
                                     </td>
                                     <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                                         <div class="flex items-center justify-end space-x-2">
-                                            <a href="/cv/@<?php echo e($candidate['username']); ?>"
-                                               target="_blank"
-                                               class="text-gray-400 hover:text-gray-500"
-                                               title="View CV">
-                                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                                </svg>
-                                            </a>
-                                            <?php if ($canManage): ?>
-                                                <a href="/agency/candidate.php?id=<?php echo e($candidate['id']); ?>"
-                                                   class="text-blue-600 hover:text-blue-900"
-                                                   title="Manage">
+                                            <?php if (!isset($candidate['is_pending']) || !$candidate['is_pending']): ?>
+                                                <a href="/cv/@<?php echo e($candidate['username']); ?>"
+                                                   target="_blank"
+                                                   class="text-gray-400 hover:text-gray-500"
+                                                   title="View CV">
                                                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                                     </svg>
                                                 </a>
+                                                <?php if ($canManage): ?>
+                                                    <a href="/agency/candidate.php?id=<?php echo e($candidate['id']); ?>"
+                                                       class="text-blue-600 hover:text-blue-900"
+                                                       title="Manage">
+                                                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                                        </svg>
+                                                    </a>
+                                                <?php endif; ?>
+                                            <?php else: ?>
+                                                <span class="text-xs text-gray-400 italic">No actions available</span>
                                             <?php endif; ?>
                                         </div>
                                     </td>
