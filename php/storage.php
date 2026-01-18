@@ -112,7 +112,7 @@ function resizeImage($sourcePath, $destinationPath, $maxWidth, $maxHeight, $qual
  */
 function uploadFile($file, $userId, $bucket = 'uploads', $generateResponsive = true) {
     // #region agent log
-    file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'storage.php:113','message'=>'uploadFile called','data'=>['userId'=>$userId,'bucket'=>$bucket,'generateResponsive'=>$generateResponsive,'fileName'=>$file['name']??'unknown'],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'A1'])."\n", FILE_APPEND);
+    debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'storage.php:113','message'=>'uploadFile called','data'=>['userId'=>$userId,'bucket'=>$bucket,'generateResponsive'=>$generateResponsive,'fileName'=>$file['name']??'unknown'],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'A1']);
     // #endregion
     if (!isset($file['tmp_name']) || !is_uploaded_file($file['tmp_name'])) {
         return ['success' => false, 'error' => 'No file uploaded'];
@@ -146,13 +146,13 @@ function uploadFile($file, $userId, $bucket = 'uploads', $generateResponsive = t
 
     // Move uploaded file
     // #region agent log
-    file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'storage.php:145','message'=>'About to save original file','data'=>['filePath'=>$filePath,'baseName'=>$baseName],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'A3'])."\n", FILE_APPEND);
+    debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'storage.php:145','message'=>'About to save original file','data'=>['filePath'=>$filePath,'baseName'=>$baseName],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'A3']);
     // #endregion
     if (!move_uploaded_file($file['tmp_name'], $filePath)) {
         return ['success' => false, 'error' => 'Failed to save file'];
     }
     // #region agent log
-    file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'storage.php:147','message'=>'Original file saved','data'=>['filePath'=>$filePath,'fileExists'=>file_exists($filePath)],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'A3'])."\n", FILE_APPEND);
+    debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'storage.php:147','message'=>'Original file saved','data'=>['filePath'=>$filePath,'fileExists'=>file_exists($filePath)],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'A3']);
     // #endregion
 
     // Generate responsive versions if requested and GD is available
@@ -171,7 +171,7 @@ function uploadFile($file, $userId, $bucket = 'uploads', $generateResponsive = t
             $resizedPath = $storageDir . '/' . $resizedFileName;
             
             // #region agent log
-            file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'storage.php:164','message'=>'Generating responsive version','data'=>['sizeName'=>$sizeName,'resizedPath'=>$resizedPath,'dimensions'=>$dimensions],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'A3'])."\n", FILE_APPEND);
+            debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'storage.php:164','message'=>'Generating responsive version','data'=>['sizeName'=>$sizeName,'resizedPath'=>$resizedPath,'dimensions'=>$dimensions],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'A3']);
             // #endregion
             if (resizeImage($filePath, $resizedPath, $dimensions['width'], $dimensions['height'])) {
                 // Store relative path only - URL will be generated dynamically based on current APP_URL
@@ -182,7 +182,7 @@ function uploadFile($file, $userId, $bucket = 'uploads', $generateResponsive = t
                     'height' => $dimensions['height']
                 ];
                 // #region agent log
-                file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'storage.php:172','message'=>'Responsive version created','data'=>['sizeName'=>$sizeName,'path'=>$relativePath,'fileExists'=>file_exists($resizedPath)],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'A3'])."\n", FILE_APPEND);
+                debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'storage.php:172','message'=>'Responsive version created','data'=>['sizeName'=>$sizeName,'path'=>$relativePath,'fileExists'=>file_exists($resizedPath)],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'A3']);
                 // #endregion
             }
         }
@@ -193,7 +193,7 @@ function uploadFile($file, $userId, $bucket = 'uploads', $generateResponsive = t
     $url = STORAGE_URL . '/' . $relativePath;
 
     // #region agent log
-    file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'storage.php:180','message'=>'uploadFile returning success','data'=>['url'=>$url,'responsiveCount'=>count($responsiveVersions),'responsiveSizes'=>array_keys($responsiveVersions)],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'A1'])."\n", FILE_APPEND);
+    debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'storage.php:180','message'=>'uploadFile returning success','data'=>['url'=>$url,'responsiveCount'=>count($responsiveVersions),'responsiveSizes'=>array_keys($responsiveVersions)],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'A1']);
     // #endregion
     return [
         'success' => true,

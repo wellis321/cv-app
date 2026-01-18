@@ -80,11 +80,11 @@ if (!isset($_FILES['project_image']) || $_FILES['project_image']['error'] !== UP
 
 $file = $_FILES['project_image'];
 // #region agent log
-file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'upload-project-image.php:81','message'=>'API endpoint called','data'=>['userId'=>$userId,'fileName'=>$file['name']??'unknown','fileSize'=>$file['size']??0],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'A2'])."\n", FILE_APPEND);
+debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'upload-project-image.php:81','message'=>'API endpoint called','data'=>['userId'=>$userId,'fileName'=>$file['name']??'unknown','fileSize'=>$file['size']??0],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'A2']);
 // #endregion
 $result = uploadFile($file, $userId, 'projects', true); // Generate responsive versions
 // #region agent log
-file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'upload-project-image.php:85','message'=>'uploadFile result received','data'=>['success'=>$result['success']??false,'url'=>$result['url']??'','responsiveCount'=>isset($result['responsive'])?count($result['responsive']):0],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'A2'])."\n", FILE_APPEND);
+debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'upload-project-image.php:85','message'=>'uploadFile result received','data'=>['success'=>$result['success']??false,'url'=>$result['url']??'','responsiveCount'=>isset($result['responsive'])?count($result['responsive']):0],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'A2']);
 // #endregion
 if (!$result['success']) {
     ob_clean();
