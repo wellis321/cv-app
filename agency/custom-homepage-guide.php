@@ -58,7 +58,7 @@ $canonicalUrl = APP_URL . '/agency/custom-homepage-guide.php';
                                     <a href="#html-basics" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 rounded-md transition-colors">HTML Basics</a>
                                 </li>
                                 <li>
-                                    <a href="#css-styling" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 rounded-md transition-colors">CSS Styling</a>
+                                    <a href="#css-styling" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 rounded-md transition-colors">CSS Styling & Frameworks</a>
                                 </li>
                                 <li>
                                     <a href="#examples" class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 rounded-md transition-colors">Examples</a>
@@ -233,10 +233,39 @@ $canonicalUrl = APP_URL . '/agency/custom-homepage-guide.php';
                 
                 <div class="space-y-4 text-gray-700">
                     <div>
-                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Adding Styles</h3>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Available CSS Frameworks</h3>
+                        <p class="mb-3">
+                            The following CSS frameworks are automatically loaded on all custom homepages via CDN. You can use any of these without including them in your HTML:
+                        </p>
+                        <div class="space-y-3 mb-4">
+                            <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                                <h4 class="font-semibold text-gray-900 mb-1">Tailwind CSS</h4>
+                                <p class="text-sm text-gray-600 mb-2">Utility-first CSS framework. Use Tailwind utility classes directly in your HTML.</p>
+                                <p class="text-xs text-gray-500"><strong>Example:</strong> <code class="bg-white px-1 py-0.5 rounded">&lt;div class="flex items-center justify-center p-4 bg-blue-500 text-white"&gt;</code></p>
+                            </div>
+                            <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                                <h4 class="font-semibold text-gray-900 mb-1">Bootstrap 5.3</h4>
+                                <p class="text-sm text-gray-600 mb-2">Popular responsive CSS framework. Use Bootstrap classes and components.</p>
+                                <p class="text-xs text-gray-500"><strong>Example:</strong> <code class="bg-white px-1 py-0.5 rounded">&lt;div class="container"&gt;&lt;button class="btn btn-primary"&gt;Button&lt;/button&gt;&lt;/div&gt;</code></p>
+                            </div>
+                            <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                                <h4 class="font-semibold text-gray-900 mb-1">Materialize CSS</h4>
+                                <p class="text-sm text-gray-600 mb-2">Google's Material Design CSS framework. Use Material Design components and styles.</p>
+                                <p class="text-xs text-gray-500"><strong>Example:</strong> <code class="bg-white px-1 py-0.5 rounded">&lt;button class="btn waves-effect waves-light"&gt;Button&lt;/button&gt;</code></p>
+                            </div>
+                        </div>
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <p class="text-sm text-gray-700">
+                                <strong>Note:</strong> These frameworks are automatically loaded, so you don't need to include <code class="bg-white px-1 py-0.5 rounded text-xs">&lt;link&gt;</code> or <code class="bg-white px-1 py-0.5 rounded text-xs">&lt;script&gt;</code> tags in your HTML. Just use their classes directly!
+                            </p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Adding Custom Styles</h3>
                         <p>
                             Enter your CSS in the <strong>"Custom CSS"</strong> textarea. Your CSS will be added to a <code class="bg-gray-100 px-1 py-0.5 rounded text-xs">&lt;style&gt;</code> tag in the page head, 
-                            so you can style any elements in your HTML.
+                            so you can style any elements in your HTML. You can combine custom CSS with framework classes.
                         </p>
                     </div>
 

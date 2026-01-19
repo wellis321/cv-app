@@ -65,6 +65,11 @@ $canonicalUrl = APP_URL . '/cv-template-customizer.php';
                             <?php echo $stats['count']; ?> of <?php echo $stats['max_templates']; ?> templates 
                             (<?php echo $stats['total_size_kb']; ?> KB total)
                         </p>
+                        <?php if ($stats['count'] === 0): ?>
+                            <p class="mt-2 text-sm text-blue-600">
+                                Create your first template using the form below. Once created, you'll be able to edit its HTML and CSS directly.
+                            </p>
+                        <?php endif; ?>
                     </div>
                     <?php if ($stats['count'] >= $stats['max_templates']): ?>
                         <div class="bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2">
@@ -84,7 +89,7 @@ $canonicalUrl = APP_URL . '/cv-template-customizer.php';
                     </div>
                     <div class="divide-y divide-gray-200">
                         <?php foreach ($templates as $template): ?>
-                            <div class="px-6 py-4 hover:bg-gray-50 transition-colors">
+                            <div class="px-6 py-4 hover:bg-gray-50 transition-colors" data-template-id="<?php echo e($template['id']); ?>">
                                 <div class="flex items-start justify-between">
                                     <div class="flex-1">
                                         <div class="flex items-center gap-2">
@@ -108,6 +113,10 @@ $canonicalUrl = APP_URL . '/cv-template-customizer.php';
                                         </p>
                                     </div>
                                     <div class="ml-4 flex gap-2">
+                                        <button type="button" onclick="toggleEditTemplate('<?php echo e($template['id']); ?>')" class="inline-flex items-center px-3 py-1.5 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors">
+                                            <span id="edit-btn-text-<?php echo e($template['id']); ?>">Edit HTML/CSS</span>
+                                            <span id="edit-btn-hide-<?php echo e($template['id']); ?>" class="hidden">Hide Editor</span>
+                                        </button>
                                         <a href="/cv.php?template=<?php echo e($template['id']); ?>" target="_blank" class="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
                                             Preview
                                         </a>
@@ -135,6 +144,52 @@ $canonicalUrl = APP_URL . '/cv-template-customizer.php';
                                             </button>
                                         </form>
                                     </div>
+                                </div>
+                                
+                                <!-- Edit Form (Hidden by default) -->
+                                <div id="edit-form-<?php echo e($template['id']); ?>" class="hidden mt-4 pt-4 border-t border-gray-200">
+                                    <form method="POST" action="/api/update-cv-template.php" id="template-edit-form-<?php echo e($template['id']); ?>">
+                                        <input type="hidden" name="csrf_token" value="<?php echo csrfToken(); ?>">
+                                        <input type="hidden" name="template_id" value="<?php echo e($template['id']); ?>">
+                                        
+                                        <!-- HTML Editor -->
+                                        <div class="mb-6">
+                                            <label for="template_html_<?php echo e($template['id']); ?>" class="block text-base font-semibold text-gray-900 mb-3">
+                                                Custom HTML
+                                            </label>
+                                            <textarea name="template_html"
+                                                      id="template_html_<?php echo e($template['id']); ?>"
+                                                      rows="15"
+                                                      class="block w-full rounded-lg border-2 border-gray-400 bg-white px-4 py-3 text-sm font-mono text-gray-900 shadow-sm transition-colors focus:border-blue-600 focus:ring-4 focus:ring-blue-200 focus:outline-none"><?php echo htmlspecialchars($template['template_html'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
+                                            <p class="mt-2 text-sm text-gray-500">
+                                                Enter your custom HTML. Variables like <code class="bg-gray-100 px-1 py-0.5 rounded text-xs">$profile</code>, <code class="bg-gray-100 px-1 py-0.5 rounded text-xs">$cvData</code>, and <code class="bg-gray-100 px-1 py-0.5 rounded text-xs">formatCvDate()</code> are available. 
+                                                <strong>CSS frameworks (Tailwind, Bootstrap) are automatically available</strong>. Maximum 500KB.
+                                            </p>
+                                        </div>
+
+                                        <!-- CSS Editor -->
+                                        <div class="mb-6">
+                                            <label for="template_css_<?php echo e($template['id']); ?>" class="block text-base font-semibold text-gray-900 mb-3">
+                                                Custom CSS
+                                            </label>
+                                            <textarea name="template_css"
+                                                      id="template_css_<?php echo e($template['id']); ?>"
+                                                      rows="10"
+                                                      class="block w-full rounded-lg border-2 border-gray-400 bg-white px-4 py-3 text-sm font-mono text-gray-900 shadow-sm transition-colors focus:border-blue-600 focus:ring-4 focus:ring-blue-200 focus:outline-none"><?php echo htmlspecialchars($template['template_css'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
+                                            <p class="mt-2 text-sm text-gray-500">
+                                                Enter your custom CSS styles. Maximum 100KB.
+                                            </p>
+                                        </div>
+
+                                        <div class="flex justify-end gap-3">
+                                            <button type="button" onclick="toggleEditTemplate('<?php echo e($template['id']); ?>')" class="px-6 py-3 border-2 border-gray-300 rounded-lg text-base font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                                                Cancel
+                                            </button>
+                                            <button type="submit" class="px-6 py-3 border border-transparent rounded-lg text-base font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                                                Save Changes
+                                            </button>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -297,6 +352,23 @@ $canonicalUrl = APP_URL . '/cv-template-customizer.php';
     <?php partial('footer'); ?>
 
     <script>
+        // Toggle edit form for templates
+        function toggleEditTemplate(templateId) {
+            const editForm = document.getElementById('edit-form-' + templateId);
+            const editBtnText = document.getElementById('edit-btn-text-' + templateId);
+            const editBtnHide = document.getElementById('edit-btn-hide-' + templateId);
+            
+            if (editForm.classList.contains('hidden')) {
+                editForm.classList.remove('hidden');
+                editBtnText.classList.add('hidden');
+                editBtnHide.classList.remove('hidden');
+            } else {
+                editForm.classList.add('hidden');
+                editBtnText.classList.remove('hidden');
+                editBtnHide.classList.add('hidden');
+            }
+        }
+        
         // Image preview functionality
         const imageInput = document.getElementById('reference-image');
         const imagePreview = document.getElementById('image-preview');

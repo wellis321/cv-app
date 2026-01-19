@@ -836,7 +836,8 @@ $orgAiSettings = [
   <p>We manage {{candidate_count}} candidates.</p>
 </div>"><?php echo e($organisation['custom_homepage_html'] ?? ''); ?></textarea>
                             <p class="mt-2 text-sm text-gray-500">
-                                Enter your custom HTML. You can use placeholders like <code class="bg-gray-100 px-1 py-0.5 rounded text-xs">{{organisation_name}}</code>, <code class="bg-gray-100 px-1 py-0.5 rounded text-xs">{{primary_colour}}</code>, etc. Maximum 500KB.
+                                Enter your custom HTML. You can use placeholders like <code class="bg-gray-100 px-1 py-0.5 rounded text-xs">{{organisation_name}}</code>, <code class="bg-gray-100 px-1 py-0.5 rounded text-xs">{{primary_colour}}</code>, etc. 
+                                <strong>CSS frameworks (Tailwind, Bootstrap, Materialize) are automatically available</strong> - no need to include them in your HTML. Maximum 500KB.
                             </p>
                         </div>
 

@@ -203,9 +203,10 @@ require_once __DIR__ . '/php/helpers.php';
                         </p>
                         <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
                             <li>View their CV directly from the Candidates page</li>
-                            <li>See their CV completion status</li>
-                            <li>Access their online CV link</li>
+                            <li>Access their online CV link to view the live version</li>
                             <li>Download their CV as a PDF</li>
+                            <li>See which CV variant they're using (candidates can create multiple CV versions for different applications)</li>
+                            <li>Check CV visibility settings (private, organisation-only, or public)</li>
                         </ul>
                     </div>
 
@@ -339,6 +340,71 @@ require_once __DIR__ . '/php/helpers.php';
                             <li><strong>Allow Candidate Self-Registration:</strong> Enable candidates to register themselves</li>
                             <li><strong>Require Candidate Approval:</strong> Require approval for self-registered candidates before they can complete their CV</li>
                         </ul>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-3">Custom Public Homepage</h3>
+                        <p class="text-gray-700 mb-4">
+                            Create a fully customised public landing page for your organisation at <code class="bg-gray-100 px-1 py-0.5 rounded text-xs">/agency/your-slug</code>:
+                        </p>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li><strong>AI-Powered Template Generation:</strong> Describe your vision or link to a reference website, and AI will generate a custom HTML/CSS template</li>
+                            <li><strong>Full HTML/CSS Control:</strong> Write your own custom HTML and CSS for complete design freedom</li>
+                            <li><strong>Dynamic Placeholders:</strong> Use placeholders like <code class="bg-gray-100 px-1 py-0.5 rounded text-xs">{{organisation_name}}</code> and <code class="bg-gray-100 px-1 py-0.5 rounded text-xs">{{candidate_count}}</code> for dynamic content</li>
+                            <li><strong>Professional Branding:</strong> Showcase your organisation with a unique public presence</li>
+                        </ul>
+                        <p class="text-gray-600 text-sm mt-4">
+                            Access this feature in Settings → Custom Homepage. <a href="/agency/custom-homepage-guide.php" class="text-blue-600 hover:text-blue-800 underline">View the full guide</a> for detailed instructions.
+                        </p>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-3">Organisation AI Settings</h3>
+                        <p class="text-gray-700 mb-4">
+                            Configure AI services at the organisation level so all your candidates benefit:
+                        </p>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li><strong>Centralised Configuration:</strong> Set up AI services (OpenAI, Anthropic, local AI) once for your entire organisation</li>
+                            <li><strong>Automatic Access:</strong> All candidates automatically get access to AI features using your organisation's configuration</li>
+                            <li><strong>Cost Management:</strong> Centralise AI API keys and settings to manage costs efficiently</li>
+                            <li><strong>Flexible Options:</strong> Support for cloud APIs (OpenAI, Anthropic, Gemini, Grok) and local/browser-based AI</li>
+                            <li><strong>Priority System:</strong> Organisation settings serve as defaults; individual candidates can override if needed</li>
+                        </ul>
+                        <p class="text-gray-600 text-sm mt-4">
+                            Access this feature in Settings → Organisation AI Settings. Configure once, benefit organisation-wide.
+                        </p>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-3">Email Settings</h3>
+                        <p class="text-gray-700 mb-4">
+                            Customise email communications from your organisation:
+                        </p>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li><strong>Custom From Address:</strong> Send emails from your organisation's email address instead of the default</li>
+                            <li><strong>Custom From Name:</strong> Set a display name for your emails (e.g., "Acme Recruiting Team")</li>
+                            <li><strong>Professional Branding:</strong> All invitations and communications will appear from your organisation</li>
+                            <li><strong>Better Deliverability:</strong> Emails from your domain improve deliverability and recognition</li>
+                        </ul>
+                        <p class="text-gray-600 text-sm mt-4">
+                            Access this feature in Settings → Email Settings. Configure your organisation's email address and display name.
+                        </p>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-3">Pending Candidates Tracking</h3>
+                        <p class="text-gray-700 mb-4">
+                            Track and manage candidate invitations in one place:
+                        </p>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                            <li><strong>View Pending Invitations:</strong> See all candidates who have been invited but haven't accepted yet</li>
+                            <li><strong>Expiration Dates:</strong> Track when invitations expire to follow up as needed</li>
+                            <li><strong>Unified View:</strong> Filter candidates by status including "Pending" alongside Draft, Complete, Published, and Archived</li>
+                            <li><strong>Easy Management:</strong> Quickly identify candidates who need follow-up</li>
+                        </ul>
+                        <p class="text-gray-600 text-sm mt-4">
+                            Use the "Pending" filter on the Candidates page to view all pending invitations.
+                        </p>
                     </div>
                 </div>
             </section>

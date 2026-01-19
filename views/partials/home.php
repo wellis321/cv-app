@@ -110,21 +110,6 @@
                         'title' => 'Scalable Plans',
                         'description' => 'Grow with confidence. Request limit increases as your organisation expands, with flexible plans that adapt to your needs.',
                         'icon' => 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z'
-                    ],
-                    [
-                        'title' => 'AI-Powered CV Rewriting',
-                        'description' => 'Generate job-specific CV variants automatically. Our AI analyzes job descriptions and tailors your CV to match each application perfectly.',
-                        'icon' => 'M13 10V3L4 14h7v7l9-11h-7z'
-                    ],
-                    [
-                        'title' => 'CV Quality Assessment',
-                        'description' => 'Get instant AI-powered feedback on your CV. Receive scores, improvement suggestions, and ATS optimisation tips to maximise your chances.',
-                        'icon' => 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'
-                    ],
-                    [
-                        'title' => 'CV Variants Management',
-                        'description' => 'Create and manage multiple CV versions for different job applications. Keep your master CV and generate tailored variants for each opportunity.',
-                        'icon' => 'M4 6h16M4 12h16M4 18h16'
                     ]
                 ];
                 foreach ($features as $feature): ?>
@@ -306,8 +291,179 @@
     </div>
 </div>
 
-<!-- Responsive Images Feature Section -->
+<!-- Custom Homepage Feature Section -->
 <div class="bg-white py-12 sm:py-16">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="overflow-hidden rounded-2xl border border-purple-200 bg-white shadow-xl">
+            <div class="grid lg:grid-cols-2">
+                <!-- Left side: Visual -->
+                <div class="flex items-center justify-center bg-gradient-to-br from-purple-500 to-purple-600 px-6 py-12 sm:px-10 sm:py-16 lg:px-12">
+                    <div class="text-center">
+                        <div class="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-white/20 shadow-lg backdrop-blur-sm">
+                            <svg class="h-12 w-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white">Custom Public Homepage</h3>
+                        <p class="mt-2 text-purple-100">AI-Powered • Fully Customisable</p>
+                    </div>
+                </div>
+                <!-- Right side: Content -->
+                <div class="flex flex-col justify-center px-6 py-12 sm:px-10 sm:py-16 lg:px-12">
+                    <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+                        Create Your Unique Public Presence
+                    </h2>
+                    <p class="mt-4 text-lg text-gray-600">
+                        Design a fully customised public landing page for your organisation with AI-powered template generation. Showcase your brand and create unique experiences for your clients.
+                    </p>
+                    <ul class="mt-6 space-y-3 text-gray-600">
+                        <li class="flex items-start">
+                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>AI-powered template generation from descriptions or reference URLs</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Full HTML/CSS control for complete design freedom</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Dynamic placeholders for organisation data</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Professional branding for your organisation's public page</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Centralised AI Configuration Feature Section -->
+<div class="bg-gradient-to-r from-indigo-50 to-purple-50 py-12 sm:py-16">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="overflow-hidden rounded-2xl border border-indigo-200 bg-white shadow-xl">
+            <div class="grid lg:grid-cols-2">
+                <!-- Left side: Content -->
+                <div class="flex flex-col justify-center px-6 py-12 sm:px-10 sm:py-16 lg:px-12">
+                    <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+                        Centralised AI for Your Entire Organisation
+                    </h2>
+                    <p class="mt-4 text-lg text-gray-600">
+                        Configure AI services once at the organisation level, and all your candidates benefit automatically. Streamline AI access, manage costs efficiently, and ensure consistent AI capabilities across your team.
+                    </p>
+                    <ul class="mt-6 space-y-3 text-gray-600">
+                        <li class="flex items-start">
+                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-indigo-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Configure once, benefit organisation-wide</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-indigo-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Support for cloud APIs (OpenAI, Anthropic, Gemini, Grok) and local AI</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-indigo-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Centralised cost management and API key security</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-indigo-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>All candidates get automatic access to AI features</span>
+                        </li>
+                    </ul>
+                </div>
+                <!-- Right side: Visual -->
+                <div class="flex items-center justify-center bg-gradient-to-br from-indigo-500 to-indigo-600 px-6 py-12 sm:px-10 sm:py-16 lg:px-12">
+                    <div class="text-center">
+                        <div class="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-white/20 shadow-lg backdrop-blur-sm">
+                            <svg class="h-12 w-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white">Centralised AI</h3>
+                        <p class="mt-2 text-indigo-100">Configure Once • Benefit All</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Email Settings Feature Section -->
+<div class="bg-white py-12 sm:py-16">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="overflow-hidden rounded-2xl border border-blue-200 bg-white shadow-xl">
+            <div class="grid lg:grid-cols-2">
+                <!-- Left side: Visual -->
+                <div class="flex items-center justify-center bg-gradient-to-br from-blue-500 to-blue-600 px-6 py-12 sm:px-10 sm:py-16 lg:px-12">
+                    <div class="text-center">
+                        <div class="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-white/20 shadow-lg backdrop-blur-sm">
+                            <svg class="h-12 w-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white">Professional Email</h3>
+                        <p class="mt-2 text-blue-100">Your Brand • Your Domain</p>
+                    </div>
+                </div>
+                <!-- Right side: Content -->
+                <div class="flex flex-col justify-center px-6 py-12 sm:px-10 sm:py-16 lg:px-12">
+                    <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+                        Send Emails from Your Organisation
+                    </h2>
+                    <p class="mt-4 text-lg text-gray-600">
+                        Professional email branding for all your candidate communications. Send invitations and messages from your organisation's email address with a custom display name.
+                    </p>
+                    <ul class="mt-6 space-y-3 text-gray-600">
+                        <li class="flex items-start">
+                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Custom "From" email address from your organisation domain</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Custom display name for professional branding</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Improved deliverability and recognition</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Consistent branding across all candidate communications</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Responsive Images Feature Section -->
+<div class="bg-gray-50 py-12 sm:py-16">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="lg:text-center">
             <span class="inline-flex items-center rounded-full bg-green-100 px-4 py-1 text-sm font-medium text-green-800 mb-4">
@@ -503,7 +659,7 @@
                 ],
                 [
                     'label' => 'Lifetime',
-                    'price' => '£34.99',
+                    'price' => 'TBC',
                     'detail' => 'one-time payment',
                     'highlight' => true,
                     'badge' => 'Beta Special',
@@ -518,7 +674,7 @@
                 ],
                 [
                     'label' => 'Pro Monthly',
-                    'price' => '£4.99',
+                    'price' => 'TBC',
                     'detail' => 'per month',
                     'highlight' => false,
                     'features' => [
@@ -531,8 +687,8 @@
                 ],
                 [
                     'label' => 'Pro Annual',
-                    'price' => '£29.99',
-                    'detail' => 'per year (save over 40%)',
+                    'price' => 'TBC',
+                    'detail' => 'per year',
                     'highlight' => false,
                     'features' => [
                         'Everything in Pro Monthly',
