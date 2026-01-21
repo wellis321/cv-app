@@ -2,7 +2,9 @@
 /**
  * Create a production account with full subscription
  * 
- * Usage: php scripts/create-production-account.php
+ * Usage: php scripts/create-production-account.php <email> <password> [full_name]
+ * 
+ * Example: php scripts/create-production-account.php user@example.com mypassword "John Doe"
  * 
  * This script generates SQL to create an account in the production database.
  * Run the generated SQL in your production database (e.g., via phpMyAdmin or MySQL client).
@@ -10,10 +12,14 @@
 
 require_once __DIR__ . '/../php/helpers.php';
 
-// Account details
-$email = 'REDACTED_EMAIL';
-$password = 'REDACTED_PASSWORD';
-$fullName = null; // You can set this if you have a name
+// Get account details from command line arguments
+if ($argc < 3) {
+    die("Usage: php scripts/create-production-account.php <email> <password> [full_name]\n");
+}
+
+$email = $argv[1];
+$password = $argv[2];
+$fullName = $argv[3] ?? null;
 
 // Generate UUID
 $userId = generateUuid();

@@ -35,6 +35,9 @@ Thumbs.db
 *.bak
 *~
 
+# Account creation SQL files (may contain sensitive data)
+database/create_account_*.sql
+
 # Old SvelteKit/Node.js files (if not deleted yet)
 /node_modules
 /.svelte-kit
