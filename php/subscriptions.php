@@ -96,17 +96,11 @@ function getUserSubscriptionContext(string $userId): array {
         return $cache[$userId];
     }
 
-    // Try both column names in case production DB uses different column name
     $profile = db()->fetchOne(
-        "SELECT plan, subscription_plan, subscription_status, subscription_current_period_end, stripe_customer_id, stripe_subscription_id, subscription_cancel_at
+        "SELECT plan, subscription_status, subscription_current_period_end, stripe_customer_id, stripe_subscription_id, subscription_cancel_at
          FROM profiles WHERE id = ?",
         [$userId]
     );
-    
-    // Use subscription_plan if plan is not set (for backward compatibility)
-    if (empty($profile['plan']) && !empty($profile['subscription_plan'])) {
-        $profile['plan'] = $profile['subscription_plan'];
-    }
 
     // #region agent log
     $logData = [
