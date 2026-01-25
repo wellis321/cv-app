@@ -17,14 +17,33 @@ if (!stripeVerifyWebhookSignature($payload, $signatureHeader)) {
 }
 
 $event = json_decode($payload, true);
-if (!$event || !isset($event['type'])) {
+if (!$event || !isset($event['type']) || !isset($event['id'])) {
     http_response_code(400);
     echo 'Invalid payload';
     exit;
 }
 
+$eventId = $event['id'];
 $type = $event['type'];
 $object = $event['data']['object'] ?? [];
+
+// Idempotency check - skip if event already processed
+try {
+    $existingEvent = db()->fetchOne(
+        "SELECT id FROM stripe_webhook_events WHERE id = ?",
+        [$eventId]
+    );
+    if ($existingEvent) {
+        // Event already processed, acknowledge without reprocessing
+        http_response_code(200);
+        header('Content-Type: application/json');
+        echo json_encode(['received' => true, 'already_processed' => true]);
+        exit;
+    }
+} catch (Throwable $e) {
+    // Table might not exist yet - log and continue (non-fatal)
+    error_log('Stripe webhook idempotency check failed (table may not exist): ' . $e->getMessage());
+}
 
 try {
     switch ($type) {
@@ -95,6 +114,18 @@ try {
     http_response_code(500);
     echo 'Webhook error';
     exit;
+}
+
+// Record event as processed for idempotency
+try {
+    db()->insert('stripe_webhook_events', [
+        'id' => $eventId,
+        'event_type' => $type,
+        'processed_at' => date('Y-m-d H:i:s')
+    ]);
+} catch (Throwable $e) {
+    // Non-fatal - log but don't fail the webhook
+    error_log('Failed to record webhook event for idempotency: ' . $e->getMessage());
 }
 
 http_response_code(200);

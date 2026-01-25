@@ -6,142 +6,176 @@ This checklist should be completed before deploying the CV application to produc
 
 - [ ] **Environment Variables**
 
-  - [ ] Ensure all sensitive values are stored in environment variables
-  - [ ] Verify that no secrets are hardcoded or committed to the repository
-  - [ ] Set up proper environment variable handling in hosting platform (Vercel)
+  - [ ] Ensure all sensitive values are in `.env` file
+  - [ ] Verify `.env` is in `.gitignore` and not committed
+  - [ ] Set `APP_ENV=production` in `.env`
+  - [ ] Verify database credentials are production values
 
 - [ ] **Authentication**
 
   - [ ] Test user registration flow
   - [ ] Test user login flow
-  - [ ] Verify session management and token refresh
-  - [ ] Ensure password reset functionality works correctly
+  - [ ] Verify email verification works
+  - [ ] Ensure password reset functionality works
+  - [ ] Test session management
 
 - [ ] **Authorization**
 
-  - [ ] Verify all Row Level Security (RLS) policies are correctly implemented
+  - [ ] Verify resource ownership checks (`profile_id`) work
   - [ ] Test that users can only access their own data
   - [ ] Ensure admin routes are properly protected
 
 - [ ] **API Security**
 
   - [ ] CSRF protection is enabled for all state-changing operations
-  - [ ] Rate limiting is implemented for all API endpoints
-  - [ ] Verify that security headers are correctly set
-  - [ ] CORS is properly configured for production
+  - [ ] Rate limiting is working for auth endpoints
+  - [ ] Verify security headers are correctly set
+  - [ ] Storage proxy authentication is working
 
 - [ ] **Data Validation**
   - [ ] All user inputs are validated server-side
-  - [ ] Input sanitization is implemented to prevent XSS attacks
+  - [ ] Input sanitization prevents XSS attacks
   - [ ] File uploads are properly restricted and validated
+
+## HTTPS & SSL
+
+- [ ] **Enable HTTPS**
+  - [ ] SSL certificate is installed on hosting
+  - [ ] Uncomment HTTPS redirect in `.htaccess` (lines 5-8)
+  - [ ] Uncomment HSTS header in `.htaccess` (line 37)
+  - [ ] Verify `session.cookie_secure` is enabled for production
 
 ## Database
 
 - [ ] **Schema**
 
-  - [ ] All required tables and relationships are in place
-  - [ ] Database indexes are properly set up for performance
+  - [ ] All required tables exist
+  - [ ] Database indexes are properly set up
   - [ ] Foreign key constraints are correctly implemented
 
 - [ ] **Migrations**
 
-  - [ ] All necessary migrations are applied
-  - [ ] Database schema matches production requirements
-  - [ ] Verify that development and production schemas match
+  - [ ] All migrations in `database/` have been applied
+  - [ ] `20250123_add_stripe_webhook_events.sql` migration applied
+  - [ ] Verify schema matches production requirements
 
 - [ ] **Backups**
-  - [ ] Automated database backup is configured in Supabase
+  - [ ] Automated MySQL backup is configured on hosting provider
   - [ ] Backup retention policy is defined
+  - [ ] Test backup restoration process
+
+## Stripe Integration
+
+- [ ] **Production Keys**
+
+  - [ ] `STRIPE_PUBLISHABLE_KEY` is production key (not `pk_test_`)
+  - [ ] `STRIPE_SECRET_KEY` is production key (not `sk_test_`)
+  - [ ] `STRIPE_WEBHOOK_SECRET` is production webhook secret
+  - [ ] Price IDs are production price IDs
+
+- [ ] **Webhooks**
+  - [ ] Production webhook endpoint registered in Stripe dashboard
+  - [ ] Webhook signature verification is working
+  - [ ] Test checkout flow end-to-end
 
 ## Performance
 
 - [ ] **Optimisation**
 
-  - [ ] Assets are properly optimized (images, scripts, styles)
-  - [ ] Lazy loading is implemented for non-critical resources
-  - [ ] API responses are optimized and paginated where necessary
+  - [ ] Images are properly optimized
+  - [ ] CSS/JS assets are minified (via CDN)
+  - [ ] PHP opcache is enabled
 
 - [ ] **Caching**
   - [ ] Static assets have appropriate cache headers
-  - [ ] Consider implementing SSR/SSG for appropriate routes
+  - [ ] Storage proxy cache headers are set (1 year)
 
 ## Monitoring & Logging
 
 - [ ] **Error Tracking**
 
-  - [ ] Error boundaries are implemented in all critical components
-  - [ ] Server errors are properly logged
+  - [ ] `DEBUG` is `false` in production
+  - [ ] Errors logged to `logs/php-errors.log`
+  - [ ] Authentication attempts logged to `logs/auth.log`
+  - [ ] Log files are not publicly accessible
 
-- [ ] **Analytics**
-  - [ ] Basic analytics are set up to track user behaviour
-  - [ ] Performance metrics are being collected
+- [ ] **Monitoring**
+  - [ ] Set up uptime monitoring
+  - [ ] Configure alerts for server errors
 
 ## Deployment
 
-- [ ] **CI/CD**
-
-  - [ ] CI pipeline is configured to run tests before deployment
-  - [ ] Automated deployment to staging/production is set up
-
 - [ ] **Hosting Configuration**
 
-  - [ ] Vercel project is correctly configured
-  - [ ] Custom domain is set up with SSL
-  - [ ] Network rules and firewalls are configured
+  - [ ] Apache mod_rewrite is enabled
+  - [ ] `.htaccess` rules are working
+  - [ ] PHP version is 7.4 or higher
+  - [ ] Required PHP extensions installed (PDO, mbstring, etc.)
 
-- [ ] **Scaling**
-  - [ ] Application is prepared to handle expected traffic
-  - [ ] Database is scaled appropriately
+- [ ] **File Permissions**
+  - [ ] `storage/` directory is writable (755)
+  - [ ] `logs/` directory is writable (755)
+  - [ ] Sensitive files are protected (.env, .sql, .log, .md)
+
+- [ ] **Dependencies**
+  - [ ] Run `composer install --no-dev` for production
+  - [ ] PDF generator: `cd scripts && npm install --production`
 
 ## Testing
 
 - [ ] **Functional Testing**
 
   - [ ] All core features work as expected
-  - [ ] Edge cases are handled properly
+  - [ ] CV preview displays correctly
+  - [ ] PDF export works
+  - [ ] AI features work (if configured)
 
 - [ ] **Cross-Browser Testing**
 
-  - [ ] Application works in all major browsers
+  - [ ] Application works in Chrome, Firefox, Safari, Edge
   - [ ] Mobile responsiveness is verified
 
 - [ ] **Security Testing**
-  - [ ] Basic penetration testing has been performed
-  - [ ] Authentication flows have been thoroughly tested
+  - [ ] Test CSRF protection
+  - [ ] Test authentication flows
+  - [ ] Test file upload restrictions
 
 ## Documentation
 
 - [ ] **Technical Documentation**
 
+  - [ ] `CLAUDE.md` is up to date
   - [ ] API endpoints are documented
-  - [ ] Database schema is documented
   - [ ] Deployment process is documented
 
 - [ ] **User Documentation**
-  - [ ] User guide is available where necessary
-  - [ ] Support contact information is available
+  - [ ] Help/FAQ available if needed
+  - [ ] Contact information available
 
 ## Post-Deployment
 
 - [ ] **Verification**
 
   - [ ] All features work in production environment
-  - [ ] No unexpected errors in production logs
+  - [ ] No errors in production logs
+  - [ ] Email sending works
 
 - [ ] **Rollback Plan**
-  - [ ] Documented process for rolling back in case of issues
-  - [ ] Team knows how to execute rollback
+  - [ ] Database backup taken before deployment
+  - [ ] Know how to restore from backup
+  - [ ] Previous code version available
 
 ## Compliance & Legal
 
 - [ ] **Privacy**
 
-  - [ ] Privacy policy is in place and accessible
-  - [ ] User data handling complies with relevant regulations
+  - [ ] Privacy policy is in place
+  - [ ] Cookie consent if required
+  - [ ] GDPR compliance if serving EU users
 
 - [ ] **Accessibility**
   - [ ] Application meets basic accessibility requirements
-  - [ ] Text alternatives are provided for non-text content
+  - [ ] Form labels and alt text are present
 
 ---
 
@@ -150,7 +184,9 @@ This checklist should be completed before deploying the CV application to produc
 | Component     | Verified By | Date | Notes |
 | ------------- | ----------- | ---- | ----- |
 | Security      |             |      |       |
+| HTTPS/SSL     |             |      |       |
 | Database      |             |      |       |
+| Stripe        |             |      |       |
 | Performance   |             |      |       |
 | Monitoring    |             |      |       |
 | Deployment    |             |      |       |

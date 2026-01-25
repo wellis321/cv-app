@@ -1,5 +1,7 @@
 # CV App Analytics System
 
+> **Note**: This document describes the analytics system from the original SvelteKit version. The PHP version does not currently have a built-in analytics system. Consider using external analytics (Google Analytics, Plausible, etc.) or implementing a PHP-based solution.
+
 This document provides an overview of the built-in analytics system for tracking page visits and user activity in the CV App.
 
 ## Quick Start Guide
@@ -10,7 +12,7 @@ To get the analytics system up and running:
 
    - Navigate to `/admin/analytics/apply-migration` in your app
    - Follow the instructions to apply the SQL migration
-   - Or manually run the SQL in `src/lib/migrations/20240530_create_page_analytics.sql` via Supabase dashboard
+   - Or manually run the SQL in the database migration file
 
 2. **Configure Admin Access**:
 

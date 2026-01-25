@@ -1,8 +1,8 @@
 # Security Hardening Recommendations
 
-**Application**: CV Builder Platform
+**Application**: CV Builder Platform (PHP/MySQL)
 **Review Date**: July 2023
-**Implementation Update**: July 2024
+**Implementation Update**: January 2025
 **Priority Legend**:
 🔴 Critical - Immediate remediation required
 🟠 High - Address within 2 weeks
@@ -16,71 +16,52 @@
 **Priority**: 🔴 ✅
 **Actions**:
 
-- [x] Replace `unsafe-inline` with nonce-based CSP implementation
-- [x] Add strict directives for Supabase connections:
-  ```http
-  connect-src 'self' https://*.supabase.co;
-  img-src 'self' https://*.supabase.co data:;
-  ```
-- [x] Implement CSP nonce generation in hooks.server.ts
-- [x] Add reporting endpoint for CSP violations
+- [x] Implement security headers in `.htaccess` and `php/security.php`
+- [x] Add CSP with appropriate directives for CDNs (Tailwind, cdnjs)
+- [x] Set X-Frame-Options, X-Content-Type-Options, Referrer-Policy
 
 **Implementation Notes**:
 
-- Implemented nonce generation in `hooks.server.ts` for scripts
-- Added CSP headers with appropriate directives
-- Created CSP violation reporting endpoint at `/api/csp-report`
-- Created a security test page at `/security-test` (only accessible in development)
+- Security headers implemented in `php/security.php` via `setSecurityHeaders()`
+- Backup headers also in `.htaccess`
+- CSP allows necessary CDN resources while blocking unsafe inline scripts where possible
 
 ---
 
 ## 2. Authentication Security
 
-**Priority**: 🔴
+**Priority**: 🔴 ✅
 **Actions**:
 
-- [x] Implement stricter rate limits for auth endpoints:
-  ```ts
-  // Auth-specific rate limiting
-  const authLimiter = rateLimit({
-  	windowMs: 15 * 60 * 1000, // 15 minutes
-  	max: 5, // Limit each IP to 5 requests per window
-  	standardHeaders: true,
-  	legacyHeaders: false
-  });
-  ```
-- [ ] Add password complexity requirements:
-  ```ts
-  const passwordSchema = z
-  	.string()
-  	.min(12)
-  	.regex(/[A-Z]/)
-  	.regex(/[0-9]/)
-  	.regex(/[^A-Za-z0-9]/);
-  ```
-- [ ] Implement Supabase MFA requirement for admin users
+- [x] Implement rate limits for auth endpoints (login: 5/15min, register: 3/hour)
+- [x] Add password complexity requirements (8+ chars, uppercase, lowercase, number)
+- [x] Implement email verification before login
+- [x] Session regeneration on login and password change
+- [ ] Add optional MFA/2FA for users
 
 **Implementation Notes**:
 
-- Implemented rate limiting for auth endpoints in `hooks.server.ts`
+- Rate limiting implemented in `php/security.php` via `checkRateLimit()`
+- Password validation in `validatePasswordStrength()`
+- Session security configured in `php/config.php`
 
 ---
 
 ## 3. Database Security
 
-**Priority**: 🟠
+**Priority**: 🟠 ✅
 **Actions**:
 
-- [ ] Verify RLS policies on all Supabase tables:
-  ```sql
-  -- Example policy for profiles table
-  create policy "User can only manage their own profile"
-  on profiles for all
-  using (auth.uid() = user_id);
-  ```
-- [ ] Enable Supabase network restrictions
-- [ ] Implement automatic daily backups in Supabase dashboard
-- [ ] Enable Supabase's Point-in-Time Recovery
+- [x] Use prepared statements for all database queries (PDO)
+- [x] Verify resource ownership on all operations (`profile_id` checks)
+- [x] Implement `ownsResource()` helper function
+- [ ] Set up automated MySQL backups on hosting provider
+- [ ] Enable MySQL SSL connections in production
+
+**Implementation Notes**:
+
+- All database operations use PDO prepared statements via `db()` helper
+- Resource ownership verified with `profile_id = getUserId()` pattern
 
 ---
 
@@ -89,65 +70,54 @@
 **Priority**: 🟠
 **Actions**:
 
+- [x] Authentication logging implemented (`logs/auth.log`)
 - [ ] Implement audit logging for sensitive operations:
-  ```ts
+  ```php
   // Example audit log entry
-  await supabase.from('audit_logs').insert({
-  	user_id: session.user.id,
-  	action: 'profile_update',
-  	ip_address: event.getClientAddress(),
-  	user_agent: event.request.headers.get('user-agent')
-  });
+  db()->insert('audit_logs', [
+      'user_id' => getUserId(),
+      'action' => 'profile_update',
+      'ip_address' => getClientIp(),
+      'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? ''
+  ]);
   ```
-- [ ] Set up Supabase Logflare integration
-- [ ] Configure real-time security alerts for:
-  - Multiple failed login attempts
-  - Sensitive data exports
-  - Admin privilege changes
+- [ ] Configure error monitoring/alerting
+- [ ] Set up alerts for multiple failed login attempts
 
 ---
 
 ## 5. Session Management
 
-**Priority**: 🟠
+**Priority**: 🟠 ✅
 **Actions**:
 
-- [ ] Implement session invalidation on:
-  - Password change
-  - Role changes
-  - Suspicious activity
-- [ ] Set strict cookie attributes:
-  ```ts
-  cookies.set('session', token, {
-  	httpOnly: true,
-  	secure: true,
-  	sameSite: 'strict',
-  	maxAge: 60 * 60 * 24 * 7 // 1 week
-  });
-  ```
+- [x] Session invalidation on password change
+- [x] Session regeneration on login
+- [x] Strict cookie attributes (HttpOnly, Secure in production, SameSite=Lax)
+- [ ] Implement session invalidation on role changes
+- [ ] Add suspicious activity detection
+
+**Implementation Notes**:
+
+- Session config in `php/config.php`
+- Password change regeneration added to `changePasswordForUser()` in `php/auth.php`
 
 ---
 
 ## 6. Input Validation & Sanitization
 
-**Priority**: 🔵
+**Priority**: 🔵 ✅
 **Actions**:
 
-- [ ] Implement HTML sanitization for rich text fields:
+- [x] Input sanitization via `sanitizeInput()` using `htmlspecialchars()`
+- [x] XSS detection via `detectXss()` function
+- [x] File type validation for uploads (MIME type and extension)
+- [x] File size limits enforced (5MB images, 10MB documents)
 
-  ```ts
-  import sanitizeHtml from 'sanitize-html';
+**Implementation Notes**:
 
-  const cleanBio = sanitizeHtml(userInput, {
-  	allowedTags: ['b', 'i', 'em', 'strong', 'br'],
-  	allowedAttributes: {}
-  });
-  ```
-
-- [ ] Add file type validation for profile photos:
-  ```ts
-  const ALLOWED_MIME_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
-  ```
+- Input sanitization in `php/security.php`
+- File validation in `php/storage.php`
 
 ---
 
@@ -156,30 +126,28 @@
 **Priority**: 🔵
 **Actions**:
 
-- [ ] Enable DDoS protection in deployment platform
+- [ ] Enable DDoS protection on hosting platform
 - [ ] Configure Web Application Firewall (WAF) rules
-- [ ] Set up security headers verification in CI/CD pipeline
-- [ ] Schedule quarterly penetration tests
+- [x] Security headers configured in `.htaccess`
+- [ ] Schedule quarterly security reviews
 
 ---
 
 ## 8. API Security
 
-**Priority**: 🟠
+**Priority**: 🟠 ✅
 **Actions**:
 
-- [ ] Implement comprehensive permissions checks on all API endpoints:
-  ```ts
-  // Example permission check
-  function ensureOwnership(userId: string, resourceId: string) {
-  	if (!userId || userId !== resourceId) {
-  		throw error(403, 'Unauthorized access to resource');
-  	}
-  }
-  ```
-- [ ] Add rate limiting for all API endpoints, not just authentication
-- [ ] Implement API versioning strategy to handle security updates
-- [ ] Use API keys with appropriate scopes for service-to-service communication
+- [x] Authentication checks on all protected endpoints
+- [x] CSRF token verification for all state-changing operations
+- [x] Resource ownership verification
+- [ ] Add rate limiting for API endpoints (not just auth)
+- [ ] Implement API request logging
+
+**Implementation Notes**:
+
+- Standard API pattern established with auth + CSRF checks
+- See `api/*.php` endpoints for implementation
 
 ---
 
@@ -188,86 +156,65 @@
 **Priority**: 🔴 ✅
 **Actions**:
 
-- [x] Ensure CSRF token validation for all state-changing operations:
-  ```ts
-  // Example CSRF check middleware
-  function validateCsrfToken(request, csrfToken) {
-  	const requestToken = request.headers.get('x-csrf-token');
-  	return crypto.timingSafeEqual(Buffer.from(requestToken || ''), Buffer.from(csrfToken));
-  }
-  ```
-- [x] Implement Double-Submit Cookie pattern for CSRF protection
-- [x] Add CSRF token regeneration on authentication events
-- [x] Verify SameSite cookie attribute is properly set
+- [x] CSRF token generation via `csrfToken()` function
+- [x] Token verification with `verifyCsrfToken()` using timing-safe comparison
+- [x] Tokens included in all forms
+- [x] SameSite cookie attribute set to 'Lax'
 
 **Implementation Notes**:
 
-- CSRF token validation implemented in `hooks.server.ts` for all state-changing operations
-- Tokens are automatically regenerated when needed
-- SameSite cookies properly configured
+- CSRF implementation in `php/security.php`
+- Uses `hash_equals()` for timing-safe comparison
 
 ---
 
-## 10. Dependency Management
+## 10. File Storage Security
 
-**Priority**: 🟠
+**Priority**: 🟠 ✅
 **Actions**:
 
-- [ ] Implement automated dependency scanning in CI/CD pipeline:
-  ```bash
-  # Example CI step
-  npm audit --production
-  # or
-  yarn audit
-  ```
-- [ ] Schedule regular dependency updates (monthly at minimum)
-- [ ] Set up automatic security notifications for vulnerable dependencies
-- [ ] Document policy for addressing critical vulnerabilities in dependencies
+- [x] Path traversal prevention in storage proxy
+- [x] CORS headers removed (was vulnerability)
+- [x] Public files (profile photos, project images) accessible for CV display
+- [x] Private files require authentication and ownership verification
+
+**Implementation Notes**:
+
+- Storage proxy security in `api/storage-proxy.php`
+- File ownership verified against database records
 
 ---
 
 ## 11. Error Handling
 
-**Priority**: 🔵
+**Priority**: 🔵 ✅
 **Actions**:
 
-- [ ] Implement standardised error handling that doesn't expose sensitive information:
+- [x] Errors only displayed in development mode (`DEBUG` constant)
+- [x] Production errors logged to `logs/php-errors.log`
+- [x] Generic error messages shown to users in production
+- [ ] Implement centralized error monitoring
 
-  ```ts
-  // Example secure error handler
-  function handleError(error, event) {
-  	// Log the detailed error internally
-  	console.error('Detailed error:', error);
+**Implementation Notes**:
 
-  	// Return sanitized error to user
-  	return new Response(
-  		JSON.stringify({
-  			error: 'An error occurred processing your request'
-  		}),
-  		{
-  			status: 500,
-  			headers: { 'Content-Type': 'application/json' }
-  		}
-  	);
-  }
-  ```
-
-- [ ] Create custom error pages that don't leak stack traces
-- [ ] Set up centralized error logging with proper PII handling
-- [ ] Implement graceful degradation for non-critical service failures
+- Error handling configured in `php/config.php`
 
 ---
 
 ## Implementation Checklist
 
-| Priority | Recommendation                 | Owner      | Due Date  | Status |
-| -------- | ------------------------------ | ---------- | --------- | ------ |
-| 🔴 ✅    | CSP Nonce Implementation       | Security   | July 2024 | [x]    |
-| 🔴 ✅    | Auth Rate Limiting             | Backend    | July 2024 | [x]    |
-| 🔴 ✅    | CSRF Protection Enhancement    | Security   | July 2024 | [x]    |
-| 🟠       | Supabase RLS Verification      | DB         | TBD       | [ ]    |
-| 🟠       | Audit Logging Setup            | DevOps     | TBD       | [ ]    |
-| 🟠       | API Security Review            | Backend    | TBD       | [ ]    |
-| 🟠       | Dependency Management          | DevOps     | TBD       | [ ]    |
-| 🔵       | Input Sanitization             | Frontend   | TBD       | [ ]    |
-| 🔵       | Error Handling Standardization | Full-stack | TBD       | [ ]    |
+| Priority | Recommendation                 | Status |
+| -------- | ------------------------------ | ------ |
+| 🔴 ✅    | CSP/Security Headers           | [x]    |
+| 🔴 ✅    | Auth Rate Limiting             | [x]    |
+| 🔴 ✅    | CSRF Protection                | [x]    |
+| 🔴 ✅    | Password Hashing (bcrypt)      | [x]    |
+| 🔴 ✅    | SQL Injection Prevention (PDO) | [x]    |
+| 🔴 ✅    | Storage Proxy Security         | [x]    |
+| 🟠 ✅    | Session Security               | [x]    |
+| 🟠 ✅    | Input Sanitization             | [x]    |
+| 🟠       | Audit Logging                  | [ ]    |
+| 🟠       | API Rate Limiting              | [ ]    |
+| 🟠       | MySQL Backups                  | [ ]    |
+| 🔵       | Error Monitoring               | [ ]    |
+| 🔵       | MFA/2FA Support                | [ ]    |

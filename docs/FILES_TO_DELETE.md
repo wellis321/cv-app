@@ -18,9 +18,9 @@ Since we've converted to pure PHP, the following SvelteKit/Node.js files are no 
 ### Deployment Configs
 - `vercel.json` - Vercel deployment configuration
 
-### Database Migrations (Already Converted)
-- `supabase/` - Supabase PostgreSQL migrations (converted to MySQL schema)
-- `migrations/` - Additional Supabase migrations if they exist
+### Old Database Migrations (If Present)
+- `supabase/` - Old PostgreSQL migrations (if still present)
+- `migrations/` - Additional old migrations if they exist
 
 ### Build/Output Directories (if they exist)
 - `.svelte-kit/` - SvelteKit build cache
@@ -57,7 +57,7 @@ rm package.json package-lock.json
 # Delete configuration files
 rm svelte.config.js vite.config.ts tsconfig.json vercel.json
 
-# Delete Supabase migrations (already converted)
+# Delete old migrations (if present)
 rm -rf supabase/
 rm -rf migrations/
 

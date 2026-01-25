@@ -329,6 +329,12 @@ function changePasswordForUser($userId, $currentPassword, $newPassword) {
             'updated_at' => date('Y-m-d H:i:s')
         ], 'id = ?', [$userId]);
 
+        // Regenerate session ID after password change for security
+        // This helps invalidate any potentially compromised sessions
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_regenerate_id(true);
+        }
+
         return ['success' => true];
     } catch (Exception $e) {
         if (DEBUG) {

@@ -1,5 +1,4 @@
 -- MySQL Schema for CV App
--- Converted from PostgreSQL/Supabase schema
 
 -- Create profiles table (with users authentication)
 CREATE TABLE IF NOT EXISTS profiles (

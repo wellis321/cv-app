@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The CV Builder application allows users to create their professional CV/resume through a user-friendly interface. The application is built with SvelteKit, offering both frontend and backend capabilities, and uses Supabase for data storage and user authentication.
+The CV Builder application allows users to create their professional CV/resume through a user-friendly interface. The application is built with PHP and uses MySQL for data storage with custom authentication.
 
 ## Sections
 
@@ -107,8 +107,13 @@ The completed CV can be:
 ## Technical Features
 
 - User authentication and profile management
-- Data persistence with Supabase
+- Data persistence with MySQL
 - Photo upload and camera integration
 - Responsive design for all device sizes
 - PDF generation capability with customizable sections
-- User has their own cv page with a URL that is unique for them
+- User has their own CV page at `/cv/@username`
+- AI-powered CV rewriting and quality assessment
+- CV templates and variants
+- Cover letter generation
+- Job application tracking
+- Stripe subscription integration
