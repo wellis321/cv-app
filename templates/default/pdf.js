@@ -304,6 +304,7 @@ function buildProfessionalDocDefinition({ cvData = {}, profile = {}, config = {}
         subheader: { fontSize: 15, bold: true, color: palette.header || '#2c3e50', margin: [0, 0, 0, 0] },
         sectionDivider: { margin: [0, 0, 0, 0] },
         jobPosition: { fontSize: 13, bold: true, color: palette.header || '#2c3e50', margin: [0, 0, 0, 2] },
+        certificationTitle: { fontSize: 12, bold: true, color: palette.header || '#2c3e50', margin: [0, 0, 0, 2] },
         company: { fontSize: 11, italics: true, color: palette.body || '#374151', margin: [0, 2, 0, 3] },
         dates: { fontSize: 10, color: palette.muted || '#6b7280' },
         paragraph: { fontSize: 11, color: palette.body || '#374151', lineHeight: 1.3 },
@@ -497,7 +498,7 @@ function buildProfessionalDocDefinition({ cvData = {}, profile = {}, config = {}
         certifications.forEach((cert) => {
             if (cert.name) {
                 const cols = [
-                    { width: '*', text: decodeHtmlEntities(cert.name), style: 'jobPosition' }
+                    { width: '*', text: decodeHtmlEntities(cert.name), style: 'certificationTitle' }
                 ]
 
                 const issued = formatDate(cert.date_obtained || cert.date_issued)
