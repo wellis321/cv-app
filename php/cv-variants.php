@@ -5,6 +5,7 @@
  */
 
 require_once __DIR__ . '/utils.php';
+require_once __DIR__ . '/security.php';
 require_once __DIR__ . '/cv-data.php';
 
 /**
@@ -297,7 +298,9 @@ function loadCvVariantData($variantId) {
     
     if ($summary) {
         $cvData['professional_summary'] = $summary;
-        
+        if (isset($cvData['professional_summary']['description']) && $cvData['professional_summary']['description'] !== '') {
+            $cvData['professional_summary']['description'] = decodeHtmlEntities($cvData['professional_summary']['description']);
+        }
         // Load strengths
         $cvData['professional_summary']['strengths'] = db()->fetchAll(
             "SELECT * FROM cv_variant_professional_summary_strengths
@@ -305,47 +308,67 @@ function loadCvVariantData($variantId) {
              ORDER BY sort_order ASC",
             [$summary['id']]
         );
+        foreach ($cvData['professional_summary']['strengths'] as &$st) {
+            $st['strength'] = decodeHtmlEntities($st['strength'] ?? '');
+        }
+        unset($st);
     }
     
-    // Load work experience
+    // Load work experience (decode position/company/description so &amp;amp; etc. display as &)
     $cvData['work_experience'] = db()->fetchAll(
         "SELECT * FROM cv_variant_work_experience
          WHERE cv_variant_id = ?
          ORDER BY sort_order ASC, start_date DESC",
         [$variantId]
     );
-    
-    // Load responsibilities for each work experience
     foreach ($cvData['work_experience'] as &$work) {
+        $work['position'] = decodeHtmlEntities($work['position'] ?? '');
+        $work['company_name'] = decodeHtmlEntities($work['company_name'] ?? '');
+        if (isset($work['description']) && $work['description'] !== '') {
+            $work['description'] = decodeHtmlEntities($work['description']);
+        }
         $categories = db()->fetchAll(
             "SELECT * FROM cv_variant_responsibility_categories
              WHERE work_experience_id = ?
              ORDER BY sort_order ASC",
             [$work['id']]
         );
-        
         foreach ($categories as &$category) {
+            $category['name'] = decodeHtmlEntities($category['name'] ?? '');
             $category['items'] = db()->fetchAll(
                 "SELECT * FROM cv_variant_responsibility_items
                  WHERE category_id = ?
                  ORDER BY sort_order ASC",
                 [$category['id']]
             );
+            foreach ($category['items'] as &$item) {
+                $item['content'] = decodeHtmlEntities($item['content'] ?? '');
+            }
+            unset($item);
         }
-        
+        unset($category);
         $work['responsibility_categories'] = $categories;
     }
     unset($work, $category);
     
-    // Load education
+    // Load education (decode text fields)
     $cvData['education'] = db()->fetchAll(
         "SELECT * FROM cv_variant_education
          WHERE cv_variant_id = ?
          ORDER BY start_date DESC",
         [$variantId]
     );
-    
-    // Load skills (decode name/level/category in case they were stored with htmlspecialchars)
+    foreach ($cvData['education'] as &$edu) {
+        $edu['institution'] = decodeHtmlEntities($edu['institution'] ?? '');
+        $edu['degree'] = decodeHtmlEntities($edu['degree'] ?? '');
+        $edu['field_of_study'] = decodeHtmlEntities($edu['field_of_study'] ?? '');
+        if (isset($edu['description']) && $edu['description'] !== '') {
+            $edu['description'] = decodeHtmlEntities($edu['description']);
+        }
+    }
+    unset($edu);
+
+    // Load skills (decode name/level/category)
     $cvData['skills'] = db()->fetchAll(
         "SELECT * FROM cv_variant_skills
          WHERE cv_variant_id = ?
@@ -353,60 +376,96 @@ function loadCvVariantData($variantId) {
         [$variantId]
     );
     foreach ($cvData['skills'] as &$s) {
-        $s['name'] = html_entity_decode((string) ($s['name'] ?? ''), ENT_QUOTES, 'UTF-8');
-        $s['level'] = isset($s['level']) && $s['level'] !== '' ? html_entity_decode((string) $s['level'], ENT_QUOTES, 'UTF-8') : $s['level'];
-        $s['category'] = isset($s['category']) && $s['category'] !== '' ? html_entity_decode((string) $s['category'], ENT_QUOTES, 'UTF-8') : $s['category'];
+        $s['name'] = decodeHtmlEntities($s['name'] ?? '');
+        $s['level'] = isset($s['level']) && $s['level'] !== '' ? decodeHtmlEntities($s['level']) : $s['level'];
+        $s['category'] = isset($s['category']) && $s['category'] !== '' ? decodeHtmlEntities($s['category']) : $s['category'];
     }
     unset($s);
 
-    // Load projects
+    // Load projects (decode text fields)
     $cvData['projects'] = db()->fetchAll(
         "SELECT * FROM cv_variant_projects
          WHERE cv_variant_id = ?
          ORDER BY start_date DESC",
         [$variantId]
     );
-    
-    // Load certifications
+    foreach ($cvData['projects'] as &$proj) {
+        $proj['title'] = decodeHtmlEntities($proj['title'] ?? '');
+        if (isset($proj['description']) && $proj['description'] !== '') {
+            $proj['description'] = decodeHtmlEntities($proj['description']);
+        }
+        if (isset($proj['url']) && $proj['url'] !== '') {
+            $proj['url'] = decodeHtmlEntities($proj['url']);
+        }
+    }
+    unset($proj);
+
+    // Load certifications (decode text fields)
     $cvData['certifications'] = db()->fetchAll(
         "SELECT * FROM cv_variant_certifications
          WHERE cv_variant_id = ?
          ORDER BY date_obtained DESC",
         [$variantId]
     );
-    
-    // Load memberships
+    foreach ($cvData['certifications'] as &$cert) {
+        $cert['name'] = decodeHtmlEntities($cert['name'] ?? '');
+        $cert['issuer'] = decodeHtmlEntities($cert['issuer'] ?? '');
+        if (isset($cert['description']) && $cert['description'] !== '') {
+            $cert['description'] = decodeHtmlEntities($cert['description']);
+        }
+    }
+    unset($cert);
+
+    // Load memberships (decode text fields)
     $cvData['memberships'] = db()->fetchAll(
         "SELECT * FROM cv_variant_memberships
          WHERE cv_variant_id = ?
          ORDER BY start_date DESC",
         [$variantId]
     );
-    
-    // Load interests
+    foreach ($cvData['memberships'] as &$mem) {
+        $mem['organisation'] = decodeHtmlEntities($mem['organisation'] ?? '');
+        $mem['role'] = isset($mem['role']) && $mem['role'] !== '' ? decodeHtmlEntities($mem['role']) : $mem['role'];
+    }
+    unset($mem);
+
+    // Load interests (decode text fields)
     $cvData['interests'] = db()->fetchAll(
         "SELECT * FROM cv_variant_interests
          WHERE cv_variant_id = ?
          ORDER BY name ASC",
         [$variantId]
     );
-    
-    // Load qualification equivalence
+    foreach ($cvData['interests'] as &$int) {
+        $int['name'] = decodeHtmlEntities($int['name'] ?? '');
+        if (isset($int['description']) && $int['description'] !== '') {
+            $int['description'] = decodeHtmlEntities($int['description']);
+        }
+    }
+    unset($int);
+
+    // Load qualification equivalence (decode level, description, and evidence content)
     $cvData['qualification_equivalence'] = db()->fetchAll(
         "SELECT * FROM cv_variant_qualification_equivalence
          WHERE cv_variant_id = ?
          ORDER BY level ASC",
         [$variantId]
     );
-    
-    // Load supporting evidence for each qualification
     foreach ($cvData['qualification_equivalence'] as &$qual) {
+        $qual['level'] = decodeHtmlEntities($qual['level'] ?? '');
+        if (isset($qual['description']) && $qual['description'] !== '') {
+            $qual['description'] = decodeHtmlEntities($qual['description']);
+        }
         $qual['evidence'] = db()->fetchAll(
             "SELECT * FROM cv_variant_supporting_evidence
              WHERE qualification_equivalence_id = ?
              ORDER BY sort_order ASC",
             [$qual['id']]
         );
+        foreach ($qual['evidence'] as &$ev) {
+            $ev['content'] = decodeHtmlEntities($ev['content'] ?? '');
+        }
+        unset($ev);
     }
     unset($qual);
     
@@ -609,11 +668,19 @@ function saveCvVariantData($variantId, $cvData) {
             }
         }
         
-        // Save education
+        // Save education (deduplicate by original_education_id / id so we never insert duplicate rows)
         if (isset($cvData['education']) && is_array($cvData['education'])) {
+            $seenEduKeys = [];
             foreach ($cvData['education'] as $edu) {
                 // Check if education already exists for this variant by matching on original_education_id or provided ID
                 $originalEduId = $edu['original_education_id'] ?? $edu['id'] ?? null;
+                if ($originalEduId !== null) {
+                    $key = (string)$originalEduId;
+                    if (isset($seenEduKeys[$key])) {
+                        continue;
+                    }
+                    $seenEduKeys[$key] = true;
+                }
                 $existing = null;
                 
                 if ($originalEduId) {
@@ -727,11 +794,19 @@ function saveCvVariantData($variantId, $cvData) {
             }
         }
         
-        // Save certifications
+        // Save certifications (deduplicate by original_certification_id / id so we never insert duplicate rows)
         if (isset($cvData['certifications']) && is_array($cvData['certifications'])) {
+            $seenCertKeys = [];
             foreach ($cvData['certifications'] as $cert) {
                 // Check if certification already exists for this variant by matching on original_certification_id or provided ID
                 $originalCertId = $cert['original_certification_id'] ?? $cert['id'] ?? null;
+                if ($originalCertId !== null) {
+                    $key = (string)$originalCertId;
+                    if (isset($seenCertKeys[$key])) {
+                        continue;
+                    }
+                    $seenCertKeys[$key] = true;
+                }
                 $existing = null;
                 
                 if ($originalCertId) {
@@ -765,41 +840,22 @@ function saveCvVariantData($variantId, $cvData) {
             }
         }
         
-        // Save memberships
+        // Save memberships (replace-all: delete then insert to avoid duplicates)
         if (isset($cvData['memberships']) && is_array($cvData['memberships'])) {
+            db()->query("DELETE FROM cv_variant_memberships WHERE cv_variant_id = ?", [$variantId]);
             foreach ($cvData['memberships'] as $mem) {
-                // Check if membership already exists for this variant by matching on original_membership_id or provided ID
-                $originalMemId = $mem['original_membership_id'] ?? $mem['id'] ?? null;
-                $existing = null;
-                
-                if ($originalMemId) {
-                    $existing = db()->fetchOne(
-                        "SELECT id FROM cv_variant_memberships WHERE cv_variant_id = ? AND (original_membership_id = ? OR id = ?)",
-                        [$variantId, $originalMemId, $originalMemId]
-                    );
-                }
-                
-                $memData = [
+                $memId = generateUuid();
+                db()->insert('cv_variant_memberships', [
+                    'id' => $memId,
+                    'cv_variant_id' => $variantId,
+                    'original_membership_id' => $mem['original_membership_id'] ?? $mem['id'] ?? null,
                     'organisation' => sanitizeInput($mem['organisation'] ?? ''),
                     'role' => sanitizeInput($mem['role'] ?? null),
                     'start_date' => $mem['start_date'] ?? date('Y-m-d'),
                     'end_date' => !empty($mem['end_date']) ? $mem['end_date'] : null,
+                    'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s')
-                ];
-                
-                if ($existing) {
-                    // Update existing membership
-                    db()->update('cv_variant_memberships', $memData, 'id = ?', [$existing['id']]);
-                    $memId = $existing['id'];
-                } else {
-                    // Insert new membership - always generate new UUID to avoid duplicate key conflicts
-                    $memId = generateUuid();
-                    $memData['id'] = $memId;
-                    $memData['cv_variant_id'] = $variantId;
-                    $memData['original_membership_id'] = $mem['original_membership_id'] ?? null;
-                    $memData['created_at'] = date('Y-m-d H:i:s');
-                    db()->insert('cv_variant_memberships', $memData);
-                }
+                ]);
             }
         }
         
@@ -821,45 +877,25 @@ function saveCvVariantData($variantId, $cvData) {
             }
         }
         
-        // Save qualification equivalence
+        // Save qualification equivalence (replace-all: delete then insert to avoid duplicates)
         if (isset($cvData['qualification_equivalence']) && is_array($cvData['qualification_equivalence'])) {
+            $existingQuals = db()->fetchAll("SELECT id FROM cv_variant_qualification_equivalence WHERE cv_variant_id = ?", [$variantId]);
+            foreach ($existingQuals as $eq) {
+                db()->query("DELETE FROM cv_variant_supporting_evidence WHERE qualification_equivalence_id = ?", [$eq['id']]);
+            }
+            db()->query("DELETE FROM cv_variant_qualification_equivalence WHERE cv_variant_id = ?", [$variantId]);
             foreach ($cvData['qualification_equivalence'] as $qual) {
-                // Check if qualification already exists for this variant by matching on original_qualification_id or provided ID
-                $originalQualId = $qual['original_qualification_id'] ?? $qual['id'] ?? null;
-                $existing = null;
-                
-                if ($originalQualId) {
-                    $existing = db()->fetchOne(
-                        "SELECT id FROM cv_variant_qualification_equivalence WHERE cv_variant_id = ? AND (original_qualification_id = ? OR id = ?)",
-                        [$variantId, $originalQualId, $originalQualId]
-                    );
-                }
-                
-                $qualData = [
+                $qualId = generateUuid();
+                db()->insert('cv_variant_qualification_equivalence', [
+                    'id' => $qualId,
+                    'cv_variant_id' => $variantId,
+                    'original_qualification_id' => $qual['original_qualification_id'] ?? $qual['id'] ?? null,
                     'level' => sanitizeInput($qual['level'] ?? ''),
                     'description' => sanitizeInput($qual['description'] ?? null),
+                    'created_at' => date('Y-m-d H:i:s'),
                     'updated_at' => date('Y-m-d H:i:s')
-                ];
-                
-                if ($existing) {
-                    // Update existing qualification
-                    db()->update('cv_variant_qualification_equivalence', $qualData, 'id = ?', [$existing['id']]);
-                    $qualId = $existing['id'];
-                } else {
-                    // Insert new qualification - always generate new UUID to avoid duplicate key conflicts
-                    $qualId = generateUuid();
-                    $qualData['id'] = $qualId;
-                    $qualData['cv_variant_id'] = $variantId;
-                    $qualData['original_qualification_id'] = $qual['original_qualification_id'] ?? null;
-                    $qualData['created_at'] = date('Y-m-d H:i:s');
-                    db()->insert('cv_variant_qualification_equivalence', $qualData);
-                }
-                
-                // Save supporting evidence
+                ]);
                 if (isset($qual['evidence']) && is_array($qual['evidence'])) {
-                    // Delete existing
-                    db()->query("DELETE FROM cv_variant_supporting_evidence WHERE qualification_equivalence_id = ?", [$qualId]);
-                    
                     foreach ($qual['evidence'] as $index => $evidence) {
                         db()->insert('cv_variant_supporting_evidence', [
                             'id' => generateUuid(),

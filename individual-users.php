@@ -206,8 +206,11 @@ require_once __DIR__ . '/php/helpers.php';
                                 <p class="text-gray-700 text-lg leading-relaxed mb-4">
                                     Everything is organised and searchable. View statistics about your job search: applications submitted, success rates, and process stages. No more scrambling to find application details or remember which jobs you've applied to.
                                 </p>
+                                <p class="text-gray-700 text-lg leading-relaxed mb-4">
+                                    It's all integrated with your CV. Access, share, or update your CV while tracking applications—no switching between tools. From any job (in the content editor under Manage Jobs), you can click <strong>Generate AI CV for this job</strong> to create a tailored CV in one click, or <strong>Tailor CV for this job…</strong> to choose which sections to tailor. Variants are linked to the job so you always know which CV was used for which application.
+                                </p>
                                 <p class="text-gray-700 text-lg leading-relaxed">
-                                    It's all integrated with your CV. Access, share, or update your CV while tracking applications—no switching between tools. This integration is included with every account, even the free one.
+                                    This integration is included with every account, even the free one.
                                 </p>
                             </div>
                             <div class="bg-gray-100 rounded-lg p-8 flex items-center justify-center">

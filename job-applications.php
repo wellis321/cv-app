@@ -8,6 +8,20 @@ require_once __DIR__ . '/php/helpers.php';
 
 requireAuth();
 
+// Redirect to content editor with jobs section (unless redirect=false)
+if (get('redirect') !== 'false') {
+    $flash = getFlash('error');
+    $successFlash = getFlash('success');
+    if ($flash) {
+        setFlash('error', $flash);
+    }
+    if ($successFlash) {
+        setFlash('success', $successFlash);
+    }
+    redirect('/content-editor.php#jobs');
+    exit;
+}
+
 $user = getCurrentUser();
 $error = getFlash('error');
 $success = getFlash('success');
@@ -47,6 +61,9 @@ $stats = getJobApplicationStats();
         .status-rejected { background-color: #fee2e2; color: #991b1b; }
         .status-withdrawn { background-color: #f3f4f6; color: #374151; }
         .status-in_progress { background-color: #fed7aa; color: #9a3412; }
+        .job-description-view-content table { border-collapse: collapse; width: 100%; margin: 0.75rem 0; }
+        .job-description-view-content td, .job-description-view-content th { border: 1px solid #d1d5db; padding: 0.375rem 0.5rem; text-align: left; vertical-align: top; }
+        .job-description-view-content th { background: #f3f4f6; font-weight: 600; }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -137,10 +154,13 @@ $stats = getJobApplicationStats();
                     <div class="ml-3 flex-1">
                         <h3 class="text-base font-semibold text-gray-900 mb-1">AI-Powered CV Tools</h3>
                         <p class="text-sm text-gray-700 mb-3">
-                            Upload job description files (PDF, Word, Excel) directly to your applications - the AI will automatically read them when generating CV variants. Or generate a job-specific CV automatically and assess your CV quality. Click "Generate AI CV" or "Assess CV Quality" on any job application to get started.
+                            Upload job description files (PDF, Word, Excel) directly to your applications—the AI will read them when generating CV variants. From the <a href="/content-editor.php#jobs" class="text-purple-600 hover:underline">content editor</a>, open a job and use <strong>Generate AI CV for this job</strong> (one-click) or <strong>Tailor CV for this job…</strong> to choose sections. Here, click &ldquo;Generate AI CV&rdquo; or &ldquo;Assess CV Quality&rdquo; on any job to get started.
                         </p>
                         <div class="flex flex-wrap gap-2">
-                            <a href="/cv-variants.php" class="inline-flex items-center px-3 py-1.5 bg-purple-600 text-white text-xs font-medium rounded-lg hover:bg-purple-700 transition-colors">
+                            <a href="/content-editor.php#jobs" class="inline-flex items-center px-3 py-1.5 border border-gray-300 text-gray-700 text-xs font-medium rounded-lg hover:bg-gray-50 transition-colors">
+                                Manage Jobs in Editor
+                            </a>
+                            <a href="/content-editor.php#cv-variants" class="inline-flex items-center px-3 py-1.5 bg-purple-600 text-white text-xs font-medium rounded-lg hover:bg-purple-700 transition-colors">
                                 View CV Variants
                             </a>
                             <a href="/cv-variants/rewrite.php" class="inline-flex items-center px-3 py-1.5 border border-purple-600 text-purple-600 text-xs font-medium rounded-lg hover:bg-purple-50 transition-colors">
@@ -798,14 +818,12 @@ $stats = getJobApplicationStats();
                 
                 html += '</div>';
                 
-                // Job Description
+                // Job Description (render as HTML so tables from Word extraction display correctly)
                 if (app.job_description) {
                     html += `
                         <div class="mb-6">
                             <h4 class="text-lg font-semibold text-gray-900 mb-3">Job Description</h4>
-                            <div class="bg-gray-50 rounded-lg p-4 prose max-w-none">
-                                <p class="text-base text-gray-700 whitespace-pre-wrap">${this.decodeHtmlEntities(app.job_description)}</p>
-                            </div>
+                            <div class="bg-gray-50 rounded-lg p-4 prose max-w-none text-base text-gray-700 job-description-view-content" id="view-job-description-${this.escapeHtml(app.id)}"></div>
                         </div>
                     `;
                 }
@@ -905,7 +923,7 @@ $stats = getJobApplicationStats();
                                     </svg>
                                     Assess CV Quality
                                 </button>
-                                <a href="/cv-variants.php" 
+                                <a href="/content-editor.php#cv-variants" 
                                    class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -918,6 +936,11 @@ $stats = getJobApplicationStats();
                 }
                 
                 content.innerHTML = html;
+                // Render job description as HTML (tables from Word extraction)
+                if (app.job_description) {
+                    const descEl = content.querySelector('#view-job-description-' + app.id);
+                    if (descEl) descEl.innerHTML = app.job_description;
+                }
                 modal.classList.remove('hidden');
             },
             
@@ -1073,7 +1096,7 @@ $stats = getJobApplicationStats();
                     
                     if (result.success) {
                         alert('CV generated successfully! Redirecting to CV variants...');
-                        window.location.href = '/cv-variants.php';
+                        window.location.href = '/content-editor.php#cv-variants';
                     } else {
                         alert('Error: ' + (result.error || 'Failed to generate CV'));
                     }

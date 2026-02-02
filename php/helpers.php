@@ -117,6 +117,21 @@ function partial($template, $data = []) {
 } // End function_exists check
 
 /**
+ * Sanitise job description for safe HTML output (allows tables from Word extraction).
+ * Strips all tags except table, tr, td, th, tbody, thead, p, br; removes attributes to prevent XSS.
+ */
+if (!function_exists('jobDescriptionHtml')) {
+function jobDescriptionHtml($html) {
+    if ($html === null || $html === '') return '';
+    $html = html_entity_decode($html, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    $allowed = '<table><tbody><thead><tr><td><th><p><br>';
+    $html = strip_tags($html, $allowed);
+    $html = preg_replace('/<\s*(\w+)\s+[^>]*>/', '<$1>', $html);
+    return $html;
+}
+}
+
+/**
  * Get flash message
  */
 if (!function_exists('getFlash')) {
@@ -161,15 +176,15 @@ function layout($layout, $content, $data = []) {
 if (!function_exists('getCvSections')) {
 function getCvSections() {
     return [
-        ['id' => 'professional-summary', 'name' => 'Professional Summary', 'path' => '/professional-summary.php'],
-        ['id' => 'work-experience', 'name' => 'Work Experience', 'path' => '/work-experience.php'],
-        ['id' => 'education', 'name' => 'Education', 'path' => '/education.php'],
-        ['id' => 'projects', 'name' => 'Projects', 'path' => '/projects.php'],
-        ['id' => 'skills', 'name' => 'Skills', 'path' => '/skills.php'],
-        ['id' => 'certifications', 'name' => 'Certifications', 'path' => '/certifications.php'],
-        ['id' => 'qualification-equivalence', 'name' => 'Professional Qualification Equivalence', 'path' => '/qualification-equivalence.php'],
-        ['id' => 'memberships', 'name' => 'Professional Memberships', 'path' => '/memberships.php'],
-        ['id' => 'interests', 'name' => 'Interests & Activities', 'path' => '/interests.php'],
+        ['id' => 'professional-summary', 'name' => 'Professional Summary', 'path' => '/content-editor.php#professional-summary'],
+        ['id' => 'work-experience', 'name' => 'Work Experience', 'path' => '/content-editor.php#work-experience'],
+        ['id' => 'education', 'name' => 'Education', 'path' => '/content-editor.php#education'],
+        ['id' => 'projects', 'name' => 'Projects', 'path' => '/content-editor.php#projects'],
+        ['id' => 'skills', 'name' => 'Skills', 'path' => '/content-editor.php#skills'],
+        ['id' => 'certifications', 'name' => 'Certifications', 'path' => '/content-editor.php#certifications'],
+        ['id' => 'qualification-equivalence', 'name' => 'Professional Qualification Equivalence', 'path' => '/content-editor.php#qualification-equivalence'],
+        ['id' => 'memberships', 'name' => 'Professional Memberships', 'path' => '/content-editor.php#memberships'],
+        ['id' => 'interests', 'name' => 'Interests & Activities', 'path' => '/content-editor.php#interests'],
     ];
 }
 } // End function_exists check

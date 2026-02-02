@@ -25,6 +25,18 @@ if (!isLoggedIn()) {
 }
 
 $userId = getUserId();
+$variantId = $_GET['variant_id'] ?? $_POST['variant_id'] ?? null;
+
+// Helper: verify ownership when using variant tables
+$isVariantContext = !empty($variantId);
+if ($isVariantContext) {
+    $variant = db()->fetchOne("SELECT id FROM cv_variants WHERE id = ? AND user_id = ?", [$variantId, $userId]);
+    if (!$variant) {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'Invalid variant']);
+        exit;
+    }
+}
 
 // Handle GET requests (for fetching categories)
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -32,33 +44,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $action = $_GET['action'] ?? '';
 
     if ($action === 'get' && !empty($workExperienceId)) {
-        // Verify work experience belongs to user
-        $workExp = db()->fetchOne(
-            "SELECT id FROM work_experience WHERE id = ? AND profile_id = ?",
-            [$workExperienceId, $userId]
-        );
-
-        if (!$workExp) {
-            http_response_code(403);
-            echo json_encode(['success' => false, 'error' => 'Invalid work experience']);
-            exit;
-        }
-
-        // Get all categories
-        $categories = db()->fetchAll(
-            "SELECT * FROM responsibility_categories WHERE work_experience_id = ? ORDER BY sort_order ASC",
-            [$workExperienceId]
-        );
-
-        // Get all items for these categories
-        $categoryIds = array_column($categories, 'id');
-        $items = [];
-        if (!empty($categoryIds)) {
-            $placeholders = implode(',', array_fill(0, count($categoryIds), '?'));
-            $items = db()->fetchAll(
-                "SELECT * FROM responsibility_items WHERE category_id IN ($placeholders) ORDER BY sort_order ASC",
-                $categoryIds
+        if ($isVariantContext) {
+            // Variant: work_experience_id is cv_variant_work_experience.id; ownership already verified via variant
+            $workExp = db()->fetchOne(
+                "SELECT w.id FROM cv_variant_work_experience w
+                 JOIN cv_variants v ON w.cv_variant_id = v.id
+                 WHERE w.id = ? AND v.user_id = ?",
+                [$workExperienceId, $userId]
             );
+            if (!$workExp) {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'error' => 'Invalid work experience']);
+                exit;
+            }
+            $categories = db()->fetchAll(
+                "SELECT * FROM cv_variant_responsibility_categories WHERE work_experience_id = ? ORDER BY sort_order ASC",
+                [$workExperienceId]
+            );
+            $categoryIds = array_column($categories, 'id');
+            $items = [];
+            if (!empty($categoryIds)) {
+                $placeholders = implode(',', array_fill(0, count($categoryIds), '?'));
+                $items = db()->fetchAll(
+                    "SELECT * FROM cv_variant_responsibility_items WHERE category_id IN ($placeholders) ORDER BY sort_order ASC",
+                    $categoryIds
+                );
+            }
+        } else {
+            // Master: work_experience table
+            $workExp = db()->fetchOne(
+                "SELECT id FROM work_experience WHERE id = ? AND profile_id = ?",
+                [$workExperienceId, $userId]
+            );
+            if (!$workExp) {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'error' => 'Invalid work experience']);
+                exit;
+            }
+            $categories = db()->fetchAll(
+                "SELECT * FROM responsibility_categories WHERE work_experience_id = ? ORDER BY sort_order ASC",
+                [$workExperienceId]
+            );
+            $categoryIds = array_column($categories, 'id');
+            $items = [];
+            if (!empty($categoryIds)) {
+                $placeholders = implode(',', array_fill(0, count($categoryIds), '?'));
+                $items = db()->fetchAll(
+                    "SELECT * FROM responsibility_items WHERE category_id IN ($placeholders) ORDER BY sort_order ASC",
+                    $categoryIds
+                );
+            }
         }
 
         // Group items by category
@@ -66,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $category['items'] = array_filter($items, function($item) use ($category) {
                 return $item['category_id'] === $category['id'];
             });
-            $category['items'] = array_values($category['items']); // Re-index array
+            $category['items'] = array_values($category['items']);
         }
         unset($category);
 
@@ -107,33 +142,55 @@ try {
             exit;
         }
 
-        // Verify work experience belongs to user
-        $workExp = db()->fetchOne(
-            "SELECT id FROM work_experience WHERE id = ? AND profile_id = ?",
-            [$workExperienceId, $userId]
-        );
-
-        if (!$workExp) {
-            http_response_code(403);
-            echo json_encode(['success' => false, 'error' => 'Invalid work experience']);
-            exit;
+        if ($isVariantContext) {
+            $workExp = db()->fetchOne(
+                "SELECT w.id FROM cv_variant_work_experience w
+                 JOIN cv_variants v ON w.cv_variant_id = v.id
+                 WHERE w.id = ? AND v.user_id = ?",
+                [$workExperienceId, $userId]
+            );
+            if (!$workExp) {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'error' => 'Invalid work experience']);
+                exit;
+            }
+            $maxOrder = db()->fetchOne(
+                "SELECT MAX(sort_order) as max_order FROM cv_variant_responsibility_categories WHERE work_experience_id = ?",
+                [$workExperienceId]
+            );
+            $nextOrder = ($maxOrder && $maxOrder['max_order'] !== null) ? (int)$maxOrder['max_order'] + 1 : 0;
+            $categoryId = generateUuid();
+            db()->insert('cv_variant_responsibility_categories', [
+                'id' => $categoryId,
+                'work_experience_id' => $workExperienceId,
+                'name' => sanitizeInput($name),
+                'sort_order' => $nextOrder,
+                'created_at' => date('Y-m-d H:i:s')
+            ]);
+        } else {
+            $workExp = db()->fetchOne(
+                "SELECT id FROM work_experience WHERE id = ? AND profile_id = ?",
+                [$workExperienceId, $userId]
+            );
+            if (!$workExp) {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'error' => 'Invalid work experience']);
+                exit;
+            }
+            $maxOrder = db()->fetchOne(
+                "SELECT MAX(sort_order) as max_order FROM responsibility_categories WHERE work_experience_id = ?",
+                [$workExperienceId]
+            );
+            $nextOrder = ($maxOrder && $maxOrder['max_order'] !== null) ? (int)$maxOrder['max_order'] + 1 : 0;
+            $categoryId = generateUuid();
+            db()->insert('responsibility_categories', [
+                'id' => $categoryId,
+                'work_experience_id' => $workExperienceId,
+                'name' => sanitizeInput($name),
+                'sort_order' => $nextOrder,
+                'created_at' => date('Y-m-d H:i:s')
+            ]);
         }
-
-        // Get highest sort_order
-        $maxOrder = db()->fetchOne(
-            "SELECT MAX(sort_order) as max_order FROM responsibility_categories WHERE work_experience_id = ?",
-            [$workExperienceId]
-        );
-        $nextOrder = ($maxOrder && $maxOrder['max_order'] !== null) ? (int)$maxOrder['max_order'] + 1 : 0;
-
-        $categoryId = generateUuid();
-        db()->insert('responsibility_categories', [
-            'id' => $categoryId,
-            'work_experience_id' => $workExperienceId,
-            'name' => sanitizeInput($name),
-            'sort_order' => $nextOrder,
-            'created_at' => date('Y-m-d H:i:s')
-        ]);
 
         echo json_encode(['success' => true, 'id' => $categoryId]);
     } elseif ($action === 'update_category') {
@@ -146,23 +203,34 @@ try {
             exit;
         }
 
-        // Verify category belongs to user's work experience
-        $category = db()->fetchOne(
-            "SELECT rc.id FROM responsibility_categories rc
-             JOIN work_experience we ON rc.work_experience_id = we.id
-             WHERE rc.id = ? AND we.profile_id = ?",
-            [$categoryId, $userId]
-        );
-
-        if (!$category) {
-            http_response_code(403);
-            echo json_encode(['success' => false, 'error' => 'Invalid category']);
-            exit;
+        if ($isVariantContext) {
+            $category = db()->fetchOne(
+                "SELECT rc.id FROM cv_variant_responsibility_categories rc
+                 JOIN cv_variant_work_experience w ON rc.work_experience_id = w.id
+                 JOIN cv_variants v ON w.cv_variant_id = v.id
+                 WHERE rc.id = ? AND v.user_id = ?",
+                [$categoryId, $userId]
+            );
+            if (!$category) {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'error' => 'Invalid category']);
+                exit;
+            }
+            db()->update('cv_variant_responsibility_categories', ['name' => sanitizeInput($name)], 'id = ?', [$categoryId]);
+        } else {
+            $category = db()->fetchOne(
+                "SELECT rc.id FROM responsibility_categories rc
+                 JOIN work_experience we ON rc.work_experience_id = we.id
+                 WHERE rc.id = ? AND we.profile_id = ?",
+                [$categoryId, $userId]
+            );
+            if (!$category) {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'error' => 'Invalid category']);
+                exit;
+            }
+            db()->update('responsibility_categories', ['name' => sanitizeInput($name)], 'id = ?', [$categoryId]);
         }
-
-        db()->update('responsibility_categories', [
-            'name' => sanitizeInput($name)
-        ], 'id = ?', [$categoryId]);
 
         echo json_encode(['success' => true]);
     } elseif ($action === 'delete_category') {
@@ -174,22 +242,34 @@ try {
             exit;
         }
 
-        // Verify category belongs to user's work experience
-        $category = db()->fetchOne(
-            "SELECT rc.id FROM responsibility_categories rc
-             JOIN work_experience we ON rc.work_experience_id = we.id
-             WHERE rc.id = ? AND we.profile_id = ?",
-            [$categoryId, $userId]
-        );
-
-        if (!$category) {
-            http_response_code(403);
-            echo json_encode(['success' => false, 'error' => 'Invalid category']);
-            exit;
+        if ($isVariantContext) {
+            $category = db()->fetchOne(
+                "SELECT rc.id FROM cv_variant_responsibility_categories rc
+                 JOIN cv_variant_work_experience w ON rc.work_experience_id = w.id
+                 JOIN cv_variants v ON w.cv_variant_id = v.id
+                 WHERE rc.id = ? AND v.user_id = ?",
+                [$categoryId, $userId]
+            );
+            if (!$category) {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'error' => 'Invalid category']);
+                exit;
+            }
+            db()->delete('cv_variant_responsibility_categories', 'id = ?', [$categoryId]);
+        } else {
+            $category = db()->fetchOne(
+                "SELECT rc.id FROM responsibility_categories rc
+                 JOIN work_experience we ON rc.work_experience_id = we.id
+                 WHERE rc.id = ? AND we.profile_id = ?",
+                [$categoryId, $userId]
+            );
+            if (!$category) {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'error' => 'Invalid category']);
+                exit;
+            }
+            db()->delete('responsibility_categories', 'id = ?', [$categoryId]);
         }
-
-        // Delete category (items will be deleted via CASCADE)
-        db()->delete('responsibility_categories', 'id = ?', [$categoryId]);
 
         echo json_encode(['success' => true]);
     } elseif ($action === 'add_item') {
@@ -202,35 +282,58 @@ try {
             exit;
         }
 
-        // Verify category belongs to user's work experience
-        $category = db()->fetchOne(
-            "SELECT rc.id FROM responsibility_categories rc
-             JOIN work_experience we ON rc.work_experience_id = we.id
-             WHERE rc.id = ? AND we.profile_id = ?",
-            [$categoryId, $userId]
-        );
-
-        if (!$category) {
-            http_response_code(403);
-            echo json_encode(['success' => false, 'error' => 'Invalid category']);
-            exit;
+        if ($isVariantContext) {
+            $category = db()->fetchOne(
+                "SELECT rc.id FROM cv_variant_responsibility_categories rc
+                 JOIN cv_variant_work_experience w ON rc.work_experience_id = w.id
+                 JOIN cv_variants v ON w.cv_variant_id = v.id
+                 WHERE rc.id = ? AND v.user_id = ?",
+                [$categoryId, $userId]
+            );
+            if (!$category) {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'error' => 'Invalid category']);
+                exit;
+            }
+            $maxOrder = db()->fetchOne(
+                "SELECT MAX(sort_order) as max_order FROM cv_variant_responsibility_items WHERE category_id = ?",
+                [$categoryId]
+            );
+            $nextOrder = ($maxOrder && $maxOrder['max_order'] !== null) ? (int)$maxOrder['max_order'] + 1 : 0;
+            $itemId = generateUuid();
+            db()->insert('cv_variant_responsibility_items', [
+                'id' => $itemId,
+                'category_id' => $categoryId,
+                'content' => strip_tags(trim($content)),
+                'sort_order' => $nextOrder,
+                'created_at' => date('Y-m-d H:i:s')
+            ]);
+        } else {
+            $category = db()->fetchOne(
+                "SELECT rc.id FROM responsibility_categories rc
+                 JOIN work_experience we ON rc.work_experience_id = we.id
+                 WHERE rc.id = ? AND we.profile_id = ?",
+                [$categoryId, $userId]
+            );
+            if (!$category) {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'error' => 'Invalid category']);
+                exit;
+            }
+            $maxOrder = db()->fetchOne(
+                "SELECT MAX(sort_order) as max_order FROM responsibility_items WHERE category_id = ?",
+                [$categoryId]
+            );
+            $nextOrder = ($maxOrder && $maxOrder['max_order'] !== null) ? (int)$maxOrder['max_order'] + 1 : 0;
+            $itemId = generateUuid();
+            db()->insert('responsibility_items', [
+                'id' => $itemId,
+                'category_id' => $categoryId,
+                'content' => strip_tags(trim($content)),
+                'sort_order' => $nextOrder,
+                'created_at' => date('Y-m-d H:i:s')
+            ]);
         }
-
-        // Get highest sort_order
-        $maxOrder = db()->fetchOne(
-            "SELECT MAX(sort_order) as max_order FROM responsibility_items WHERE category_id = ?",
-            [$categoryId]
-        );
-        $nextOrder = ($maxOrder && $maxOrder['max_order'] !== null) ? (int)$maxOrder['max_order'] + 1 : 0;
-
-        $itemId = generateUuid();
-        db()->insert('responsibility_items', [
-            'id' => $itemId,
-            'category_id' => $categoryId,
-            'content' => strip_tags(trim($content)),
-            'sort_order' => $nextOrder,
-            'created_at' => date('Y-m-d H:i:s')
-        ]);
 
         echo json_encode(['success' => true, 'id' => $itemId]);
     } elseif ($action === 'update_item') {
@@ -243,24 +346,36 @@ try {
             exit;
         }
 
-        // Verify item belongs to user's work experience
-        $item = db()->fetchOne(
-            "SELECT ri.id FROM responsibility_items ri
-             JOIN responsibility_categories rc ON ri.category_id = rc.id
-             JOIN work_experience we ON rc.work_experience_id = we.id
-             WHERE ri.id = ? AND we.profile_id = ?",
-            [$itemId, $userId]
-        );
-
-        if (!$item) {
-            http_response_code(403);
-            echo json_encode(['success' => false, 'error' => 'Invalid item']);
-            exit;
+        if ($isVariantContext) {
+            $item = db()->fetchOne(
+                "SELECT ri.id FROM cv_variant_responsibility_items ri
+                 JOIN cv_variant_responsibility_categories rc ON ri.category_id = rc.id
+                 JOIN cv_variant_work_experience w ON rc.work_experience_id = w.id
+                 JOIN cv_variants v ON w.cv_variant_id = v.id
+                 WHERE ri.id = ? AND v.user_id = ?",
+                [$itemId, $userId]
+            );
+            if (!$item) {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'error' => 'Invalid item']);
+                exit;
+            }
+            db()->update('cv_variant_responsibility_items', ['content' => strip_tags(trim($content))], 'id = ?', [$itemId]);
+        } else {
+            $item = db()->fetchOne(
+                "SELECT ri.id FROM responsibility_items ri
+                 JOIN responsibility_categories rc ON ri.category_id = rc.id
+                 JOIN work_experience we ON rc.work_experience_id = we.id
+                 WHERE ri.id = ? AND we.profile_id = ?",
+                [$itemId, $userId]
+            );
+            if (!$item) {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'error' => 'Invalid item']);
+                exit;
+            }
+            db()->update('responsibility_items', ['content' => strip_tags(trim($content))], 'id = ?', [$itemId]);
         }
-
-        db()->update('responsibility_items', [
-            'content' => strip_tags(trim($content))
-        ], 'id = ?', [$itemId]);
 
         echo json_encode(['success' => true]);
     } elseif ($action === 'delete_item') {
@@ -272,22 +387,36 @@ try {
             exit;
         }
 
-        // Verify item belongs to user's work experience
-        $item = db()->fetchOne(
-            "SELECT ri.id FROM responsibility_items ri
-             JOIN responsibility_categories rc ON ri.category_id = rc.id
-             JOIN work_experience we ON rc.work_experience_id = we.id
-             WHERE ri.id = ? AND we.profile_id = ?",
-            [$itemId, $userId]
-        );
-
-        if (!$item) {
-            http_response_code(403);
-            echo json_encode(['success' => false, 'error' => 'Invalid item']);
-            exit;
+        if ($isVariantContext) {
+            $item = db()->fetchOne(
+                "SELECT ri.id FROM cv_variant_responsibility_items ri
+                 JOIN cv_variant_responsibility_categories rc ON ri.category_id = rc.id
+                 JOIN cv_variant_work_experience w ON rc.work_experience_id = w.id
+                 JOIN cv_variants v ON w.cv_variant_id = v.id
+                 WHERE ri.id = ? AND v.user_id = ?",
+                [$itemId, $userId]
+            );
+            if (!$item) {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'error' => 'Invalid item']);
+                exit;
+            }
+            db()->delete('cv_variant_responsibility_items', 'id = ?', [$itemId]);
+        } else {
+            $item = db()->fetchOne(
+                "SELECT ri.id FROM responsibility_items ri
+                 JOIN responsibility_categories rc ON ri.category_id = rc.id
+                 JOIN work_experience we ON rc.work_experience_id = we.id
+                 WHERE ri.id = ? AND we.profile_id = ?",
+                [$itemId, $userId]
+            );
+            if (!$item) {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'error' => 'Invalid item']);
+                exit;
+            }
+            db()->delete('responsibility_items', 'id = ?', [$itemId]);
         }
-
-        db()->delete('responsibility_items', 'id = ?', [$itemId]);
 
         echo json_encode(['success' => true]);
     } else {

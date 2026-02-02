@@ -20,8 +20,9 @@ Generate job-specific CV variants automatically by analyzing job descriptions an
 - You can review, edit, and customise the AI-generated content
 
 **Access:**
+- **From the job view (recommended):** In the content editor (Build My CV), open Manage Jobs, then open a job. Use **Generate AI CV for this job** for a one-click tailored CV (you stay in the editor), or **Tailor CV for this job…** to open the full form with that job pre-selected and choose which sections to tailor.
 - From Job Applications page: Click "Generate AI CV" button on any job application
-- From CV Variants page: Click "Generate AI CV" button
+- From CV Variants page: Click "Generate AI CV" or "Create New CV with AI" button
 - Direct URL: `/cv-variants/rewrite.php`
 
 **Benefits:**
@@ -57,18 +58,22 @@ Create and manage multiple versions of your CV for different job applications.
 
 **Features:**
 - **Master CV**: Your main CV that serves as the base for all variants
-- **Job-Specific Variants**: Tailored CVs linked to specific job applications
+- **Job-Specific Variants**: Tailored CVs linked to specific job applications (shown with a "Linked" badge when linked)
 - **AI-Generated Variants**: CVs created using AI rewriting
 - **Custom Variants**: Manually created CV versions
 
+**Recommended flow:** Complete your CV sections → add job applications → then generate a CV variant for each job. From a job view, use **Generate AI CV for this job** (one-click) or **Tailor CV for this job…** (opens form with job pre-selected) so you stay in the content editor.
+
 **Management:**
-- View all variants in one place
+- View all variants in one place (content editor: CV Variants panel, or standalone `/cv-variants.php`)
+- Variants linked to jobs show job title and "Linked" badge; click the job to open it
 - Rename variants for easy identification
 - Delete variants you no longer need
 - Edit any variant like a normal CV
 - View variants in full CV format
 
 **Access:**
+- Content editor: Build My CV → CV Variants (or open a job → "Tailor CV for this job…")
 - Direct URL: `/cv-variants.php`
 - Linked from Job Applications page
 
@@ -138,6 +143,21 @@ The system supports multiple AI providers:
 - Optional: `cv_variant_id`, `job_application_id`
 - Returns: Assessment with scores and recommendations
 
+## Generating from the Job View (Content Editor)
+
+The smoothest way to create a job-specific CV is from the job itself, without leaving the content editor.
+
+1. **Open the content editor** (Build My CV from your dashboard).
+2. **Go to Manage Jobs** in the left-hand navigation and open the job you want to tailor for.
+3. On the job view you will see:
+   - **Generate AI CV for this job** — Creates a new tailored variant in one click. When done, you stay in the content editor and are taken to the CV Variants list so you can see the new variant.
+   - **Tailor CV for this job…** — Opens the full "Generate AI CV" form with this job already selected. Use this when you want to choose which sections to tailor, pick a different source CV, or adjust options before generating.
+4. If you use "Tailor CV for this job…", the job application dropdown and job description are pre-filled; you can then choose sections and submit.
+
+Variants created from a job are **linked** to that job. In the CV Variants list, linked variants show a green "Linked" badge and the job title; you can click the job to open it.
+
+**Recommended order for new users:** Complete your CV sections → add job applications → open a job → use "Generate AI CV for this job" or "Tailor CV for this job…" to create your first variant. The dashboard shows a "Getting started" hint when you have no jobs or no variants.
+
 ## User Guide
 
 ### Creating Your First AI CV
@@ -147,21 +167,22 @@ The system supports multiple AI providers:
    - The AI uses this as the base for rewriting
 
 2. **Find a job application**
-   - Add a job application in the Job Applications tracker
+   - Add a job application in the Job Applications tracker (or via Manage Jobs in the content editor)
    - Include the full job description in the "Job Description" field
    - **Or upload a job description file** (PDF, Word, Excel) - the AI will automatically read it
 
 3. **Generate AI CV**
-   - Open the job application
-   - Click "Generate AI CV" button
-   - The AI will use uploaded files if available, or the text in the job description field
-   - Wait for AI processing (may take 30-60 seconds)
-   - Review the generated variant
+   - **Easiest (content editor):** Open Build My CV → Manage Jobs → open the job. Click **Generate AI CV for this job** for a one-click variant (you stay in the editor and see the new variant in CV Variants), or **Tailor CV for this job…** to open the full form with that job pre-selected and choose sections.
+   - **Or:** Open the job on the standalone Job Applications page and click "Generate AI CV".
+   - **Or:** Go to CV Variants and click "Create New CV with AI", then select a job from the dropdown.
+   - The AI will use uploaded files if available, or the text in the job description field.
+   - Wait for AI processing (may take 30-60 seconds).
+   - Review the generated variant.
 
 4. **Review and edit**
    - Check the AI-generated content
    - Make any necessary edits
-   - The variant is saved and linked to the job application
+   - The variant is saved and linked to the job application (shown with a "Linked" badge in CV Variants)
 
 ### Assessing CV Quality
 

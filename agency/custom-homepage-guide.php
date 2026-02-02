@@ -393,7 +393,7 @@ $canonicalUrl = APP_URL . '/agency/custom-homepage-guide.php';
                 
                 <div class="space-y-4 text-gray-700">
                     <div>
-                        <h3 class="text-lg font-semibold text-gray-900 mb-2">✓ Do's</h3>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2 flex items-center gap-1.5"><svg class="w-5 h-5 flex-shrink-0 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Do's</h3>
                         <ul class="list-disc list-inside space-y-1 ml-4">
                             <li>Test your homepage on different screen sizes (mobile, tablet, desktop)</li>
                             <li>Use placeholders to keep content dynamic</li>
@@ -405,7 +405,7 @@ $canonicalUrl = APP_URL . '/agency/custom-homepage-guide.php';
                     </div>
 
                     <div>
-                        <h3 class="text-lg font-semibold text-gray-900 mb-2">✗ Don'ts</h3>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2 flex items-center gap-1.5"><svg class="w-5 h-5 flex-shrink-0 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>Don'ts</h3>
                         <ul class="list-disc list-inside space-y-1 ml-4">
                             <li>Don't include <code class="bg-gray-100 px-1 py-0.5 rounded text-xs">&lt;html&gt;</code>, <code class="bg-gray-100 px-1 py-0.5 rounded text-xs">&lt;head&gt;</code>, or <code class="bg-gray-100 px-1 py-0.5 rounded text-xs">&lt;body&gt;</code> tags</li>
                             <li>Don't use inline JavaScript or external scripts (security restrictions)</li>

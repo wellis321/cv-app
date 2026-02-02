@@ -26,6 +26,7 @@
                     <li><a href="/organisations.php" class="text-gray-600 hover:text-blue-600">For Organisations</a></li>
                     <li><a href="/individual-users.php" class="text-gray-600 hover:text-blue-600">For Individuals</a></li>
                     <li><a href="/faq.php" class="text-gray-600 hover:text-blue-600">FAQ</a></li>
+                    <li><a href="/browser-ai-check.php" class="text-gray-600 hover:text-blue-600">Browser AI Check</a></li>
                     <li><a href="/job-applications-features.php" class="text-green-600 hover:text-green-700 font-medium">Job Application Tracker</a></li>
                     <li><a href="/privacy.php" class="text-gray-600 hover:text-blue-600">Privacy Policy</a></li>
                     <li><a href="/terms.php" class="text-gray-600 hover:text-blue-600">Terms of Service</a></li>

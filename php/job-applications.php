@@ -80,6 +80,8 @@ function getUserJobApplications($userId = null, $filters = []) {
             'notes' => $row['notes'],
             'next_follow_up' => $row['next_follow_up'],
             'had_interview' => (bool)$row['had_interview'],
+            'extracted_keywords' => $row['extracted_keywords'] ?? null,
+            'selected_keywords' => $row['selected_keywords'] ?? null,
             'created_at' => $row['created_at'],
             'updated_at' => $row['updated_at']
         ];
@@ -163,6 +165,8 @@ function getJobApplication($applicationId, $userId = null) {
         'notes' => $row['notes'],
         'next_follow_up' => $row['next_follow_up'],
         'had_interview' => (bool)$row['had_interview'],
+        'extracted_keywords' => $row['extracted_keywords'] ?? null,
+        'selected_keywords' => $row['selected_keywords'] ?? null,
         'created_at' => $row['created_at'],
         'updated_at' => $row['updated_at']
     ];
@@ -219,7 +223,7 @@ function createJobApplication($data, $userId = null) {
             'user_id' => $userId,
             'company_name' => sanitizeInput($data['company_name']),
             'job_title' => sanitizeInput($data['job_title']),
-            'job_description' => sanitizeInput($data['job_description'] ?? null),
+            'job_description' => prepareJobDescriptionForStorage($data['job_description'] ?? null),
             'application_date' => $applicationDate,
             'status' => $status,
             'salary_range' => sanitizeInput($data['salary_range'] ?? null),
@@ -307,6 +311,8 @@ function updateJobApplication($applicationId, $data, $userId = null) {
                 $updateData[$field] = $data[$field] ? 1 : 0;
             } elseif ($field === 'application_date' || $field === 'next_follow_up') {
                 $updateData[$field] = !empty($data[$field]) ? $data[$field] : null;
+            } elseif ($field === 'job_description') {
+                $updateData[$field] = prepareJobDescriptionForStorage($data[$field]);
             } else {
                 $updateData[$field] = sanitizeInput($data[$field]);
             }
@@ -517,7 +523,7 @@ function extractJobApplicationFileText($fileId, $userId = null) {
         return ['success' => false, 'error' => 'File not found on disk'];
     }
     
-    return extractDocumentText($filePath, $file['mime_type']);
+    return extractDocumentText($filePath, $file['mime_type'] ?? '', $file['original_name'] ?? '');
 }
 
 /**
@@ -541,7 +547,7 @@ function getJobApplicationFilesForAI($applicationId, $userId = null) {
     foreach ($files as $file) {
         $filePath = STORAGE_PATH . '/' . $file['stored_name'];
         if (file_exists($filePath)) {
-            $extractionResult = extractDocumentText($filePath, $file['mime_type']);
+            $extractionResult = extractDocumentText($filePath, $file['mime_type'] ?? '', $file['original_name'] ?? '');
             if ($extractionResult['success'] && !empty($extractionResult['text'])) {
                 $filesWithText[] = [
                     'file' => $file,

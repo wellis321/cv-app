@@ -1,6 +1,10 @@
 <?php
 require_once __DIR__ . '/php/helpers.php';
 requireAuth();
+// Redirect to new content editor
+$editParam = isset($_GET['edit']) ? '&edit=' . urlencode($_GET['edit']) : '';
+redirect('/content-editor.php#projects' . $editParam);
+exit;
 $userId = getUserId();
 $error = getFlash('error');
 $success = getFlash('success');
@@ -500,9 +504,6 @@ if ($editingId) {
         let isUploading = false;
         
         function handleProjectImageUpload(event) {
-            // #region agent log
-            fetch('http://127.0.0.1:7250/ingest/02ed2acd-ae27-46f6-8e5d-0a67a71118e5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'projects.php:499',message:'handleProjectImageUpload called',data:{isUploading:isUploading,fileName:event.target.files[0]?.name},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A1'})}).catch(()=>{});
-            // #endregion
             const file = event.target.files[0];
             if (!file) {
                 return;
@@ -510,9 +511,6 @@ if ($editingId) {
             
             // Prevent multiple simultaneous uploads
             if (isUploading) {
-                // #region agent log
-                fetch('http://127.0.0.1:7250/ingest/02ed2acd-ae27-46f6-8e5d-0a67a71118e5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'projects.php:507',message:'Upload blocked - already in progress',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A1'})}).catch(()=>{});
-                // #endregion
                 showProjectImageStatus('Upload already in progress. Please wait...', 'info');
                 return;
             }
@@ -542,9 +540,6 @@ if ($editingId) {
             isUploading = true;
             showProjectImageStatus('Uploading image...', 'info');
 
-            // #region agent log
-            fetch('http://127.0.0.1:7250/ingest/02ed2acd-ae27-46f6-8e5d-0a67a71118e5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'projects.php:536',message:'Starting fetch upload',data:{fileName:file.name,fileSize:file.size},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A1'})}).catch(()=>{});
-            // #endregion
             fetch('/api/upload-project-image.php', {
                 method: 'POST',
                 body: formData
@@ -564,9 +559,6 @@ if ($editingId) {
                     }
                 })
                 .then((data) => {
-                    // #region agent log
-                    fetch('http://127.0.0.1:7250/ingest/02ed2acd-ae27-46f6-8e5d-0a67a71118e5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'projects.php:520',message:'Upload response received',data:{success:data.success,url:data.url,responsiveCount:data.responsive?Object.keys(data.responsive).length:0},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A1'})}).catch(()=>{});
-                    // #endregion
                     isUploading = false;
                     if (data.success && data.url) {
                         projectImageUrlInput.value = data.url;
@@ -574,9 +566,6 @@ if ($editingId) {
                         // Store responsive versions if available
                         if (projectImageResponsiveInput && data.responsive) {
                             projectImageResponsiveInput.value = JSON.stringify(data.responsive);
-                            // #region agent log
-                            fetch('http://127.0.0.1:7250/ingest/02ed2acd-ae27-46f6-8e5d-0a67a71118e5',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'projects.php:527',message:'Responsive data stored in hidden input',data:{responsiveKeys:Object.keys(data.responsive)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A5'})}).catch(()=>{});
-                            // #endregion
                         }
                         showProjectImageStatus('Image uploaded successfully.', 'success');
                         setProjectImagePreview(data.url);

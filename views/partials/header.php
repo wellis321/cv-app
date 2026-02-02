@@ -46,7 +46,7 @@
                     <?php if ($isOrgMember): ?>
                         <?php
                         $isAgencyPage = strpos($_SERVER['REQUEST_URI'], '/agency/') !== false || ($currentPage === 'dashboard.php' && strpos($_SERVER['REQUEST_URI'], '/agency/') !== false);
-                        $isCvPage = in_array($currentPage, ['dashboard.php', 'preview-cv.php', 'cv.php', 'cv-variants.php', 'cv-quality.php']) || strpos($_SERVER['REQUEST_URI'], '/cv-variants/') !== false;
+                        $isCvPage = in_array($currentPage, ['dashboard.php', 'preview-cv.php', 'cv.php', 'cv-variants.php', 'cv-quality.php', 'content-editor.php']) || strpos($_SERVER['REQUEST_URI'], '/cv-variants/') !== false;
                         ?>
                         <?php if ($isAgencyPage): ?>
                             <!-- Switch to Personal CV -->
@@ -81,21 +81,15 @@
                                     </svg>
                                 </button>
                                 <div role="menu" class="absolute right-0 top-full hidden min-w-[10rem] rounded-lg border border-gray-200 bg-white py-2 shadow-lg group-hover:block z-50">
-                                    <a href="/dashboard.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo $isDashboard ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
-                                        Edit CV Sections
-                                    </a>
-                                    <a href="/preview-cv.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo $isPreview ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
-                                        Preview & PDF
+                                    <a href="/content-editor.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo $currentPage === 'content-editor.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
+                                        Edit CV
                                     </a>
                                     <a href="/cv.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo $currentPage === 'cv.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
                                         View CV
                                     </a>
-                                    <a href="/cv-variants.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo in_array($currentPage, ['cv-variants.php']) || strpos($_SERVER['REQUEST_URI'], '/cv-variants/') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
-                                        AI CV Tools
-                                    </a>
-                                    <a href="/cv-quality.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo $currentPage === 'cv-quality.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
-                                        CV Quality Assessment
-                                    </a>
+                                <a href="/content-editor.php#ai-tools" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo $currentPage === 'content-editor.php' && strpos($_SERVER['REQUEST_URI'], '#ai-tools') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
+                                    AI CV Tools
+                                </a>
 <?php /* Template customizer temporarily hidden
                                     <a href="/cv-template-customizer.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo $currentPage === 'cv-template-customizer.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
                                         Customise Template
@@ -103,6 +97,9 @@
 */ ?>
                                     <a href="/cv-prompt-settings.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo $currentPage === 'cv-prompt-settings.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
                                         Prompt Settings
+                                    </a>
+                                    <a href="/ai-settings.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo $currentPage === 'ai-settings.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
+                                        AI Settings
                                     </a>
                                 </div>
                             </div>
@@ -136,7 +133,7 @@
                         <?php endif; ?>
                     <?php else: ?>
                         <?php
-                        $isCvPage = in_array($currentPage, ['dashboard.php', 'preview-cv.php', 'cv.php', 'cv-variants.php', 'cv-quality.php']) || strpos($_SERVER['REQUEST_URI'], '/cv-variants/') !== false;
+                        $isCvPage = in_array($currentPage, ['dashboard.php', 'preview-cv.php', 'cv.php', 'cv-variants.php', 'cv-quality.php', 'content-editor.php']) || strpos($_SERVER['REQUEST_URI'], '/cv-variants/') !== false;
                         ?>
                         <div class="relative group">
                             <button type="button"
@@ -149,24 +146,21 @@
                                 </svg>
                             </button>
                             <div role="menu" class="absolute right-0 top-full hidden min-w-[10rem] rounded-lg border border-gray-200 bg-white py-2 shadow-lg group-hover:block z-50">
-                                <a href="/dashboard.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo $isDashboard ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
-                                    Edit CV Sections
-                                </a>
-                                <a href="/preview-cv.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo $isPreview ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
-                                    Preview & PDF
+                                <a href="/content-editor.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo $currentPage === 'content-editor.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
+                                    Edit CV
                                 </a>
                                 <a href="/cv.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo $currentPage === 'cv.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
                                     View CV
                                 </a>
-                                <a href="/cv-variants.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo in_array($currentPage, ['cv-variants.php']) || strpos($_SERVER['REQUEST_URI'], '/cv-variants/') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
+                                <a href="/content-editor.php#ai-tools" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo $currentPage === 'content-editor.php' && strpos($_SERVER['REQUEST_URI'], '#ai-tools') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
                                     AI CV Tools
                                 </a>
-                                <a href="/cv-quality.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo $currentPage === 'cv-quality.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
-                                    CV Quality Assessment
+                                <a href="/ai-settings.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo $currentPage === 'ai-settings.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
+                                    AI Settings
                                 </a>
                             </div>
                         </div>
-                        <a href="/job-applications.php" class="px-1.5 py-1.5 md:px-2 md:py-2 rounded-md text-xs md:text-sm font-medium transition-colors whitespace-nowrap <?php echo $currentPage === 'job-applications.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?>">Jobs</a>
+                        <a href="/content-editor.php#jobs" class="px-1.5 py-1.5 md:px-2 md:py-2 rounded-md text-xs md:text-sm font-medium transition-colors whitespace-nowrap <?php echo $currentPage === 'job-applications.php' || ($currentPage === 'content-editor.php' && strpos($_SERVER['REQUEST_URI'], '#jobs') !== false) ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?>">Jobs</a>
                         <a href="/subscription.php" class="px-1.5 py-1.5 md:px-2 md:py-2 rounded-md text-xs md:text-sm font-medium transition-colors whitespace-nowrap <?php echo $isSubscription ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?>">Plan</a>
                     <?php endif; ?>
                     <div class="relative group">
@@ -185,6 +179,9 @@
                             </a>
                             <a href="/resources/ai/setup-ollama.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo strpos($currentPage, 'setup-ollama.php') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
                                 AI Setup Guide
+                            </a>
+                            <a href="/ai-settings.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo $currentPage === 'ai-settings.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
+                                AI Settings
                             </a>
                             <a href="/ai-cv-assessment.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo $currentPage === 'ai-cv-assessment.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
                                 AI CV Assessment
@@ -295,30 +292,22 @@
                             </a>
                         <?php endif; ?>
                         <?php
-                        $isCvPage = in_array($currentPage, ['dashboard.php', 'preview-cv.php', 'cv.php', 'cv-variants.php', 'cv-quality.php']) || strpos($_SERVER['REQUEST_URI'], '/cv-variants/') !== false;
+                        $isCvPage = in_array($currentPage, ['dashboard.php', 'preview-cv.php', 'cv.php', 'cv-variants.php', 'cv-quality.php', 'content-editor.php']) || strpos($_SERVER['REQUEST_URI'], '/cv-variants/') !== false;
                         ?>
                         <div class="px-4 py-2 text-base font-semibold text-gray-900 border-t border-gray-200 mt-2 pt-4">
                             My CV
                         </div>
-                        <a href="/dashboard.php" 
-                           class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $isDashboard && !$isAgencyPage ? 'text-blue-700 bg-blue-100' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            Edit CV Sections
-                        </a>
-                        <a href="/preview-cv.php" 
-                           class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $isPreview ? 'text-blue-700 bg-blue-100' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            Preview & PDF
+                        <a href="/content-editor.php" 
+                           class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'content-editor.php' && !$isAgencyPage ? 'text-blue-700 bg-blue-100' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            Edit CV
                         </a>
                         <a href="/cv.php" 
                            class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'cv.php' ? 'text-blue-700 bg-blue-100' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
                             View CV
                         </a>
-                        <a href="/cv-variants.php" 
-                           class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo in_array($currentPage, ['cv-variants.php']) || strpos($_SERVER['REQUEST_URI'], '/cv-variants/') !== false ? 'text-blue-700 bg-blue-100' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <a href="/content-editor.php#cv-variants" 
+                           class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo in_array($currentPage, ['cv-variants.php', 'content-editor.php']) || strpos($_SERVER['REQUEST_URI'], '/cv-variants/') !== false ? 'text-blue-700 bg-blue-100' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
                             AI CV Tools
-                        </a>
-                        <a href="/cv-quality.php" 
-                           class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'cv-quality.php' ? 'text-blue-700 bg-blue-100' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            CV Quality Assessment
                         </a>
 <?php /* Template customizer temporarily hidden
                         <a href="/cv-template-customizer.php" 
@@ -355,30 +344,22 @@
                         <?php endif; ?>
                     <?php else: ?>
                         <?php
-                        $isCvPage = in_array($currentPage, ['dashboard.php', 'preview-cv.php', 'cv.php', 'cv-variants.php', 'cv-quality.php']) || strpos($_SERVER['REQUEST_URI'], '/cv-variants/') !== false;
+                        $isCvPage = in_array($currentPage, ['dashboard.php', 'preview-cv.php', 'cv.php', 'cv-variants.php', 'cv-quality.php', 'content-editor.php']) || strpos($_SERVER['REQUEST_URI'], '/cv-variants/') !== false;
                         ?>
                         <div class="px-4 py-2 text-base font-semibold text-gray-900 border-t border-gray-200 mt-2 pt-4">
                             My CV
                         </div>
-                        <a href="/dashboard.php" 
-                           class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $isDashboard ? 'text-blue-700 bg-blue-100' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            Edit CV Sections
-                        </a>
-                        <a href="/preview-cv.php" 
-                           class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $isPreview ? 'text-blue-700 bg-blue-100' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            Preview & PDF
+                        <a href="/content-editor.php" 
+                           class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'content-editor.php' ? 'text-blue-700 bg-blue-100' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            Edit CV
                         </a>
                         <a href="/cv.php" 
                            class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'cv.php' ? 'text-blue-700 bg-blue-100' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
                             View CV
                         </a>
-                        <a href="/cv-variants.php" 
-                           class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo in_array($currentPage, ['cv-variants.php']) || strpos($_SERVER['REQUEST_URI'], '/cv-variants/') !== false ? 'text-blue-700 bg-blue-100' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <a href="/content-editor.php#cv-variants" 
+                           class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo in_array($currentPage, ['cv-variants.php', 'content-editor.php']) || strpos($_SERVER['REQUEST_URI'], '/cv-variants/') !== false ? 'text-blue-700 bg-blue-100' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
                             AI CV Tools
-                        </a>
-                        <a href="/cv-quality.php" 
-                           class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'cv-quality.php' ? 'text-blue-700 bg-blue-100' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            CV Quality Assessment
                         </a>
                         <a href="/job-applications.php" 
                            class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'job-applications.php' ? 'text-blue-700 bg-blue-100' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -399,6 +380,10 @@
                     <a href="/resources/ai/setup-ollama.php" 
                        class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo strpos($currentPage, 'setup-ollama.php') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
                         AI Setup Guide
+                    </a>
+                    <a href="/ai-settings.php" 
+                       class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'ai-settings.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        AI Settings
                     </a>
                     <a href="/ai-cv-assessment.php" 
                        class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'ai-cv-assessment.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -446,6 +431,10 @@
                     <a href="/resources/ai/setup-ollama.php" 
                        class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo strpos($currentPage, 'setup-ollama.php') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
                         AI Setup Guide
+                    </a>
+                    <a href="/ai-settings.php" 
+                       class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'ai-settings.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        AI Settings
                     </a>
                     <a href="/ai-cv-assessment.php" 
                        class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'ai-cv-assessment.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">

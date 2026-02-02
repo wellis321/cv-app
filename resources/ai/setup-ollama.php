@@ -1033,7 +1033,7 @@ $canonicalUrl = APP_URL . '/resources/ai/setup-ollama.php';
                                     Get Started →
                                 </a>
                             <?php endif; ?>
-                            <a href="/cv-variants.php" class="inline-flex items-center px-4 py-2 text-purple-600 hover:text-purple-700">
+                            <a href="/content-editor.php#cv-variants" class="inline-flex items-center px-4 py-2 text-purple-600 hover:text-purple-700">
                                 Learn More About AI Features →
                             </a>
                         </div>

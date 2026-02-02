@@ -96,9 +96,9 @@ $canonicalUrl = APP_URL . '/job-applications-features.php';
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
-                        <h3 class="text-lg font-semibold text-gray-900 mb-3">Follow-Up Reminders</h3>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-3">Follow-Up & Closing Dates</h3>
                         <p class="text-sm text-gray-600 leading-relaxed">
-                            Set follow-up reminders so you never miss an opportunity to check in with employers or schedule your next interview.
+                            Set a follow-up or closing date for each application. See upcoming dates at a glance so you can plan when to check in with employers or prepare for deadlines.
                         </p>
                     </div>
 
@@ -111,7 +111,7 @@ $canonicalUrl = APP_URL . '/job-applications-features.php';
                         </div>
                         <h3 class="text-lg font-semibold text-gray-900 mb-3">Interview Tracking</h3>
                         <p class="text-sm text-gray-600 leading-relaxed">
-                            Track interview stages and outcomes. Mark whether you've had interviews, note interview dates, and record your interview performance.
+                            Track whether you've had an interview for each application and move status through stages (Applied → Interviewing → Offered → Accepted or Rejected). Use notes to record interview feedback and next steps.
                         </p>
                     </div>
 
@@ -163,8 +163,81 @@ $canonicalUrl = APP_URL . '/job-applications-features.php';
                         </div>
                         <h3 class="text-lg font-semibold text-gray-900 mb-3">Smart Text Extraction</h3>
                         <p class="text-sm text-gray-600 leading-relaxed">
-                            Extract text from uploaded files with one click. Automatically populate the job description field from PDFs, Word documents, and other file formats to save time.
+                            Extract text from uploaded files with one click and populate the job description field. Optional AI formatting cleans up sections and paragraphs. Supports PDFs, Word, Excel, and text files.
                         </p>
+                    </div>
+                </div>
+
+                <!-- Also included – same card style -->
+                <div class="mt-12">
+                    <h3 class="text-xl font-bold tracking-tight text-gray-900 mb-2">Also included</h3>
+                    <p class="text-sm text-gray-600 mb-6">More tools to keep your job search organised and effective.</p>
+                    <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                        <!-- Statistics -->
+                        <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+                            <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100 mb-4">
+                                <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-3">Statistics</h3>
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                See total applications and counts by status (Applied, Interviewing, Offered, etc.) and upcoming follow-up dates at a glance.
+                            </p>
+                        </div>
+
+                        <!-- Keyword Extraction -->
+                        <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+                            <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100 mb-4">
+                                <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-3">Keyword Extraction</h3>
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                Extract keywords from the job description and choose which to emphasise when generating your AI CV for that role.
+                            </p>
+                        </div>
+
+                        <!-- CV Variant Linking -->
+                        <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+                            <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100 mb-4">
+                                <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-3">CV Variant Linking</h3>
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                Generate a job-specific CV from a job application. One variant stays linked to that application so you always know which CV goes with which role.
+                            </p>
+                        </div>
+
+                        <!-- Cover Letters -->
+                        <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+                            <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100 mb-4">
+                                <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-3">Cover Letters</h3>
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                Create and manage cover letters per application. Generate tailored cover letters with AI and keep them linked to the right job.
+                            </p>
+                        </div>
+
+                        <!-- Salary, Location & Work Arrangement -->
+                        <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+                            <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100 mb-4">
+                                <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-3">Salary, Location & Work Arrangement</h3>
+                            <p class="text-sm text-gray-600 leading-relaxed">
+                                Store salary range, job location, and work arrangement (onsite, hybrid, or remote) for each application so you can compare and filter.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -191,7 +264,7 @@ $canonicalUrl = APP_URL . '/job-applications-features.php';
                         </div>
                         <h3 class="mt-4 text-lg font-semibold text-gray-900">Never Miss a Follow-Up</h3>
                         <p class="mt-2 text-sm text-gray-600">
-                            Set reminders for important follow-ups and stay on top of your job search.
+                            Set follow-up or closing dates for each application and see upcoming dates at a glance.
                         </p>
                     </div>
 

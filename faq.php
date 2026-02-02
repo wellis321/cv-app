@@ -105,7 +105,7 @@ $faqs = [
     ],
     [
         'question' => 'What is a CV variant?',
-        'answer' => 'A CV variant is a customised version of your CV tailored for a specific job application. You can create multiple variants - one for each job you\'re applying to. Your master CV remains unchanged, and each variant can be edited independently. Variants are automatically linked to job applications in your tracker, making it easy to see which CV you used for each application.'
+        'answer' => 'A CV variant is a customised version of your CV tailored for a specific job application. You can create multiple variants - one for each job you\'re applying to. Your master CV remains unchanged, and each variant can be edited independently. When you generate a variant from a job (using "Generate AI CV for this job" or by selecting that job in the create form), the variant is linked to that job so you can see which CV was used for which application. In the CV Variants list, linked variants show a "Linked" badge next to the job title.'
     ],
     [
         'question' => 'How does CV quality assessment work?',
@@ -121,7 +121,11 @@ $faqs = [
     ],
     [
         'question' => 'How do I generate an AI CV for a job application?',
-        'answer' => 'Go to your Job Applications page and open any job application that has a job description. Click the "Generate AI CV" button. The AI will analyse the job description and your master CV, then create a tailored variant. You can also go to CV Variants and click "Generate AI CV" to create a variant from any job description.'
+        'answer' => 'The easiest way is from the job itself. In the content editor (Build My CV), open Manage Jobs, then open the job you want to tailor for. Click <strong>Generate AI CV for this job</strong> for a one-click tailored CV that stays in the editor, or <strong>Tailor CV for this job…</strong> to open the full form and choose which sections to tailor. You can also go to the standalone Job Applications page and click "Generate AI CV" on any job, or go to CV Variants and click "Create New CV with AI" and select a job from the dropdown.'
+    ],
+    [
+        'question' => 'What is the difference between "Generate AI CV for this job" and "Tailor CV for this job"?',
+        'answer' => '<strong>Generate AI CV for this job</strong> creates a new CV variant in one click using the job description and your master CV. The AI rewrites relevant sections automatically and you stay in the content editor to review the new variant. <strong>Tailor CV for this job…</strong> opens the full "Generate AI CV" form with that job already selected, so you can choose which sections to tailor, pick a different source CV, or adjust options before generating. Use the first for speed; use the second when you want more control.'
     ],
     [
         'question' => 'Can I edit AI-generated CV variants?',

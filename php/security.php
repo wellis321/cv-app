@@ -55,6 +55,35 @@ function prepareForStorage($input) {
 }
 
 /**
+ * Prepare job description for DB storage: trim and allow only safe HTML (tables, p, br).
+ * Output must be rendered via jobDescriptionHtml() which strips attributes and enforces allowed tags.
+ */
+function prepareJobDescriptionForStorage($input) {
+    if ($input === null || $input === '') {
+        return null;
+    }
+    $allowed = '<table><tbody><thead><tr><td><th><p><br>';
+    return strip_tags(trim((string) $input), $allowed);
+}
+
+/**
+ * Decode HTML entities (including multiple encodings like &amp;amp;amp; -> &).
+ * Use when loading text from DB that may have been stored with htmlspecialchars or double-encoded.
+ */
+function decodeHtmlEntities($string) {
+    if ($string === null || $string === '') {
+        return $string;
+    }
+    $s = (string) $string;
+    $prev = '';
+    while ($prev !== $s) {
+        $prev = $s;
+        $s = html_entity_decode($s, ENT_QUOTES, 'UTF-8');
+    }
+    return $s;
+}
+
+/**
  * Escape for HTML after fixing text that may have been over-encoded on save (e.g. &amp; in DB).
  * Use when displaying skill names, categories, and similar user text that may have been
  * stored with htmlspecialchars by mistake.
@@ -63,7 +92,7 @@ function e_text($string) {
     if ($string === null || $string === '') {
         return '';
     }
-    return e(html_entity_decode((string) $string, ENT_QUOTES, 'UTF-8'));
+    return e(decodeHtmlEntities($string));
 }
 
 /**

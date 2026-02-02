@@ -255,7 +255,7 @@ $sections = [
                             <ul class="mt-3 space-y-2 text-base text-slate-600">
                                 <?php foreach ($section['checklist'] as $check): ?>
                                     <li class="relative pl-6">
-                                        <span class="absolute left-0 top-0 text-emerald-500">✓</span>
+                                        <span class="absolute left-0 top-0 text-emerald-500" aria-hidden="true"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg></span>
                                         <?php echo e($check); ?>
                                     </li>
                                 <?php endforeach; ?>

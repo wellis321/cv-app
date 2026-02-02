@@ -1312,7 +1312,7 @@ $orgAiSettings = [
                                                placeholder="<?php echo $orgAiSettings['has_openai_key'] ? 'Key saved (leave blank to keep existing)' : 'sk-...'; ?>"
                                                class="block w-full rounded-lg border-2 border-gray-400 bg-white px-4 py-3 text-base font-medium text-gray-900 shadow-sm transition-colors focus:border-blue-600 focus:ring-4 focus:ring-blue-200 focus:outline-none">
                                         <?php if ($orgAiSettings['has_openai_key']): ?>
-                                            <p class="mt-2 text-sm text-green-600 font-medium">✓ API key is saved</p>
+                                            <p class="mt-2 text-sm text-green-600 font-medium flex items-center gap-1.5"><svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>API key is saved</p>
                                         <?php endif; ?>
                                     </div>
                                 </div>
@@ -1327,7 +1327,7 @@ $orgAiSettings = [
                                                placeholder="<?php echo $orgAiSettings['has_anthropic_key'] ? 'Key saved (leave blank to keep existing)' : 'sk-ant-...'; ?>"
                                                class="block w-full rounded-lg border-2 border-gray-400 bg-white px-4 py-3 text-base font-medium text-gray-900 shadow-sm transition-colors focus:border-blue-600 focus:ring-4 focus:ring-blue-200 focus:outline-none">
                                         <?php if ($orgAiSettings['has_anthropic_key']): ?>
-                                            <p class="mt-2 text-sm text-green-600 font-medium">✓ API key is saved</p>
+                                            <p class="mt-2 text-sm text-green-600 font-medium flex items-center gap-1.5"><svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>API key is saved</p>
                                         <?php endif; ?>
                                     </div>
                                 </div>
@@ -1342,7 +1342,7 @@ $orgAiSettings = [
                                                placeholder="<?php echo $orgAiSettings['has_gemini_key'] ? 'Key saved (leave blank to keep existing)' : 'AIza...'; ?>"
                                                class="block w-full rounded-lg border-2 border-gray-400 bg-white px-4 py-3 text-base font-medium text-gray-900 shadow-sm transition-colors focus:border-blue-600 focus:ring-4 focus:ring-blue-200 focus:outline-none">
                                         <?php if ($orgAiSettings['has_gemini_key']): ?>
-                                            <p class="mt-2 text-sm text-green-600 font-medium">✓ API key is saved</p>
+                                            <p class="mt-2 text-sm text-green-600 font-medium flex items-center gap-1.5"><svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>API key is saved</p>
                                         <?php endif; ?>
                                     </div>
                                 </div>
@@ -1357,7 +1357,7 @@ $orgAiSettings = [
                                                placeholder="<?php echo $orgAiSettings['has_grok_key'] ? 'Key saved (leave blank to keep existing)' : 'gsk-...'; ?>"
                                                class="block w-full rounded-lg border-2 border-gray-400 bg-white px-4 py-3 text-base font-medium text-gray-900 shadow-sm transition-colors focus:border-blue-600 focus:ring-4 focus:ring-blue-200 focus:outline-none">
                                         <?php if ($orgAiSettings['has_grok_key']): ?>
-                                            <p class="mt-2 text-sm text-green-600 font-medium">✓ API key is saved</p>
+                                            <p class="mt-2 text-sm text-green-600 font-medium flex items-center gap-1.5"><svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>API key is saved</p>
                                         <?php endif; ?>
                                     </div>
                                 </div>
@@ -1623,7 +1623,7 @@ $orgAiSettings = [
                             cssTextarea.value = result.css;
                         }
                         
-                        statusSpan.textContent = '✓ Template generated! Review and save when ready.';
+                        statusSpan.innerHTML = '<span class="inline-flex items-center gap-1.5"><svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Template generated! Review and save when ready.</span>';
                         statusSpan.className = 'ml-3 text-sm text-green-600';
                         
                         // Scroll to HTML editor

@@ -220,6 +220,14 @@ class AIService {
     }
     
     /**
+     * Return the current AI service type (ollama, browser, openai, anthropic, gemini, grok).
+     * Used by API to enforce limited scope for local/browser AI.
+     */
+    public function getService() {
+        return $this->service;
+    }
+    
+    /**
      * Rewrite CV sections to match a job description
      * @param array $cvData The CV data to rewrite
      * @param string|array $jobDescription Job description text, or array of file contents, or both
@@ -247,6 +255,24 @@ class AIService {
             }
         }
         
+        // Single-item scope: filter cvData to only the one WE or one project for prompt (merge still uses full cvData)
+        $singleWorkId = $options['single_work_experience_id'] ?? '';
+        $singleProjId = $options['single_project_id'] ?? '';
+        if ($singleWorkId !== '' && !empty($cvData['work_experience'])) {
+            $filtered = array_filter($cvData['work_experience'], function ($w) use ($singleWorkId) {
+                $id = $w['id'] ?? $w['original_work_experience_id'] ?? null;
+                return $id !== null && (string) $id === (string) $singleWorkId;
+            });
+            $cvData = array_merge($cvData, ['work_experience' => array_values($filtered)]);
+        }
+        if ($singleProjId !== '' && !empty($cvData['projects'])) {
+            $filtered = array_filter($cvData['projects'], function ($p) use ($singleProjId) {
+                $id = $p['id'] ?? $p['original_project_id'] ?? null;
+                return $id !== null && (string) $id === (string) $singleProjId;
+            });
+            $cvData = array_merge($cvData, ['projects' => array_values($filtered)]);
+        }
+        
         // Check if browser AI will be used - build condensed prompt if so
         $isBrowserAI = ($this->service === 'browser');
         if ($isBrowserAI) {
@@ -257,14 +283,20 @@ class AIService {
             $prompt = $this->buildCvRewritePrompt($cvData, $combinedDescription, $options);
         }
         
-        $response = $this->callAI($prompt, [
-            'temperature' => 0.7,
-            'max_tokens' => 8000,
-        ]);
+        // Use higher max_tokens when rewriting work experience so all entries are returned (avoid truncation)
+        $sectionsToRewrite = $options['sections_to_rewrite'] ?? [];
+        $workCount = isset($cvData['work_experience']) && is_array($cvData['work_experience'])
+            ? count($cvData['work_experience']) : 0;
+        $needsHighTokens = in_array('work_experience', $sectionsToRewrite) && $workCount > 0;
+        $maxTokens = $needsHighTokens ? max(16000, min(32000, 8000 + $workCount * 1200)) : 8000;
+        // Higher temperature when tailoring a single role to encourage rephrasing (avoid verbatim copy)
+        $singleRoleRewrite = ($workCount === 1 && in_array('work_experience', $sectionsToRewrite));
+        $temperature = $singleRoleRewrite ? 0.85 : 0.7;
         
-        // #region agent log
-        file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['location'=>'php/ai-service.php:256','message'=>'After callAI','data'=>['responseKeys'=>array_keys($response),'responseSuccess'=>($response['success']??false),'hasContent'=>isset($response['content']),'contentLength'=>strlen($response['content']??''),'hasError'=>isset($response['error']),'error'=>($response['error']??null),'hasBrowserExecution'=>isset($response['browser_execution']),'promptLength'=>strlen($prompt)],'timestamp'=>time()*1000,'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'I'])."\n", FILE_APPEND);
-        // #endregion
+        $response = $this->callAI($prompt, [
+            'temperature' => $temperature,
+            'max_tokens' => $maxTokens,
+        ]);
         
         if (!$response['success']) {
             return $response;
@@ -286,25 +318,12 @@ class AIService {
         }
         
         // Parse JSON response
-        
-        // #region agent log
-        file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['location'=>'php/ai-service.php:275','message'=>'Before parseJsonResponse','data'=>['responseSuccess'=>$response['success'],'contentLength'=>strlen($response['content']??''),'contentPreview'=>substr($response['content']??'',0,500)],'timestamp'=>time()*1000,'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'F'])."\n", FILE_APPEND);
-        // #endregion
-        
         $rewritten = $this->parseJsonResponse($response['content']);
         
-        // #region agent log
-        file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['location'=>'php/ai-service.php:282','message'=>'After parseJsonResponse','data'=>['rewrittenIsNull'=>($rewritten===null),'rewrittenIsFalse'=>($rewritten===false),'rewrittenIsArray'=>is_array($rewritten),'jsonError'=>json_last_error_msg()],'timestamp'=>time()*1000,'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'G'])."\n", FILE_APPEND);
-        // #endregion
-        
         if (!$rewritten) {
-            // #region agent log
-            file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['location'=>'php/ai-service.php:289','message'=>'JSON parsing failed','data'=>['rawResponseLength'=>strlen($response['content']??''),'rawResponseFirst1000'=>substr($response['content']??'',0,1000),'jsonError'=>json_last_error_msg(),'jsonErrorCode'=>json_last_error()],'timestamp'=>time()*1000,'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'H'])."\n", FILE_APPEND);
-            // #endregion
-            
             return [
                 'success' => false,
-                'error' => 'Failed to parse AI response. The AI may not have returned valid JSON.',
+                'error' => 'Failed to parse AI response. The model may have returned invalid or truncated JSON. If using Ollama, try a different model (e.g. llama3.2) or increase context. Please try again.',
                 'raw_response' => $response['content'] ?? ''
             ];
         }
@@ -748,25 +767,162 @@ class AIService {
     }
     
     /**
-     * Extract keywords from job description
+     * Assess a specific CV section with custom prompt
+     * @param string $prompt Custom prompt for section assessment
+     * @param array $options Additional options
+     * @return array Response with assessment or browser execution flag
      */
-    public function extractJobKeywords($jobDescription) {
-        $prompt = "Extract the most important keywords, skills, and requirements from this job description. Return a JSON array of strings.\n\nJob Description:\n" . $jobDescription;
+    public function assessSectionWithPrompt($prompt, $options = []) {
+        $response = $this->callAI($prompt, array_merge([
+            'temperature' => 0.3,
+            'max_tokens' => 2000,
+        ], $options));
+        
+        if (!$response['success']) {
+            return $response;
+        }
+        
+        // Check if this is browser AI execution mode
+        if (isset($response['browser_execution']) && $response['browser_execution']) {
+            // Browser AI - return special response for frontend execution
+            return [
+                'success' => true,
+                'browser_execution' => true,
+                'prompt' => $prompt,
+                'model' => $response['model'] ?? 'llama3.2',
+                'model_type' => $response['model_type'] ?? 'webllm',
+                'message' => 'Browser AI execution required. Frontend will handle this request.'
+            ];
+        }
+        
+        // Parse JSON response
+        $assessment = $this->parseJsonResponse($response['content']);
+        
+        if (!$assessment) {
+            return [
+                'success' => false,
+                'error' => 'Failed to parse AI response. The AI may not have returned valid JSON.',
+                'raw_response' => $response['content']
+            ];
+        }
+        
+        return [
+            'success' => true,
+            'assessment' => $assessment,
+            'raw_response' => $response['content']
+        ];
+    }
+    
+    /**
+     * Format raw extracted job description text into clear sections, paragraphs and headings.
+     * Returns plain formatted text (or raw text if AI fails).
+     */
+    public function formatJobDescriptionText($rawText) {
+        if (empty(trim($rawText))) {
+            return ['success' => true, 'text' => $rawText];
+        }
+        $prompt = "You are a document formatter. The following text was extracted from a job description or person specification document (e.g. from a Word/PDF). It is currently messy: paragraphs are clumped together, headings are mixed with body text, and sections run into each other.\n\n";
+        $prompt .= "Your task: reformat it into clear, readable page content.\n";
+        $prompt .= "- Put each major heading on its own line, with a blank line before it.\n";
+        $prompt .= "- Split long runs of text into proper paragraphs (one blank line between paragraphs).\n";
+        $prompt .= "- Keep section structure clear (e.g. Summary, Requirements, Person Specification) with blank lines between sections.\n";
+        $prompt .= "- Preserve ALL content exactly; do not summarise, remove, or add information. Only improve line breaks, spacing and structure.\n";
+        $prompt .= "- Use British English spelling. Output plain text only: no markdown, no asterisks, no code blocks, no JSON, no \"Here is the formatted version\" or similar. Do not wrap sections in JSON keys; use section headings as plain lines of text.\n\n";
+        $prompt .= "Raw extracted text:\n\n" . $rawText . "\n\n";
+        $prompt .= "Return ONLY the formatted plain text, nothing else.";
         
         $response = $this->callAI($prompt, [
             'temperature' => 0.2,
-            'max_tokens' => 500,
+            'max_tokens' => 8000,
+        ]);
+        
+        if (!$response['success'] || empty(trim($response['content'] ?? ''))) {
+            return ['success' => true, 'text' => $rawText]; // fallback to raw
+        }
+        
+        $formatted = trim($response['content']);
+        // Strip common AI wrappers (e.g. "Here is the formatted text:" or markdown code blocks)
+        $formatted = preg_replace('/^Here (?:is|are) .*?:\s*\n*/i', '', $formatted);
+        $formatted = preg_replace('/^```\w*\s*\n?/', '', $formatted);
+        $formatted = preg_replace('/\n?```\s*$/', '', $formatted);
+        $formatted = trim($formatted);
+        
+        return ['success' => true, 'text' => $formatted ?: $rawText];
+    }
+    
+    /**
+     * Extract keywords from job description
+     */
+    public function extractJobKeywords($jobDescription) {
+        $prompt = "You are a job application keyword extractor. Extract the most important keywords, skills, technical terms, qualifications, and requirements from this job description that an ATS (Applicant Tracking System) would be looking for.\n\n";
+        $prompt .= "CRITICAL: Use British English spelling throughout (e.g., 'organise' not 'organize', 'analyse' not 'analyze').\n\n";
+        $prompt .= "Job Description:\n" . $jobDescription . "\n\n";
+        $prompt .= "Return ONLY a valid JSON array of strings. Each string should be a single keyword, skill, or requirement term. Focus on:\n";
+        $prompt .= "- Technical skills and technologies\n";
+        $prompt .= "- Soft skills and competencies\n";
+        $prompt .= "- Qualifications and certifications\n";
+        $prompt .= "- Industry-specific terms\n";
+        $prompt .= "- Tools and software\n";
+        $prompt .= "- Methodologies and frameworks\n\n";
+        $prompt .= "Return between 15-30 keywords. Prioritise the most important and frequently mentioned terms.\n\n";
+        $prompt .= "Example format: [\"JavaScript\", \"React\", \"Agile methodology\", \"Project management\", \"Team leadership\"]\n\n";
+        $prompt .= "Return ONLY the JSON array, no markdown, no explanation, no code blocks.";
+        
+        $response = $this->callAI($prompt, [
+            'temperature' => 0.2,
+            'max_tokens' => 800,
         ]);
         
         if (!$response['success']) {
             return $response;
         }
         
-        $keywords = $this->parseJsonResponse($response['content']);
+        // Check if browser execution is required
+        if (isset($response['browser_execution']) && $response['browser_execution']) {
+            return [
+                'success' => true,
+                'browser_execution' => true,
+                'prompt' => $prompt,
+                'model' => $response['model'] ?? 'llama3.2',
+                'model_type' => $response['model_type'] ?? 'webllm',
+                'job_description' => $jobDescription
+            ];
+        }
+        
+        $content = $response['content'];
+        // Some models return a curly-brace list of strings {"a", "b", "c"} instead of a JSON array ["a", "b", "c"].
+        // Convert to valid JSON array so parse succeeds.
+        $contentTrim = trim($content);
+        if (strpos($contentTrim, '[') !== 0 && preg_match('/^\s*\{\s*"/', $contentTrim) && preg_match('/"\s*\}\s*$/', $contentTrim)) {
+            $content = '[' . substr($contentTrim, 1, -1) . ']';
+        }
+        $keywords = $this->parseJsonResponse($content);
+        
+        // Ensure we have an array; some models return {"keywords": ["a","b"]} instead of ["a","b"]
+        if (is_array($keywords) && isset($keywords['keywords']) && is_array($keywords['keywords'])) {
+            $keywords = $keywords['keywords'];
+        }
+        if (!is_array($keywords)) {
+            // Try to extract array from response
+            if (is_string($keywords)) {
+                $keywords = json_decode($keywords, true);
+            }
+            if (!is_array($keywords)) {
+                $keywords = [];
+            }
+        }
+        
+        // Clean and deduplicate keywords
+        $keywords = array_map('trim', $keywords);
+        $keywords = array_filter($keywords, function($k) {
+            return !empty($k) && strlen($k) > 2;
+        });
+        $keywords = array_unique($keywords);
+        $keywords = array_values($keywords); // Re-index
         
         return [
             'success' => true,
-            'keywords' => is_array($keywords) ? $keywords : []
+            'keywords' => $keywords
         ];
     }
     
@@ -805,8 +961,31 @@ class AIService {
         // Get custom instructions from user or use defaults
         $customInstructions = $options['custom_instructions'] ?? null;
         
+        $workCountForPrompt = isset($cvData['work_experience']) && is_array($cvData['work_experience']) ? count($cvData['work_experience']) : 0;
         $prompt = "You are a professional CV writer. Rewrite the following CV sections to better match this job description while maintaining factual accuracy.\n\n";
+        if ($workCountForPrompt === 1 && in_array('work_experience', $sectionsToRewrite)) {
+            $prompt .= "CRITICAL: Do NOT copy the input text. Rephrase the description to match the job description. Output identical to the input is invalid.\n\n";
+        }
+        $prompt .= "CRITICAL: Use British English spelling throughout (e.g., 'organise' not 'organize', 'analyse' not 'analyze', 'colour' not 'color', 'centre' not 'center', 'realise' not 'realize', 'recognise' not 'recognize', 'favour' not 'favor', 'honour' not 'honor', 'labour' not 'labor', 'neighbour' not 'neighbor').\n\n";
         $prompt .= "Job Description:\n" . $jobDescription . "\n\n";
+        $prompt .= "PROFESSIONAL SUMMARY RULE: The professional summary must be 2-5 sentences of flowing prose. Do NOT list skills, technologies, or keywords. The skills section is separate. Mention 2-3 key themes only (e.g. experience, approach); do not dump the skills list into the summary.\n\n";
+        $prompt .= "SOURCE RULE - WORK EXPERIENCE: Process each work experience entry one-to-one. For ENTRY N in your output, use ONLY the description from ENTRY N in the input (same position and company). Do NOT put one employer's content under another employer. Do NOT substitute projects or education. We only send and expect the description (no bullet lists).\n\n";
+        $prompt .= "LENGTH RULE - WORK EXPERIENCE: Do NOT remove, merge, or shorten. The input description has a certain number of sentences and ideas; your output MUST keep at least the same number of sentences (reworded, not fewer). Do NOT merge two sentences into one. Do NOT drop clauses like 'My responsibilities bridged...' or 'to enhance systems that supported...'. Preserve every idea; reword in place and add job-relevant wording; never delete content.\n\n";
+        $prompt .= "KEYWORD RULE - WORK EXPERIENCE: You MUST tailor the description to the job. (1) Use wording and phrases from the Job Description above where they fit. (2) Weave in the IMPORTANT KEYWORDS listed for this application where natural (e.g. replace generic 'technical infrastructure' with job-specific terms if they appear in the job or keywords). (3) Rephrase so the reader can see it is written for this specific role. Output that merely shortens or reorders the input without adding job/keyword alignment is wrong.\n\n";
+        $prompt .= "REWORD RULE - WORK EXPERIENCE: Rephrase every sentence for the job description and keywords. Do NOT copy the input verbatim. Each sentence should be visibly reworded and, where relevant, use terms from the job description or the keyword list. Identical or shorter output is wrong.\n\n";
+        // When tailoring a single role, stress that copying is invalid
+        $workCount = isset($cvData['work_experience']) && is_array($cvData['work_experience']) ? count($cvData['work_experience']) : 0;
+        if ($workCount === 1) {
+            $prompt .= "SINGLE ROLE BEING TAILORED: You are rewriting exactly ONE role's description. Your output description MUST be reworded to match the job description above. Do NOT copy or paste the input text. Rephrase the paragraph using job keywords and role-relevant language. If your output is word-for-word the same as the input, you have failed the task.\n\n";
+        }
+        
+        // Add selected keywords from job application (AI-extracted or user-selected) if provided
+        if (!empty($options['selected_keywords']) && is_array($options['selected_keywords'])) {
+            $keywordsList = implode(', ', $options['selected_keywords']);
+            $prompt .= "IMPORTANT KEYWORDS TO EMPHASISE (from this job application): " . $keywordsList . "\n\n";
+            $prompt .= "You MUST use these keywords and the job description wording when rewriting. In work experience descriptions: rephrase sentences so that job-relevant terms and these keywords appear where natural. Do not just shorten the original; transform it to match the job and keyword list.\n\n";
+        }
+        
         $prompt .= "Current CV Data:\n";
         
         if (!empty($cvData['professional_summary'])) {
@@ -814,21 +993,16 @@ class AIService {
         }
         
         if (!empty($cvData['work_experience'])) {
-            $prompt .= "- Work Experience:\n";
+            $workTotal = count($cvData['work_experience']);
+            $prompt .= "- Work Experience (there are exactly " . $workTotal . " entries below; your JSON work_experience array MUST contain exactly " . $workTotal . " objects, one per entry, in the same order; do not stop early or omit any entry):\n";
+            $prompt .= "  For EACH entry description: (1) Keep the same number of sentences as the input (reword, do not merge or drop). (2) Weave in phrases and keywords from the Job Description and IMPORTANT KEYWORDS above. (3) Return only id, position, company_name, and description (no bullet lists).\n";
+            $entryNum = 0;
             foreach ($cvData['work_experience'] as $work) {
-                $prompt .= "  * " . ($work['position'] ?? '') . " at " . ($work['company_name'] ?? '') . "\n";
+                $entryNum++;
+                $workId = $work['id'] ?? $work['original_work_experience_id'] ?? '';
+                $prompt .= "  --- ENTRY " . $entryNum . " (id: \"" . $workId . "\") | " . ($work['position'] ?? '') . " at " . ($work['company_name'] ?? '') . " ---\n";
                 if (!empty($work['description'])) {
-                    $prompt .= "    Description: " . $work['description'] . "\n";
-                }
-                if (!empty($work['responsibility_categories'])) {
-                    foreach ($work['responsibility_categories'] as $cat) {
-                        $prompt .= "    " . ($cat['name'] ?? '') . ":\n";
-                        if (!empty($cat['items'])) {
-                            foreach ($cat['items'] as $item) {
-                                $prompt .= "      - " . ($item['content'] ?? '') . "\n";
-                            }
-                        }
-                    }
+                    $prompt .= "  Description: " . $work['description'] . "\n";
                 }
             }
         }
@@ -838,38 +1012,44 @@ class AIService {
             $prompt .= "- Skills: " . implode(', ', $skills) . "\n";
         }
         
-        if (!empty($cvData['education'])) {
-            $prompt .= "- Education:\n";
+        // Only include Education in prompt when we are rewriting education (prevents education bleeding into work experience)
+        if (in_array('education', $sectionsToRewrite) && !empty($cvData['education'])) {
+            $prompt .= "- Education (return in SAME ORDER; set \"id\" to the same value for each; do NOT duplicate entries):\n";
             foreach ($cvData['education'] as $edu) {
-                $prompt .= "  * " . ($edu['degree'] ?? '') . " in " . ($edu['field_of_study'] ?? '') . " from " . ($edu['institution'] ?? '') . "\n";
+                $eduId = $edu['id'] ?? $edu['original_education_id'] ?? '';
+                $prompt .= "  * id: \"" . $eduId . "\" | " . ($edu['degree'] ?? '') . " in " . ($edu['field_of_study'] ?? '') . " from " . ($edu['institution'] ?? '') . "\n";
                 if (!empty($edu['description'])) {
                     $prompt .= "    Description: " . ($edu['description'] ?? '') . "\n";
                 }
             }
         }
         
-        if (!empty($cvData['projects'])) {
-            $prompt .= "- Projects:\n";
+        // Only include Projects in prompt when we are rewriting projects (prevents project descriptions being copied into work experience)
+        if (in_array('projects', $sectionsToRewrite) && !empty($cvData['projects'])) {
+            $prompt .= "- Projects (return in the EXACT SAME ORDER; set \"id\" to the same value for each so we can match):\n";
             foreach ($cvData['projects'] as $proj) {
-                $prompt .= "  * " . ($proj['title'] ?? '') . ": " . ($proj['description'] ?? '') . "\n";
+                $projId = $proj['id'] ?? '';
+                $prompt .= "  * id: \"" . $projId . "\" | " . ($proj['title'] ?? '') . ": " . ($proj['description'] ?? '') . "\n";
             }
         }
         
-        if (!empty($cvData['certifications'])) {
-            $prompt .= "- Certifications:\n";
+        // Only include Certifications when rewriting certifications (prevents section bleed)
+        if (in_array('certifications', $sectionsToRewrite) && !empty($cvData['certifications'])) {
+            $prompt .= "- Certifications (return in SAME ORDER; set \"id\" to the same value for each; do NOT duplicate entries):\n";
             foreach ($cvData['certifications'] as $cert) {
-                $prompt .= "  * " . ($cert['name'] ?? '') . " from " . ($cert['issuer'] ?? '') . "\n";
+                $certId = $cert['id'] ?? $cert['original_certification_id'] ?? '';
+                $prompt .= "  * id: \"" . $certId . "\" | " . ($cert['name'] ?? '') . " from " . ($cert['issuer'] ?? '') . "\n";
             }
         }
         
-        if (!empty($cvData['professional_memberships'])) {
+        if (in_array('professional_memberships', $sectionsToRewrite) && !empty($cvData['memberships'])) {
             $prompt .= "- Professional Memberships:\n";
-            foreach ($cvData['professional_memberships'] as $membership) {
-                $prompt .= "  * " . ($membership['name'] ?? '') . " - " . ($membership['organisation'] ?? '') . "\n";
+            foreach ($cvData['memberships'] as $membership) {
+                $prompt .= "  * " . ($membership['organisation'] ?? '') . " - " . ($membership['role'] ?? '') . "\n";
             }
         }
         
-        if (!empty($cvData['interests'])) {
+        if (in_array('interests', $sectionsToRewrite) && !empty($cvData['interests'])) {
             $prompt .= "- Interests:\n";
             foreach ($cvData['interests'] as $interest) {
                 $prompt .= "  * " . ($interest['name'] ?? '') . ($interest['description'] ? ': ' . $interest['description'] : '') . "\n";
@@ -878,13 +1058,13 @@ class AIService {
         
         // Build default instructions
         $defaultInstructions = "1. Maintain factual accuracy - do not invent experiences, dates, or qualifications\n";
-        $defaultInstructions .= "2. ENHANCE and EXPAND content with relevant details, achievements, and metrics. Do NOT simplify or reduce content. Preserve all original information while adding job-relevant details.\n";
+        $defaultInstructions .= "2. PRESERVE LENGTH: Work experience output must have at least as many sentences as the input. Do NOT merge or drop sentences; reword each one and add job/keyword phrasing. Never shorten the paragraph.\n";
         $defaultInstructions .= "3. Emphasize relevant skills and experiences that match the job description\n";
-        $defaultInstructions .= "4. Use keywords from the job description naturally throughout\n";
+        $defaultInstructions .= "4. In work experience descriptions, weave in the IMPORTANT KEYWORDS and job description phrases naturally. The reader should see clear alignment with the job.\n";
         $defaultInstructions .= "5. Keep the same structure and format\n";
         $defaultInstructions .= "6. Maintain professional tone\n";
-        $defaultInstructions .= "7. For work experience, rewrite descriptions and responsibility items to highlight relevant achievements with specific examples and quantifiable results\n";
-        $defaultInstructions .= "8. For professional summary, tailor it to emphasize alignment with the job while maintaining or increasing detail level\n";
+        $defaultInstructions .= "7. For work experience: REWORD and EMPHASISE the description paragraph for each role so it aligns with the job description and keywords (like the professional summary). Use ONLY the description that is already under that role - do not bring in content from Education, Projects, or other roles. Tailor language and emphasis to the job.\n";
+        $defaultInstructions .= "8. For professional summary: write 2-5 sentences of flowing prose that tailor the candidate's profile to the job. Do NOT list skills or technologies in the summary - the skills section is separate. Mention 2-3 key themes only (e.g. experience, approach).\n";
         $defaultInstructions .= "9. Ensure skills section includes relevant keywords from the job description\n";
         $defaultInstructions .= "10. When rewriting, add context, metrics, and achievements where appropriate - make content more compelling, not less\n";
         
@@ -907,11 +1087,12 @@ class AIService {
         $prompt .= "{\n";
         
         if (in_array('professional_summary', $sectionsToRewrite)) {
-            $prompt .= "  \"professional_summary\": {\"description\": \"...\"},\n";
+            $prompt .= "  \"professional_summary\": {\"description\": \"2-5 sentences, flowing prose. Do NOT list skills or technologies - skills go in the skills section.\"},\n";
         }
         
         if (in_array('work_experience', $sectionsToRewrite)) {
-            $prompt .= "  \"work_experience\": [{\"id\": \"...\", \"position\": \"exact position from original CV\", \"company_name\": \"exact company from original CV\", \"description\": \"...\", \"responsibility_categories\": [{\"name\": \"...\", \"items\": [{\"content\": \"...\"}]}]}],\n";
+            $prompt .= "  \"work_experience\": [{\"id\": \"...\", \"position\": \"exact position from original CV\", \"company_name\": \"exact company from original CV\", \"description\": \"reworded description, same length or longer; every sentence kept (reworded); job description phrases and IMPORTANT KEYWORDS woven in\"}],\n";
+            $prompt .= "  For work experience: return ONLY id, position, company_name, description. Keep at least the same number of sentences as input; do not shorten. Weave in job description wording and IMPORTANT KEYWORDS. Identical or shortened output is wrong.\n";
         }
         
         if (in_array('skills', $sectionsToRewrite)) {
@@ -920,6 +1101,7 @@ class AIService {
         
         if (in_array('education', $sectionsToRewrite)) {
             $prompt .= "  \"education\": [{\"id\": \"...\", \"description\": \"...\"}],\n";
+            $prompt .= "  Return exactly ONE entry per education item with the same id as the input. Do NOT duplicate.\n";
         }
         
         if (in_array('projects', $sectionsToRewrite)) {
@@ -928,6 +1110,7 @@ class AIService {
         
         if (in_array('certifications', $sectionsToRewrite)) {
             $prompt .= "  \"certifications\": [{\"id\": \"...\", \"description\": \"...\"}],\n";
+            $prompt .= "  Return exactly ONE entry per certification with the same id as the input. Do NOT duplicate.\n";
         }
         
         if (in_array('professional_memberships', $sectionsToRewrite)) {
@@ -939,8 +1122,8 @@ class AIService {
         }
         
         $prompt .= "}\n";
-        $prompt .= "\nIMPORTANT: You MUST include ALL requested sections in your response. Keep original IDs for all items. Enhance content with more detail, achievements, and metrics - do not reduce or simplify.\n";
-        $prompt .= "\nCRITICAL FOR WORK EXPERIENCE: The \"position\" and \"company_name\" fields MUST match EXACTLY (case-insensitive) the position and company name from the original CV data. Do NOT modify these fields - they are used to match your rewritten content to the original entries.";
+        $prompt .= "\nIMPORTANT: Return ALL requested sections. Keep original IDs. Return work_experience in the EXACT SAME ORDER; exactly N entries if input has N. Each description: at least the same number of sentences as input; reword each sentence and weave in job description phrases and IMPORTANT KEYWORDS; do NOT shorten or merge sentences.\n";
+        $prompt .= "\nCRITICAL FOR WORK EXPERIENCE: (1) Keep id, position, company_name EXACTLY as input. (2) Return EVERY entry (N in = N out). (3) ONE-TO-ONE: Entry N output = only Entry N input description. (4) Do NOT shorten: same or more sentences; reword and add job/keyword alignment. (5) Identical or shortened output is wrong.";
         
         return $prompt;
     }
@@ -958,8 +1141,27 @@ class AIService {
             ? mb_substr($jobDescription, 0, 2000) . "\n\n[Job description truncated for browser AI context limits]"
             : $jobDescription;
         
+        $workCountCondensed = isset($cvData['work_experience']) && is_array($cvData['work_experience']) ? count($cvData['work_experience']) : 0;
         $prompt = "You are a professional CV writer. Rewrite the following CV sections to better match this job description while maintaining factual accuracy.\n\n";
+        if ($workCountCondensed === 1 && in_array('work_experience', $sectionsToRewrite)) {
+            $prompt .= "CRITICAL: Do NOT copy the input text. Rephrase every sentence and bullet to match the job description. Output identical to the input is invalid.\n\n";
+        }
+        $prompt .= "CRITICAL: Use British English spelling throughout (e.g., 'organise' not 'organize', 'analyse' not 'analyze', 'colour' not 'color', 'centre' not 'center', 'realise' not 'realize', 'recognise' not 'recognize', 'favour' not 'favor', 'honour' not 'honor', 'labour' not 'labor', 'neighbour' not 'neighbor').\n\n";
         $prompt .= "Job Description:\n" . $truncatedJobDesc . "\n\n";
+        $prompt .= "PROFESSIONAL SUMMARY: 2-5 sentences of flowing prose only. Do NOT list skills or technologies; skills section is separate.\n\n";
+        $prompt .= "SOURCE RULE: Work experience ONE-TO-ONE - Entry N output must use ONLY Entry N input description. Do NOT put one employer's content under another. Reword for job and keywords only.\n\n";
+        $prompt .= "LENGTH RULE: Do NOT shorten. Keep at least the same number of sentences as the input; reword each sentence, do not merge or drop. Weave in job description phrases and keywords.\n\n";
+        if ($workCountCondensed === 1) {
+            $prompt .= "SINGLE ROLE: You are rewriting exactly ONE role's description. You MUST reword every sentence to match the job description and weave in IMPORTANT KEYWORDS. Do NOT copy or shorten the input.\n\n";
+        }
+        
+        // Add selected keywords from job application (AI-extracted or user-selected) if provided
+        if (!empty($options['selected_keywords']) && is_array($options['selected_keywords'])) {
+            $keywordsList = implode(', ', $options['selected_keywords']);
+            $prompt .= "IMPORTANT KEYWORDS TO EMPHASISE (from this job application): " . $keywordsList . "\n\n";
+            $prompt .= "You MUST use these keywords and job description wording in work experience descriptions. Rephrase sentences so job-relevant terms appear; do not just shorten the original.\n\n";
+        }
+        
         $prompt .= "Current CV Data:\n";
         
         // Professional Summary (limit to 500 chars)
@@ -971,34 +1173,24 @@ class AIService {
             $prompt .= "- Professional Summary: " . $summary . "\n";
         }
         
-        // Work Experience (limit to 3 most recent, 3 items per category max)
+        // Work Experience (description only; limit to 3 most recent)
         if (!empty($cvData['work_experience'])) {
-            $prompt .= "- Work Experience:\n";
+            $prompt .= "- Work Experience (return in SAME ORDER; set id to same value for each; description only):\n";
+            $prompt .= "  Keep at least the same number of sentences as input; do not merge or drop. Weave in IMPORTANT KEYWORDS and job description phrases. Reword each sentence for the job.\n";
+            if (count($cvData['work_experience']) === 1) {
+                $prompt .= "  REWORD THIS ROLE: Rephrase every sentence; use job description wording and keywords. Do NOT shorten or copy verbatim.\n";
+            }
             $workEntries = array_slice($cvData['work_experience'], 0, 3); // Only 3 most recent
+            $entryNum = 0;
             foreach ($workEntries as $work) {
-                $prompt .= "  * " . ($work['position'] ?? '') . " at " . ($work['company_name'] ?? '') . "\n";
+                $entryNum++;
+                $workId = $work['id'] ?? $work['original_work_experience_id'] ?? '';
+                $prompt .= "  --- ENTRY " . $entryNum . " (id: \"" . $workId . "\") | " . ($work['position'] ?? '') . " at " . ($work['company_name'] ?? '') . " ---\n";
                 if (!empty($work['description'])) {
                     $desc = mb_strlen($work['description']) > 300 
                         ? mb_substr($work['description'], 0, 300) . '...'
                         : $work['description'];
-                    $prompt .= "    Description: " . $desc . "\n";
-                }
-                if (!empty($work['responsibility_categories'])) {
-                    foreach ($work['responsibility_categories'] as $cat) {
-                        $prompt .= "    " . ($cat['name'] ?? '') . ":\n";
-                        if (!empty($cat['items'])) {
-                            $items = array_slice($cat['items'], 0, 3); // Max 3 items per category
-                            foreach ($items as $item) {
-                                $itemContent = mb_strlen($item['content'] ?? '') > 150
-                                    ? mb_substr($item['content'], 0, 150) . '...'
-                                    : ($item['content'] ?? '');
-                                $prompt .= "      - " . $itemContent . "\n";
-                            }
-                            if (count($cat['items']) > 3) {
-                                $prompt .= "      ... (" . (count($cat['items']) - 3) . " more items)\n";
-                            }
-                        }
-                    }
+                    $prompt .= "  Description: " . $desc . "\n";
                 }
             }
             if (count($cvData['work_experience']) > 3) {
@@ -1016,13 +1208,28 @@ class AIService {
             $prompt .= "\n";
         }
         
+        // Projects (when rewriting a single project for local/browser)
+        if (in_array('projects', $sectionsToRewrite) && !empty($cvData['projects'])) {
+            foreach ($cvData['projects'] as $proj) {
+                $projId = $proj['id'] ?? $proj['original_project_id'] ?? '';
+                $title = $proj['title'] ?? $proj['name'] ?? '';
+                $desc = $proj['description'] ?? '';
+                if (mb_strlen($desc) > 400) {
+                    $desc = mb_substr($desc, 0, 400) . '...';
+                }
+                $prompt .= "- Project (id: \"" . $projId . "\") | " . $title . "\n";
+                $prompt .= "  Description: " . $desc . "\n";
+            }
+        }
+        
         // Build default instructions
         $defaultInstructions = "1. Maintain factual accuracy - do not invent experiences, dates, or qualifications\n";
-        $defaultInstructions .= "2. ENHANCE and EXPAND content with relevant details, achievements, and metrics. Do NOT simplify or reduce content.\n";
+        $defaultInstructions .= "2. PRESERVE LENGTH: Work experience output must have at least as many sentences as the input. Do NOT shorten or merge sentences; reword and add job/keyword phrasing.\n";
         $defaultInstructions .= "3. Emphasize relevant skills and experiences that match the job description\n";
-        $defaultInstructions .= "4. Use keywords from the job description naturally throughout\n";
+        $defaultInstructions .= "4. In work experience, weave in IMPORTANT KEYWORDS and job description phrases so the description clearly aligns with the job.\n";
         $defaultInstructions .= "5. Keep the same structure and format\n";
         $defaultInstructions .= "6. Maintain professional tone\n";
+        $defaultInstructions .= "7. Professional summary: 2-5 sentences of flowing prose only. Do NOT list skills or technologies; the skills section is separate.\n";
         
         $instructions = $defaultInstructions;
         if (!empty($customInstructions)) {
@@ -1047,7 +1254,7 @@ class AIService {
         
         if (in_array('professional_summary', $sectionsToRewrite)) {
             $prompt .= '  "professional_summary": {' . "\n";
-            $prompt .= '    "description": "rewritten professional summary text",' . "\n";
+            $prompt .= '    "description": "2-5 sentences, flowing prose. Do NOT list skills or technologies."' . "\n";
             if (!empty($cvData['professional_summary']['strengths'])) {
                 $prompt .= '    "strengths": ["strength1", "strength2", ...]' . "\n";
             }
@@ -1056,28 +1263,23 @@ class AIService {
         
         if (in_array('work_experience', $sectionsToRewrite)) {
             $prompt .= '  "work_experience": [' . "\n";
-            $prompt .= '    {' . "\n";
-            $prompt .= '      "id": "position at company_name (use EXACT position and company_name from original CV)",' . "\n";
-            $prompt .= '      "position": "exact position title from original CV",' . "\n";
-            $prompt .= '      "company_name": "exact company name from original CV",' . "\n";
-            $prompt .= '      "description": "rewritten description",' . "\n";
-            $prompt .= '      "responsibility_categories": [' . "\n";
-            $prompt .= '        {' . "\n";
-            $prompt .= '          "name": "category_name",' . "\n";
-            $prompt .= '          "items": [{"content": "rewritten item"}]' . "\n";
-            $prompt .= '        }' . "\n";
-            $prompt .= '      ]' . "\n";
-            $prompt .= '    }' . "\n";
+            $prompt .= '    {"id": "same as input", "position": "exact from original", "company_name": "exact from original", "description": "same length or longer; every sentence reworded; job description phrases and IMPORTANT KEYWORDS woven in; do not shorten"}' . "\n";
             $prompt .= '  ],' . "\n";
+            $prompt .= "  For work experience: return ONLY id, position, company_name, description. Keep at least same number of sentences; weave in keywords and job wording; do not shorten.\n";
         }
         
         if (in_array('skills', $sectionsToRewrite)) {
             $prompt .= '  "skills": [{"name": "skill_name", "category": "category_name"}],' . "\n";
         }
         
+        if (in_array('projects', $sectionsToRewrite)) {
+            $prompt .= '  "projects": [{"id": "same as input", "title": "exact title from original", "description": "rewritten description"}],' . "\n";
+        }
+        
         $prompt .= "}\n";
-        $prompt .= "\nIMPORTANT: You MUST include ALL requested sections in your response. Keep original IDs for all items. Enhance content with more detail, achievements, and metrics - do not reduce or simplify.\n";
-        $prompt .= "\nCRITICAL FOR WORK EXPERIENCE: The \"position\" and \"company_name\" fields MUST match EXACTLY (case-insensitive) the position and company name from the original CV data. Do NOT modify these fields - they are used to match your rewritten content to the original entries.";
+        $prompt .= "\nIMPORTANT: You MUST include ALL requested sections in your response. Keep original IDs for all items - set \"id\" to the same value as in the input. Return work_experience and projects in the SAME ORDER as the input. Enhance content with more detail, achievements, and metrics - do not reduce or simplify.\n";
+        $prompt .= "\nCRITICAL FOR WORK EXPERIENCE: (1) Keep id, position, company_name EXACTLY as input. (2) ONE-TO-ONE: Entry N = only Entry N input. (3) Do NOT shorten: output must have at least as many sentences as input; reword each and weave in job description phrases and IMPORTANT KEYWORDS.\n";
+        $prompt .= "\nJSON OUTPUT: Return ONLY valid JSON. Do NOT include literal text like \"... (8 more positions)\" or \"... (3 more items)\" inside your response - output the full array of objects instead.";
         
         return $prompt;
     }
@@ -1376,14 +1578,14 @@ class AIService {
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Content-Type: application/json',
         ]);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 180); // 3 minute timeout for local models (Ollama can be slow)
+        curl_setopt($ch, CURLOPT_TIMEOUT, 300); // 5 minute timeout for local models (CV rewrite can be slow on Mac)
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10); // 10 second connection timeout
         
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $error = curl_error($ch);
         $curlErrno = curl_errno($ch);
-        curl_close($ch);
+        // Handle freed when it goes out of scope (curl_close deprecated in PHP 8.5)
         
         if ($curlErrno === CURLE_OPERATION_TIMEOUTED) {
             return [
@@ -1416,7 +1618,7 @@ class AIService {
                             curl_setopt($ch2, CURLOPT_TIMEOUT, 5);
                             $tagsResponse = curl_exec($ch2);
                             $tagsHttpCode = curl_getinfo($ch2, CURLINFO_HTTP_CODE);
-                            curl_close($ch2);
+                            // Handle freed when it goes out of scope (curl_close deprecated in PHP 8.5)
                             
                             if ($tagsHttpCode === 200 && $tagsResponse) {
                                 $tagsData = json_decode($tagsResponse, true);
@@ -1534,7 +1736,7 @@ class AIService {
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $error = curl_error($ch);
-        curl_close($ch);
+        // Handle freed when it goes out of scope (curl_close deprecated in PHP 8.5)
         
         if ($error) {
             return [
@@ -1627,7 +1829,7 @@ class AIService {
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $error = curl_error($ch);
-        curl_close($ch);
+        // Handle freed when it goes out of scope (curl_close deprecated in PHP 8.5)
         
         if ($error) {
             return [
@@ -1718,7 +1920,7 @@ class AIService {
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $error = curl_error($ch);
-        curl_close($ch);
+        // Handle freed when it goes out of scope (curl_close deprecated in PHP 8.5)
         
         if ($error) {
             return [
@@ -1806,7 +2008,7 @@ class AIService {
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $error = curl_error($ch);
-        curl_close($ch);
+        // Handle freed when it goes out of scope (curl_close deprecated in PHP 8.5)
         
         if ($error) {
             return [
@@ -2156,50 +2358,237 @@ class AIService {
     }
     
     /**
-     * Parse JSON from AI response (handles markdown code blocks)
+     * Parse JSON from AI response (handles markdown code blocks and truncated Ollama output)
      */
     private function parseJsonResponse($content) {
         if (empty($content)) {
             return null;
         }
-        
-        $originalContent = $content;
+        // Strip BOM and null bytes so brace search and parsing are reliable
+        $content = preg_replace('/^\xEF\xBB\xBF/', '', $content);
+        $content = str_replace("\0", '', $content);
+        $content = trim($content);
         
         // Remove markdown code blocks if present
         $content = preg_replace('/```json\s*/i', '', $content);
         $content = preg_replace('/```\s*/', '', $content);
         $content = trim($content);
         
-        // Remove explanatory text before JSON (e.g., "Here is the custom CV template in JSON format:")
-        // Look for common patterns and remove everything before the first {
-        if (preg_match('/^[^{]*(\{[\s\S]*\})/s', $content, $matches)) {
-            $content = $matches[1];
+        // Remove explanatory text before JSON (e.g., "Here is the rewritten CV in JSON format:")
+        // Extract from first { or [ (root can be object or array, e.g. keyword extraction returns ["a","b"])
+        $firstBrace = strpos($content, '{');
+        $firstBracket = strpos($content, '[');
+        $start = false;
+        if ($firstBrace !== false && $firstBracket !== false) {
+            $start = min($firstBrace, $firstBracket);
+        } elseif ($firstBrace !== false) {
+            $start = $firstBrace;
+        } elseif ($firstBracket !== false) {
+            $start = $firstBracket;
         }
+        if ($start !== false) {
+            $content = substr($content, $start);
+        }
+        
+        // Strip trailing text after the root JSON object or array
+        $content = $this->trimTrailingTextAfterRootJson($content);
+        // Remove any trailing markdown (e.g. model outputs }\n```)
+        $content = preg_replace('/\s*```\s*.*$/s', '', $content);
+        $content = trim($content);
+        
+        // Fix trailing commas before first decode (common with Ollama)
+        $content = preg_replace('/,\s*}/', '}', $content);
+        $content = preg_replace('/,\s*]/', ']', $content);
+        
+        // Some models return invalid {["a","b"]} for keyword array; normalise to ["a","b"]
+        if (preg_match('/^\s*\{\s*\[/', $content) && preg_match('/\]\s*\}\s*$/', $content)) {
+            $content = preg_replace('/^\s*\{\s*/', '', $content);
+            $content = preg_replace('/\s*\}\s*$/', '', $content);
+            $content = trim($content);
+        }
+        
+        // Remove AI ellipsis placeholders (literal "..." on a line) - invalid JSON
+        $content = preg_replace('/,\s*\n\s*\.\.\.\s*\n\s*/', "\n", $content);
+        $content = preg_replace('/\n\s*\.\.\.\s*\n\s*/', "\n", $content);
         
         // Try to decode first (may work if AI properly escaped)
         $decoded = json_decode($content, true);
         $firstError = json_last_error();
         
         if ($firstError !== JSON_ERROR_NONE) {
-            // Fix control characters: escape newlines, tabs, and other control chars in string values
-            // This is a more sophisticated fix that handles unescaped control characters
-            $fixed = $this->fixJsonControlCharacters($content);
-            
-            // Try again with fixed content
-            $decoded = json_decode($fixed, true);
-            $secondError = json_last_error();
-            
-            // If still failing, try additional fixes
-            if ($secondError !== JSON_ERROR_NONE) {
-                // Fix trailing commas
-                $fixed = preg_replace('/,\s*}/', '}', $fixed);
-                $fixed = preg_replace('/,\s*]/', ']', $fixed);
-                
+            // Try truncation repair on raw content first (Ollama often truncates; repair before other fixes)
+            $repaired = $this->repairTruncatedCvJson($content);
+            if ($repaired !== null) {
+                $decoded = json_decode($repaired, true);
+            }
+            if ($decoded === null) {
+                // Fix control characters: escape newlines, tabs, and other control chars in string values
+                $fixed = $this->fixJsonControlCharacters($content);
                 $decoded = json_decode($fixed, true);
+                $secondError = json_last_error();
+                
+                if ($secondError !== JSON_ERROR_NONE) {
+                    // Fix trailing commas
+                    $fixed = preg_replace('/,\s*}/', '}', $fixed);
+                    $fixed = preg_replace('/,\s*]/', ']', $fixed);
+                    $decoded = json_decode($fixed, true);
+                }
+                if ($decoded === null && json_last_error() !== JSON_ERROR_NONE) {
+                    $repaired = $this->repairTruncatedCvJson($fixed);
+                    if ($repaired !== null) {
+                        $decoded = json_decode($repaired, true);
+                    }
+                }
+            }
+        }
+        // Last-ditch: some models return Python-style literals (True/False/None)
+        if ($decoded === null && json_last_error() !== JSON_ERROR_NONE) {
+            $pythonFixed = preg_replace('/\bTrue\b/', 'true', $content);
+            $pythonFixed = preg_replace('/\bFalse\b/', 'false', $pythonFixed);
+            $pythonFixed = preg_replace('/\bNone\b/', 'null', $pythonFixed);
+            if ($pythonFixed !== $content) {
+                $decoded = json_decode($pythonFixed, true);
+            }
+        }
+        
+        // Debug: when parsing failed, log the last content we tried and the JSON error
+        if ($decoded === null && defined('DEBUG') && DEBUG) {
+            $lastAttempt = $content;
+            if (isset($repaired) && $repaired !== null) {
+                $lastAttempt = $repaired;
+            } elseif (isset($fixed)) {
+                $lastAttempt = $fixed;
+            }
+            $logPath = defined('DEBUG_LOG_PATH') ? DEBUG_LOG_PATH : (__DIR__ . '/../.cursor/debug.log');
+            $logDir = dirname($logPath);
+            if (is_dir($logDir)) {
+                @file_put_contents($logPath, json_encode([
+                    'location' => 'php/ai-service.php parseJsonResponse',
+                    'message' => 'Parse failed: last attempt and error',
+                    'data' => [
+                        'jsonError' => json_last_error_msg(),
+                        'jsonErrorCode' => json_last_error(),
+                        'lastAttemptLength' => strlen($lastAttempt),
+                        'lastAttemptTail' => substr($lastAttempt, -1200),
+                        'lastAttemptHead' => substr($lastAttempt, 0, 400),
+                    ],
+                    'timestamp' => time() * 1000,
+                ]) . "\n", FILE_APPEND);
             }
         }
         
         return $decoded;
+    }
+    
+    /**
+     * Strip trailing explanatory text after the root JSON object or array.
+     * Returns content up to and including the root closing } or ], or unchanged if root end not found.
+     */
+    private function trimTrailingTextAfterRootJson($content) {
+        $len = strlen($content);
+        if ($len === 0) {
+            return $content;
+        }
+        $depth = 0;
+        $inString = false;
+        $escape = false;
+        $i = 0;
+        while ($i < $len) {
+            $c = $content[$i];
+            if ($inString) {
+                if ($escape) {
+                    $escape = false;
+                    $i++;
+                    continue;
+                }
+                if ($c === '\\') {
+                    $escape = true;
+                    $i++;
+                    continue;
+                }
+                if ($c === '"') {
+                    $inString = false;
+                    $i++;
+                    continue;
+                }
+                $i++;
+                continue;
+            }
+            if ($c === '"') {
+                $inString = true;
+                $i++;
+                continue;
+            }
+            if ($c === '{' || $c === '[') {
+                $depth++;
+                $i++;
+                continue;
+            }
+            if ($c === '}' || $c === ']') {
+                $depth--;
+                if ($depth === 0) {
+                    return substr($content, 0, $i + 1);
+                }
+                $i++;
+                continue;
+            }
+            $i++;
+        }
+        return $content;
+    }
+    
+    /**
+     * Attempt to repair truncated CV rewrite JSON (close unclosed string and balance brackets)
+     */
+    private function repairTruncatedCvJson($json) {
+        $len = strlen($json);
+        if ($len === 0) {
+            return null;
+        }
+        // If already ends with } or ], might be balance issue only
+        $trimmed = rtrim($json);
+        $last = substr($trimmed, -1);
+        if ($last !== '"' && $last !== ',' && $last !== '}' && $last !== ']') {
+            // Likely truncated mid-string: close the string
+            $trimmed .= '"';
+        }
+        // Append balanced closers (string-aware)
+        $stack = [];
+        $inString = false;
+        $escape = false;
+        $quote = null;
+        for ($i = 0; $i < strlen($trimmed); $i++) {
+            $c = $trimmed[$i];
+            if ($inString) {
+                if ($escape) {
+                    $escape = false;
+                    continue;
+                }
+                if ($c === '\\' && $quote === '"') {
+                    $escape = true;
+                    continue;
+                }
+                if ($c === $quote) {
+                    $inString = false;
+                    continue;
+                }
+                continue;
+            }
+            if ($c === '"' || $c === "'") {
+                $inString = true;
+                $quote = $c;
+                continue;
+            }
+            if ($c === '{') {
+                $stack[] = '}';
+            } elseif ($c === '[') {
+                $stack[] = ']';
+            } elseif ($c === '}' || $c === ']') {
+                array_pop($stack);
+            }
+        }
+        $trimmed .= implode('', array_reverse($stack));
+        return $trimmed;
     }
     
     /**
@@ -2231,8 +2620,20 @@ class AIService {
             }
             
             if ($char === '"') {
-                $inString = !$inString;
-                $result .= $char;
+                if ($inString) {
+                    // Inside a string: this " might be end of value or unescaped literal
+                    $rest = ltrim(substr($json, $i + 1));
+                    $next = $rest !== '' ? $rest[0] : '';
+                    if ($next === '"' || $next === ':' || $next === ',' || $next === '}' || $next === ']') {
+                        $inString = false;
+                        $result .= $char;
+                    } else {
+                        $result .= '\\"';
+                    }
+                } else {
+                    $inString = true;
+                    $result .= $char;
+                }
                 $i++;
                 continue;
             }
@@ -2284,9 +2685,12 @@ class AIService {
                 if (!is_array($rec)) {
                     $rec = ['issue' => (string)$rec, 'suggestion' => '', 'examples' => [], 'can_apply' => false];
                 } else {
-                    // Filter out placeholder text from AI-generated improvements
+                    // Filter out placeholder text from AI-generated improvements (preg_match requires string)
                     $aiImprovement = $rec['ai_generated_improvement'] ?? null;
-                    if ($aiImprovement) {
+                    if ($aiImprovement !== null && !is_string($aiImprovement)) {
+                        $aiImprovement = null; // Only strings are valid; ignore array/other types from browser AI
+                    }
+                    if ($aiImprovement !== null && $aiImprovement !== '') {
                         // List of placeholder patterns to detect and reject
                         $placeholderPatterns = [
                             '/\[Improved.*?\]/i',

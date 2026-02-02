@@ -53,11 +53,11 @@ $canonicalUrl = APP_URL . '/resources/ai/prompt-best-practices.php';
                             </p>
                             <div class="bg-gray-50 rounded p-4 space-y-3">
                                 <div>
-                                    <p class="text-sm font-medium text-red-600 mb-1">❌ Bad:</p>
+                                    <p class="text-sm font-medium text-red-600 mb-1 flex items-center gap-1.5"><svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>Bad:</p>
                                     <p class="text-sm text-gray-600">"Make it better"</p>
                                 </div>
                                 <div>
-                                    <p class="text-sm font-medium text-green-600 mb-1">✅ Good:</p>
+                                    <p class="text-sm font-medium text-green-600 mb-1 flex items-center gap-1.5"><svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Good:</p>
                                     <p class="text-sm text-gray-600">"Emphasize quantifiable achievements and include specific metrics (percentages, dollar amounts, timeframes) wherever possible"</p>
                                 </div>
                             </div>
@@ -70,11 +70,11 @@ $canonicalUrl = APP_URL . '/resources/ai/prompt-best-practices.php';
                             </p>
                             <div class="bg-gray-50 rounded p-4 space-y-3">
                                 <div>
-                                    <p class="text-sm font-medium text-red-600 mb-1">❌ Bad:</p>
+                                    <p class="text-sm font-medium text-red-600 mb-1 flex items-center gap-1.5"><svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>Bad:</p>
                                     <p class="text-sm text-gray-600">"Keep descriptions short and concise"</p>
                                 </div>
                                 <div>
-                                    <p class="text-sm font-medium text-green-600 mb-1">✅ Good:</p>
+                                    <p class="text-sm font-medium text-green-600 mb-1 flex items-center gap-1.5"><svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Good:</p>
                                     <p class="text-sm text-gray-600">"Expand descriptions with relevant context, achievements, and impact. Include specific examples of work performed and results achieved"</p>
                                 </div>
                             </div>

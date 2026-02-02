@@ -64,71 +64,81 @@
     </div>
 </div>
 
-<!-- Feature Section -->
-<div class="bg-gray-50 py-12 sm:py-16" id="features">
+<!-- Who is this for? strip -->
+<div class="border-y border-gray-200 bg-gray-50/80 py-6 sm:py-8">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="lg:text-center">
-            <h2 class="text-lg font-semibold text-blue-600">Simple CV Builder</h2>
-            <p class="mt-2 text-3xl leading-8 font-bold tracking-tight text-gray-900 sm:text-4xl">
-                Powerful CV Management for Recruitment Agencies
-            </p>
-            <p class="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
-                Manage your candidates' CVs efficiently with our comprehensive platform. Perfect for recruitment agencies, HR departments, and organisations managing multiple candidates.
-            </p>
-        </div>
-
-        <div class="mt-10">
-            <dl class="space-y-10 md:grid md:grid-cols-3 md:space-y-0 md:gap-x-8 md:gap-y-10">
-                <?php
-                $features = [
-                    [
-                        'title' => 'Candidate Management',
-                        'description' => 'Efficiently manage all your candidates in one place. Invite candidates, track their CV progress, and access their professional profiles instantly.',
-                        'icon' => 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z'
-                    ],
-                    [
-                        'title' => 'Team Collaboration',
-                        'description' => 'Work together with your team. Assign roles, manage permissions, and collaborate on candidate management with multiple team members.',
-                        'icon' => 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z'
-                    ],
-                    [
-                        'title' => 'Branded Candidate CVs',
-                        'description' => 'Customise candidate CVs with your organisation\'s branding. Add your logo, brand colours, and create a professional, consistent experience.',
-                        'icon' => 'M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01'
-                    ],
-                    [
-                        'title' => 'Real-Time CV Updates',
-                        'description' => 'Candidates can update their CVs in real-time. Changes are instantly reflected, ensuring you always have access to the latest information.',
-                        'icon' => 'M13 10V3L4 14h7v7l9-11h-7z'
-                    ],
-                    [
-                        'title' => 'Flexible Access Control',
-                        'description' => 'Control who can see what. Set CV visibility levels, manage team permissions, and ensure data privacy with granular access controls.',
-                        'icon' => 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z'
-                    ],
-                    [
-                        'title' => 'Scalable Plans',
-                        'description' => 'Grow with confidence. Request limit increases as your organisation expands, with flexible plans that adapt to your needs.',
-                        'icon' => 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z'
-                    ]
-                ];
-                foreach ($features as $feature): ?>
-                    <div class="relative">
-                        <dt>
-                            <div class="absolute flex h-12 w-12 items-center justify-center rounded-md bg-blue-500 text-white">
-                                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="<?php echo e($feature['icon']); ?>" />
-                                </svg>
-                            </div>
-                            <p class="ml-16 text-lg leading-6 font-medium text-gray-900"><?php echo e($feature['title']); ?></p>
-                        </dt>
-                        <dd class="mt-2 ml-16 text-base text-gray-500"><?php echo e($feature['description']); ?></dd>
-                    </div>
-                <?php endforeach; ?>
-            </dl>
+        <p class="text-center text-sm font-semibold uppercase tracking-wider text-gray-500 mb-4">Who is this for?</p>
+        <div class="flex flex-col sm:flex-row gap-4 sm:gap-8 justify-center items-center">
+            <a href="/individual-users.php" class="flex items-center gap-3 rounded-xl border-2 border-gray-200 bg-white px-6 py-4 shadow-sm hover:border-blue-300 hover:shadow-md transition-all w-full sm:w-auto max-w-xs sm:max-w-none">
+                <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                </span>
+                <div class="text-left">
+                    <span class="font-semibold text-gray-900">Individual job seekers</span>
+                    <p class="text-sm text-gray-600">Build your CV, track applications, use AI tools</p>
+                </div>
+            </a>
+            <a href="/organisations.php" class="flex items-center gap-3 rounded-xl border-2 border-gray-200 bg-white px-6 py-4 shadow-sm hover:border-blue-300 hover:shadow-md transition-all w-full sm:w-auto max-w-xs sm:max-w-none">
+                <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                </span>
+                <div class="text-left">
+                    <span class="font-semibold text-gray-900">Recruitment agencies & organisations</span>
+                    <p class="text-sm text-gray-600">Manage candidates, teams, and branded CVs</p>
+                </div>
+            </a>
         </div>
     </div>
 </div>
+
+<!-- Browser-Based AI Hero CTA - full width (for everyone) -->
+<section class="browser-ai-hero-bg relative overflow-hidden w-full bg-cover bg-center bg-no-repeat py-14 sm:py-18 lg:py-22" style="background-image: linear-gradient(to bottom right, rgba(88, 28, 135, 0.0), rgba(67, 56, 202, 0.78)), url('/static/images/home/AI-in-the-browseer.png');">
+    <div class="relative mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
+                <div class="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/15 backdrop-blur-sm mb-6">
+                    <svg class="w-9 h-9 sm:w-11 sm:h-11 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <p class="text-violet-200 text-sm font-semibold uppercase tracking-wider">Featured</p>
+                <h2 class="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
+                    AI that runs in your browser
+                </h2>
+                <p class="mt-4 text-lg sm:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed">
+                    No API keys. No cloud signup. No setup. Tailor your CV, assess quality, and generate cover letters—all in your browser. Your data stays on your device. Cloud AI (OpenAI, Anthropic, Gemini) is also available if you prefer.
+                </p>
+                <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center items-center">
+                    <a href="/browser-ai-check.php" class="inline-flex items-center justify-center rounded-xl bg-white px-6 py-3.5 text-base font-semibold text-purple-700 shadow-lg hover:bg-violet-50 transition-colors">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        Check if your browser supports it
+                    </a>
+                    <?php if (!isLoggedIn()): ?>
+                        <button type="button" data-open-register class="inline-flex items-center justify-center rounded-xl border-2 border-white/80 px-6 py-3.5 text-base font-semibold text-white hover:bg-white/10 transition-colors">
+                            Create free account
+                        </button>
+                    <?php else: ?>
+                        <a href="/content-editor.php#ai-tools" class="inline-flex items-center justify-center rounded-xl border-2 border-white/80 px-6 py-3.5 text-base font-semibold text-white hover:bg-white/10 transition-colors">
+                            Try AI in the editor
+                        </a>
+                    <?php endif; ?>
+                </div>
+                <p class="mt-6 flex flex-wrap justify-center gap-x-6 gap-y-1 text-sm text-white/70">
+                    <span class="inline-flex items-center">
+                        <svg class="w-4 h-4 mr-1.5 text-emerald-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                        Private — runs locally
+                    </span>
+                    <span class="inline-flex items-center">
+                        <svg class="w-4 h-4 mr-1.5 text-emerald-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                        No API keys required
+                    </span>
+                    <span class="inline-flex items-center">
+                        <svg class="w-4 h-4 mr-1.5 text-emerald-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                        Free to use
+                    </span>
+                </p>
+    </div>
+</section>
 
 <!-- AI CV Features Section -->
 <div class="bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 py-12 sm:py-16">
@@ -249,61 +259,298 @@
             </div>
         </div>
         
-        <!-- Browser-Based AI Info Box -->
-        <div class="mt-12 bg-blue-50 border border-blue-200 rounded-xl p-6 max-w-3xl mx-auto">
-            <div class="flex items-start">
-                <div class="flex-shrink-0">
-                    <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <div class="ml-3">
-                    <h4 class="text-sm font-semibold text-blue-900 mb-1">Browser-Based AI - No Setup Required</h4>
-                    <p class="text-sm text-blue-800">
-                        All AI features run directly in your browser using advanced browser-based AI technology. No cloud services, API keys, or configuration needed - it just works! For organisations or users who prefer cloud-based AI (OpenAI, Anthropic, Gemini, etc.), those options are also available if configured in your account settings.
+    </div>
+</div>
+
+<!-- Job Application Management Feature (for everyone / individuals) -->
+<div class="bg-gradient-to-r from-blue-50 to-green-50 py-12 sm:py-16">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="overflow-hidden rounded-2xl border border-blue-200 bg-white shadow-xl">
+            <div class="grid lg:grid-cols-2">
+                <!-- Left side: Content -->
+                <div class="flex flex-col justify-center px-6 py-12 sm:px-10 sm:py-16 lg:px-12">
+                    <div class="mb-6 flex items-center gap-3">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
+                            <svg class="h-7 w-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                            </svg>
+                        </div>
+                        <span class="inline-flex rounded-full bg-green-100 px-3 py-1 text-sm font-semibold text-green-800">Built-in Feature</span>
+                    </div>
+                    <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+                        Land Your Dream Job
+                    </h2>
+                    <p class="mt-4 text-lg text-gray-600">
+                        Build your professional CV and track your job applications all in one place. Never lose track of where you've applied, stay on top of follow-ups, and land your next role.
                     </p>
+                    <ul class="mt-6 space-y-3 text-gray-600">
+                        <li class="flex items-start">
+                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Track all your job applications in one place</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Monitor your progress from application to offer</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Set follow-up reminders and track interview stages</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>All included with your Simple CV Builder account</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>Upload job description files (PDF, Word, Excel) for AI processing</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span>AI-powered CV rewriting and quality assessment</span>
+                        </li>
+                    </ul>
+                    <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+                        <?php if (isLoggedIn()): ?>
+                            <a href="/job-applications.php" class="inline-flex items-center justify-center rounded-lg bg-green-600 px-6 py-3 text-base font-semibold text-white shadow-lg hover:bg-green-700 transition-colors">
+                                Manage Job Applications
+                                <svg class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </a>
+                        <?php else: ?>
+                            <button type="button" data-open-register class="inline-flex items-center justify-center rounded-lg bg-green-600 px-6 py-3 text-base font-semibold text-white shadow-lg hover:bg-green-700 transition-colors">
+                                Create Free Account
+                                <svg class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        <?php endif; ?>
+                        <a href="/job-applications-features.php" class="inline-flex items-center justify-center rounded-lg border-2 border-green-600 bg-white px-6 py-3 text-base font-semibold text-green-600 shadow-lg hover:bg-green-50 transition-colors">
+                            Learn More
+                            <svg class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </a>
+                    </div>
                 </div>
+
+                <!-- Right side: Visual -->
+                <div class="flex items-center justify-center bg-gradient-to-br from-green-500 to-green-600 px-6 py-12 sm:px-10 sm:py-16 lg:px-12">
+                    <div class="text-center">
+                        <div class="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-white/20 shadow-lg backdrop-blur-sm">
+                            <svg class="h-12 w-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white">Job Application Tracker</h3>
+                        <p class="mt-2 text-green-100">Organise • Track • Follow Up</p>
+                        <p class="mt-4 text-sm text-white/90">
+                            Included with every account
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- See It In Action Section (for everyone) -->
+<div class="bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-600 py-20 sm:py-24">
+    <div class="mx-auto max-w-[950px] px-4 sm:px-6 lg:px-8">
+        <div class="lg:grid lg:grid-cols-2 lg:gap-12 lg:items-center">
+            <div class="text-center lg:text-left flex-1 max-w-2xl mx-auto lg:mx-0">
+                <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                    See It In Action
+                </h2>
+                <p class="mt-4 text-lg text-white">
+                    Want to see what your CV could look like? Check out our example CV to explore all the features, templates, and styling options available.
+                </p>
+                <p class="mt-4 text-base text-white">
+                    See how work experience, projects, skills, and certifications come together in a professional, shareable format. No account needed—just click and explore!
+                </p>
+                <p class="mt-4 text-base text-white">
+                    Or scan the QR code with your phone to view it instantly!
+                </p>
+                <div class="mt-8">
+                    <a href="/cv/@simple-cv-example" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center rounded-lg bg-white px-6 py-3 text-base font-semibold text-green-600 shadow-lg hover:bg-green-50 transition-colors">
+                        View Example CV
+                        <svg class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            <div class="mt-6 lg:mt-0 flex justify-center lg:justify-center">
+                <div class="text-center">
+                    <a href="/cv/@simple-cv-example" target="_blank" rel="noopener noreferrer" class="block">
+                        <?php
+                        $exampleCvUrl = APP_URL . '/cv/@simple-cv-example';
+                        // Generate QR code using a service or library - teal/emerald squares to match the gradient background
+                        $qrCodeUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&ecc=M&margin=0&color=0d9488&bgcolor=ffffff&data=' . urlencode($exampleCvUrl);
+                        ?>
+                        <div class="bg-white rounded-lg p-4 shadow-xl inline-block">
+                            <img src="<?php echo e($qrCodeUrl); ?>" alt="QR Code to view example CV" class="w-48 h-48" style="image-rendering: crisp-edges;">
+                        </div>
+                    </a>
+                    <p class="mt-4 text-sm text-white">Scan to view example CV</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Responsive Images (for everyone) -->
+<div class="bg-gray-50 py-12 sm:py-16">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="lg:text-center">
+            <span class="inline-flex items-center rounded-full bg-green-100 px-4 py-1 text-sm font-medium text-green-800 mb-4">
+                Performance & Accessibility
+            </span>
+            <h2 class="text-3xl leading-8 font-bold tracking-tight text-gray-900 sm:text-4xl">
+                Smart Responsive Images
+            </h2>
+            <p class="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
+                All images are automatically optimised for every device. Faster loading, better performance, and improved accessibility - automatically.
+            </p>
+        </div>
+        
+        <div class="mt-12 grid gap-8 md:grid-cols-3">
+            <div class="text-center">
+                <div class="flex justify-center">
+                    <div class="flex h-16 w-16 items-center justify-center rounded-lg bg-blue-500 text-white">
+                        <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                    </div>
+                </div>
+                <h3 class="mt-4 text-lg font-semibold text-gray-900">Automatic Optimisation</h3>
+                <p class="mt-2 text-base text-gray-500">
+                    Images are automatically resized into multiple sizes. Your device downloads only what it needs, saving bandwidth and improving speed.
+                </p>
+            </div>
+            
+            <div class="text-center">
+                <div class="flex justify-center">
+                    <div class="flex h-16 w-16 items-center justify-center rounded-lg bg-green-500 text-white">
+                        <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                </div>
+                <h3 class="mt-4 text-lg font-semibold text-gray-900">Perfect on Every Device</h3>
+                <p class="mt-2 text-base text-gray-500">
+                    From mobile phones to high-resolution displays, images look crisp and load quickly. No manual resizing needed.
+                </p>
+            </div>
+            
+            <div class="text-center">
+                <div class="flex justify-center">
+                    <div class="flex h-16 w-16 items-center justify-center rounded-lg bg-purple-500 text-white">
+                        <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                    </div>
+                </div>
+                <h3 class="mt-4 text-lg font-semibold text-gray-900">SEO & Accessibility</h3>
+                <p class="mt-2 text-base text-gray-500">
+                    All images include proper alt text, semantic HTML, and structured data. Better for search engines and screen readers.
+                </p>
             </div>
         </div>
         
         <div class="mt-12 text-center">
-            <?php if (isLoggedIn()): ?>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="/cv-variants/rewrite.php" class="inline-flex items-center justify-center rounded-lg bg-purple-600 px-6 py-3 text-base font-semibold text-white shadow-lg hover:bg-purple-700 transition-colors">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
-                        Generate AI CV
-                    </a>
-                    <a href="/cv-quality.php" class="inline-flex items-center justify-center rounded-lg border-2 border-purple-600 bg-white px-6 py-3 text-base font-semibold text-purple-600 shadow-lg hover:bg-purple-50 transition-colors">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        Assess CV Quality
-                    </a>
-                    <a href="/ai-cv-assessment.php" class="inline-flex items-center justify-center rounded-lg border-2 border-purple-600 bg-white px-6 py-3 text-base font-semibold text-purple-600 shadow-lg hover:bg-purple-50 transition-colors">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        Learn More
-                    </a>
-                </div>
-            <?php else: ?>
-                <p class="text-sm text-gray-600 mb-4">
-                    <strong>Available to all users:</strong> Create a free account to access AI CV features
-                </p>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <button type="button" data-open-register class="inline-flex items-center justify-center rounded-lg bg-purple-600 px-6 py-3 text-base font-semibold text-white shadow-lg hover:bg-purple-700 transition-colors">
-                        Create Free Account
-                    </button>
-                    <a href="/ai-cv-assessment.php" class="inline-flex items-center justify-center rounded-lg border-2 border-purple-600 bg-white px-6 py-3 text-base font-semibold text-purple-600 shadow-lg hover:bg-purple-50 transition-colors">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        Learn About AI Assessment
-                    </a>
-                </div>
-            <?php endif; ?>
+            <p class="text-sm text-gray-500">
+                <strong>How it works:</strong> Upload any image → We automatically create 4 optimised sizes → The browser picks the perfect one for your device
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- For Organisations -->
+<div class="border-t border-gray-200 bg-white py-12 sm:py-16" id="for-organisations">
+    <span id="features" aria-hidden="true"></span>
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="lg:text-center mb-12">
+            <h2 class="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+                For Recruitment Agencies & Organisations
+            </h2>
+            <p class="mt-3 max-w-2xl text-lg text-gray-600 lg:mx-auto">
+                Manage candidates, teams, and branded CVs. Everything below is for organisation accounts.
+            </p>
+        </div>
+
+        <!-- Feature Section (org) -->
+        <div class="lg:text-center mb-10">
+            <h3 class="text-lg font-semibold text-blue-600">Simple CV Builder</h3>
+            <p class="mt-2 text-2xl leading-8 font-bold tracking-tight text-gray-900 sm:text-3xl">
+                Powerful CV Management for Recruitment Agencies
+            </p>
+            <p class="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
+                Manage your candidates' CVs efficiently with our comprehensive platform. Perfect for recruitment agencies, HR departments, and organisations managing multiple candidates.
+            </p>
+        </div>
+
+        <div class="mt-10">
+            <dl class="space-y-10 md:grid md:grid-cols-3 md:space-y-0 md:gap-x-8 md:gap-y-10">
+                <?php
+                $features = [
+                    [
+                        'title' => 'Candidate Management',
+                        'description' => 'Efficiently manage all your candidates in one place. Invite candidates, track their CV progress, and access their professional profiles instantly.',
+                        'icon' => 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z'
+                    ],
+                    [
+                        'title' => 'Team Collaboration',
+                        'description' => 'Work together with your team. Assign roles, manage permissions, and collaborate on candidate management with multiple team members.',
+                        'icon' => 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z'
+                    ],
+                    [
+                        'title' => 'Branded Candidate CVs',
+                        'description' => 'Customise candidate CVs with your organisation\'s branding. Add your logo, brand colours, and create a professional, consistent experience.',
+                        'icon' => 'M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01'
+                    ],
+                    [
+                        'title' => 'Real-Time CV Updates',
+                        'description' => 'Candidates can update their CVs in real-time. Changes are instantly reflected, ensuring you always have access to the latest information.',
+                        'icon' => 'M13 10V3L4 14h7v7l9-11h-7z'
+                    ],
+                    [
+                        'title' => 'Flexible Access Control',
+                        'description' => 'Control who can see what. Set CV visibility levels, manage team permissions, and ensure data privacy with granular access controls.',
+                        'icon' => 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z'
+                    ],
+                    [
+                        'title' => 'Scalable Plans',
+                        'description' => 'Grow with confidence. Request limit increases as your organisation expands, with flexible plans that adapt to your needs.',
+                        'icon' => 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z'
+                    ]
+                ];
+                foreach ($features as $feature): ?>
+                    <div class="relative">
+                        <dt>
+                            <div class="absolute flex h-12 w-12 items-center justify-center rounded-md bg-blue-500 text-white">
+                                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="<?php echo e($feature['icon']); ?>" />
+                                </svg>
+                            </div>
+                            <p class="ml-16 text-lg leading-6 font-medium text-gray-900"><?php echo e($feature['title']); ?></p>
+                        </dt>
+                        <dd class="mt-2 ml-16 text-base text-gray-500"><?php echo e($feature['description']); ?></dd>
+                    </div>
+                <?php endforeach; ?>
+            </dl>
         </div>
     </div>
 </div>
@@ -445,7 +692,7 @@
                         Send Emails from Your Organisation
                     </h2>
                     <p class="mt-4 text-lg text-gray-600">
-                        Professional email branding for all your candidate communications. Send invitations and messages from your organisation's email address with a custom display name.
+                        Professional email branding for your invitation emails. Send candidate and team invitations from your organisation's email address with a custom display name.
                     </p>
                     <ul class="mt-6 space-y-3 text-gray-600">
                         <li class="flex items-start">
@@ -470,121 +717,9 @@
                             <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                             </svg>
-                            <span>Consistent branding across all candidate communications</span>
+                            <span>Consistent branding across invitation emails</span>
                         </li>
                     </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Responsive Images Feature Section -->
-<div class="bg-gray-50 py-12 sm:py-16">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="lg:text-center">
-            <span class="inline-flex items-center rounded-full bg-green-100 px-4 py-1 text-sm font-medium text-green-800 mb-4">
-                Performance & Accessibility
-            </span>
-            <h2 class="text-3xl leading-8 font-bold tracking-tight text-gray-900 sm:text-4xl">
-                Smart Responsive Images
-            </h2>
-            <p class="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
-                All images are automatically optimised for every device. Faster loading, better performance, and improved accessibility - automatically.
-            </p>
-        </div>
-        
-        <div class="mt-12 grid gap-8 md:grid-cols-3">
-            <div class="text-center">
-                <div class="flex justify-center">
-                    <div class="flex h-16 w-16 items-center justify-center rounded-lg bg-blue-500 text-white">
-                        <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                        </svg>
-                    </div>
-                </div>
-                <h3 class="mt-4 text-lg font-semibold text-gray-900">Automatic Optimisation</h3>
-                <p class="mt-2 text-base text-gray-500">
-                    Images are automatically resized into multiple sizes. Your device downloads only what it needs, saving bandwidth and improving speed.
-                </p>
-            </div>
-            
-            <div class="text-center">
-                <div class="flex justify-center">
-                    <div class="flex h-16 w-16 items-center justify-center rounded-lg bg-green-500 text-white">
-                        <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                        </svg>
-                    </div>
-                </div>
-                <h3 class="mt-4 text-lg font-semibold text-gray-900">Perfect on Every Device</h3>
-                <p class="mt-2 text-base text-gray-500">
-                    From mobile phones to high-resolution displays, images look crisp and load quickly. No manual resizing needed.
-                </p>
-            </div>
-            
-            <div class="text-center">
-                <div class="flex justify-center">
-                    <div class="flex h-16 w-16 items-center justify-center rounded-lg bg-purple-500 text-white">
-                        <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                        </svg>
-                    </div>
-                </div>
-                <h3 class="mt-4 text-lg font-semibold text-gray-900">SEO & Accessibility</h3>
-                <p class="mt-2 text-base text-gray-500">
-                    All images include proper alt text, semantic HTML, and structured data. Better for search engines and screen readers.
-                </p>
-            </div>
-        </div>
-        
-        <div class="mt-12 text-center">
-            <p class="text-sm text-gray-500">
-                <strong>How it works:</strong> Upload any image → We automatically create 4 optimised sizes → The browser picks the perfect one for your device
-            </p>
-        </div>
-    </div>
-</div>
-
-<!-- See It In Action Section -->
-<div class="bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-600 py-20 sm:py-24">
-    <div class="mx-auto max-w-[950px] px-4 sm:px-6 lg:px-8">
-        <div class="lg:grid lg:grid-cols-2 lg:gap-12 lg:items-center">
-            <div class="text-center lg:text-left flex-1 max-w-2xl mx-auto lg:mx-0">
-                <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">
-                    See It In Action
-                </h2>
-                <p class="mt-4 text-lg text-white">
-                    Want to see what your CV could look like? Check out our example CV to explore all the features, templates, and styling options available.
-                </p>
-                <p class="mt-4 text-base text-white">
-                    See how work experience, projects, skills, and certifications come together in a professional, shareable format. No account needed—just click and explore!
-                </p>
-                <p class="mt-4 text-base text-white">
-                    Or scan the QR code with your phone to view it instantly!
-                </p>
-                <div class="mt-8">
-                    <a href="/cv/@simple-cv-example" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center rounded-lg bg-white px-6 py-3 text-base font-semibold text-green-600 shadow-lg hover:bg-green-50 transition-colors">
-                        View Example CV
-                        <svg class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                        </svg>
-                    </a>
-                </div>
-            </div>
-            <div class="mt-6 lg:mt-0 flex justify-center lg:justify-center">
-                <div class="text-center">
-                    <a href="/cv/@simple-cv-example" target="_blank" rel="noopener noreferrer" class="block">
-                        <?php
-                        $exampleCvUrl = APP_URL . '/cv/@simple-cv-example';
-                        // Generate QR code using a service or library - teal/emerald squares to match the gradient background
-                        $qrCodeUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&ecc=M&margin=0&color=0d9488&bgcolor=ffffff&data=' . urlencode($exampleCvUrl);
-                        ?>
-                        <div class="bg-white rounded-lg p-4 shadow-xl inline-block">
-                            <img src="<?php echo e($qrCodeUrl); ?>" alt="QR Code to view example CV" class="w-48 h-48" style="image-rendering: crisp-edges;">
-                        </div>
-                    </a>
-                    <p class="mt-4 text-sm text-white">Scan to view example CV</p>
                 </div>
             </div>
         </div>
@@ -822,110 +957,6 @@
                     <p class="mt-4 text-base text-gray-500">"<?php echo e($testimonial['quote']); ?>"</p>
                 </div>
             <?php endforeach; ?>
-        </div>
-    </div>
-</div>
-
-<!-- Job Application Management Feature -->
-<div class="bg-gradient-to-r from-blue-50 to-green-50 py-12 sm:py-16">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="overflow-hidden rounded-2xl border border-blue-200 bg-white shadow-xl">
-            <div class="grid lg:grid-cols-2">
-                <!-- Left side: Content -->
-                <div class="flex flex-col justify-center px-6 py-12 sm:px-10 sm:py-16 lg:px-12">
-                    <div class="mb-6 flex items-center gap-3">
-                        <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
-                            <svg class="h-7 w-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                            </svg>
-                        </div>
-                        <span class="inline-flex rounded-full bg-green-100 px-3 py-1 text-sm font-semibold text-green-800">Built-in Feature</span>
-                    </div>
-                    <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-                        Land Your Dream Job
-                    </h2>
-                    <p class="mt-4 text-lg text-gray-600">
-                        Build your professional CV and track your job applications all in one place. Never lose track of where you've applied, stay on top of follow-ups, and land your next role.
-                    </p>
-                    <ul class="mt-6 space-y-3 text-gray-600">
-                        <li class="flex items-start">
-                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                            </svg>
-                            <span>Track all your job applications in one place</span>
-                        </li>
-                        <li class="flex items-start">
-                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                            </svg>
-                            <span>Monitor your progress from application to offer</span>
-                        </li>
-                        <li class="flex items-start">
-                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                            </svg>
-                            <span>Set follow-up reminders and track interview stages</span>
-                        </li>
-                        <li class="flex items-start">
-                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                            </svg>
-                            <span>All included with your Simple CV Builder account</span>
-                        </li>
-                        <li class="flex items-start">
-                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                            </svg>
-                            <span>Upload job description files (PDF, Word, Excel) for AI processing</span>
-                        </li>
-                        <li class="flex items-start">
-                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                            </svg>
-                            <span>AI-powered CV rewriting and quality assessment</span>
-                        </li>
-                    </ul>
-                    <div class="mt-8 flex flex-col gap-3 sm:flex-row">
-                        <?php if (isLoggedIn()): ?>
-                            <a href="/job-applications.php" class="inline-flex items-center justify-center rounded-lg bg-green-600 px-6 py-3 text-base font-semibold text-white shadow-lg hover:bg-green-700 transition-colors">
-                                Manage Job Applications
-                                <svg class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                </svg>
-                            </a>
-                        <?php else: ?>
-                            <button type="button" data-open-register class="inline-flex items-center justify-center rounded-lg bg-green-600 px-6 py-3 text-base font-semibold text-white shadow-lg hover:bg-green-700 transition-colors">
-                                Create Free Account
-                                <svg class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                </svg>
-                            </button>
-                        <?php endif; ?>
-                        <a href="/job-applications-features.php" class="inline-flex items-center justify-center rounded-lg border-2 border-green-600 bg-white px-6 py-3 text-base font-semibold text-green-600 shadow-lg hover:bg-green-50 transition-colors">
-                            Learn More
-                            <svg class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Right side: Visual -->
-                <div class="flex items-center justify-center bg-gradient-to-br from-green-500 to-green-600 px-6 py-12 sm:px-10 sm:py-16 lg:px-12">
-                    <div class="text-center">
-                        <div class="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-white/20 shadow-lg backdrop-blur-sm">
-                            <svg class="h-12 w-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                            </svg>
-                        </div>
-                        <h3 class="text-2xl font-bold text-white">Job Application Tracker</h3>
-                        <p class="mt-2 text-green-100">Organise • Track • Follow Up</p>
-                        <p class="mt-4 text-sm text-white/90">
-                            Included with every account
-                        </p>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </div>

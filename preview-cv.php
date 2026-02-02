@@ -2,17 +2,35 @@
 /**
  * CV Preview & PDF Generation Page
  * Allows users to select sections and generate PDF with QR code
+ * When variant_id is in the URL, loads that variant's data for preview/PDF.
  */
 
 require_once __DIR__ . '/php/helpers.php';
 require_once __DIR__ . '/php/cv-data.php';
+require_once __DIR__ . '/php/cv-variants.php';
 
 requireAuth();
 
 $userId = getUserId();
+$variantId = get('variant_id');
 
-// Load CV data
-$cvData = loadCvData($userId);
+// Load CV data - from variant if variant_id given and valid, else master
+$cvData = null;
+if ($variantId) {
+    $cvVariant = getCvVariant($variantId, $userId);
+    if ($cvVariant) {
+        $cvData = loadCvVariantData($variantId);
+        if ($cvData && isset($cvData['variant'])) {
+            $profile = db()->fetchOne("SELECT * FROM profiles WHERE id = ?", [$userId]);
+            $cvData['profile'] = $profile;
+        } else {
+            $cvData = null;
+        }
+    }
+}
+if (!$cvData) {
+    $cvData = loadCvData($userId);
+}
 $profile = $cvData['profile'];
 
 // Ensure default visibility flags are present

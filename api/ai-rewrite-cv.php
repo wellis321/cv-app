@@ -10,9 +10,9 @@ define('SKIP_CANONICAL_REDIRECT', true);
 // Start output buffering to prevent any output before JSON
 ob_start();
 
-// Increase timeout for AI processing (Ollama can take 30-60 seconds)
-set_time_limit(180); // 3 minutes
-ini_set('max_execution_time', 180);
+// Increase timeout for AI processing (Ollama CV rewrite can take 2-5+ minutes on Mac)
+set_time_limit(300); // 5 minutes
+ini_set('max_execution_time', 300);
 
 require_once __DIR__ . '/../php/helpers.php';
 
@@ -44,13 +44,19 @@ if (!verifyCsrfToken($_POST['csrf_token'] ?? '')) {
 }
 
 try {
-    // #region agent log
-    file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['location'=>'api/ai-rewrite-cv.php:46','message'=>'API request started','data'=>['postKeys'=>array_keys($_POST),'hasJobAppId'=>isset($_POST['job_application_id']),'hasVariantId'=>isset($_POST['cv_variant_id'])],'timestamp'=>time()*1000,'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'E'])."\n", FILE_APPEND);
-    // #endregion
-    
+    $updateVariantId = $_POST['update_variant_id'] ?? null;
     $jobApplicationId = $_POST['job_application_id'] ?? null;
     $sourceVariantId = $_POST['cv_variant_id'] ?? null;
     $variantName = $_POST['variant_name'] ?? 'AI-Generated CV';
+    
+    // When updating an existing variant, load it and use its job application for description
+    if ($updateVariantId) {
+        $existingVariant = getCvVariant($updateVariantId, $user['id']);
+        if (!$existingVariant) {
+            throw new Exception('Variant not found or access denied');
+        }
+        $jobApplicationId = $jobApplicationId ?: $existingVariant['job_application_id'];
+    }
     
     // Load job application if provided
     $jobDescription = null;
@@ -71,6 +77,15 @@ try {
         // Get job description from text field
         $jobDescription = $jobApp['job_description'] ?? $jobApp['notes'] ?? '';
         
+        // Get selected keywords if available
+        $selectedKeywords = [];
+        if (!empty($jobApp['selected_keywords'])) {
+            $decoded = json_decode($jobApp['selected_keywords'], true);
+            if (is_array($decoded)) {
+                $selectedKeywords = $decoded;
+            }
+        }
+        
         // Get files and extract their content
         $filesWithText = getJobApplicationFilesForAI($jobApplicationId, $user['id']);
         foreach ($filesWithText as $fileData) {
@@ -79,20 +94,22 @@ try {
             }
         }
         
-        // Check if variant already exists for this job
-        $existingVariant = db()->fetchOne(
-            "SELECT id FROM cv_variants WHERE job_application_id = ? AND user_id = ?",
-            [$jobApplicationId, $user['id']]
-        );
-        
-        if ($existingVariant) {
-            ob_end_clean();
-            echo json_encode([
-                'success' => false,
-                'error' => 'CV variant already exists for this job application',
-                'variant_id' => $existingVariant['id']
-            ]);
-            exit;
+        // Check if variant already exists for this job (only when creating new variant, not updating)
+        if (!$updateVariantId) {
+            $existingVariant = db()->fetchOne(
+                "SELECT id FROM cv_variants WHERE job_application_id = ? AND user_id = ?",
+                [$jobApplicationId, $user['id']]
+            );
+            
+            if ($existingVariant) {
+                ob_end_clean();
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'CV variant already exists for this job application',
+                    'variant_id' => $existingVariant['id']
+                ]);
+                exit;
+            }
         }
     } else {
         // Job description provided directly
@@ -112,17 +129,17 @@ try {
         throw new Exception('Job description or file content is required');
     }
     
-    // Load source CV data
+    // Load CV data: from variant we're updating, or from source/master for new variant
     $cvData = null;
-    if ($sourceVariantId) {
-        // Load from variant
+    if ($updateVariantId) {
+        $cvData = loadCvVariantData($updateVariantId);
+    } elseif ($sourceVariantId) {
         $variant = getCvVariant($sourceVariantId, $user['id']);
         if (!$variant) {
             throw new Exception('Source CV variant not found');
         }
         $cvData = loadCvVariantData($sourceVariantId);
     } else {
-        // Load master CV
         $cvData = loadCvData($user['id']);
     }
     
@@ -142,10 +159,14 @@ try {
             $sectionsToRewrite = array_filter(array_map('trim', explode(',', $sectionsToRewrite)));
         }
     }
-    // Ensure professional_summary is always included
-    if (!in_array('professional_summary', $sectionsToRewrite)) {
-        $sectionsToRewrite[] = 'professional_summary';
+    // Ensure at least one section is selected
+    if (empty($sectionsToRewrite)) {
+        $sectionsToRewrite = ['professional_summary'];
     }
+    
+    // Single-item scope for work experience or projects (used when AI is local/browser)
+    $singleWorkExperienceId = trim($_POST['single_work_experience_id'] ?? '');
+    $singleProjectId = trim($_POST['single_project_id'] ?? '');
     
     // Get prompt instructions mode and custom instructions
     $promptMode = $_POST['prompt_instructions_mode'] ?? 'default';
@@ -219,18 +240,9 @@ try {
         if (!$rewrittenData || !is_array($rewrittenData)) {
             throw new Exception('Invalid browser AI result format');
         }
-        
-        // #region agent log
-        file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['location'=>'api/ai-rewrite-cv.php:178','message'=>'Browser AI result parsed','data'=>['rewrittenDataKeys'=>array_keys($rewrittenData),'hasWorkExperience'=>isset($rewrittenData['work_experience']),'workExpCount'=>isset($rewrittenData['work_experience'])?count($rewrittenData['work_experience']):0,'workExpSample'=>isset($rewrittenData['work_experience'][0])?['id'=>$rewrittenData['work_experience'][0]['id']??null,'position'=>$rewrittenData['work_experience'][0]['position']??null,'company'=>$rewrittenData['work_experience'][0]['company_name']??null,'hasDesc'=>isset($rewrittenData['work_experience'][0]['description'])]:null],'timestamp'=>time()*1000,'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'Q'])."\n", FILE_APPEND);
-        // #endregion
     } else {
         // Server-side AI execution (either normal flow or forced fallback)
         // Get AI service with user ID for user-specific settings
-        
-        // #region agent log
-        file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['location'=>'api/ai-rewrite-cv.php:179','message'=>'Before getAIService call','data'=>['userId'=>$user['id'],'function_exists'=>function_exists('getAIService'),'forceServerAI'=>$forceServerAI],'timestamp'=>time()*1000,'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'A'])."\n", FILE_APPEND);
-        // #endregion
-        
         if (!function_exists('getAIService')) {
             throw new Exception('getAIService function not found. Check if ai-service.php is loaded.');
         }
@@ -250,34 +262,51 @@ try {
             $aiService = getAIService($user['id']);
         }
         
-        // #region agent log
-        file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['location'=>'api/ai-rewrite-cv.php:186','message'=>'After getAIService call','data'=>['aiServiceType'=>get_class($aiService),'hasRewriteMethod'=>method_exists($aiService,'rewriteCvForJob')],'timestamp'=>time()*1000,'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'B'])."\n", FILE_APPEND);
-        // #endregion
+        // Enforce limited scope for local/browser AI: work experience and projects must be one-at-a-time
+        $aiScopeLimited = in_array($aiService->getService(), ['ollama', 'browser']);
+        if ($aiScopeLimited) {
+            if (in_array('work_experience', $sectionsToRewrite) && $singleWorkExperienceId === '') {
+                ob_end_clean();
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'With local or browser AI, tailor one role at a time. Use "Tailor section" and select a specific role, or switch to a cloud AI (OpenAI, Anthropic, etc.) in Settings > AI Settings to tailor all work experience at once.'
+                ]);
+                exit;
+            }
+            if (in_array('projects', $sectionsToRewrite) && $singleProjectId === '') {
+                ob_end_clean();
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'With local or browser AI, tailor one project at a time. Use "Tailor section" and select a specific project, or switch to a cloud AI in Settings > AI Settings to tailor all projects at once.'
+                ]);
+                exit;
+            }
+        }
         
         // Call AI to rewrite CV with combined description (text + file contents)
         // Pass sections to rewrite and custom instructions
-        
-        // #region agent log
-        file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['location'=>'api/ai-rewrite-cv.php:193','message'=>'Before rewriteCvForJob call','data'=>['cvDataKeys'=>array_keys($cvData),'combinedDescLength'=>strlen($combinedDescription),'sectionsToRewrite'=>$sectionsToRewrite],'timestamp'=>time()*1000,'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'C'])."\n", FILE_APPEND);
-        // #endregion
-        
-        $result = $aiService->rewriteCvForJob($cvData, $combinedDescription, [
+        // Build rewrite options
+        $rewriteOptions = [
             'sections_to_rewrite' => $sectionsToRewrite,
             'custom_instructions' => $customInstructions
-        ]);
+        ];
+        if ($singleWorkExperienceId !== '') {
+            $rewriteOptions['single_work_experience_id'] = $singleWorkExperienceId;
+        }
+        if ($singleProjectId !== '') {
+            $rewriteOptions['single_project_id'] = $singleProjectId;
+        }
         
-        // #region agent log
-        file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['location'=>'api/ai-rewrite-cv.php:200','message'=>'After rewriteCvForJob call','data'=>['resultSuccess'=>($result['success']??false),'hasBrowserExecution'=>isset($result['browser_execution']),'hasError'=>isset($result['error'])],'timestamp'=>time()*1000,'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'D'])."\n", FILE_APPEND);
-        // #endregion
+        // Add selected keywords if available
+        if (!empty($selectedKeywords) && is_array($selectedKeywords)) {
+            $rewriteOptions['selected_keywords'] = $selectedKeywords;
+        }
+        
+        $result = $aiService->rewriteCvForJob($cvData, $combinedDescription, $rewriteOptions);
         
         // Check if this is browser execution mode
         if (isset($result['browser_execution']) && $result['browser_execution']) {
             // Browser AI - return prompt and instructions for frontend execution
-            
-            // #region agent log
-            file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['location'=>'api/ai-rewrite-cv.php:218','message'=>'Returning browser_execution response','data'=>['hasPrompt'=>isset($result['prompt']),'promptLength'=>strlen($result['prompt']??''),'model'=>$result['model']??null,'modelType'=>$result['model_type']??null],'timestamp'=>time()*1000,'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'J'])."\n", FILE_APPEND);
-            // #endregion
-            
             ob_end_clean();
             echo json_encode([
                 'success' => true,
@@ -293,74 +322,94 @@ try {
         }
         
         if (!$result['success']) {
-            throw new Exception($result['error'] ?? 'AI rewriting failed');
+            ob_end_clean();
+            http_response_code(200);
+            echo json_encode([
+                'success' => false,
+                'error' => $result['error'] ?? 'AI rewriting failed',
+            ]);
+            exit;
         }
         
         $rewrittenData = $result['cv_data'];
     }
     
-    // Check for duplicates before creating (check by name as well as job_application_id)
-    if ($jobApplicationId) {
-        $existingVariant = db()->fetchOne(
-            "SELECT id FROM cv_variants WHERE job_application_id = ? AND user_id = ?",
-            [$jobApplicationId, $user['id']]
+    // When updating existing variant, use its id; otherwise create new variant
+    if ($updateVariantId) {
+        $newVariantId = $updateVariantId;
+    } else {
+        // Check for duplicates before creating (check by job_application_id)
+        if ($jobApplicationId) {
+            $existingVariant = db()->fetchOne(
+                "SELECT id FROM cv_variants WHERE job_application_id = ? AND user_id = ?",
+                [$jobApplicationId, $user['id']]
+            );
+            
+            if ($existingVariant) {
+                ob_end_clean();
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'CV variant already exists for this job application',
+                    'variant_id' => $existingVariant['id']
+                ]);
+                exit;
+            }
+        }
+        
+        // Create new CV variant
+        $newVariant = createCvVariant(
+            $user['id'],
+            $sourceVariantId,
+            $variantName,
+            $jobApplicationId
         );
         
-        if ($existingVariant) {
-            ob_end_clean();
-            echo json_encode([
-                'success' => false,
-                'error' => 'CV variant already exists for this job application',
-                'variant_id' => $existingVariant['id']
-            ]);
-            exit;
+        if (!$newVariant['success']) {
+            throw new Exception($newVariant['error'] ?? 'Failed to create CV variant');
         }
+        
+        $newVariantId = $newVariant['variant_id'];
     }
-    
-    // Create new CV variant
-    $newVariant = createCvVariant(
-        $user['id'],
-        $sourceVariantId,
-        $variantName,
-        $jobApplicationId
-    );
-    
-    if (!$newVariant['success']) {
-        throw new Exception($newVariant['error'] ?? 'Failed to create CV variant');
-    }
-    
-    $newVariantId = $newVariant['variant_id'];
     
     // Merge AI-rewritten data with original data
     // IMPORTANT: The AI only returns rewritten sections based on user selection
     // We must preserve all other sections from the original CV data
     
-    // Update professional summary if rewritten
+    // Update professional summary if rewritten (AI may return string or array with description key)
     if (isset($rewrittenData['professional_summary'])) {
-        $cvData['professional_summary'] = array_merge(
-            $cvData['professional_summary'] ?? ['description' => ''],
-            $rewrittenData['professional_summary']
-        );
+        $summary = $rewrittenData['professional_summary'];
+        $base = $cvData['professional_summary'] ?? ['description' => ''];
+        if (is_array($summary)) {
+            $cvData['professional_summary'] = array_merge($base, $summary);
+        } else {
+            $cvData['professional_summary'] = array_merge($base, ['description' => (string) $summary]);
+        }
     }
     
+    $successMessage = 'CV successfully rewritten for this job';
+    $singleRoleOutputUnchanged = false;
     // Update work experience if rewritten
     if (isset($rewrittenData['work_experience']) && is_array($rewrittenData['work_experience'])) {
-        // #region agent log
-        file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['location'=>'api/ai-rewrite-cv.php:291','message'=>'Starting work experience merge','data'=>['rewrittenCount'=>count($rewrittenData['work_experience']),'originalCount'=>count($cvData['work_experience']??[]),'rewrittenWorkIds'=>array_column($rewrittenData['work_experience'],'id'),'originalWorkIds'=>array_column($cvData['work_experience']??[],'id')],'timestamp'=>time()*1000,'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'K'])."\n", FILE_APPEND);
-        // #endregion
-        
-        foreach ($rewrittenData['work_experience'] as $rewrittenWork) {
+        $rewrittenWorkCount = count($rewrittenData['work_experience']);
+        $originalWorkCount = count($cvData['work_experience'] ?? []);
+        if ($originalWorkCount > 0 && $rewrittenWorkCount < $originalWorkCount) {
+            $successMessage = $rewrittenWorkCount . ' of ' . $originalWorkCount . ' work experience entries were tailored; the rest were left unchanged. Try tailoring again for more entries, or check that your AI model can handle long output.';
+        }
+        foreach ($rewrittenData['work_experience'] as $idx => $rewrittenWork) {
             $found = false;
             $matchType = null;
             
             foreach ($cvData['work_experience'] as &$work) {
-                // Match by variant ID if provided
-                $idMatch = isset($rewrittenWork['id']) && isset($work['id']) && $work['id'] === $rewrittenWork['id'];
+                // Match by variant ID (use string comparison: DB may return int/string, JSON returns string)
+                $idMatch = isset($rewrittenWork['id']) && isset($work['id']) && (string) $work['id'] === (string) $rewrittenWork['id'];
+                
+                // When tailoring a single role, match by the id we sent (AI may omit or alter id in response)
+                $singleIdMatch = ($singleWorkExperienceId !== '' && isset($work['id']) && (string) $work['id'] === (string) $singleWorkExperienceId);
                 
                 // Match by original_work_experience_id (if AI returns master CV ID)
                 $originalIdMatch = false;
                 if (isset($rewrittenWork['id']) && isset($work['original_work_experience_id'])) {
-                    $originalIdMatch = $work['original_work_experience_id'] === $rewrittenWork['id'];
+                    $originalIdMatch = (string) $work['original_work_experience_id'] === (string) $rewrittenWork['id'];
                 }
                 
                 // Fallback: match by position and company name (case-insensitive)
@@ -369,36 +418,41 @@ try {
                 $companyMatch = !empty($rewrittenWork['company_name']) && !empty($work['company_name']) && 
                                strtolower(trim($work['company_name'])) === strtolower(trim($rewrittenWork['company_name']));
                 
-                if ($idMatch || $originalIdMatch || ($positionMatch && $companyMatch)) {
+                if ($idMatch || $singleIdMatch || $originalIdMatch || ($positionMatch && $companyMatch)) {
                     // Determine match type for logging
                     $matchType = 'unknown';
                     if ($idMatch) $matchType = 'variant_id';
+                    elseif ($singleIdMatch) $matchType = 'single_work_experience_id';
                     elseif ($originalIdMatch) $matchType = 'original_work_experience_id';
                     elseif ($positionMatch && $companyMatch) $matchType = 'position+company';
                     
-                    // #region agent log
-                    file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['location'=>'api/ai-rewrite-cv.php:315','message'=>'Work experience match found','data'=>['matchType'=>$matchType,'rewrittenId'=>$rewrittenWork['id']??null,'variantId'=>$work['id']??null,'originalWorkExperienceId'=>$work['original_work_experience_id']??null,'rewrittenPosition'=>$rewrittenWork['position']??null,'originalPosition'=>$work['position']??null,'rewrittenCompany'=>$rewrittenWork['company_name']??null,'originalCompany'=>$work['company_name']??null,'hasDescription'=>isset($rewrittenWork['description']),'hasResponsibilityCategories'=>isset($rewrittenWork['responsibility_categories'])],'timestamp'=>time()*1000,'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'L'])."\n", FILE_APPEND);
-                    // #endregion
                     
-                    // Update description if provided
+                    // Update description if provided (work experience is description-only; we do not send or merge responsibility_categories)
                     if (isset($rewrittenWork['description'])) {
                         $oldDesc = $work['description'] ?? '';
-                        $work['description'] = $rewrittenWork['description'];
+                        $newDesc = $rewrittenWork['description'];
+                        if (is_array($newDesc)) {
+                            $newDesc = implode("\n", array_map(function ($line) {
+                                return is_array($line) ? ($line['content'] ?? $line['text'] ?? json_encode($line)) : (string) $line;
+                            }, $newDesc));
+                        } else {
+                            $newDesc = (string) $newDesc;
+                        }
+                        // When tailoring a single role, reject only if description is unchanged (we only send/expect description, like summary)
+                        if ($singleWorkExperienceId !== '') {
+                            $normOldDesc = preg_replace('/\s+/', ' ', trim($oldDesc));
+                            $normNewDesc = preg_replace('/\s+/', ' ', trim($newDesc));
+                            if ($normOldDesc !== '' && $normOldDesc === $normNewDesc) {
+                                $singleRoleOutputUnchanged = true;
+                                $found = true;
+                                break;
+                            }
+                        }
+                        $work['description'] = $newDesc;
                         
-                        // #region agent log
-                        file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['location'=>'api/ai-rewrite-cv.php:318','message'=>'Updated work description','data'=>['workId'=>$work['id']??null,'oldDescLength'=>strlen($oldDesc),'newDescLength'=>strlen($rewrittenWork['description']),'descChanged'=>$oldDesc!==$rewrittenWork['description']],'timestamp'=>time()*1000,'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'M'])."\n", FILE_APPEND);
-                        // #endregion
-                    }
+                                            }
                     
-                    // Update responsibility categories if provided
-                    if (isset($rewrittenWork['responsibility_categories']) && is_array($rewrittenWork['responsibility_categories'])) {
-                        $oldCategories = $work['responsibility_categories'] ?? [];
-                        $work['responsibility_categories'] = $rewrittenWork['responsibility_categories'];
-                        
-                        // #region agent log
-                        file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['location'=>'api/ai-rewrite-cv.php:328','message'=>'Updated responsibility categories','data'=>['workId'=>$work['id']??null,'oldCategoryCount'=>count($oldCategories),'newCategoryCount'=>count($rewrittenWork['responsibility_categories'])],'timestamp'=>time()*1000,'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'N'])."\n", FILE_APPEND);
-                        // #endregion
-                    }
+                    // Work experience is description-only: do not overwrite responsibility_categories from AI (leave existing bullets as-is)
                     
                     $found = true;
                     $matchType = $idMatch ? 'id' : 'position+company';
@@ -406,16 +460,38 @@ try {
                 }
             }
             
-            if (!$found) {
-                // #region agent log
-                file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['location'=>'api/ai-rewrite-cv.php:340','message'=>'Work experience NOT found','data'=>['rewrittenId'=>$rewrittenWork['id']??null,'rewrittenPosition'=>$rewrittenWork['position']??null,'rewrittenCompany'=>$rewrittenWork['company_name']??null,'originalPositions'=>array_column($cvData['work_experience']??[],'position'),'originalCompanies'=>array_column($cvData['work_experience']??[],'company_name')],'timestamp'=>time()*1000,'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'O'])."\n", FILE_APPEND);
-                // #endregion
+            // Index-based fallback: AI often returns "1"/"2" or changed titles; match by array position
+            if (!$found && isset($cvData['work_experience'][$idx])) {
+                $work = &$cvData['work_experience'][$idx];
+                $matchType = 'index';
+                if (isset($rewrittenWork['description'])) {
+                    $newDesc = $rewrittenWork['description'];
+                    if (is_array($newDesc)) {
+                        $newDesc = implode("\n", array_map(function ($line) {
+                            return is_array($line) ? ($line['content'] ?? $line['text'] ?? json_encode($line)) : (string) $line;
+                        }, $newDesc));
+                    } else {
+                        $newDesc = (string) $newDesc;
+                    }
+                    $work['description'] = $newDesc;
+                }
+                // Work experience is description-only: do not overwrite responsibility_categories
+                $found = true;
             }
+            
+            if (!$found) {
+                            }
         }
         
-        // #region agent log
-        file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['location'=>'api/ai-rewrite-cv.php:348','message'=>'Work experience merge complete','data'=>['finalWorkCount'=>count($cvData['work_experience']??[])],'timestamp'=>time()*1000,'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'P'])."\n", FILE_APPEND);
-        // #endregion
+        // When tailoring one role, reject unchanged output so user gets clear feedback
+        if ($singleRoleOutputUnchanged) {
+            ob_end_clean();
+            echo json_encode([
+                'success' => false,
+                'error' => 'The AI returned unchanged text for this role. Local models (Ollama) often copy instead of rephrasing. Try again, or use a cloud AI (OpenAI, Anthropic, Gemini) in Settings > AI Settings for better tailoring.'
+            ]);
+            exit;
+        }
     }
     
     // Update skills if rewritten
@@ -435,11 +511,18 @@ try {
         $cvData['skills'] = array_merge($cvData['skills'] ?? [], $newSkills);
     }
     
-    // Update education if rewritten
+    // Update education if rewritten (only update description by id; do not add or replace list; deduplicate AI response by id)
     if (isset($rewrittenData['education']) && is_array($rewrittenData['education'])) {
+        $seenEduIds = [];
         foreach ($rewrittenData['education'] as $rewrittenEdu) {
+            $rid = $rewrittenEdu['id'] ?? null;
+            if ($rid === null || isset($seenEduIds[$rid])) {
+                continue;
+            }
+            $seenEduIds[$rid] = true;
             foreach ($cvData['education'] as &$edu) {
-                if (isset($rewrittenEdu['id']) && $edu['id'] === $rewrittenEdu['id']) {
+                $eduId = $edu['id'] ?? $edu['original_education_id'] ?? null;
+                if ($eduId !== null && (string)$eduId === (string)$rid) {
                     if (isset($rewrittenEdu['description'])) {
                         $edu['description'] = $rewrittenEdu['description'];
                     }
@@ -447,40 +530,72 @@ try {
                 }
             }
         }
+        unset($edu);
     }
     
-    // Update projects if rewritten
-    if (isset($rewrittenData['projects']) && is_array($rewrittenData['projects'])) {
-        foreach ($rewrittenData['projects'] as $rewrittenProj) {
+    // Update projects only when we asked the AI to rewrite projects (otherwise do not reorder or overwrite)
+    if (in_array('projects', $sectionsToRewrite) && isset($rewrittenData['projects']) && is_array($rewrittenData['projects'])) {
+        $projectMapping = []; // rewrittenIndex => cvDataIndex (so we keep description and order in sync)
+        foreach ($rewrittenData['projects'] as $projIdx => $rewrittenProj) {
             $found = false;
-            foreach ($cvData['projects'] as &$proj) {
-                // Match by ID if provided, otherwise match by title
-                $idMatch = isset($rewrittenProj['id']) && isset($proj['id']) && $proj['id'] === $rewrittenProj['id'];
+            foreach ($cvData['projects'] as $k => &$proj) {
+                $idMatch = isset($rewrittenProj['id']) && isset($proj['id']) && (string)$proj['id'] === (string)$rewrittenProj['id'];
                 $titleMatch = !empty($rewrittenProj['title']) && !empty($proj['title']) && 
                              strtolower(trim($proj['title'])) === strtolower(trim($rewrittenProj['title']));
                 
                 if ($idMatch || $titleMatch) {
-                    // Update description if provided
                     if (isset($rewrittenProj['description'])) {
                         $proj['description'] = $rewrittenProj['description'];
                     }
-                    // Preserve variant project ID and original_project_id so saveCvVariantData can find and update it
-                    // Don't modify $rewrittenProj here - we're updating $proj which is already in $cvData
+                    $projectMapping[$projIdx] = $k;
                     $found = true;
                     break;
                 }
             }
-            // If project not found, it means the AI returned a project that doesn't exist in the original CV
-            // We don't add new projects during rewrite - only update existing ones
-            // So we ignore unmatched projects from the AI response
+            // Index-based fallback: assume AI returns projects in same order as original
+            if (!$found && isset($cvData['projects'][$projIdx])) {
+                if (isset($rewrittenProj['description'])) {
+                    $cvData['projects'][$projIdx]['description'] = $rewrittenProj['description'];
+                }
+                $projectMapping[$projIdx] = $projIdx;
+            }
+        }
+        unset($proj); // break reference
+        // Build final order from mapping (rewrittenData order = AI order; each slot gets the project we updated for that slot)
+        $ordered = [];
+        $used = [];
+        foreach ($rewrittenData['projects'] as $projIdx => $rewrittenProj) {
+            if (isset($projectMapping[$projIdx])) {
+                $k = $projectMapping[$projIdx];
+                if (!isset($used[$k])) {
+                    $used[$k] = true;
+                    $ordered[] = $cvData['projects'][$k];
+                }
+            }
+        }
+        // Append any original projects not in AI response (keep at end)
+        foreach ($cvData['projects'] as $k => $proj) {
+            if (!isset($used[$k])) {
+                $ordered[] = $proj;
+            }
+        }
+        if (!empty($ordered)) {
+            $cvData['projects'] = $ordered;
         }
     }
     
-    // Update certifications if rewritten
+    // Update certifications if rewritten (only update description by id; do not add or replace list; deduplicate AI response by id)
     if (isset($rewrittenData['certifications']) && is_array($rewrittenData['certifications'])) {
+        $seenCertIds = [];
         foreach ($rewrittenData['certifications'] as $rewrittenCert) {
+            $rid = $rewrittenCert['id'] ?? null;
+            if ($rid === null || isset($seenCertIds[$rid])) {
+                continue;
+            }
+            $seenCertIds[$rid] = true;
             foreach ($cvData['certifications'] as &$cert) {
-                if (isset($rewrittenCert['id']) && $cert['id'] === $rewrittenCert['id']) {
+                $certId = $cert['id'] ?? $cert['original_certification_id'] ?? null;
+                if ($certId !== null && (string)$certId === (string)$rid) {
                     if (isset($rewrittenCert['description'])) {
                         $cert['description'] = $rewrittenCert['description'];
                     }
@@ -488,34 +603,50 @@ try {
                 }
             }
         }
+        unset($cert);
     }
     
-    // Update professional memberships if rewritten
-    if (isset($rewrittenData['professional_memberships']) && is_array($rewrittenData['professional_memberships'])) {
-        foreach ($rewrittenData['professional_memberships'] as $rewrittenMembership) {
-            foreach ($cvData['professional_memberships'] as &$membership) {
-                if (isset($rewrittenMembership['id']) && $membership['id'] === $rewrittenMembership['id']) {
-                    if (isset($rewrittenMembership['description'])) {
-                        $membership['description'] = $rewrittenMembership['description'];
+    // Update memberships if rewritten (cvData uses 'memberships'; AI may return 'professional_memberships')
+    $rewrittenMemberships = $rewrittenData['professional_memberships'] ?? $rewrittenData['memberships'] ?? null;
+    if (isset($rewrittenMemberships) && is_array($rewrittenMemberships) && !empty($cvData['memberships'])) {
+        foreach ($rewrittenMemberships as $idx => $rewrittenMembership) {
+            if (isset($cvData['memberships'][$idx])) {
+                if (isset($rewrittenMembership['description'])) {
+                    $cvData['memberships'][$idx]['description'] = $rewrittenMembership['description'];
+                }
+            } else {
+                foreach ($cvData['memberships'] as &$membership) {
+                    if (isset($rewrittenMembership['id']) && isset($membership['id']) && $membership['id'] === $rewrittenMembership['id']) {
+                        if (isset($rewrittenMembership['description'])) {
+                            $membership['description'] = $rewrittenMembership['description'];
+                        }
+                        break;
                     }
-                    break;
                 }
             }
         }
+        unset($membership);
     }
     
     // Update interests if rewritten
-    if (isset($rewrittenData['interests']) && is_array($rewrittenData['interests'])) {
-        foreach ($rewrittenData['interests'] as $rewrittenInterest) {
-            foreach ($cvData['interests'] as &$interest) {
-                if (isset($rewrittenInterest['id']) && $interest['id'] === $rewrittenInterest['id']) {
-                    if (isset($rewrittenInterest['description'])) {
-                        $interest['description'] = $rewrittenInterest['description'];
+    if (isset($rewrittenData['interests']) && is_array($rewrittenData['interests']) && !empty($cvData['interests'])) {
+        foreach ($rewrittenData['interests'] as $idx => $rewrittenInterest) {
+            if (isset($cvData['interests'][$idx])) {
+                if (isset($rewrittenInterest['description'])) {
+                    $cvData['interests'][$idx]['description'] = $rewrittenInterest['description'];
+                }
+            } else {
+                foreach ($cvData['interests'] as &$interest) {
+                    if (isset($rewrittenInterest['id']) && isset($interest['id']) && $interest['id'] === $rewrittenInterest['id']) {
+                        if (isset($rewrittenInterest['description'])) {
+                            $interest['description'] = $rewrittenInterest['description'];
+                        }
+                        break;
                     }
-                    break;
                 }
             }
         }
+        unset($interest);
     }
     
     // Preserve all other sections from original CV that weren't rewritten
@@ -541,7 +672,7 @@ try {
     echo json_encode([
         'success' => true,
         'variant_id' => $newVariantId,
-        'message' => 'CV successfully rewritten for this job'
+        'message' => $successMessage
     ]);
     
 } catch (Exception $e) {
@@ -552,9 +683,6 @@ try {
     error_log("AI Rewrite CV Error: " . $errorMessage);
     error_log("AI Rewrite CV Trace: " . $errorTrace);
     
-    // #region agent log
-    file_put_contents('/Users/wellis/Desktop/Cursor/b2b-cv-app/.cursor/debug.log', json_encode(['location'=>'api/ai-rewrite-cv.php:393','message'=>'Exception caught','data'=>['error'=>$errorMessage,'trace'=>substr($errorTrace,0,500),'file'=>$e->getFile(),'line'=>$e->getLine()],'timestamp'=>time()*1000,'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'A'])."\n", FILE_APPEND);
-    // #endregion
     
     echo json_encode([
         'success' => false,

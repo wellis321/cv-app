@@ -23,7 +23,7 @@ if ($variantId) {
     $cvVariant = getCvVariant($variantId, $user['id']);
     if (!$cvVariant) {
         setFlash('error', 'CV variant not found.');
-        redirect('/cv-variants.php');
+        redirect('/content-editor.php#cv-variants');
     }
     
     // Get latest assessment
@@ -180,15 +180,16 @@ if (isPost() && isset($_POST['action']) && $_POST['action'] === 'assess') {
                     <select id="variant-select" 
                             onchange="window.location.href='/cv-quality.php?variant_id=' + (this.value || '')"
                             class="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">Master CV (Default)</option>
+                        <option value="">Master CV</option>
                         <?php 
                         $allVariants = getUserCvVariants($user['id']);
                         foreach ($allVariants as $v): 
+                            // Skip master variants - they're represented by the empty value option above
+                            if ($v['is_master']) continue;
                             $selected = ($variantId && $variantId === $v['id']) ? 'selected' : '';
                         ?>
                             <option value="<?php echo e($v['id']); ?>" <?php echo $selected; ?>>
                                 <?php echo e($v['variant_name']); ?>
-                                <?php if ($v['is_master']): ?> (Master)<?php endif; ?>
                                 <?php if ($v['ai_generated']): ?> [AI]<?php endif; ?>
                             </option>
                         <?php endforeach; ?>

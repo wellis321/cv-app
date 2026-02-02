@@ -1,6 +1,9 @@
 <?php
 require_once __DIR__ . '/php/helpers.php';
 requireAuth();
+// Redirect to new content editor
+redirect('/content-editor.php#professional-summary');
+exit;
 $userId = getUserId();
 $error = getFlash('error');
 $success = getFlash('success');

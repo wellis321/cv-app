@@ -225,13 +225,18 @@ if ($activeTemplate) {
                             <a href="/" class="text-blue-600 hover:text-blue-800">← Back to Dashboard</a>
                         </div>
                         <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                            <?php if (!empty($variantId)): ?>
+                                <a href="/content-editor.php#work-experience&variant_id=<?php echo e($variantId); ?>" class="inline-flex items-center justify-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 text-sm sm:text-base transition-colors">
+                                    Edit this variant
+                                </a>
+                            <?php endif; ?>
                             <a href="/cv-template-customizer.php" class="inline-flex items-center justify-center px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 text-sm sm:text-base transition-colors">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
                                 </svg>
                                 Customise Template
                             </a>
-                            <a href="/preview-cv.php" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 inline-block text-center text-sm sm:text-base">
+                            <a href="/preview-cv.php<?php echo !empty($variantId) ? '?variant_id=' . e($variantId) : ''; ?>" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 inline-block text-center text-sm sm:text-base">
                                 Generate PDF
                             </a>
                             <button onclick="window.print()" class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 text-sm sm:text-base">
@@ -290,11 +295,18 @@ if ($activeTemplate) {
                     <a href="/" class="text-blue-600 hover:text-blue-800">← Back to Dashboard</a>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                    <a href="/profile.php" class="text-gray-600 hover:text-gray-900 text-sm sm:text-base text-center">Edit Profile</a>
-                    <a href="/preview-cv.php" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 inline-block text-center text-sm sm:text-base">
+                    <?php if (!empty($variantId)): ?>
+                        <a href="/content-editor.php#work-experience&variant_id=<?php echo e($variantId); ?>" class="inline-flex items-center justify-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 text-sm sm:text-base transition-colors">
+                            Edit this variant
+                        </a>
+                    <?php endif; ?>
+                    <a href="/profile.php" class="inline-flex items-center justify-center px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm sm:text-base transition-colors">
+                        Edit Profile
+                    </a>
+                    <a href="/preview-cv.php<?php echo !empty($variantId) ? '?variant_id=' . e($variantId) : ''; ?>" class="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm sm:text-base transition-colors">
                         Generate PDF
                     </a>
-                    <button onclick="window.print()" class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 text-sm sm:text-base">
+                    <button type="button" onclick="window.print()" class="inline-flex items-center justify-center px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 text-sm sm:text-base transition-colors">
                         Print
                     </button>
                 </div>

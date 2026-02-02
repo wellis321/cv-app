@@ -72,12 +72,13 @@ $suggestedVariantName = suggestUniqueVariantName($user['id'], 'AI-Generated CV')
                             Source CV
                         </label>
                         <select id="cv_variant_id" name="cv_variant_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            <option value="">Master CV (Default)</option>
+                            <option value="">Master CV</option>
                             <?php foreach ($variants as $variant): ?>
-                                <option value="<?php echo e($variant['id']); ?>">
-                                    <?php echo e($variant['variant_name']); ?>
-                                    <?php if ($variant['is_master']): ?> (Master)<?php endif; ?>
-                                </option>
+                                <?php if (!$variant['is_master']): ?>
+                                    <option value="<?php echo e($variant['id']); ?>">
+                                        <?php echo e($variant['variant_name']); ?>
+                                    </option>
+                                <?php endif; ?>
                             <?php endforeach; ?>
                         </select>
                         <p class="mt-1 text-sm text-gray-500">Select which CV to use as the base for rewriting</p>
@@ -318,7 +319,7 @@ $suggestedVariantName = suggestUniqueVariantName($user['id'], 'AI-Generated CV')
 
                     <!-- Submit Button -->
                     <div class="flex justify-end space-x-3">
-                        <a href="/cv-variants.php" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                        <a href="/content-editor.php#cv-variants" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
                             Cancel
                         </a>
                     <button type="submit" 
@@ -453,7 +454,7 @@ $suggestedVariantName = suggestUniqueVariantName($user['id'], 'AI-Generated CV')
             try {
                 // Create AbortController for timeout
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 180000); // 3 minute timeout
+                const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minute timeout (Ollama CV rewrite can be slow)
                 
                 const response = await fetch('/api/ai-rewrite-cv.php', {
                     method: 'POST',
@@ -488,7 +489,7 @@ $suggestedVariantName = suggestUniqueVariantName($user['id'], 'AI-Generated CV')
                 }
                 
                 if (result.success) {
-                    window.location.href = '/cv-variants.php?success=CV generated successfully';
+                    window.location.href = '/content-editor.php#cv-variants';
                 } else {
                     throw new Error(result.error || 'Failed to generate CV');
                 }
@@ -1070,7 +1071,7 @@ $suggestedVariantName = suggestUniqueVariantName($user['id'], 'AI-Generated CV')
                 if (loadingOverlay) loadingOverlay.remove();
 
                 if (saveResult.success) {
-                    window.location.href = '/cv-variants.php?success=CV generated successfully';
+                    window.location.href = '/content-editor.php#cv-variants';
                 } else {
                     throw new Error(saveResult.error || 'Failed to save rewritten CV');
                 }
@@ -1103,7 +1104,7 @@ $suggestedVariantName = suggestUniqueVariantName($user['id'], 'AI-Generated CV')
                         newLoadingOverlay.remove();
                         
                         if (result.success) {
-                            window.location.href = '/cv-variants.php?success=CV generated successfully';
+                            window.location.href = '/content-editor.php#cv-variants';
                         } else {
                             throw new Error(result.error || 'Failed to generate CV');
                         }

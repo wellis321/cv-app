@@ -987,7 +987,7 @@ if (isPost()) {
                                     
                                     const warningMsg = document.createElement('div');
                                     warningMsg.className = 'model-warning-message mt-2 text-sm text-yellow-700 bg-yellow-50 border border-yellow-200 rounded p-2';
-                                    warningMsg.innerHTML = '⚠️ The model "' + escapeHtml(currentModel) + '" was not found. Auto-updated to "' + escapeHtml(suggestedModel) + '"';
+                                    warningMsg.innerHTML = '<span class="inline-flex items-center gap-1.5"><svg class="w-4 h-4 flex-shrink-0 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>The model "' + escapeHtml(currentModel) + '" was not found. Auto-updated to "' + escapeHtml(suggestedModel) + '"</span>';
                                     testResult.parentNode.insertBefore(warningMsg, testResult.nextSibling);
                                     
                                     // Remove warning after 8 seconds
@@ -1003,7 +1003,7 @@ if (isPost()) {
                                     
                                     const infoMsg = document.createElement('div');
                                     infoMsg.className = 'model-info-message mt-2 text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded p-2';
-                                    infoMsg.innerHTML = '✓ Auto-filled model name: "' + escapeHtml(suggestedModel) + '"';
+                                    infoMsg.innerHTML = '<span class="inline-flex items-center gap-1.5"><svg class="w-4 h-4 flex-shrink-0 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>Auto-filled model name: "' + escapeHtml(suggestedModel) + '"</span>';
                                     testResult.parentNode.insertBefore(infoMsg, testResult.nextSibling);
                                     
                                     // Remove info message after 6 seconds
