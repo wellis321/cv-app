@@ -785,12 +785,9 @@
 <div class="bg-gray-900 py-16 sm:py-24" id="pricing">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="max-w-2xl text-center mx-auto">
-            <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">Flexible Plans for Organisations</h2>
+            <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">Individual plans</h2>
             <p class="mt-4 text-lg text-gray-300">
-                Organisation accounts are managed by system administrators with customisable limits for candidates and team members. Contact support to set up your organisation account.
-            </p>
-            <p class="mt-2 text-sm text-blue-200">
-                <strong>For Organisations:</strong> <a href="/organisations.php" class="underline hover:text-blue-100">View our getting started guide</a> • <strong>Individual Users:</strong> Create a free account below
+                Plans for job seekers and personal CV use. Free tier includes unlimited job tracking and AI-assisted CV and cover letters; the free plan has limited CV sections and no PDF export. Upgrade to Pro for unlimited sections and print-ready PDFs.
             </p>
         </div>
         <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -811,7 +808,7 @@
                 ],
                 [
                     'label' => 'Lifetime',
-                    'price' => 'TBC',
+                    'price' => '£34.99',
                     'detail' => 'one-time payment',
                     'highlight' => true,
                     'badge' => 'Beta Special',
@@ -826,7 +823,7 @@
                 ],
                 [
                     'label' => 'Pro Monthly',
-                    'price' => 'TBC',
+                    'price' => '£4.99',
                     'detail' => 'per month',
                     'highlight' => false,
                     'features' => [
@@ -839,7 +836,7 @@
                 ],
                 [
                     'label' => 'Pro Annual',
-                    'price' => 'TBC',
+                    'price' => '£29.99',
                     'detail' => 'per year',
                     'highlight' => false,
                     'features' => [
@@ -912,6 +909,19 @@
                     </div>
                 </div>
             <?php endforeach; ?>
+        </div>
+        <div class="mt-12 rounded-xl border border-gray-700 bg-gray-800 p-6 sm:p-8 text-center">
+            <h3 class="text-lg font-semibold text-white">For organisations &amp; agencies</h3>
+            <p class="mt-2 text-gray-300">
+                Recruitment agencies: manage candidates, team collaboration, and branding in one platform.
+            </p>
+            <ul class="mt-4 flex flex-wrap justify-center gap-x-6 gap-y-1 text-sm text-gray-400">
+                <li>Custom candidate and team limits</li>
+                <li>White-label branding and support</li>
+            </ul>
+            <a href="/organisations.php" class="mt-6 inline-flex items-center justify-center rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+                Contact us to set up your organisation
+            </a>
         </div>
         <p class="mt-8 text-center text-sm text-gray-400">
             Secure payments powered by Stripe. Cancel anytime from your billing portal.

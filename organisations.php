@@ -30,6 +30,9 @@ require_once __DIR__ . '/php/helpers.php';
                     <p class="mt-4 text-xl text-blue-100 max-w-3xl mx-auto">
                         Manage your candidates' CVs efficiently with our powerful B2B platform. Streamline your recruitment process and provide professional CV management for your candidates.
                     </p>
+                    <p class="mt-3 text-sm text-blue-200 max-w-2xl mx-auto">
+                        Pricing and limits (candidates, team members, features) are set per organisation. Contact us with your needs for a quote.
+                    </p>
                 </div>
             </div>
         </div>

@@ -12,7 +12,7 @@ $faqs = [
     ],
     [
         'question' => 'Is Simple CV Builder free to use?',
-        'answer' => 'Yes! Simple CV Builder offers a free plan that allows you to create a basic CV with essential sections. You can share your CV with a unique link and download it as a PDF. Premium plans are available for unlimited entries and additional features.'
+        'answer' => 'Yes! Simple CV Builder offers a free plan that allows you to create a basic CV with essential sections and share it with a unique link. The free plan has limited CV sections and no PDF export; upgrade to Pro for unlimited sections, PDF downloads, and premium templates.'
     ],
     [
         'question' => 'How do I create my CV?',
@@ -24,7 +24,7 @@ $faqs = [
     ],
     [
         'question' => 'Can I download my CV as a PDF?',
-        'answer' => 'Absolutely! You can download your CV as a PDF at any time. The PDF includes a QR code that links directly back to your online CV, making it easy for employers to access the latest version of your CV.'
+        'answer' => 'PDF download is available with Pro plans (Pro Monthly, Pro Annual, or Lifetime). The PDF includes a QR code that links back to your online CV. The free plan does not include PDF export; upgrade from your dashboard when you need print-ready PDFs.'
     ],
     [
         'question' => 'What sections can I include in my CV?',
@@ -32,7 +32,7 @@ $faqs = [
     ],
     [
         'question' => 'What\'s the difference between the free and premium plans?',
-        'answer' => 'The free plan allows you to create a basic CV with limited entries per section. Premium plans offer unlimited entries, priority support, and access to premium CV templates. You can upgrade or downgrade your plan at any time.'
+        'answer' => 'The free plan allows you to create a basic CV with limited entries per section (e.g. one work experience, one project, three skills) and no PDF export. Pro plans offer unlimited sections and entries, PDF downloads, premium templates, and priority support. You can upgrade or downgrade your plan at any time.'
     ],
     [
         'question' => 'How do I update my CV?',

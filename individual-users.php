@@ -245,13 +245,13 @@ require_once __DIR__ . '/php/helpers.php';
                                     <strong>Free Plan</strong> — One work experience entry, one project, three skills, basic template, and your online CV link. No credit card required.
                                 </p>
                                 <p class="text-gray-700 text-lg leading-relaxed mb-4">
-                                    <strong>Pro Monthly</strong> — TBC/month for unlimited sections, professional templates, customisable colours, PDF downloads, and priority support.
+                                    <strong>Pro Monthly</strong> — £4.99/month for unlimited sections, professional templates, customisable colours, PDF downloads, and priority support.
                                 </p>
                                 <p class="text-gray-700 text-lg leading-relaxed mb-4">
-                                    <strong>Pro Annual</strong> — TBC/year (save over 40% vs monthly billing).
+                                    <strong>Pro Annual</strong> — £29.99/year (save over 40% vs monthly billing).
                                 </p>
                                 <p class="text-gray-700 text-lg leading-relaxed">
-                                    <strong>Lifetime Plan</strong> — TBC one-time payment for lifetime access to all premium features. A special beta offer—pay once, never worry about subscriptions again, and get all future features at no additional cost.
+                                    <strong>Lifetime Plan</strong> — £34.99 one-time payment for lifetime access to all premium features. A special beta offer—pay once, never worry about subscriptions again, and get all future features at no additional cost.
                                 </p>
                             </div>
                             <div class="bg-gray-100 rounded-lg p-8 flex items-center justify-center">
