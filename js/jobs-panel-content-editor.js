@@ -407,6 +407,8 @@
                 '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Regenerate with AI</button>' +
                 '<button type="button" data-cover-letter-export-pdf data-cover-letter-id="' + esc(id) + '" class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-50 rounded-md border border-gray-300 hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-gray-400 transition-colors">' +
                 '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Export PDF</button>' +
+                '<button type="button" data-cover-letter-delete data-cover-letter-id="' + esc(id) + '" class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 rounded-md border border-red-200 hover:bg-red-100 focus:outline-none focus:ring-1 focus:ring-red-500 transition-colors">' +
+                '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>Delete cover letter</button>' +
                 '</div></div>';
             var editBtn = el.querySelector('[data-cover-letter-edit]');
             if (editBtn) editBtn.addEventListener('click', function() { renderCoverLetterEditMode(coverLetter); });
@@ -415,6 +417,25 @@
             var exportBtn = el.querySelector('[data-cover-letter-export-pdf]');
             if (exportBtn) exportBtn.addEventListener('click', function() {
                 doExportCoverLetterPdf(exportBtn.getAttribute('data-cover-letter-id'));
+            });
+            var deleteBtn = el.querySelector('[data-cover-letter-delete]');
+            if (deleteBtn) deleteBtn.addEventListener('click', function() {
+                if (!confirm('Are you sure you want to delete this cover letter? This cannot be undone.')) return;
+                var coverLetterId = deleteBtn.getAttribute('data-cover-letter-id');
+                if (!coverLetterId) return;
+                var fd = new FormData();
+                fd.append('csrf_token', csrfToken || '');
+                fd.append('cover_letter_id', coverLetterId);
+                fetch('/api/delete-cover-letter.php', { method: 'POST', body: fd, credentials: 'include' })
+                    .then(function(r) { return r.json(); })
+                    .then(function(result) {
+                        if (result.success) {
+                            renderCoverLetterEmpty();
+                        } else {
+                            alert(result.error || 'Could not delete cover letter');
+                        }
+                    })
+                    .catch(function() { alert('Could not delete cover letter. Please try again.'); });
             });
         }
 

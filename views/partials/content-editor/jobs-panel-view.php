@@ -124,21 +124,28 @@ $appDate = !empty($job['application_date']) ? date('j M Y', strtotime($job['appl
         
         <!-- Keywords Section -->
         <div id="keywords" class="mt-6 pt-6 border-t border-gray-200 scroll-mt-6">
-            <div class="flex items-center justify-between mb-3">
-                <div>
-                    <h2 class="text-sm font-semibold text-gray-900">Key Keywords & Skills</h2>
-                    <p class="text-xs text-gray-500 mt-1">Select keywords to use when generating your CV for this role</p>
-                </div>
-                <button type="button" id="extract-keywords-btn" data-application-id="<?php echo e($job['id']); ?>" data-csrf="<?php echo e($csrf); ?>" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 rounded-md border border-blue-200 hover:bg-blue-100 hover:border-blue-300 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
+            <div class="flex items-center justify-between mb-2">
+                <h2 class="text-sm font-semibold text-gray-900">Key Keywords & Skills</h2>
+                <div class="flex items-center gap-2">
                     <?php 
-                    $extractedKeywords = !empty($job['extracted_keywords']) ? json_decode($job['extracted_keywords'], true) : null;
-                    echo $extractedKeywords ? 'Re-extract Keywords' : 'Extract Keywords';
+                    $hasKeywords = !empty($job['extracted_keywords']) && is_array(json_decode($job['extracted_keywords'], true)) && count(json_decode($job['extracted_keywords'], true)) > 0;
                     ?>
-                </button>
+                    <button type="button" id="delete-keywords-btn" data-application-id="<?php echo e($job['id']); ?>" data-csrf="<?php echo e($csrf); ?>" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-700 bg-red-50 rounded-md border border-red-200 hover:bg-red-100 hover:border-red-300 focus:outline-none focus:ring-1 focus:ring-red-500 transition-colors <?php echo $hasKeywords ? '' : 'hidden'; ?>">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        Delete keywords
+                    </button>
+                    <button type="button" id="extract-keywords-btn" data-application-id="<?php echo e($job['id']); ?>" data-csrf="<?php echo e($csrf); ?>" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 rounded-md border border-blue-200 hover:bg-blue-100 hover:border-blue-300 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        <?php 
+                        $extractedKeywords = !empty($job['extracted_keywords']) ? json_decode($job['extracted_keywords'], true) : null;
+                        echo $extractedKeywords ? 'Re-extract Keywords' : 'Extract Keywords';
+                        ?>
+                    </button>
+                </div>
             </div>
+            <p class="text-sm font-medium text-gray-800 mb-3">Select keywords to use when generating your CV for this role</p>
             <div id="keywords-container" class="space-y-3">
                 <?php 
                 $extractedKeywords = !empty($job['extracted_keywords']) ? json_decode($job['extracted_keywords'], true) : null;
@@ -168,7 +175,7 @@ $appDate = !empty($job['application_date']) ? date('j M Y', strtotime($job['appl
                                 </label>
                             <?php endforeach; ?>
                         </div>
-                        <p class="mt-3 text-xs text-gray-600">Selected keywords will be used to tailor your CV when you generate a CV variant for this job.</p>
+                        <p class="mt-3 text-sm font-medium text-gray-800">Selected keywords will be used to tailor your CV when you generate a CV variant for this job.</p>
                     </div>
                 <?php else: ?>
                     <div class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
@@ -191,7 +198,7 @@ $appDate = !empty($job['application_date']) ? date('j M Y', strtotime($job['appl
         <?php if (!empty($job['application_url'])): ?>
         <div id="application-link" class="mt-6 pt-6 border-t border-gray-200 scroll-mt-6">
             <h2 class="text-sm font-semibold text-gray-900 mb-2">Application Link</h2>
-            <a href="<?php echo e($job['application_url']); ?>" target="_blank" rel="noopener" class="text-blue-600 hover:underline"><?php echo e($job['application_url']); ?></a>
+            <a href="<?php echo e($job['application_url']); ?>" target="_blank" rel="noopener" class="text-blue-600 hover:underline">Link here</a>
         </div>
         <?php endif; ?>
 
@@ -322,11 +329,53 @@ $appDate = !empty($job['application_date']) ? date('j M Y', strtotime($job['appl
         });
     }
     
+    var deleteKeywordsBtn = container.querySelector('#delete-keywords-btn');
+    if (deleteKeywordsBtn) {
+        deleteKeywordsBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var applicationId = deleteKeywordsBtn.getAttribute('data-application-id');
+            var csrf = deleteKeywordsBtn.getAttribute('data-csrf');
+            var keywordsContainer = container.querySelector('#keywords-container');
+            if (!applicationId || !csrf || !keywordsContainer) return;
+            if (!confirm('Remove all extracted and selected keywords for this job?')) return;
+            deleteKeywordsBtn.disabled = true;
+            deleteKeywordsBtn.innerHTML = '<span class="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full"></span> Deleting...';
+            var formData = new FormData();
+            formData.append('<?php echo CSRF_TOKEN_NAME; ?>', csrf);
+            formData.append('application_id', applicationId);
+            fetch('/api/delete-job-keywords.php', { method: 'POST', body: formData, credentials: 'include' })
+                .then(function(r) { return r.json(); })
+                .then(function(result) {
+                    if (result.success) {
+                        keywordsContainer.innerHTML = '<div class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center"><svg class="mx-auto h-8 w-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg><p class="text-sm text-gray-600 mb-2">Click "Extract Keywords" to identify important keywords from this job description</p><p class="text-xs text-gray-500">These keywords can help you tailor your CV and cover letter for this application</p></div>';
+                        deleteKeywordsBtn.classList.add('hidden');
+                        var extractBtn = container.querySelector('#extract-keywords-btn');
+                        if (extractBtn) {
+                            extractBtn.disabled = false;
+                            extractBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg> Extract Keywords';
+                        }
+                    } else {
+                        alert(result.error || 'Failed to delete keywords');
+                    }
+                })
+                .catch(function(err) {
+                    alert('Failed to delete keywords. Please try again.');
+                })
+                .finally(function() {
+                    deleteKeywordsBtn.disabled = false;
+                    deleteKeywordsBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg> Delete keywords';
+                });
+        });
+    }
+    
     function displayKeywords(keywords, container, button, selectedKeywords) {
+        var deleteBtn = document.getElementById('delete-keywords-btn');
         if (!container || !Array.isArray(keywords) || keywords.length === 0) {
-            container.innerHTML = '<div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4"><p class="text-sm text-yellow-800">No keywords found. Please try again.</p></div>';
+            container.innerHTML = '<div class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center"><svg class="mx-auto h-8 w-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg><p class="text-sm text-gray-600 mb-2">Click "Extract Keywords" to identify important keywords from this job description</p><p class="text-xs text-gray-500">These keywords can help you tailor your CV and cover letter for this application</p></div>';
             button.disabled = false;
             button.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg> Extract Keywords';
+            if (deleteBtn) deleteBtn.classList.add('hidden');
             return;
         }
         
@@ -350,12 +399,13 @@ $appDate = !empty($job['application_date']) ? date('j M Y', strtotime($job['appl
         });
         
         html += '</div>';
-        html += '<p class="mt-3 text-xs text-gray-600">Selected keywords will be used to tailor your CV when you generate a CV variant for this job.</p>';
+        html += '<p class="mt-3 text-sm font-medium text-gray-800">Selected keywords will be used to tailor your CV when you generate a CV variant for this job.</p>';
         html += '</div>';
         
         container.innerHTML = html;
         button.disabled = false;
         button.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg> Re-extract Keywords';
+        if (deleteBtn) deleteBtn.classList.remove('hidden');
         
         // Attach event listeners to checkboxes
         var checkboxes = container.querySelectorAll('.keyword-checkbox');
