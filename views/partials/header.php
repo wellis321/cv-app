@@ -193,15 +193,11 @@
                     </div>
                     <a href="/logout.php" class="px-1.5 py-1.5 md:px-2 md:py-2 rounded-md text-xs md:text-sm font-medium transition-colors whitespace-nowrap text-gray-700 hover:bg-red-50 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">Sign Out</a>
                 <?php else: ?>
-                    <?php
-                    $homeBase = APP_URL ?? '';
-                    $pricingUrl = rtrim($homeBase, '/') . '/#pricing';
-                    ?>
                     <a href="/organisations.php" class="px-2 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap <?php echo $currentPage === 'organisations.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?>">Organisations</a>
                     <a href="/individual-users.php" class="px-2 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap <?php echo $currentPage === 'individual-users.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?>">Individuals</a>
                     <a href="/job-applications-features.php" class="px-2 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap hidden lg:inline <?php echo $currentPage === 'job-applications-features.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?>">Job Applications</a>
                     <a href="/job-applications-features.php" class="px-2 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap lg:hidden <?php echo $currentPage === 'job-applications-features.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?>">Jobs</a>
-                    <a href="<?php echo e($pricingUrl); ?>" class="px-2 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap text-gray-700 hover:bg-blue-50 hover:text-blue-700">Pricing</a>
+                    <a href="/#pricing" class="px-2 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap text-gray-700 hover:bg-blue-50 hover:text-blue-700">Pricing</a>
                     <div class="relative group">
                         <button type="button"
                                 aria-expanded="false"
@@ -399,10 +395,6 @@
                     </a>
                 <?php else: ?>
                     <?php
-                    $homeBase = APP_URL ?? '';
-                    $pricingUrl = rtrim($homeBase, '/') . '/#pricing';
-                    ?>
-                    <?php
                     $currentPage = basename($_SERVER['PHP_SELF']);
                     ?>
                     <a href="/organisations.php" 
@@ -417,7 +409,7 @@
                        class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'job-applications-features.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
                         Job Applications
                     </a>
-                    <a href="<?php echo e($pricingUrl); ?>" 
+                    <a href="/#pricing" 
                        class="block px-4 py-2 rounded-md text-base font-medium transition-colors text-gray-700 hover:bg-blue-50 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
                         Pricing
                     </a>
