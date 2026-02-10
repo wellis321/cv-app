@@ -2,10 +2,10 @@
 RewriteEngine On
 
 # Force HTTPS in production (uncomment these 4 lines when SSL is configured)
-# RewriteCond %{HTTPS} !=on
-# RewriteCond %{HTTP_HOST} !^localhost [NC]
-# RewriteCond %{HTTP_HOST} !^127\.0\.0\.1
-# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+RewriteCond %{HTTPS} !=on
+RewriteCond %{HTTP_HOST} !^localhost [NC]
+RewriteCond %{HTTP_HOST} !^127\.0\.0\.1
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
 # Don't rewrite if the file exists
 RewriteCond %{REQUEST_FILENAME} -f
@@ -40,7 +40,7 @@ RewriteRule ^(.*)$ index.php [QSA,L]
     Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
 
     # HSTS - uncomment when using HTTPS in production
-    # Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
 </IfModule>
 
 # Protect sensitive files

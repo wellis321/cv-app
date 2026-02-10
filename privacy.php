@@ -49,6 +49,7 @@ require_once __DIR__ . '/php/helpers.php';
                         <li>User-provided API keys for third-party AI services (encrypted and stored securely)</li>
                         <li>Custom CV templates and designs (if you use AI template generation)</li>
                         <li>CV variants and versions (multiple versions of your CV for different job applications)</li>
+                        <li>Feedback submissions (when you submit feedback through our feedback widget, we collect your feedback message, the page URL where you submitted it, and technical information about your device and browser to help us understand and address your feedback)</li>
                     </ul>
 
                     <h3 class="text-xl font-semibold text-gray-900 mb-3">Automatically Collected Information</h3>
@@ -61,6 +62,7 @@ require_once __DIR__ . '/php/helpers.php';
                         <li>IP address and general location information</li>
                         <li>Referrer information</li>
                         <li>System capabilities (CPU cores, memory, GPU information) - only when you explicitly request a system check</li>
+                        <li>Technical information when submitting feedback (screen resolution, viewport size, device pixel ratio, timezone, language, browser user agent, and referrer URL) - collected automatically to help us understand and reproduce issues you report</li>
                     </ul>
                 </section>
 
@@ -79,10 +81,11 @@ require_once __DIR__ . '/php/helpers.php';
                         <li>Store and manage multiple CV variants for different job applications</li>
                         <li>Store uploaded documents (CVs, job descriptions) associated with job applications</li>
                         <li>Manage organisation accounts and member access (for organisation administrators)</li>
-                        <li>Analyze usage patterns to improve our service</li>
+                        <li>Analyse usage patterns to improve our service</li>
                         <li>Send important service notifications</li>
                         <li>Respond to your inquiries and provide customer support</li>
                         <li>Provide system capability recommendations (only when you explicitly request this feature)</li>
+                        <li>Process and respond to feedback submissions (we use the technical information collected with your feedback to understand and reproduce issues, improve our service, and respond to your concerns)</li>
                     </ul>
                 </section>
 
@@ -143,7 +146,7 @@ require_once __DIR__ . '/php/helpers.php';
                 <section class="mb-8">
                     <h2 class="text-2xl font-semibold text-gray-900 mb-4">Data Storage and Security</h2>
                     <p class="text-gray-700 mb-4">
-                        Your data is stored securely in MySQL database. We implement appropriate technical and organisational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction.
+                        Your data is stored securely in MySQL database. We implement appropriate technical and organisational measures to protect your personal information against unauthorised access, alteration, disclosure, or destruction.
                     </p>
                     <p class="text-gray-700 mb-4">
                         <strong>Encryption:</strong> Sensitive data, including API keys you provide, is encrypted using industry-standard encryption (AES-256-GCM) before storage. We cannot access your encrypted API keys in plain text.
@@ -177,7 +180,7 @@ require_once __DIR__ . '/php/helpers.php';
                 <section class="mb-8">
                     <h2 class="text-2xl font-semibold text-gray-900 mb-4">Data Retention</h2>
                     <p class="text-gray-700 mb-4">
-                        We retain your personal information for as long as your account is active or as needed to provide you services. If you delete your account, we will delete or anonymize your personal information within 30 days, except where we are required to retain it for legal or regulatory purposes.
+                        We retain your personal information for as long as your account is active or as needed to provide you services. If you delete your account, we will delete or anonymise your personal information within 30 days, except where we are required to retain it for legal or regulatory purposes.
                     </p>
                 </section>
 

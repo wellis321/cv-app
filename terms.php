@@ -51,7 +51,7 @@ require_once __DIR__ . '/php/helpers.php';
                         When you create an account with us, you must provide information that is accurate, complete, and current at all times. You are responsible for safeguarding the password and for all activities that occur under your account.
                     </p>
                     <p class="text-gray-700 mb-4">
-                        You agree not to disclose your password to any third party. You must notify us immediately upon becoming aware of any breach of security or unauthorized use of your account.
+                        You agree not to disclose your password to any third party. You must notify us immediately upon becoming aware of any breach of security or unauthorised use of your account.
                     </p>
                     <h3 class="text-xl font-semibold text-gray-900 mb-3 mt-4">Organisation Accounts</h3>
                     <p class="text-gray-700 mb-4">
@@ -139,7 +139,7 @@ require_once __DIR__ . '/php/helpers.php';
                 <section class="mb-8">
                     <h2 class="text-2xl font-semibold text-gray-900 mb-4">Limitations</h2>
                     <p class="text-gray-700 mb-4">
-                        In no event shall Simple CV Builder or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on Simple CV Builder, even if Simple CV Builder or a Simple CV Builder authorized representative has been notified orally or in writing of the possibility of such damage.
+                        In no event shall Simple CV Builder or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on Simple CV Builder, even if Simple CV Builder or a Simple CV Builder authorised representative has been notified orally or in writing of the possibility of such damage.
                     </p>
                 </section>
 

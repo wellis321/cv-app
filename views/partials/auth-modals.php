@@ -25,7 +25,7 @@ $oldLoginEmail = getFlash('old_login_email') ?: null;
                 <h3 class="text-2xl font-semibold text-gray-900" id="login-modal-title">Welcome back</h3>
                 <p class="mt-1 text-sm text-gray-500">Log in to continue editing and sharing your CV.</p>
             </div>
-            <div data-modal-message class="mb-4 hidden rounded-md border px-4 py-3 text-sm font-medium"></div>
+            <div data-modal-message role="alert" aria-live="polite" aria-atomic="true" class="mb-4 hidden rounded-md border px-4 py-3 text-sm font-medium"></div>
             <form method="POST" action="/">
                 <input type="hidden" name="action" value="login">
                 <input type="hidden" name="<?php echo CSRF_TOKEN_NAME; ?>" value="<?php echo csrfToken(); ?>">
@@ -90,7 +90,7 @@ $oldLoginEmail = getFlash('old_login_email') ?: null;
                 <h3 class="text-2xl font-semibold text-gray-900" id="register-modal-title">Create your free account</h3>
                 <p class="mt-1 text-sm text-gray-500">We'll guide you through building a standout CV in minutes.</p>
             </div>
-            <div data-modal-message class="mb-4 hidden rounded-md border px-4 py-3 text-sm font-medium"></div>
+            <div data-modal-message role="alert" aria-live="polite" aria-atomic="true" class="mb-4 hidden rounded-md border px-4 py-3 text-sm font-medium"></div>
             <form method="POST" action="/">
                 <input type="hidden" name="action" value="register">
                 <input type="hidden" name="<?php echo CSRF_TOKEN_NAME; ?>" value="<?php echo csrfToken(); ?>">
@@ -202,6 +202,24 @@ $oldLoginEmail = getFlash('old_login_email') ?: null;
         document.querySelectorAll('[data-open-login]').forEach((trigger) => {
             trigger.addEventListener('click', (e) => {
                 e.preventDefault();
+                const redirect = trigger.getAttribute('data-redirect');
+                const loginModal = modalMap.get('login');
+                if (loginModal && redirect) {
+                    const redirectInput = loginModal.querySelector('input[name="redirect"]');
+                    if (redirectInput) {
+                        redirectInput.value = redirect;
+                    } else {
+                        // Create redirect input if it doesn't exist
+                        const form = loginModal.querySelector('form');
+                        if (form) {
+                            const hiddenInput = document.createElement('input');
+                            hiddenInput.type = 'hidden';
+                            hiddenInput.name = 'redirect';
+                            hiddenInput.value = redirect;
+                            form.insertBefore(hiddenInput, form.firstChild);
+                        }
+                    }
+                }
                 openModal('login');
             });
         });

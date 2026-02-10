@@ -78,6 +78,17 @@ $jobJson = htmlspecialchars(json_encode($job), ENT_QUOTES, 'UTF-8');
                 </div>
             </div>
 
+            <div>
+                <label for="form-priority" class="block text-base font-semibold text-gray-900 mb-3">Priority</label>
+                <select id="form-priority" name="priority"
+                        class="block w-full rounded-lg border-2 border-gray-400 bg-white px-4 py-3 text-base font-medium text-gray-900 shadow-sm transition-colors focus:border-blue-600 focus:ring-4 focus:ring-blue-200 focus:outline-none">
+                    <option value="">None</option>
+                    <option value="low" <?php echo ($job['priority'] ?? '') === 'low' ? 'selected' : ''; ?>>Low</option>
+                    <option value="medium" <?php echo ($job['priority'] ?? '') === 'medium' ? 'selected' : ''; ?>>Medium</option>
+                    <option value="high" <?php echo ($job['priority'] ?? '') === 'high' ? 'selected' : ''; ?>>High</option>
+                </select>
+            </div>
+
             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <div>
                     <label for="form-date" class="block text-base font-semibold text-gray-900 mb-3">Application Date</label>

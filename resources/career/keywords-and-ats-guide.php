@@ -5,11 +5,13 @@ $pageTitle = 'CV Keywords and ATS: A Complete Guide';
 $metaDescription = 'Learn how Applicant Tracking Systems (ATS) work, why keywords matter in your CV, and how to optimise your CV to pass ATS screening and reach human recruiters.';
 $canonicalUrl = APP_URL . '/resources/career/keywords-and-ats-guide.php';
 
+$img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $id . '?w=' . $w . '&q=80'; };
+
 $sections = [
     [
         'id' => 'what-is-ats',
         'title' => 'What is an Applicant Tracking System (ATS)?',
-        'image' => 'static/images/resources-images/placeholder-ats-system.png',
+        'image' => $img('1557804506-669a67965ba0', 800),
         'image_alt' => 'Illustration showing an Applicant Tracking System processing CVs',
         'content' => [
             'An Applicant Tracking System, or ATS, is software used by employers to manage and filter job applications. When you submit your CV online, it often goes through an ATS before a human recruiter ever sees it.',
@@ -21,7 +23,7 @@ $sections = [
     [
         'id' => 'how-ats-works',
         'title' => 'How Does an ATS Work?',
-        'image' => 'static/images/resources-images/placeholder-ats-process.png',
+        'image' => $img('1531403009284-440f080d1e12', 800),
         'image_alt' => 'Diagram showing how ATS systems parse and rank CVs',
         'content' => [
             'When you submit your CV through an online application system, the ATS performs several key functions:',
@@ -52,7 +54,7 @@ $sections = [
     [
         'id' => 'why-keywords-matter',
         'title' => 'Why Keywords Matter in Your CV',
-        'image' => 'static/images/resources-images/placeholder-keywords.png',
+        'image' => $img('1504384308090-c894fdcc538d', 800),
         'image_alt' => 'Visual representation of keywords being highlighted in a CV',
         'content' => [
             'Keywords are specific words or phrases that appear in job descriptions and that recruiters use to identify qualified candidates. They represent the skills, qualifications, tools, technologies, and experience that employers are looking for.',
@@ -74,7 +76,7 @@ $sections = [
     [
         'id' => 'finding-keywords',
         'title' => 'How to Find the Right Keywords',
-        'image' => 'static/images/resources-images/placeholder-finding-keywords.png',
+        'image' => $img('1586281380349-632531db7ed4', 800),
         'image_alt' => 'Person analyzing a job description to identify keywords',
         'content' => [
             'The best source for keywords is the job description itself. Employers tell you exactly what they\'re looking for – you just need to listen carefully and incorporate their language into your CV.',
@@ -117,7 +119,7 @@ $sections = [
     [
         'id' => 'optimising-your-cv',
         'title' => 'How to Optimise Your CV with Keywords',
-        'image' => 'static/images/resources-images/placeholder-cv-optimisation.png',
+        'image' => $img('1557804506-669a67965ba0', 800),
         'image_alt' => 'CV being optimized with keywords throughout different sections',
         'content' => [
             'Once you\'ve identified relevant keywords, the next step is incorporating them naturally throughout your CV. Remember: the goal is to use keywords in a way that feels authentic and demonstrates your actual experience.',
@@ -166,7 +168,7 @@ $sections = [
     [
         'id' => 'common-mistakes',
         'title' => 'Common Keyword Mistakes to Avoid',
-        'image' => 'static/images/resources-images/placeholder-mistakes.png',
+        'image' => $img('1531403009284-440f080d1e12', 800),
         'image_alt' => 'Illustration showing common CV keyword mistakes',
         'content' => [
             'While keywords are important, there are several mistakes that can actually hurt your chances:',
@@ -205,7 +207,7 @@ $sections = [
     [
         'id' => 'ats-friendly-formatting',
         'title' => 'ATS-Friendly CV Formatting',
-        'image' => 'static/images/resources-images/placeholder-formatting.png',
+        'image' => $img('1504384308090-c894fdcc538d', 800),
         'image_alt' => 'Comparison of ATS-friendly and unfriendly CV formatting',
         'content' => [
             'Beyond keywords, your CV\'s format also affects how well ATS systems can read and parse it. Follow these formatting guidelines:',
@@ -228,7 +230,7 @@ $sections = [
     [
         'id' => 'tailoring-for-each-role',
         'title' => 'Tailoring Keywords for Each Application',
-        'image' => 'static/images/resources-images/placeholder-tailoring.png',
+        'image' => $img('1586281380349-632531db7ed4', 800),
         'image_alt' => 'CV being customized for different job applications',
         'content' => [
             'While it\'s tempting to create one CV and send it to multiple employers, tailoring your CV for each specific role significantly improves your chances of passing ATS screening.',
@@ -253,7 +255,7 @@ $sections = [
     [
         'id' => 'measuring-success',
         'title' => 'How to Know If Your CV is ATS-Optimised',
-        'image' => 'static/images/resources-images/placeholder-success.png',
+        'image' => $img('1557804506-669a67965ba0', 800),
         'image_alt' => 'CV passing ATS screening and reaching recruiters',
         'content' => [
             'While you can\'t always know exactly how an ATS will score your CV, there are several indicators that suggest your CV is well-optimised:',
@@ -316,61 +318,70 @@ $sections = [
         <?php foreach ($sections as $index => $section): ?>
             <?php
             $imagePath = $section['image'] ?? null;
-            $encodedImagePath = $imagePath ? '/' . str_replace(' ', '%20', $imagePath) : null;
+            $isUrl = $imagePath && (strpos($imagePath, 'http://') === 0 || strpos($imagePath, 'https://') === 0);
+            $encodedImagePath = $imagePath ? ($isUrl ? $imagePath : '/' . str_replace(' ', '%20', $imagePath)) : null;
             $imageAlt = $section['image_alt'] ?? ($section['title'] ?? 'Article illustration');
             $reverseLayout = $index % 2 === 1;
             ?>
             <section id="<?php echo e($section['id']); ?>" class="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg shadow-slate-900/5">
-                <div class="flex flex-col gap-6 <?php echo $reverseLayout ? 'lg:flex-row-reverse' : 'lg:flex-row'; ?> lg:items-center">
+                <div class="flex flex-col gap-6 <?php echo $reverseLayout ? 'lg:flex-row-reverse' : 'lg:flex-row'; ?> lg:items-stretch">
                     <?php if ($encodedImagePath): ?>
                         <?php
-                        // For static article images, generate responsive URLs based on naming convention
-                        // Only include srcset entries for variants that actually exist
-                        $imageBasePath = dirname($encodedImagePath);
-                        $imageFileName = basename($encodedImagePath);
-                        $pathInfo = pathinfo($imageFileName);
-                        $baseName = $pathInfo['filename'];
-                        $ext = $pathInfo['extension'] ?? 'png';
-                        
-                        // Get full path to original image for checking variant existence
-                        $originalFullPath = $_SERVER['DOCUMENT_ROOT'] . str_replace('%20', ' ', $encodedImagePath);
-                        
-                        // Generate responsive image URLs (only for variants that exist)
-                        $responsiveSizes = [
-                            'thumb' => ['width' => 150, 'height' => 150],
-                            'small' => ['width' => 400, 'height' => 400],
-                            'medium' => ['width' => 800, 'height' => 800],
-                            'large' => ['width' => 1200, 'height' => 1200]
-                        ];
-                        
-                        $srcsetParts = [];
-                        foreach ($responsiveSizes as $sizeName => $dimensions) {
-                            $responsiveFileName = $baseName . '_' . $sizeName . '.' . $ext;
-                            $responsiveFullPath = dirname($originalFullPath) . '/' . str_replace('%20', ' ', $responsiveFileName);
-                            $responsivePath = $imageBasePath . '/' . $responsiveFileName;
+                        if ($isUrl) {
+                            // For Unsplash URLs, use them directly
+                            $imageSrc = $encodedImagePath;
+                            $srcset = '';
+                            $sizesAttr = '';
+                        } else {
+                            // For static article images, generate responsive URLs based on naming convention
+                            // Only include srcset entries for variants that actually exist
+                            $imageBasePath = dirname($encodedImagePath);
+                            $imageFileName = basename($encodedImagePath);
+                            $pathInfo = pathinfo($imageFileName);
+                            $baseName = $pathInfo['filename'];
+                            $ext = $pathInfo['extension'] ?? 'png';
                             
-                            // Only add to srcset if the file actually exists
-                            if (file_exists($responsiveFullPath)) {
-                                $srcsetParts[] = $responsivePath . ' ' . $dimensions['width'] . 'w';
+                            // Get full path to original image for checking variant existence
+                            $originalFullPath = $_SERVER['DOCUMENT_ROOT'] . str_replace('%20', ' ', $encodedImagePath);
+                            
+                            // Generate responsive image URLs (only for variants that exist)
+                            $responsiveSizes = [
+                                'thumb' => ['width' => 150, 'height' => 150],
+                                'small' => ['width' => 400, 'height' => 400],
+                                'medium' => ['width' => 800, 'height' => 800],
+                                'large' => ['width' => 1200, 'height' => 1200]
+                            ];
+                            
+                            $srcsetParts = [];
+                            foreach ($responsiveSizes as $sizeName => $dimensions) {
+                                $responsiveFileName = $baseName . '_' . $sizeName . '.' . $ext;
+                                $responsiveFullPath = dirname($originalFullPath) . '/' . str_replace('%20', ' ', $responsiveFileName);
+                                $responsivePath = $imageBasePath . '/' . $responsiveFileName;
+                                
+                                // Only add to srcset if the file actually exists
+                                if (file_exists($responsiveFullPath)) {
+                                    $srcsetParts[] = $responsivePath . ' ' . $dimensions['width'] . 'w';
+                                }
                             }
+                            $srcset = implode(', ', $srcsetParts);
+                            $sizesAttr = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 800px';
+                            $imageSrc = $encodedImagePath;
                         }
-                        $srcset = implode(', ', $srcsetParts);
-                        $sizesAttr = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 800px';
                         ?>
-                        <div class="w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-sm lg:w-5/12">
-                            <img src="<?php echo e($encodedImagePath); ?>"
+                        <div class="w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-sm lg:w-5/12 flex">
+                            <img src="<?php echo e($imageSrc); ?>"
                                  <?php if (!empty($srcset)): ?>
                                      srcset="<?php echo e($srcset); ?>"
                                      sizes="<?php echo e($sizesAttr); ?>"
                                  <?php endif; ?>
                                  alt="<?php echo e($imageAlt); ?>"
-                                 class="h-80 w-full object-cover" 
+                                 class="w-full h-full object-cover min-h-[320px]" 
                                  loading="lazy"
                                  width="800"
                                  height="600">
                         </div>
                     <?php endif; ?>
-                    <div class="<?php echo $encodedImagePath ? 'lg:w-7/12' : ''; ?>">
+                    <div class="<?php echo $encodedImagePath ? 'lg:w-7/12 flex flex-col' : ''; ?>">
                         <h2 class="text-2xl font-semibold text-slate-900"><?php echo e($section['title']); ?></h2>
                         <div class="mt-4 space-y-5">
                     <?php if (!empty($section['content'])): ?>

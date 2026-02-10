@@ -6,6 +6,8 @@
 
 require_once __DIR__ . '/php/helpers.php';
 
+$img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $id . '?w=' . $w . '&q=80'; };
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -21,16 +23,16 @@ require_once __DIR__ . '/php/helpers.php';
 
     <main id="main-content" role="main">
         <!-- Hero Section -->
-        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-                <div class="text-center">
-                    <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
-                        For Individual Users
-                    </h1>
-                    <p class="mt-4 text-xl text-blue-100 max-w-3xl mx-auto">
-                        Create a professional CV that stands out, updates in real-time, and can be shared as a simple link. Build your career profile with our comprehensive CV builder.
-                    </p>
-                </div>
+        <div class="relative min-h-[42vh] flex flex-col justify-center bg-gray-900 text-white overflow-hidden">
+            <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1920&q=80');" aria-hidden="true"></div>
+            <div class="absolute inset-0 bg-gray-900/70" aria-hidden="true"></div>
+            <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+                <h1 class="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl text-white">
+                    For Individual Users
+                </h1>
+                <p class="mt-6 text-xl text-gray-200 max-w-2xl mx-auto leading-relaxed">
+                    Create a professional CV that stands out, updates in real-time, and can be shared as a simple link. Build your career profile with our CV builder.
+                </p>
             </div>
         </div>
 
@@ -64,8 +66,8 @@ require_once __DIR__ . '/php/helpers.php';
                                     Click "Register" on our homepage and enter your name, email, and password. We'll send a verification link to activate your account. No credit card required, and you can start building immediately on our free plan. Explore the platform, see what we offer, then upgrade when you're ready for premium features.
                                 </p>
                             </div>
-                            <div class="bg-gray-100 rounded-lg p-8 flex items-center justify-center">
-                                <p class="text-gray-500 text-sm">[Image placeholder: Person using laptop/tablet to create CV]</p>
+                            <div>
+                                <img src="<?php echo e($img('1521737854147-629d0c56a063', 600)); ?>" alt="Person using laptop to create CV" class="w-full rounded-lg border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
                             </div>
                         </div>
                         <div class="mt-6">
@@ -109,8 +111,8 @@ require_once __DIR__ . '/php/helpers.php';
                                     Your CV link (<code class="bg-gray-100 px-2 py-1 rounded text-sm font-mono">/cv/@your-username</code>) always shows current information. But we haven't forgotten traditional PDFs—download print-ready versions whenever you need them, complete with a QR code linking back to your online CV.
                                 </p>
                             </div>
-                            <div class="bg-gray-100 rounded-lg p-8 flex items-center justify-center">
-                                <p class="text-gray-500 text-sm">[Image placeholder: CV link being shared on mobile/desktop]</p>
+                            <div>
+                                <img src="<?php echo e($img('1586281380349-632531db7ed4', 600)); ?>" alt="CV link being shared on mobile and desktop" class="w-full rounded-lg border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
                             </div>
                         </div>
                     </div>
@@ -118,7 +120,7 @@ require_once __DIR__ . '/php/helpers.php';
                     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
                         <h3 class="text-2xl font-semibold text-gray-900 mb-4">More Than Just a CV Builder</h3>
                         <p class="text-gray-700 text-lg leading-relaxed mb-4">
-                            We're a complete career management platform. Every account includes an <a href="/job-applications-features.php" class="text-blue-600 hover:text-blue-800 underline font-medium">integrated job application tracker</a>. Manage your entire job search from one place: track applications, monitor progress, set follow-up reminders, and attach documents. See at a glance which applications are pending, interviewing, or resulted in offers.
+                            We're a complete career management platform. Every account includes an <a href="/job-applications-features.php" class="text-blue-600 hover:text-blue-800 underline font-medium">integrated job application tracker</a>. <strong>Save job listings in one click</strong> from any job board or company site—then fill in the details later. Manage your entire job search from one place: track applications, set priorities and closing-date reminders, monitor progress, and attach documents. See at a glance which applications are pending, interviewing, or resulted in offers.
                         </p>
                         <p class="text-gray-700 text-lg leading-relaxed">
                             This integration is seamless. Your CV and job applications live together, making your search more organised and less stressful. And it's included with every account, even the free one.
@@ -130,8 +132,8 @@ require_once __DIR__ . '/php/helpers.php';
                         <p class="text-gray-700 text-lg leading-relaxed mb-4">
                             Tailor your CV for different opportunities. With paid plans, drag-and-drop to reorder work experience, select which sections to include in PDFs, and choose from professional templates with customisable colours. Your CV evolves with your needs—add entries as you gain experience, reorganise as your focus shifts, and adjust presentation for your industry.
                         </p>
-                        <div class="bg-gray-100 rounded-lg p-8 flex items-center justify-center mt-4">
-                            <p class="text-gray-500 text-sm">[Image placeholder: CV customisation interface showing drag-and-drop]</p>
+                        <div class="mt-4">
+                            <img src="<?php echo e($img('1504384308090-c894fdcc538d', 600)); ?>" alt="CV customisation interface showing drag-and-drop" class="w-full rounded-lg border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
                         </div>
                     </div>
                 </div>
@@ -160,8 +162,8 @@ require_once __DIR__ . '/php/helpers.php';
                         <p class="text-gray-700 text-lg leading-relaxed">
                             You're not locked into a rigid template. Include as much or little detail as you want, and adjust anytime.
                         </p>
-                        <div class="bg-gray-100 rounded-lg p-8 flex items-center justify-center mt-4">
-                            <p class="text-gray-500 text-sm">[Image placeholder: CV sections interface showing all available sections]</p>
+                        <div class="mt-4">
+                            <img src="<?php echo e($img('1531403009284-440f080d1e12', 600)); ?>" alt="CV sections interface showing all available sections" class="w-full rounded-lg border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
                         </div>
                     </div>
 
@@ -180,11 +182,11 @@ require_once __DIR__ . '/php/helpers.php';
                         <div class="grid md:grid-cols-2 gap-6 items-center">
                             <div>
                                 <p class="text-gray-700 text-lg leading-relaxed mb-4">
-                                    Generate professional, print-ready PDFs that are ATS-friendly (Applicant Tracking System compatible). Every PDF includes a QR code linking to your online CV. With paid plans, access multiple templates with customisable colours and choose which sections to include—create different versions for different opportunities while maintaining one master CV online.
+                                    Generate professional, print-ready PDFs that are ATS-friendly (Applicant Tracking System compatible). Optionally include a QR code in your PDF exports linking to your online CV. With paid plans, access multiple templates with customisable colours and choose which sections to include—create different versions for different opportunities while maintaining one master CV online.
                                 </p>
                             </div>
-                            <div class="bg-gray-100 rounded-lg p-8 flex items-center justify-center">
-                                <p class="text-gray-500 text-sm">[Image placeholder: PDF download example with QR code]</p>
+                            <div>
+                                <img src="<?php echo e($img('1557804506-669a67965ba0', 600)); ?>" alt="PDF download example with QR code" class="w-full rounded-lg border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
                             </div>
                         </div>
                     </div>
@@ -213,8 +215,8 @@ require_once __DIR__ . '/php/helpers.php';
                                     This integration is included with every account, even the free one.
                                 </p>
                             </div>
-                            <div class="bg-gray-100 rounded-lg p-8 flex items-center justify-center">
-                                <p class="text-gray-500 text-sm">[Image placeholder: Job application tracker dashboard]</p>
+                            <div>
+                                <img src="<?php echo e($img('1586281380349-632531db7ed4', 600)); ?>" alt="Job application tracker dashboard" class="w-full rounded-lg border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
                             </div>
                         </div>
                         <div class="mt-6">
@@ -245,17 +247,17 @@ require_once __DIR__ . '/php/helpers.php';
                                     <strong>Free Plan</strong> — One work experience entry, one project, three skills, basic template, and your online CV link. No credit card required.
                                 </p>
                                 <p class="text-gray-700 text-lg leading-relaxed mb-4">
-                                    <strong>Pro Monthly</strong> — £4.99/month for unlimited sections, professional templates, customisable colours, PDF downloads, and priority support.
+                                    <strong>Pro Monthly</strong> — Try free for 1 month, then £4.99/month. Unlimited sections, professional templates, PDF downloads, and priority support.
                                 </p>
                                 <p class="text-gray-700 text-lg leading-relaxed mb-4">
-                                    <strong>Pro Annual</strong> — £29.99/year (save over 40% vs monthly billing).
+                                    <strong>Pro Annual</strong> — Try free for 1 month, then £29.99/year (save over 40% vs monthly).
                                 </p>
                                 <p class="text-gray-700 text-lg leading-relaxed">
-                                    <strong>Lifetime Plan</strong> — £34.99 one-time payment for lifetime access to all premium features. A special beta offer—pay once, never worry about subscriptions again, and get all future features at no additional cost.
+                                    <strong>Lifetime Plan</strong> — £39.99 one-time payment for lifetime access to all Pro features. No subscription.
                                 </p>
                             </div>
-                            <div class="bg-gray-100 rounded-lg p-8 flex items-center justify-center">
-                                <p class="text-gray-500 text-sm">[Image placeholder: Pricing comparison or plan features]</p>
+                            <div>
+                                <img src="<?php echo e($img('1557804506-669a67965ba0', 600)); ?>" alt="Pricing comparison and plan features" class="w-full rounded-lg border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
                             </div>
                         </div>
                         <p class="text-gray-700 text-lg leading-relaxed mb-4">
@@ -287,8 +289,8 @@ require_once __DIR__ . '/php/helpers.php';
                                     We never share your data with third parties for marketing, never sell your information, and never use it for targeted ads. Your data is yours—we're just the platform that helps you manage it.
                                 </p>
                             </div>
-                            <div class="bg-gray-100 rounded-lg p-8 flex items-center justify-center">
-                                <p class="text-gray-500 text-sm">[Image placeholder: Security/privacy illustration]</p>
+                            <div>
+                                <img src="<?php echo e($img('1557804506-669a67965ba0', 600)); ?>" alt="Security and privacy illustration" class="w-full rounded-lg border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
                             </div>
                         </div>
                         <p class="text-gray-700 text-lg leading-relaxed">

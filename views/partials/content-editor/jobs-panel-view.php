@@ -27,7 +27,8 @@ $status = $job['status'] ?? 'applied';
 $statusLabel = $statusLabels[$status] ?? $status;
 $statusCss = $statusClass[$status] ?? 'bg-gray-100 text-gray-800';
 $csrf = csrfToken();
-$appDate = !empty($job['application_date']) ? date('j M Y', strtotime($job['application_date'])) : '—';
+$appDate = !empty($job['application_date']) ? date('j M Y', strtotime($job['application_date'])) : null;
+$savedDate = !empty($job['created_at']) ? date('j M Y, g:i a', strtotime($job['created_at'])) : '—';
 ?>
 <div class="flex gap-6 relative" data-jobs-view-container data-application-id="<?php echo e($job['id']); ?>" data-csrf="<?php echo e($csrf); ?>">
     <!-- Sticky Navigation Sidebar -->
@@ -84,7 +85,14 @@ $appDate = !empty($job['application_date']) ? date('j M Y', strtotime($job['appl
                     <h1 class="text-2xl font-bold text-gray-900"><?php echo e($job['job_title'] ?? 'Untitled'); ?></h1>
                     <p class="text-lg text-gray-600 font-medium mt-1"><?php echo e($job['company_name'] ?? ''); ?></p>
                 </div>
-                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium <?php echo $statusCss; ?>"><?php echo e($statusLabel); ?></span>
+                <div class="flex flex-wrap items-center gap-2 justify-end">
+                    <?php if (!empty($job['priority'])): ?>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium <?php
+                        echo $job['priority'] === 'high' ? 'bg-red-100 text-red-800' : ($job['priority'] === 'medium' ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-800');
+                    ?>"><?php echo e(ucfirst($job['priority'])); ?></span>
+                    <?php endif; ?>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium <?php echo $statusCss; ?>"><?php echo e($statusLabel); ?></span>
+                </div>
             </div>
         <div class="space-y-4 text-sm">
             <?php if (!empty($job['job_location'])): ?>
@@ -107,12 +115,31 @@ $appDate = !empty($job['application_date']) ? date('j M Y', strtotime($job['appl
             <?php endif; ?>
             <div class="flex items-center gap-2 text-gray-500">
                 <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                Applied: <?php echo e($appDate); ?>
+                <?php if ($appDate): ?>Applied: <?php echo e($appDate); ?><?php else: ?>Saved: <?php echo e($savedDate); ?><?php endif; ?>
             </div>
             <?php if (!empty($job['next_follow_up'])): ?>
-            <div class="flex items-center gap-2 text-gray-500">
-                <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                Follow-up / closing date: <?php echo e(date('j M Y', strtotime($job['next_follow_up']))); ?>
+            <?php
+            // Normalize both dates to midnight for accurate day calculation
+            $followUpDate = date('Y-m-d', strtotime($job['next_follow_up']));
+            $todayDate = date('Y-m-d');
+            $followUpTs = strtotime($followUpDate . ' 00:00:00');
+            $todayTs = strtotime($todayDate . ' 00:00:00');
+            $daysUntil = $followUpTs ? (int) floor(($followUpTs - $todayTs) / 86400) : null;
+            $isDueSoon = $daysUntil !== null && $daysUntil <= 7;
+            $isUrgent = $daysUntil !== null && $daysUntil <= 1;
+            ?>
+            <div class="flex items-center gap-2 <?php echo $isDueSoon ? 'rounded-lg p-3 ' . ($isUrgent ? 'bg-red-50 text-red-800' : 'bg-amber-50 text-amber-800') : 'text-gray-500'; ?>">
+                <svg class="w-4 h-4 flex-shrink-0 <?php echo $isDueSoon ? ($isUrgent ? 'text-red-500' : 'text-amber-500') : 'text-gray-400'; ?>" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span class="font-medium">Follow-up / closing date: 
+                    <?php if ($daysUntil !== null && $daysUntil >= 0 && $daysUntil <= 7): ?>
+                        <?php if ($daysUntil === 0): ?>Due today
+                        <?php elseif ($daysUntil === 1): ?>Due tomorrow
+                        <?php else: ?>Due in <?php echo $daysUntil; ?> days
+                        <?php endif; ?>
+                    <?php else: ?>
+                        <?php echo e(date('j M Y', $followUpTs)); ?>
+                    <?php endif; ?>
+                </span>
             </div>
             <?php endif; ?>
         </div>
@@ -1117,22 +1144,49 @@ $appDate = !empty($job['application_date']) ? date('j M Y', strtotime($job['appl
             if (id) window.location.hash = '#jobs&edit=' + id;
         } else if (del) {
             e.preventDefault();
-            if (!confirm('Are you sure you want to delete this application?')) return;
+            e.stopPropagation();
+            
+            // Prevent multiple clicks
+            if (del.disabled || del.dataset.deleting === 'true') {
+                return;
+            }
+            del.disabled = true;
+            del.dataset.deleting = 'true';
+            
+            if (!confirm('Are you sure you want to delete this application?')) {
+                del.disabled = false;
+                delete del.dataset.deleting;
+                return;
+            }
+            
             var id = del.getAttribute('data-job-id');
             var csrf = del.getAttribute('data-csrf');
+            
             fetch('/api/job-applications.php?id=' + encodeURIComponent(id), {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ csrf_token: csrf }),
                 credentials: 'include'
-            }).then(function(r) {
-                if (r.ok) {
+            })
+            .then(function(r) {
+                return r.json().then(function(data) {
+                    return { ok: r.ok, data: data };
+                });
+            })
+            .then(function(result) {
+                if (result.ok && result.data && result.data.success) {
                     window.location.hash = '#jobs';
                 } else {
-                    alert('Could not delete. Please try again.');
+                    alert(result.data && result.data.error ? result.data.error : 'Could not delete. Please try again.');
+                    del.disabled = false;
+                    delete del.dataset.deleting;
                 }
-            }).catch(function() {
+            })
+            .catch(function(err) {
+                console.error('Delete error:', err);
                 alert('Could not delete. Please try again.');
+                del.disabled = false;
+                delete del.dataset.deleting;
             });
         }
     });

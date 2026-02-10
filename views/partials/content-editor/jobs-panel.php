@@ -100,42 +100,128 @@ $stats = getJobApplicationStats($userId);
                     </button>
                 </div>
             </div>
-            <button id="jobs-add-application-btn" 
-                    class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-1 focus:ring-green-500 transition-colors shrink-0">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                </svg>
-                Add New Application
-            </button>
+            <div class="flex flex-wrap gap-2 shrink-0 items-center">
+                <button type="button" id="jobs-quick-add-link-btn"
+                        class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                        title="Paste a job URL to quickly add it to your list (no extension needed)">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+                    </svg>
+                    Quick add from link
+                </button>
+                <a href="/save-job-token.php" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline focus:outline-none"
+                   title="Get save token for browser extension (one-click save from any job page)">
+                    Get save token
+                </a>
+                <button id="jobs-add-application-btn" 
+                        class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-1 focus:ring-green-500 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Add New Application
+                </button>
+            </div>
         </div>
 
-        <!-- Applications Container -->
-        <div id="jobs-applications-container" class="bg-white rounded-lg shadow">
+        <!-- Applications Container (data-csrf set by JS when jobs load) -->
+        <div id="jobs-applications-container" class="bg-white rounded-lg shadow" data-csrf="">
             <div class="p-6">
                 <!-- Cards View -->
                 <div id="jobs-applications-cards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div class="text-center py-12 text-gray-500 col-span-full">Loading applications...</div>
                 </div>
                 <!-- Table View -->
-                <div id="jobs-applications-table" class="hidden overflow-x-auto">
+                <style>
+                    #jobs-applications-table {
+                        position: relative;
+                    }
+                    #jobs-applications-table::-webkit-scrollbar {
+                        height: 12px;
+                    }
+                    #jobs-applications-table::-webkit-scrollbar-track {
+                        background: #f1f1f1;
+                    }
+                    #jobs-applications-table::-webkit-scrollbar-thumb {
+                        background: #888;
+                        border-radius: 6px;
+                    }
+                    #jobs-applications-table::-webkit-scrollbar-thumb:hover {
+                        background: #555;
+                    }
+                    /* Always show horizontal scrollbar */
+                    #jobs-applications-table {
+                        overflow-x: scroll !important;
+                        overflow-y: auto;
+                    }
+                </style>
+                <div id="jobs-applications-table" class="hidden" style="max-height: calc(100vh - 300px); overflow-x: scroll; overflow-y: auto;">
                     <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
+                        <thead class="bg-gray-50 sticky top-0 z-10">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Job Title</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Salary</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applied</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Company</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Job Title</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Priority</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Closing Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Location</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Salary</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Date Added</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="jobs-table-body" class="bg-white divide-y divide-gray-200">
-                            <tr><td colspan="7" class="px-6 py-12 text-center text-gray-500">Loading applications...</td></tr>
+                            <tr><td colspan="9" class="px-6 py-12 text-center text-gray-500">Loading applications...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick add from link modal -->
+<div id="jobs-quick-add-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 z-50 overflow-y-auto" aria-hidden="true">
+    <div class="flex min-h-full items-center justify-center p-4">
+        <div class="relative bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <h2 class="text-lg font-bold text-gray-900 mb-4">Quick add from link</h2>
+            <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p class="text-sm text-blue-800 font-medium mb-1">No extension needed!</p>
+                <p class="text-xs text-blue-700">This is a simple way to save jobs without installing the browser extension. Just paste the job URL below and click Save.</p>
+            </div>
+            <p class="text-sm text-gray-600 mb-4">Copy the link from the job page (browser address bar or the job listing), then paste it below. We can't read your other tabs for security reasons—so paste the URL here. Add title and deadline if you like, then save.</p>
+            <p class="text-xs text-gray-500 mb-4">💡 <strong>Want one-click save?</strong> Use the <a href="/save-job-token.php" target="_blank" rel="noopener" class="text-blue-600 hover:underline font-medium">browser extension</a>—then save from any job page without leaving it or copying URLs.</p>
+            <form id="jobs-quick-add-form" class="space-y-4">
+                <input type="hidden" name="csrf_token" id="jobs-quick-add-csrf" value="">
+                <div>
+                    <label for="jobs-quick-add-url" class="block text-sm font-semibold text-gray-900 mb-1">Job URL <span class="text-red-600">*</span></label>
+                    <input type="url" id="jobs-quick-add-url" name="url" required placeholder="Paste the job page link here (e.g. https://...)"
+                           class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label for="jobs-quick-add-title" class="block text-sm font-semibold text-gray-900 mb-1">Job title (optional)</label>
+                    <input type="text" id="jobs-quick-add-title" name="title" placeholder="e.g. Senior Developer"
+                           class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label for="jobs-quick-add-closing" class="block text-sm font-semibold text-gray-900 mb-1">Closing date (optional)</label>
+                    <input type="date" id="jobs-quick-add-closing" name="closing_date"
+                           class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label for="jobs-quick-add-priority" class="block text-sm font-semibold text-gray-900 mb-1">Priority (optional)</label>
+                    <select id="jobs-quick-add-priority" name="priority" class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                        <option value="">None</option>
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                <div id="jobs-quick-add-error" class="hidden rounded-md bg-red-50 p-2 text-sm text-red-800"></div>
+                <div class="flex gap-3 pt-2">
+                    <button type="submit" id="jobs-quick-add-submit" class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Save job</button>
+                    <button type="button" id="jobs-quick-add-cancel" class="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50">Cancel</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -164,6 +250,8 @@ $stats = getJobApplicationStats($userId);
             const applications = data.applications || data;
             const csrfToken = data.csrf_token || '';
             
+            var container = document.getElementById('jobs-applications-container');
+            if (container && csrfToken) container.setAttribute('data-csrf', csrfToken);
             renderJobsList(applications, csrfToken);
             setupJobsEventListeners(applications, csrfToken);
         } catch (error) {
@@ -171,7 +259,7 @@ $stats = getJobApplicationStats($userId);
             var cardsEl = document.getElementById('jobs-applications-cards');
             var tableBody = document.getElementById('jobs-table-body');
             if (cardsEl) cardsEl.innerHTML = '<div class="text-center py-12 text-red-500 col-span-full">Error loading job applications. Please refresh the page.</div>';
-            if (tableBody) tableBody.innerHTML = '<tr><td colspan="7" class="px-6 py-12 text-center text-red-500">Error loading job applications. Please refresh the page.</td></tr>';
+            if (tableBody) tableBody.innerHTML = '<tr><td colspan="9" class="px-6 py-12 text-center text-red-500">Error loading job applications. Please refresh the page.</td></tr>';
         }
     }
     
@@ -193,33 +281,47 @@ $stats = getJobApplicationStats($userId);
         
         const cardsHtml = filtered.length === 0
             ? '<div class="text-center py-12 text-gray-500 col-span-full">No applications found.</div>'
-            : filtered.map(app => `
+            : filtered.map(app => {
+                var dueSoon = getDueSoon(app.next_follow_up);
+                var borderClass = dueSoon.urgent ? 'border-l-4 border-l-red-500' : (dueSoon.soon ? 'border-l-4 border-l-amber-500' : '');
+                var priorityBadge = app.priority ? '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ' + (app.priority === 'high' ? 'bg-red-100 text-red-800' : (app.priority === 'medium' ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-600')) + '">' + escapeHtml(app.priority) + '</span>' : '';
+                var dueBadge = dueSoon.label ? '<span class="text-xs font-medium ' + (dueSoon.urgent ? 'text-red-600' : (dueSoon.soon ? 'text-amber-700' : 'text-gray-600')) + '">' + dueSoon.label + '</span>' : '';
+                return `
                 <div onclick="window.location.hash='#jobs&view=${app.id}'" 
-                     class="border border-gray-200 rounded-lg p-4 hover:shadow-lg hover:border-green-300 transition-all bg-white cursor-pointer">
-                    <div class="mb-3">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-1">${escapeHtml(app.job_title || '')}</h3>
-                        <p class="text-sm text-gray-600 font-medium">${escapeHtml(app.company_name || '')}</p>
+                     class="border border-gray-200 rounded-lg p-4 hover:shadow-lg hover:border-green-300 transition-all bg-white cursor-pointer ${borderClass}">
+                    <div class="mb-3 flex flex-wrap items-start justify-between gap-2">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-1">${escapeHtml(app.job_title || '')}</h3>
+                            <p class="text-sm text-gray-600 font-medium">${escapeHtml(app.company_name || '')}</p>
+                        </div>
+                        <div class="flex flex-wrap gap-1.5 items-center">${priorityBadge} ${dueBadge}</div>
                     </div>
                     <div class="space-y-2">
-                        ${app.job_location ? `<p class="text-sm text-gray-500 flex items-center gap-1.5"><svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>${escapeHtml(app.job_location)}</p>` : ''}
-                        ${app.salary_range ? `<p class="text-sm text-gray-500 flex items-center gap-1.5"><svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0-7v1m0-1c-1.11 0-2.08.402-2.599 1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>${escapeHtml(app.salary_range)}</p>` : ''}
-                        <p class="text-xs text-gray-400">Applied: ${new Date(app.application_date).toLocaleDateString()}</p>
+                        ${app.job_location ? '<p class="text-sm text-gray-500 flex items-center gap-1.5"><svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>' + escapeHtml(app.job_location) + '</p>' : ''}
+                        ${app.salary_range ? '<p class="text-sm text-gray-500 flex items-center gap-1.5"><svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0-7v1m0-1c-1.11 0-2.08.402-2.599 1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>' + escapeHtml(app.salary_range) + '</p>' : ''}
+                        <p class="text-xs text-gray-400">${app.application_date ? 'Applied: ' + new Date(app.application_date).toLocaleDateString() : (app.created_at ? 'Added: ' + new Date(app.created_at).toLocaleDateString() + ', ' + new Date(app.created_at).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}) : '—')}</p>
                     </div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
         const tableRowsHtml = filtered.length === 0
-            ? '<tr><td colspan="7" class="px-6 py-12 text-center text-gray-500">No applications found.</td></tr>'
+            ? '<tr><td colspan="9" class="px-6 py-12 text-center text-gray-500">No applications found.</td></tr>'
             : filtered.map(app => {
-                const appliedDate = new Date(app.application_date).toLocaleDateString();
+                const dateLabel = app.application_date ? ('Applied: ' + new Date(app.application_date).toLocaleDateString()) : (app.created_at ? new Date(app.created_at).toLocaleDateString() : '—');
                 const viewHash = '#jobs&view=' + app.id;
                 const editHash = '#jobs&edit=' + app.id;
+                const dueSoon = getDueSoon(app.next_follow_up);
+                const priorityCell = app.priority ? '<span class="inline-flex px-2 py-0.5 rounded text-xs font-medium ' + (app.priority === 'high' ? 'bg-red-100 text-red-800' : (app.priority === 'medium' ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-600')) + '">' + escapeHtml(app.priority) + '</span>' : '—';
+                const dueCell = dueSoon.label ? '<span class="text-xs font-medium ' + (dueSoon.urgent ? 'text-red-600' : (dueSoon.soon ? 'text-amber-700' : 'text-gray-600')) + '">' + escapeHtml(dueSoon.label) + '</span>' : '—';
                 return '<tr class="hover:bg-gray-50 cursor-pointer" role="button" tabindex="0" onclick="window.location.hash=\'' + viewHash.replace(/'/g, "\\'") + '\'" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();window.location.hash=\'' + viewHash.replace(/'/g, "\\'") + '\'}">' +
                     '<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">' + escapeHtml(app.company_name || '') + '</td>' +
                     '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">' + escapeHtml(app.job_title || '') + '</td>' +
                     '<td class="px-6 py-4 whitespace-nowrap"><span class="status-badge status-' + (app.status || 'applied') + '">' + formatStatus(app.status) + '</span></td>' +
+                    '<td class="px-6 py-4 whitespace-nowrap text-sm">' + priorityCell + '</td>' +
+                    '<td class="px-6 py-4 whitespace-nowrap text-sm">' + dueCell + '</td>' +
                     '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">' + escapeHtml(app.job_location || '') + '</td>' +
                     '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">' + escapeHtml(app.salary_range || '') + '</td>' +
-                    '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">' + appliedDate + '</td>' +
+                    '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">' + dateLabel + '</td>' +
                     '<td class="px-6 py-4 whitespace-nowrap text-sm" onclick="event.stopPropagation()">' +
                     '<a href="' + viewHash + '" class="text-blue-600 hover:text-blue-800 mr-3">View</a>' +
                     '<a href="' + editHash + '" class="text-blue-600 hover:text-blue-800 mr-3">Edit</a>' +
@@ -259,11 +361,88 @@ $stats = getJobApplicationStats($userId);
                         if (typeof window.contentEditor !== 'undefined' && typeof window.contentEditor.loadSection === 'function') {
                             window.contentEditor.loadSection('jobs');
                         } else {
-                            // Fallback: trigger hashchange event
                             window.dispatchEvent(new HashChangeEvent('hashchange', { oldURL: window.location.href, newURL: window.location.href }));
                         }
                     }, 50);
                 }
+            });
+        }
+        
+        var quickAddBtn = document.getElementById('jobs-quick-add-link-btn');
+        var quickAddModal = document.getElementById('jobs-quick-add-modal');
+        var quickAddForm = document.getElementById('jobs-quick-add-form');
+        var quickAddError = document.getElementById('jobs-quick-add-error');
+        var quickAddCancel = document.getElementById('jobs-quick-add-cancel');
+        if (quickAddBtn && quickAddModal) {
+            quickAddBtn.addEventListener('click', function() {
+                var csrf = (document.getElementById('jobs-applications-container') || {}).getAttribute('data-csrf') || '';
+                document.getElementById('jobs-quick-add-csrf').value = csrf;
+                document.getElementById('jobs-quick-add-url').value = '';
+                document.getElementById('jobs-quick-add-title').value = '';
+                document.getElementById('jobs-quick-add-closing').value = '';
+                document.getElementById('jobs-quick-add-priority').value = '';
+                if (quickAddError) { quickAddError.classList.add('hidden'); quickAddError.textContent = ''; }
+                quickAddModal.classList.remove('hidden');
+            });
+        }
+        if (quickAddCancel && quickAddModal) {
+            quickAddCancel.addEventListener('click', function() { quickAddModal.classList.add('hidden'); });
+        }
+        if (quickAddModal) {
+            quickAddModal.addEventListener('click', function(e) {
+                if (e.target === quickAddModal) quickAddModal.classList.add('hidden');
+            });
+        }
+        if (quickAddForm) {
+            quickAddForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                var urlInput = document.getElementById('jobs-quick-add-url');
+                var titleInput = document.getElementById('jobs-quick-add-title');
+                var closingInput = document.getElementById('jobs-quick-add-closing');
+                var priorityInput = document.getElementById('jobs-quick-add-priority');
+                var submitBtn = document.getElementById('jobs-quick-add-submit');
+                var url = (urlInput && urlInput.value) ? urlInput.value.trim() : '';
+                if (!url) {
+                    if (quickAddError) { quickAddError.textContent = 'Job URL is required.'; quickAddError.classList.remove('hidden'); }
+                    return;
+                }
+                var csrf = (document.getElementById('jobs-quick-add-csrf') || {}).value;
+                var payload = {
+                    quick_add: true,
+                    application_url: url,
+                    job_title: (titleInput && titleInput.value) ? titleInput.value.trim() : '',
+                    company_name: '—',
+                    status: 'interested',
+                    csrf_token: csrf
+                };
+                if (closingInput && closingInput.value) payload.next_follow_up = closingInput.value;
+                if (priorityInput && priorityInput.value) payload.priority = priorityInput.value;
+                if (quickAddError) { quickAddError.classList.add('hidden'); quickAddError.textContent = ''; }
+                if (submitBtn) submitBtn.disabled = true;
+                try {
+                    var res = await fetch('/api/job-applications.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    var data = await res.json().catch(function() { return {}; });
+                    if (res.ok && data.success && data.id) {
+                        quickAddModal.classList.add('hidden');
+                        loadJobsData();
+                        window.location.hash = '#jobs&view=' + encodeURIComponent(data.id);
+                    } else {
+                        if (quickAddError) {
+                            quickAddError.textContent = data.error || 'Failed to save job.';
+                            quickAddError.classList.remove('hidden');
+                        }
+                    }
+                } catch (err) {
+                    if (quickAddError) {
+                        quickAddError.textContent = 'Network error. Please try again.';
+                        quickAddError.classList.remove('hidden');
+                    }
+                }
+                if (submitBtn) submitBtn.disabled = false;
             });
         }
     }
@@ -275,6 +454,23 @@ $stats = getJobApplicationStats($userId);
             filter.dispatchEvent(new Event('change'));
         }
     };
+    
+    function getDueSoon(nextFollowUp) {
+        if (!nextFollowUp) return { soon: false, urgent: false, label: '', dateStr: '' };
+        const d = new Date(nextFollowUp);
+        const today = new Date();
+        // Normalize both to midnight for accurate day calculation
+        today.setHours(0, 0, 0, 0);
+        d.setHours(0, 0, 0, 0);
+        // Use floor instead of ceil for consistent calculation
+        const days = Math.floor((d - today) / 86400000);
+        const dateStr = d.toLocaleDateString();
+        if (days < 0) return { soon: false, urgent: false, label: 'Past due', dateStr: dateStr };
+        if (days === 0) return { soon: true, urgent: true, label: 'Due today', dateStr: dateStr };
+        if (days === 1) return { soon: true, urgent: true, label: 'Due tomorrow', dateStr: dateStr };
+        if (days <= 7) return { soon: true, urgent: false, label: 'Due in ' + days + ' days', dateStr: dateStr };
+        return { soon: false, urgent: false, label: dateStr, dateStr: dateStr };
+    }
     
     function formatStatus(status) {
         const statusMap = {
@@ -301,6 +497,16 @@ $stats = getJobApplicationStats($userId);
             return;
         }
         
+        // Prevent multiple clicks
+        var deleteBtn = event && event.target ? event.target : null;
+        if (deleteBtn && (deleteBtn.disabled || deleteBtn.dataset.deleting === 'true')) {
+            return;
+        }
+        if (deleteBtn) {
+            deleteBtn.disabled = true;
+            deleteBtn.dataset.deleting = 'true';
+        }
+        
         try {
             const response = await fetch(`/api/job-applications.php?id=${id}`, {
                 method: 'DELETE',
@@ -308,14 +514,28 @@ $stats = getJobApplicationStats($userId);
                 body: JSON.stringify({ csrf_token: csrfToken })
             });
             
-            if (response.ok) {
-                loadJobsData();
+            const data = await response.json();
+            
+            if (response.ok && data && data.success) {
+                if (typeof loadJobsData === 'function') {
+                    loadJobsData();
+                } else {
+                    window.location.reload();
+                }
             } else {
-                alert('Error deleting application');
+                alert(data && data.error ? data.error : 'Error deleting application');
+                if (deleteBtn) {
+                    deleteBtn.disabled = false;
+                    delete deleteBtn.dataset.deleting;
+                }
             }
         } catch (error) {
             console.error('Error deleting:', error);
-            alert('Error deleting application');
+            alert('Error deleting application. Please try again.');
+            if (deleteBtn) {
+                deleteBtn.disabled = false;
+                delete deleteBtn.dataset.deleting;
+            }
         }
     };
     

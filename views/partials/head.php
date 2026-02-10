@@ -23,6 +23,8 @@ $breadcrumbs = $breadcrumbs ?? null;
 <meta property="og:description" content="<?php echo e($description); ?>">
 <meta property="og:url" content="<?php echo e($canonicalUrl); ?>">
 <meta property="og:image" content="<?php echo e($metaImage); ?>">
+<meta property="og:site_name" content="Simple CV Builder">
+<meta property="og:locale" content="en_GB">
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image">
@@ -68,6 +70,28 @@ outputStructuredData($schemas);
     clip: auto;
     white-space: normal;
     z-index: 9999;
+}
+/* Mobile touch improvements */
+@media (max-width: 768px) {
+    /* Ensure minimum touch target size */
+    button, a[role="button"], input[type="submit"], input[type="button"], 
+    select, .touch-target {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    /* Improve touch response */
+    button, a, input, select, textarea {
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: rgba(59, 130, 246, 0.3);
+    }
+    /* Prevent text size adjustment on iOS */
+    input, select, textarea, button {
+        font-size: 16px;
+    }
+    /* Better spacing for touch */
+    .form-field input, .form-field select, .form-field textarea {
+        padding: 0.75rem 1rem;
+    }
 }
 </style>
 <script>

@@ -368,3 +368,84 @@ function sendUsernameReminder($email) {
 
     return ['success' => true];
 }
+
+/**
+ * Get user ID from job saver token (for browser extension / API quick-add).
+ * Returns user id string or null if token missing/invalid.
+ */
+function getUserIdFromJobSaverToken($token) {
+    if (!$token || !is_string($token) || strlen($token) < 16) {
+        return null;
+    }
+    $token = trim($token);
+    try {
+        $row = db()->fetchOne(
+            "SELECT id FROM profiles WHERE job_saver_token = ?",
+            [$token]
+        );
+        return $row ? $row['id'] : null;
+    } catch (Exception $e) {
+        return null;
+    }
+}
+
+/**
+ * Ensure the user has a job saver token; create one if missing.
+ * Returns the token (full). Uses 'job_saver_token' column if it exists.
+ */
+function ensureJobSaverToken($userId) {
+    try {
+        $user = db()->fetchOne("SELECT id, job_saver_token FROM profiles WHERE id = ?", [$userId]);
+    } catch (Throwable $e) {
+        return null;
+    }
+    if (!$user) {
+        return null;
+    }
+    // Case-insensitive: some MySQL/configs return column names with different casing
+    $existingToken = null;
+    foreach ($user as $k => $v) {
+        if (strcasecmp($k, 'job_saver_token') === 0) {
+            $existingToken = $v;
+            break;
+        }
+    }
+    if (!empty($existingToken)) {
+        return $existingToken;
+    }
+    $token = 'scv_' . bin2hex(random_bytes(30));
+    try {
+        db()->update('profiles', ['job_saver_token' => $token], 'id = ?', [$userId]);
+        return $token;
+    } catch (Throwable $e) {
+        return null;
+    }
+}
+
+/**
+ * Return masked job saver token for display (e.g. scv_…xyz1).
+ */
+function maskJobSaverToken($token) {
+    if (!$token || strlen($token) < 12) {
+        return '—';
+    }
+    return substr($token, 0, 4) . '…' . substr($token, -4);
+}
+
+/**
+ * Regenerate job saver token for user. Returns new token or null.
+ */
+function regenerateJobSaverToken($userId) {
+    $token = 'scv_' . bin2hex(random_bytes(30));
+    try {
+        $rowCount = db()->update('profiles', ['job_saver_token' => $token], 'id = ?', [$userId]);
+        if ($rowCount < 1) {
+            return null;
+        }
+        // Confirm it was stored (handles strict DB or replication edge cases)
+        $row = db()->fetchOne("SELECT job_saver_token FROM profiles WHERE id = ?", [$userId]);
+        return (isset($row['job_saver_token']) && $row['job_saver_token'] === $token) ? $token : null;
+    } catch (Throwable $e) {
+        return null;
+    }
+}

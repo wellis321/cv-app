@@ -184,7 +184,7 @@ $sections = [
             $reverseLayout = $index % 2 === 1;
             ?>
             <section id="<?php echo e($section['id']); ?>" class="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg shadow-slate-900/5">
-                <div class="flex flex-col gap-6 <?php echo $reverseLayout ? 'lg:flex-row-reverse' : 'lg:flex-row'; ?> lg:items-center">
+                <div class="flex flex-col gap-6 <?php echo $reverseLayout ? 'lg:flex-row-reverse' : 'lg:flex-row'; ?> lg:items-stretch">
                     <?php if ($encodedImagePath): ?>
                         <?php
                         // For static article images, generate responsive URLs based on naming convention
@@ -220,14 +220,14 @@ $sections = [
                         $srcset = implode(', ', $srcsetParts);
                         $sizesAttr = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 800px';
                         ?>
-                        <div class="w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-sm lg:w-5/12">
+                        <div class="w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-sm lg:w-5/12 flex">
                             <img src="<?php echo e($encodedImagePath); ?>"
                                  <?php if (!empty($srcset)): ?>
                                      srcset="<?php echo e($srcset); ?>"
                                      sizes="<?php echo e($sizesAttr); ?>"
                                  <?php endif; ?>
                                  alt="<?php echo e($imageAlt); ?>"
-                                 class="h-80 w-full object-cover" 
+                                 class="w-full h-full object-cover min-h-[320px]" 
                                  loading="lazy"
                                  width="800"
                                  height="320">

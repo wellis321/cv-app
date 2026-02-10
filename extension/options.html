@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Simple CV Builder – Save job extension</title>
+  <style>
+    body { font-family: system-ui, sans-serif; padding: 16px; max-width: 480px; margin: 0 auto; }
+    h1 { font-size: 1.25rem; margin-bottom: 8px; }
+    p { color: #444; font-size: 14px; margin-bottom: 12px; }
+    label { display: block; font-weight: 600; margin-bottom: 4px; font-size: 14px; }
+    input[type="url"], input[type="text"] { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; box-sizing: border-box; }
+    input[type="url"] { margin-bottom: 12px; }
+    input[type="text"] { font-family: monospace; margin-bottom: 16px; }
+    button.save-btn { display: block; width: 100%; margin-top: 8px; background: #2563eb; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer; }
+    button.save-btn:hover { background: #1d4ed8; }
+    button.env-btn { padding: 8px 14px; font-size: 13px; font-weight: 600; color: #1e40af; background: #dbeafe; border: 1px solid #93c5fd; border-radius: 6px; cursor: pointer; }
+    button.env-btn:hover { background: #bfdbfe; }
+    .message { margin-top: 12px; padding: 8px; border-radius: 6px; font-size: 13px; }
+    .message.success { background: #dcfce7; color: #166534; }
+    .message.error { background: #fee2e2; color: #991b1b; }
+  </style>
+</head>
+<body>
+  <h1>Save job to Simple CV Builder</h1>
+  <p>Choose which site you use, then paste the save token from your account. Get the token: <a href="#" id="token-link">Get save token</a> (must be logged in).</p>
+  <label for="baseUrl">Site URL</label>
+  <div style="display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
+    <button type="button" id="use-production-btn" class="env-btn">Production</button>
+    <button type="button" id="use-testing-btn" class="env-btn">Testing</button>
+  </div>
+  <input type="url" id="baseUrl" placeholder="https://simple-cv-builder.com" />
+  <label for="token">Save token</label>
+  <input type="text" id="token" placeholder="scv_..." autocomplete="off" />
+  <p style="margin-top: 16px; margin-bottom: 8px; font-weight: 600;">Then click:</p>
+  <button type="button" id="save-settings-btn" style="display: block; width: 100%; padding: 12px 20px; font-size: 16px; font-weight: 600; color: white; background: #2563eb; border: none; border-radius: 6px; cursor: pointer;">Save settings</button>
+  <div id="message" class="message" style="display: none;"></div>
+  <script src="options.js"></script>
+</body>
+</html>

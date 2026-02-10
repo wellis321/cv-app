@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450" fill="none">
+  <rect width="800" height="450" fill="#f3f4f6" stroke="#d1d5db" stroke-width="2"/>
+  <text x="400" y="220" font-family="system-ui, sans-serif" font-size="18" fill="#6b7280" text-anchor="middle">Screenshot placeholder</text>
+  <text x="400" y="248" font-family="system-ui, sans-serif" font-size="14" fill="#9ca3af" text-anchor="middle">Replace with your own image</text>
+</svg>

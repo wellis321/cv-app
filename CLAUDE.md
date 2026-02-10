@@ -28,6 +28,19 @@ mysql -u user -p database_name < database/mysql_schema.sql
 mysql -u user -p database_name < database/YYYYMMDD_description.sql
 ```
 
+## Syncing to the Electron desktop app
+
+The desktop app (simple-cv-builder-desktop) keeps a copy of this web app in its `app/` folder. After making changes here that should appear in the desktop app, run the sync script from this repo:
+
+```bash
+# From b2b-cv-app root. Set path to the desktop repo (env or argument):
+SIMPLE_CV_DESKTOP_PATH=/path/to/simple-cv-builder-desktop npm run sync-to-desktop
+# or:
+npm run sync-to-desktop -- /path/to/simple-cv-builder-desktop
+```
+
+The script copies `php/`, `views/`, `api/`, `js/`, `static/`, `templates/`, `resources/`, root `*.php`, and `composer.json` into the desktop `app/` folder. It **never overwrites** the desktop’s `app/php/config.php` or `app/php/database.php` (those are desktop-specific for SQLite and DESKTOP_MODE). If you change config or database logic in this repo, merge those changes manually into the desktop versions.
+
 ## Architecture
 
 ### Request Flow

@@ -14,6 +14,7 @@
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Links</h3>
                 <ul class="space-y-2 text-sm">
                     <li><a href="/" class="text-gray-600 hover:text-blue-600">Home</a></li>
+                    <li><a href="/all-features.php" class="text-gray-600 hover:text-blue-600 font-medium">All Features</a></li>
                     <li><a href="/resources/jobs/" class="text-gray-600 hover:text-blue-600">Job Market Insights</a></li>
                     <li><a href="/resources/career/" class="text-gray-600 hover:text-blue-600">Career Advice Hub</a></li>
                     <li><a href="/resources/extra-income/" class="text-gray-600 hover:text-blue-600">Extra Income Ideas</a></li>
@@ -62,7 +63,12 @@
             </p>
         </div>
     </div>
+    
+    <!-- Feedback Widget -->
+    <?php partial('feedback-widget'); ?>
 </footer>
+
+<script src="/js/feedback-widget.js"></script>
 
 <div
     data-cookie-banner

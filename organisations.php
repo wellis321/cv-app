@@ -21,19 +21,19 @@ require_once __DIR__ . '/php/helpers.php';
 
     <main id="main-content" role="main">
         <!-- Hero Section -->
-        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-                <div class="text-center">
-                    <h1 class="text-4xl font-bold tracking-tight sm:text-5xl">
-                        For Recruitment Agencies & Organisations
-                    </h1>
-                    <p class="mt-4 text-xl text-blue-100 max-w-3xl mx-auto">
-                        Manage your candidates' CVs efficiently with our powerful B2B platform. Streamline your recruitment process and provide professional CV management for your candidates.
-                    </p>
-                    <p class="mt-3 text-sm text-blue-200 max-w-2xl mx-auto">
-                        Pricing and limits (candidates, team members, features) are set per organisation. Contact us with your needs for a quote.
-                    </p>
-                </div>
+        <div class="relative min-h-[42vh] flex flex-col justify-center bg-gray-900 text-white overflow-hidden">
+            <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1920&q=80');" aria-hidden="true"></div>
+            <div class="absolute inset-0 bg-gray-900/70" aria-hidden="true"></div>
+            <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+                <h1 class="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl text-white">
+                    For Recruitment Agencies & Organisations
+                </h1>
+                <p class="mt-6 text-xl text-gray-200 max-w-2xl mx-auto leading-relaxed">
+                    Manage your candidates' CVs efficiently with our B2B platform. Streamline recruitment and give your candidates professional CV management in one place.
+                </p>
+                <p class="mt-4 text-sm text-gray-300 max-w-xl mx-auto">
+                    Pricing and limits are set per organisation. Contact us with your needs for a quote.
+                </p>
             </div>
         </div>
 
@@ -537,6 +537,30 @@ require_once __DIR__ . '/php/helpers.php';
                 <?php endif; ?>
             </div>
         </div>
+        <!-- Explore All Features -->
+        <section class="py-16 bg-gradient-to-br from-gray-50 to-gray-100">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 mb-6">
+                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900 sm:text-3xl">
+                    Explore All Features
+                </h2>
+                <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
+                    This is just one of many features we offer. Discover everything Simple CV Builder can do for your job search and career development.
+                </p>
+                <div class="mt-8">
+                    <a href="/all-features.php" class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-8 py-3 text-base font-semibold text-white shadow-lg hover:bg-blue-700 transition-colors">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                        </svg>
+                        View All Features
+                    </a>
+                </div>
+            </div>
+        </section>
     </main>
 
     <?php partial('footer'); ?>

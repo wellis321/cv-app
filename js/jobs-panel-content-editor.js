@@ -25,6 +25,23 @@
         return div.innerHTML;
     }
 
+    function getDueSoon(nextFollowUp) {
+        if (!nextFollowUp) return { soon: false, urgent: false, label: '', dateStr: '' };
+        const d = new Date(nextFollowUp);
+        const today = new Date();
+        // Normalize both to midnight for accurate day calculation
+        today.setHours(0, 0, 0, 0);
+        d.setHours(0, 0, 0, 0);
+        // Use floor instead of ceil for consistent calculation
+        const days = Math.floor((d - today) / 86400000);
+        const dateStr = d.toLocaleDateString();
+        if (days < 0) return { soon: false, urgent: false, label: 'Past due', dateStr: dateStr };
+        if (days === 0) return { soon: true, urgent: true, label: 'Due today', dateStr: dateStr };
+        if (days === 1) return { soon: true, urgent: true, label: 'Due tomorrow', dateStr: dateStr };
+        if (days <= 7) return { soon: true, urgent: false, label: 'Due in ' + days + ' days', dateStr: dateStr };
+        return { soon: false, urgent: false, label: dateStr, dateStr: dateStr };
+    }
+
     /** Decode HTML entities in a string (for display in textarea). Do not use innerHTML so HTML tags stay as literal text. */
     function decodeHtmlEntitiesInText(str) {
         if (typeof str !== 'string') return str;
@@ -161,7 +178,7 @@
                 cardsContainer.innerHTML = '<div class="text-center py-12 text-gray-500 col-span-full">No applications found.</div>';
             } else {
                 cardsContainer.innerHTML = filtered.map(function(app) {
-                    var appliedDate = app.application_date ? new Date(app.application_date).toLocaleDateString() : '';
+                    var dateLabel = app.application_date ? ('Applied: ' + new Date(app.application_date).toLocaleDateString()) : (app.created_at ? ('Added: ' + new Date(app.created_at).toLocaleDateString()) : '');
                     return '<div onclick="window.location.hash=\'#jobs&view=' + (app.id || '') + '\'" ' +
                         'class="border border-gray-200 rounded-lg p-4 hover:shadow-lg hover:border-green-300 transition-all bg-white cursor-pointer">' +
                         '<div class="mb-3">' +
@@ -171,7 +188,7 @@
                         '<div class="space-y-2">' +
                         (app.job_location ? '<p class="text-sm text-gray-500 flex items-center gap-1.5"><svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>' + escapeHtml(app.job_location) + '</p>' : '') +
                         (app.salary_range ? '<p class="text-sm text-gray-500 flex items-center gap-1.5"><svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0-7v1m0-1c-1.11 0-2.08.402-2.599 1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>' + escapeHtml(app.salary_range) + '</p>' : '') +
-                        '<p class="text-xs text-gray-400">Applied: ' + appliedDate + '</p>' +
+                        (dateLabel ? '<p class="text-xs text-gray-400">' + dateLabel + '</p>' : '') +
                         '</div>' +
                         '</div>';
                 }).join('');
@@ -180,20 +197,25 @@
 
         if (tableBody) {
             if (filtered.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="7" class="px-6 py-12 text-center text-gray-500">No applications found.</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="9" class="px-6 py-12 text-center text-gray-500">No applications found.</td></tr>';
             } else {
                 tableBody.innerHTML = filtered.map(function(app) {
-                    var appliedDate = app.application_date ? new Date(app.application_date).toLocaleDateString() : '';
+                    var dateLabel = app.application_date ? ('Applied: ' + new Date(app.application_date).toLocaleDateString()) : (app.created_at ? new Date(app.created_at).toLocaleDateString() : '—');
                     var viewHash = '#jobs&view=' + (app.id || '');
                     var editHash = '#jobs&edit=' + (app.id || '');
                     var safeViewHash = viewHash.replace(/'/g, "\\'");
+                    var dueSoon = getDueSoon(app.next_follow_up);
+                    var priorityCell = app.priority ? '<span class="inline-flex px-2 py-0.5 rounded text-xs font-medium ' + (app.priority === 'high' ? 'bg-red-100 text-red-800' : (app.priority === 'medium' ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-600')) + '">' + escapeHtml(app.priority) + '</span>' : '—';
+                    var dueCell = dueSoon.label ? '<span class="text-xs font-medium ' + (dueSoon.urgent ? 'text-red-600' : (dueSoon.soon ? 'text-amber-700' : 'text-gray-600')) + '">' + escapeHtml(dueSoon.label) + '</span>' : '—';
                     return '<tr class="hover:bg-gray-50 cursor-pointer" role="button" tabindex="0" onclick="window.location.hash=\'' + safeViewHash + '\'" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();window.location.hash=\'' + safeViewHash + '\'}">' +
                         '<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">' + escapeHtml(app.company_name || '') + '</td>' +
                         '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">' + escapeHtml(app.job_title || '') + '</td>' +
                         '<td class="px-6 py-4 whitespace-nowrap"><span class="status-badge status-' + (app.status || 'applied') + '">' + formatStatus(app.status) + '</span></td>' +
+                        '<td class="px-6 py-4 whitespace-nowrap text-sm">' + priorityCell + '</td>' +
+                        '<td class="px-6 py-4 whitespace-nowrap text-sm">' + dueCell + '</td>' +
                         '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">' + escapeHtml(app.job_location || '') + '</td>' +
                         '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">' + escapeHtml(app.salary_range || '') + '</td>' +
-                        '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">' + appliedDate + '</td>' +
+                        '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">' + dateLabel + '</td>' +
                         '<td class="px-6 py-4 whitespace-nowrap text-sm" onclick="event.stopPropagation()">' +
                         '<a href="' + viewHash + '" class="text-blue-600 hover:text-blue-800 mr-3">View</a>' +
                         '<a href="' + editHash + '" class="text-blue-600 hover:text-blue-800 mr-3">Edit</a>' +
@@ -594,7 +616,21 @@
                 var editLink = e.target.closest('[data-jobs-edit]');
                 if (del) {
                     e.preventDefault();
-                    if (!confirm('Are you sure you want to delete this application?')) return;
+                    e.stopPropagation();
+                    
+                    // Prevent multiple clicks
+                    if (del.disabled || del.dataset.deleting === 'true') {
+                        return;
+                    }
+                    del.disabled = true;
+                    del.dataset.deleting = 'true';
+                    
+                    if (!confirm('Are you sure you want to delete this application?')) {
+                        del.disabled = false;
+                        delete del.dataset.deleting;
+                        return;
+                    }
+                    
                     var id = del.getAttribute('data-job-id');
                     var tok = del.getAttribute('data-csrf');
                     fetch('/api/job-applications.php?id=' + encodeURIComponent(id), {
@@ -602,10 +638,27 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ csrf_token: tok }),
                         credentials: 'include'
-                    }).then(function(r) {
-                        if (r.ok) window.location.hash = '#jobs';
-                        else alert('Could not delete. Please try again.');
-                    }).catch(function() { alert('Could not delete. Please try again.'); });
+                    })
+                    .then(function(r) {
+                        return r.json().then(function(data) {
+                            return { ok: r.ok, data: data };
+                        });
+                    })
+                    .then(function(result) {
+                        if (result.ok && result.data && result.data.success) {
+                            window.location.hash = '#jobs';
+                        } else {
+                            alert(result.data && result.data.error ? result.data.error : 'Could not delete. Please try again.');
+                            del.disabled = false;
+                            delete del.dataset.deleting;
+                        }
+                    })
+                    .catch(function(err) {
+                        console.error('Delete error:', err);
+                        alert('Could not delete. Please try again.');
+                        del.disabled = false;
+                        delete del.dataset.deleting;
+                    });
                 } else if (back) {
                     e.preventDefault();
                     window.location.hash = '#jobs';
@@ -679,6 +732,7 @@
             g('form-date').value = (jobData.application_date || '').toString().split(' ')[0];
             g('form-followup').value = (jobData.next_follow_up || '').toString().split(' ')[0];
             g('form-interview').checked = !!jobData.had_interview;
+            if (g('form-priority')) g('form-priority').value = jobData.priority || '';
         }
 
         // Initialize markdown editors after form is populated
@@ -844,6 +898,7 @@
                     notes: fd.get('notes'),
                     next_follow_up: fd.get('next_follow_up') || null,
                     had_interview: fd.get('had_interview') === 'on',
+                    priority: fd.get('priority') || null,
                     csrf_token: csrfToken
                 };
                 var btn = form.querySelector('button[type="submit"]');
@@ -1060,6 +1115,7 @@
                     notes: fd.get('notes'),
                     next_follow_up: fd.get('next_follow_up') || null,
                     had_interview: fd.get('had_interview') === 'on',
+                    priority: fd.get('priority') || null,
                     csrf_token: csrfToken
                 };
                 var btn = form.querySelector('button[type="submit"]');

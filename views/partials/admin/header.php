@@ -66,6 +66,10 @@ $user = getCurrentUser();
                    class="px-1.5 py-1.5 md:px-2 md:py-2 rounded-md text-xs md:text-sm font-medium transition-colors whitespace-nowrap <?php echo $currentPage === 'remote-work-stories.php' ? 'bg-green-100 text-green-700' : 'text-gray-700 hover:bg-green-50 hover:text-green-700'; ?> focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
                     Stories
                 </a>
+                <a href="/admin/feedback.php"
+                   class="px-1.5 py-1.5 md:px-2 md:py-2 rounded-md text-xs md:text-sm font-medium transition-colors whitespace-nowrap <?php echo $currentPage === 'feedback.php' ? 'bg-green-100 text-green-700' : 'text-gray-700 hover:bg-green-50 hover:text-green-700'; ?> focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                    Feedback
+                </a>
                 <a href="/admin/settings.php"
                    class="px-1.5 py-1.5 md:px-2 md:py-2 rounded-md text-xs md:text-sm font-medium transition-colors whitespace-nowrap <?php echo $currentPage === 'settings.php' ? 'bg-green-100 text-green-700' : 'text-gray-700 hover:bg-green-50 hover:text-green-700'; ?> focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
                     Settings
@@ -141,6 +145,11 @@ $user = getCurrentUser();
                 <a href="/admin/remote-work-stories.php"
                    class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'remote-work-stories.php' ? 'text-green-700 bg-green-100' : 'text-gray-700 hover:bg-green-100 hover:text-green-700'; ?> focus:outline-none focus:ring-2 focus:ring-green-500">
                     Stories
+                </a>
+
+                <a href="/admin/feedback.php"
+                   class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'feedback.php' ? 'text-green-700 bg-green-100' : 'text-gray-700 hover:bg-green-100 hover:text-green-700'; ?> focus:outline-none focus:ring-2 focus:ring-green-500">
+                    Feedback
                 </a>
 
                 <a href="/admin/settings.php"

@@ -80,6 +80,7 @@ function getUserJobApplications($userId = null, $filters = []) {
             'notes' => $row['notes'],
             'next_follow_up' => $row['next_follow_up'],
             'had_interview' => (bool)$row['had_interview'],
+            'priority' => isset($row['priority']) ? $row['priority'] : null,
             'extracted_keywords' => $row['extracted_keywords'] ?? null,
             'selected_keywords' => $row['selected_keywords'] ?? null,
             'created_at' => $row['created_at'],
@@ -165,6 +166,7 @@ function getJobApplication($applicationId, $userId = null) {
         'notes' => $row['notes'],
         'next_follow_up' => $row['next_follow_up'],
         'had_interview' => (bool)$row['had_interview'],
+        'priority' => isset($row['priority']) ? $row['priority'] : null,
         'extracted_keywords' => $row['extracted_keywords'] ?? null,
         'selected_keywords' => $row['selected_keywords'] ?? null,
         'created_at' => $row['created_at'],
@@ -181,6 +183,21 @@ function getJobApplication($applicationId, $userId = null) {
     });
     
     return $application;
+}
+
+/**
+ * Derive a short job title from URL when title is missing (e.g. for quick-add).
+ */
+function deriveJobTitleFromUrl($url) {
+    if (empty($url)) {
+        return 'Untitled job';
+    }
+    $host = parse_url($url, PHP_URL_HOST);
+    if ($host) {
+        $host = preg_replace('/^www\./', '', $host);
+        return 'Job from ' . $host;
+    }
+    return 'Untitled job';
 }
 
 /**
@@ -343,9 +360,26 @@ function createJobApplication($data, $userId = null) {
         return ['success' => false, 'error' => 'User not authenticated'];
     }
     
-    // Validate required fields
-    if (empty($data['company_name']) || empty($data['job_title'])) {
-        return ['success' => false, 'error' => 'Company name and job title are required'];
+    $quickAdd = !empty($data['quick_add']);
+    $hasUrl = !empty(trim((string)($data['application_url'] ?? '')));
+    $hasTitle = !empty(trim((string)($data['job_title'] ?? '')));
+    $companyEmpty = empty(trim((string)($data['company_name'] ?? '')));
+    
+    // Quick-add: require at least URL or title; company optional (default "—")
+    if ($quickAdd || ($companyEmpty && ($hasUrl || $hasTitle))) {
+        if (!$hasUrl && !$hasTitle) {
+            return ['success' => false, 'error' => 'Job URL or job title is required'];
+        }
+        $data['company_name'] = trim((string)($data['company_name'] ?? '') ?: '—');
+        $data['job_title'] = $hasTitle ? trim($data['job_title']) : deriveJobTitleFromUrl($data['application_url'] ?? '');
+        if (!isset($data['status'])) {
+            $data['status'] = 'interested';
+        }
+    } else {
+        // Normal create: require company and title
+        if (empty($data['company_name']) || empty($data['job_title'])) {
+            return ['success' => false, 'error' => 'Company name and job title are required'];
+        }
     }
     
     // Validate status
@@ -356,14 +390,34 @@ function createJobApplication($data, $userId = null) {
     $validRemoteTypes = ['onsite', 'hybrid', 'remote'];
     $remoteType = in_array($data['remote_type'] ?? 'onsite', $validRemoteTypes) ? ($data['remote_type'] ?? 'onsite') : 'onsite';
     
+    // Validate priority (optional)
+    $validPriorities = ['low', 'medium', 'high'];
+    $priority = null;
+    if (isset($data['priority']) && $data['priority'] !== '' && in_array($data['priority'], $validPriorities, true)) {
+        $priority = $data['priority'];
+    }
+    
     try {
         $applicationId = generateUuid();
         
-        // Convert date-only format to datetime format for application_date
-        $applicationDate = !empty($data['application_date']) ? $data['application_date'] : date('Y-m-d H:i:s');
-        if (!empty($data['application_date']) && strlen($data['application_date']) === 10) {
-            // Date-only format (Y-m-d), convert to datetime
-            $applicationDate = $data['application_date'] . ' 00:00:00';
+        // application_date: only set when user has actually applied; leave null for quick-add/saved links
+        $applicationDate = null;
+        if (!empty($data['application_date'])) {
+            $applicationDate = strlen($data['application_date']) === 10
+                ? $data['application_date'] . ' 00:00:00'
+                : $data['application_date'];
+        } elseif (!$quickAdd) {
+            // Non quick-add create: default to today
+            $applicationDate = date('Y-m-d H:i:s');
+        }
+        
+        // next_follow_up: support date-only (Y-m-d) for quick-add
+        $nextFollowUp = null;
+        if (!empty($data['next_follow_up'])) {
+            $nextFollowUp = $data['next_follow_up'];
+            if (strlen($nextFollowUp) === 10) {
+                $nextFollowUp = $nextFollowUp . ' 00:00:00';
+            }
         }
         
         // Auto-update status: if application_date is set and status is "interested" or "in_progress", change to "applied"
@@ -371,7 +425,7 @@ function createJobApplication($data, $userId = null) {
             $status = 'applied';
         }
         
-        db()->insert('job_applications', [
+        $insertData = [
             'id' => $applicationId,
             'user_id' => $userId,
             'company_name' => sanitizeInput($data['company_name']),
@@ -384,11 +438,15 @@ function createJobApplication($data, $userId = null) {
             'remote_type' => $remoteType,
             'application_url' => sanitizeInput($data['application_url'] ?? null),
             'notes' => sanitizeInput($data['notes'] ?? null),
-            'next_follow_up' => !empty($data['next_follow_up']) ? $data['next_follow_up'] : null,
+            'next_follow_up' => $nextFollowUp,
             'had_interview' => !empty($data['had_interview']) ? 1 : 0,
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s')
-        ]);
+        ];
+        if ($priority !== null) {
+            $insertData['priority'] = $priority;
+        }
+        db()->insert('job_applications', $insertData);
         
         // Log activity if user is in an organisation
         $org = null;
@@ -453,6 +511,16 @@ function updateJobApplication($applicationId, $data, $userId = null) {
         }
     }
     
+    // Validate priority if provided
+    if (array_key_exists('priority', $data)) {
+        $validPriorities = ['low', 'medium', 'high'];
+        if ($data['priority'] === '' || $data['priority'] === null) {
+            $updateData['priority'] = null;
+        } elseif (in_array($data['priority'], $validPriorities, true)) {
+            $updateData['priority'] = $data['priority'];
+        }
+    }
+    
     // Update other fields
     $allowedFields = ['company_name', 'job_title', 'job_description', 'application_date', 
                       'salary_range', 'job_location', 'application_url', 'notes', 
@@ -463,7 +531,11 @@ function updateJobApplication($applicationId, $data, $userId = null) {
             if ($field === 'had_interview') {
                 $updateData[$field] = $data[$field] ? 1 : 0;
             } elseif ($field === 'application_date' || $field === 'next_follow_up') {
-                $updateData[$field] = !empty($data[$field]) ? $data[$field] : null;
+                $val = $data[$field];
+                if (!empty($val) && strlen($val) === 10) {
+                    $val = $val . ' 00:00:00';
+                }
+                $updateData[$field] = !empty($data[$field]) ? $val : null;
             } elseif ($field === 'job_description') {
                 $updateData[$field] = prepareJobDescriptionForStorage($data[$field]);
             } else {

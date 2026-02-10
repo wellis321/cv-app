@@ -1,0 +1,9 @@
+{
+  "name": "b2b-cv-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "B2B CV Builder (web app). Use sync-to-desktop to update the Electron app.",
+  "scripts": {
+    "sync-to-desktop": "node scripts/sync-to-desktop.js"
+  }
+}

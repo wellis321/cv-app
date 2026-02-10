@@ -37,14 +37,25 @@ $classes = $classes ?? '';
     <label for="<?php echo e($id); ?>" class="block text-base font-semibold text-gray-900 mb-3">
         <?php echo e($label); ?>
         <?php if ($required): ?>
-            <span class="text-red-600 font-bold ml-1">*</span>
+            <span class="text-red-600 font-bold ml-1" aria-label="required">*</span>
         <?php endif; ?>
     </label>
+    
+    <?php 
+    $errorId = $id . '-error';
+    $helpId = $id . '-help';
+    $describedBy = [];
+    if ($error) $describedBy[] = $errorId;
+    if ($help && $type !== 'checkbox') $describedBy[] = $helpId;
+    $describedByAttr = !empty($describedBy) ? 'aria-describedby="' . implode(' ', $describedBy) . '"' : '';
+    ?>
     
     <?php if ($type === 'select'): ?>
         <select name="<?php echo e($name); ?>" 
                 id="<?php echo e($id); ?>"
                 <?php echo $required ? 'required' : ''; ?>
+                <?php echo $error ? 'aria-invalid="true"' : ''; ?>
+                <?php echo $describedByAttr; ?>
                 class="block w-full rounded-lg border-2 <?php echo $error ? 'border-red-400 bg-red-50' : 'border-gray-400 bg-white'; ?> px-4 py-3 text-base font-medium text-gray-900 shadow-sm transition-colors focus:border-blue-600 focus:ring-4 focus:ring-blue-200 focus:outline-none <?php echo e($classes); ?>">
             <?php if (!empty($placeholder)): ?>
                 <option value=""><?php echo e($placeholder); ?></option>
@@ -60,6 +71,8 @@ $classes = $classes ?? '';
                   id="<?php echo e($id); ?>"
                   rows="<?php echo $rows; ?>"
                   <?php echo $required ? 'required' : ''; ?>
+                  <?php echo $error ? 'aria-invalid="true"' : ''; ?>
+                  <?php echo $describedByAttr; ?>
                   placeholder="<?php echo e($placeholder); ?>"
                   class="block w-full rounded-lg border-2 <?php echo $error ? 'border-red-400 bg-red-50' : 'border-gray-400 bg-white'; ?> px-4 py-3 text-base font-medium text-gray-900 shadow-sm transition-colors focus:border-blue-600 focus:ring-4 focus:ring-blue-200 focus:outline-none resize-y <?php echo e($classes); ?>"><?php echo e($value); ?></textarea>
     <?php elseif ($type === 'checkbox'): ?>
@@ -82,6 +95,8 @@ $classes = $classes ?? '';
                id="<?php echo e($id); ?>"
                value="<?php echo e($value); ?>"
                <?php echo $required ? 'required' : ''; ?>
+               <?php echo $error ? 'aria-invalid="true"' : ''; ?>
+               <?php echo $describedByAttr; ?>
                <?php echo $placeholder ? 'placeholder="' . e($placeholder) . '"' : ''; ?>
                <?php echo $min !== null ? 'min="' . $min . '"' : ''; ?>
                <?php echo $max !== null ? 'max="' . $max . '"' : ''; ?>
@@ -90,14 +105,14 @@ $classes = $classes ?? '';
     <?php endif; ?>
     
     <?php if ($error): ?>
-        <p class="mt-2 text-sm font-medium text-red-700 flex items-center">
-            <svg class="mr-1.5 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+        <p id="<?php echo e($errorId); ?>" role="alert" aria-live="polite" class="mt-2 text-sm font-medium text-red-700 flex items-center">
+            <svg class="mr-1.5 h-4 w-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
             </svg>
             <?php echo e($error); ?>
         </p>
     <?php elseif ($help && $type !== 'checkbox'): ?>
-        <p class="mt-2 text-sm text-gray-600 font-medium"><?php echo e($help); ?></p>
+        <p id="<?php echo e($helpId); ?>" class="mt-2 text-sm text-gray-600 font-medium"><?php echo e($help); ?></p>
     <?php endif; ?>
 </div>
 

@@ -164,10 +164,12 @@ function stripeCreateCheckoutSession(string $userId, string $planId): array {
         'metadata[plan_id]' => $planId,
     ];
 
-    // Only add subscription_data for subscription mode
+    // Only add subscription_data for subscription mode (Pro Monthly / Pro Annual)
     if (!$isLifetime) {
         $params['subscription_data[metadata][user_id]'] = $userId;
         $params['subscription_data[metadata][plan_id]'] = $planId;
+        // 1-month free trial for new Pro subscriptions
+        $params['subscription_data[trial_period_days]'] = 30;
     }
 
     $session = stripeRequest(

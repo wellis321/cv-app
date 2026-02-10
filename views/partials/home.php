@@ -1,5 +1,12 @@
 <?php
 // Marketing page for non-logged in users
+
+// Free-trial offer: set 'active' => false to hide banner and trial badges. When active, Pro plans show "1 month free".
+$pricingLaunchOffer = [
+    'active' => true,
+    'heading' => 'Try Pro free for 1 month',
+    'subtext' => 'No charge today. Cancel anytime from your billing portal.',
+];
 ?>
 
 <!-- Hero Section -->
@@ -8,10 +15,10 @@
         <div class="relative mx-auto max-w-7xl px-4 sm:static sm:px-6 lg:px-8">
             <div class="sm:max-w-lg relative z-10">
                 <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
-                    Professional CV Management for Recruitment Agencies
+                    Free CV Builder UK. Track Applications. Get Hired.
                 </h1>
                 <p class="mt-4 text-xl text-gray-500">
-                    Streamline your recruitment process with our powerful B2B platform. Manage candidate CVs efficiently, provide professional CV building tools, and deliver exceptional service to your clients.
+                    Free CV builder UK with job application tracking and AI cover letters. For job seekers and recruitment agencies—create a shareable CV link, unlock PDF export, and manage your job search in one place.
                 </p>
                 <div class="mt-10 flex flex-col sm:flex-row gap-4">
                     <a href="/organisations.php" class="inline-block rounded-md border border-transparent bg-blue-600 px-8 py-3 text-center font-medium text-white hover:bg-blue-700">
@@ -21,6 +28,11 @@
                         Individual Users
                     </a>
                 </div>
+                <?php if (!empty($pricingLaunchOffer['active'])): ?>
+                <p class="mt-6 text-sm text-gray-500">
+                    <a href="/#pricing" class="font-medium text-blue-600 hover:text-blue-800">Try Pro free for 1 month</a> — no charge today. Cancel anytime.
+                </p>
+                <?php endif; ?>
             </div>
             <div>
                 <div class="mt-10">
@@ -60,33 +72,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
-
-<!-- Who is this for? strip -->
-<div class="border-y border-gray-200 bg-gray-50/80 py-6 sm:py-8">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <p class="text-center text-sm font-semibold uppercase tracking-wider text-gray-500 mb-4">Who is this for?</p>
-        <div class="flex flex-col sm:flex-row gap-4 sm:gap-8 justify-center items-center">
-            <a href="/individual-users.php" class="flex items-center gap-3 rounded-xl border-2 border-gray-200 bg-white px-6 py-4 shadow-sm hover:border-blue-300 hover:shadow-md transition-all w-full sm:w-auto max-w-xs sm:max-w-none">
-                <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                </span>
-                <div class="text-left">
-                    <span class="font-semibold text-gray-900">Individual job seekers</span>
-                    <p class="text-sm text-gray-600">Build your CV, track applications, use AI tools</p>
-                </div>
-            </a>
-            <a href="/organisations.php" class="flex items-center gap-3 rounded-xl border-2 border-gray-200 bg-white px-6 py-4 shadow-sm hover:border-blue-300 hover:shadow-md transition-all w-full sm:w-auto max-w-xs sm:max-w-none">
-                <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600">
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-                </span>
-                <div class="text-left">
-                    <span class="font-semibold text-gray-900">Recruitment agencies & organisations</span>
-                    <p class="text-sm text-gray-600">Manage candidates, teams, and branded CVs</p>
-                </div>
-            </a>
         </div>
     </div>
 </div>
@@ -269,13 +254,14 @@
             <div class="grid lg:grid-cols-2">
                 <!-- Left side: Content -->
                 <div class="flex flex-col justify-center px-6 py-12 sm:px-10 sm:py-16 lg:px-12">
-                    <div class="mb-6 flex items-center gap-3">
+                    <div class="mb-6 flex items-center gap-3 flex-wrap">
                         <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
                             <svg class="h-7 w-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                             </svg>
                         </div>
                         <span class="inline-flex rounded-full bg-green-100 px-3 py-1 text-sm font-semibold text-green-800">Built-in Feature</span>
+                        <span class="inline-flex rounded-full bg-green-600 px-3 py-1 text-sm font-semibold text-white">New: One-click save</span>
                     </div>
                     <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
                         Land Your Dream Job
@@ -319,6 +305,12 @@
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                             </svg>
                             <span>AI-powered CV rewriting and quality assessment</span>
+                        </li>
+                        <li class="flex items-start">
+                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            <span><strong>Save jobs in one click</strong>—bookmark or paste a link from any site, add details later. Set priorities and closing-date reminders so you never miss a deadline.</span>
                         </li>
                     </ul>
                     <div class="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -369,8 +361,8 @@
 <!-- See It In Action Section (for everyone) -->
 <div class="bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-600 py-20 sm:py-24">
     <div class="mx-auto max-w-[950px] px-4 sm:px-6 lg:px-8">
-        <div class="lg:grid lg:grid-cols-2 lg:gap-12 lg:items-center">
-            <div class="text-center lg:text-left flex-1 max-w-2xl mx-auto lg:mx-0">
+        <div class="lg:grid lg:grid-cols-2 lg:gap-12 lg:items-stretch">
+            <div class="text-center lg:text-left flex-1 max-w-2xl mx-auto lg:mx-0 flex flex-col">
                 <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">
                     See It In Action
                 </h2>
@@ -392,7 +384,7 @@
                     </a>
                 </div>
             </div>
-            <div class="mt-6 lg:mt-0 flex justify-center lg:justify-center">
+            <div class="mt-6 lg:mt-0 flex justify-center lg:justify-center items-center">
                 <div class="text-center">
                     <a href="/cv/@simple-cv-example" target="_blank" rel="noopener noreferrer" class="block">
                         <?php
@@ -411,95 +403,112 @@
     </div>
 </div>
 
-<!-- Responsive Images (for everyone) -->
-<div class="bg-gray-50 py-12 sm:py-16">
+<!-- Professional CV Templates (for everyone) -->
+<div class="bg-gradient-to-br from-pink-50 via-rose-50 to-red-50 py-12 sm:py-16">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="lg:text-center">
-            <span class="inline-flex items-center rounded-full bg-green-100 px-4 py-1 text-sm font-medium text-green-800 mb-4">
-                Performance & Accessibility
+            <span class="inline-flex items-center rounded-full bg-pink-100 px-4 py-1 text-sm font-medium text-pink-800 mb-4">
+                Professional Designs
             </span>
             <h2 class="text-3xl leading-8 font-bold tracking-tight text-gray-900 sm:text-4xl">
-                Smart Responsive Images
+                Professional CV Templates
             </h2>
             <p class="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
-                All images are automatically optimised for every device. Faster loading, better performance, and improved accessibility - automatically.
+                Choose from professional templates with customisable colours. Create a standout CV that matches your industry and personal style.
             </p>
         </div>
         
         <div class="mt-12 grid gap-8 md:grid-cols-3">
-            <div class="text-center">
+            <div class="text-center bg-white rounded-xl border-2 border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex justify-center">
+                    <div class="flex h-16 w-16 items-center justify-center rounded-lg bg-gray-500 text-white">
+                        <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
+                </div>
+                <h3 class="mt-4 text-lg font-semibold text-gray-900">Minimal Template</h3>
+                <p class="mt-2 text-base text-gray-500">
+                    Clean, simple design perfect for traditional industries. ATS-friendly and professional. Available on free plan.
+                </p>
+                <span class="mt-4 inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">Free plan</span>
+            </div>
+            
+            <div class="text-center bg-white rounded-xl border-2 border-blue-200 p-6 shadow-sm hover:shadow-md transition-shadow">
                 <div class="flex justify-center">
                     <div class="flex h-16 w-16 items-center justify-center rounded-lg bg-blue-500 text-white">
                         <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
                         </svg>
                     </div>
                 </div>
-                <h3 class="mt-4 text-lg font-semibold text-gray-900">Automatic Optimisation</h3>
+                <h3 class="mt-4 text-lg font-semibold text-gray-900">Professional Blue</h3>
                 <p class="mt-2 text-base text-gray-500">
-                    Images are automatically resized into multiple sizes. Your device downloads only what it needs, saving bandwidth and improving speed.
+                    Modern, professional design with customisable colours. Perfect for corporate roles and business environments.
                 </p>
+                <span class="mt-4 inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800">Pro plan</span>
             </div>
             
-            <div class="text-center">
-                <div class="flex justify-center">
-                    <div class="flex h-16 w-16 items-center justify-center rounded-lg bg-green-500 text-white">
-                        <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                        </svg>
-                    </div>
-                </div>
-                <h3 class="mt-4 text-lg font-semibold text-gray-900">Perfect on Every Device</h3>
-                <p class="mt-2 text-base text-gray-500">
-                    From mobile phones to high-resolution displays, images look crisp and load quickly. No manual resizing needed.
-                </p>
-            </div>
-            
-            <div class="text-center">
+            <div class="text-center bg-white rounded-xl border-2 border-purple-200 p-6 shadow-sm hover:shadow-md transition-shadow">
                 <div class="flex justify-center">
                     <div class="flex h-16 w-16 items-center justify-center rounded-lg bg-purple-500 text-white">
                         <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
                         </svg>
                     </div>
                 </div>
-                <h3 class="mt-4 text-lg font-semibold text-gray-900">SEO & Accessibility</h3>
+                <h3 class="mt-4 text-lg font-semibold text-gray-900">Modern Template</h3>
                 <p class="mt-2 text-base text-gray-500">
-                    All images include proper alt text, semantic HTML, and structured data. Better for search engines and screen readers.
+                    Contemporary design with bold accents. Great for creative industries, tech roles, and modern workplaces.
                 </p>
+                <span class="mt-4 inline-flex items-center rounded-full bg-purple-100 px-3 py-1 text-xs font-medium text-purple-800">Pro plan</span>
             </div>
         </div>
         
         <div class="mt-12 text-center">
-            <p class="text-sm text-gray-500">
-                <strong>How it works:</strong> Upload any image → We automatically create 4 optimised sizes → The browser picks the perfect one for your device
+            <p class="text-sm text-gray-600 mb-6">
+                <strong>All templates include:</strong> Customisable colours • ATS-friendly formatting • Print-ready PDFs • Mobile-optimised online view
             </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <?php if (isLoggedIn()): ?>
+                    <a href="/content-editor.php" class="inline-flex items-center justify-center rounded-lg bg-pink-600 px-6 py-3 text-base font-semibold text-white shadow-lg hover:bg-pink-700 transition-colors">
+                        Choose your template
+                    </a>
+                <?php else: ?>
+                    <button type="button" data-open-register class="inline-flex items-center justify-center rounded-lg bg-pink-600 px-6 py-3 text-base font-semibold text-white shadow-lg hover:bg-pink-700 transition-colors">
+                        Create free account
+                    </button>
+                <?php endif; ?>
+                <a href="/cv-templates-feature.php" class="inline-flex items-center justify-center rounded-lg border-2 border-pink-600 bg-white px-6 py-3 text-base font-semibold text-pink-600 hover:bg-pink-50 transition-colors">
+                    Learn more →
+                </a>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- For Organisations -->
-<div class="border-t border-gray-200 bg-white py-12 sm:py-16" id="for-organisations">
+<!-- Standout Features -->
+<div class="border-t border-gray-200 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 py-12 sm:py-16" id="standout-features">
     <span id="features" aria-hidden="true"></span>
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="lg:text-center mb-12">
+            <span class="inline-flex items-center rounded-full bg-indigo-100 px-4 py-1 text-sm font-medium text-indigo-800 mb-4">
+                What Makes Us Different
+            </span>
             <h2 class="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
-                For Recruitment Agencies & Organisations
+                Features That Set You Apart
             </h2>
             <p class="mt-3 max-w-2xl text-lg text-gray-600 lg:mx-auto">
-                Manage candidates, teams, and branded CVs. Everything below is for organisation accounts.
+                Stand out from the crowd with unique features that make your CV more accessible, shareable, and tailored to every opportunity.
             </p>
-        </div>
-
-        <!-- Feature Section (org) -->
-        <div class="lg:text-center mb-10">
-            <h3 class="text-lg font-semibold text-blue-600">Simple CV Builder</h3>
-            <p class="mt-2 text-2xl leading-8 font-bold tracking-tight text-gray-900 sm:text-3xl">
-                Powerful CV Management for Recruitment Agencies
-            </p>
-            <p class="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
-                Manage your candidates' CVs efficiently with our comprehensive platform. Perfect for recruitment agencies, HR departments, and organisations managing multiple candidates.
-            </p>
+            <div class="mt-8 mb-12 pt-8 border-t border-indigo-200">
+                <a href="/all-features.php" class="inline-flex items-center justify-center rounded-lg bg-indigo-600 px-8 py-4 text-base font-semibold text-white shadow-lg hover:bg-indigo-700 transition-colors">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                    </svg>
+                    View All Features
+                </a>
+            </div>
         </div>
 
         <div class="mt-10">
@@ -507,47 +516,67 @@
                 <?php
                 $features = [
                     [
-                        'title' => 'Candidate Management',
-                        'description' => 'Efficiently manage all your candidates in one place. Invite candidates, track their CV progress, and access their professional profiles instantly.',
-                        'icon' => 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z'
+                        'title' => 'Your Unique Online CV',
+                        'description' => 'Get a shareable CV link like <code class="bg-indigo-50 px-1.5 py-0.5 rounded text-xs font-mono text-indigo-700">/cv/@your-username</code>. Share it anywhere—email signatures, LinkedIn, social media. Update once, everyone sees the latest version instantly. No more sending outdated PDFs.',
+                        'icon' => 'M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1',
+                        'link' => '/online-cv-username.php',
+                        'linkText' => 'Learn about online CVs'
                     ],
                     [
-                        'title' => 'Team Collaboration',
-                        'description' => 'Work together with your team. Assign roles, manage permissions, and collaborate on candidate management with multiple team members.',
-                        'icon' => 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z'
+                        'title' => 'QR Codes in Your PDFs',
+                        'description' => 'Optionally include a QR code in your PDF exports that links directly to your online CV. Perfect for networking events, job fairs, and printed CVs. Recruiters can scan and instantly access your latest CV—no typing URLs or searching.',
+                        'icon' => 'M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z',
+                        'link' => '/qr-codes-pdf.php',
+                        'linkText' => 'See QR codes in action'
                     ],
                     [
-                        'title' => 'Branded Candidate CVs',
-                        'description' => 'Customise candidate CVs with your organisation\'s branding. Add your logo, brand colours, and create a professional, consistent experience.',
-                        'icon' => 'M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01'
+                        'title' => 'CV Variants for Every Job',
+                        'description' => 'Create unlimited tailored CV versions for different applications. Use AI to automatically match keywords and tailor content, or manually customise sections. Keep your master CV safe while generating job-specific variants. Link each variant to its application for easy tracking.',
+                        'icon' => 'M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3zM14 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1v-3z',
+                        'link' => '/cv-variants.php',
+                        'linkText' => 'Explore CV variants'
                     ],
                     [
-                        'title' => 'Real-Time CV Updates',
-                        'description' => 'Candidates can update their CVs in real-time. Changes are instantly reflected, ensuring you always have access to the latest information.',
-                        'icon' => 'M13 10V3L4 14h7v7l9-11h-7z'
+                        'title' => 'AI Cover Letters',
+                        'description' => 'Generate professional, tailored cover letters for each job application using our free Browser AI. No API keys needed—it runs directly in your browser. Link cover letters to specific applications and CV variants for complete application packages.',
+                        'icon' => 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
+                        'link' => '/cover-letters-feature.php',
+                        'linkText' => 'Create cover letters'
                     ],
                     [
-                        'title' => 'Flexible Access Control',
-                        'description' => 'Control who can see what. Set CV visibility levels, manage team permissions, and ensure data privacy with granular access controls.',
-                        'icon' => 'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z'
+                        'title' => 'Free Browser AI',
+                        'description' => 'All AI features run directly in your browser—no cloud services, no API keys, no setup required. Generate CV variants, assess quality, extract keywords, and create cover letters completely free. Your data stays private on your device.',
+                        'icon' => 'M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z',
+                        'link' => '/browser-ai-free.php',
+                        'linkText' => 'Learn about Browser AI'
                     ],
                     [
-                        'title' => 'Scalable Plans',
-                        'description' => 'Grow with confidence. Request limit increases as your organisation expands, with flexible plans that adapt to your needs.',
-                        'icon' => 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z'
+                        'title' => 'Tailor Your CV Content',
+                        'description' => 'Control exactly what appears in your PDF and online CV. Reorder sections, show or hide specific entries, and create different versions for different audiences—all from one master CV. Perfect for tailoring to different industries or roles.',
+                        'icon' => 'M4 6h16M4 12h16M4 18h16',
+                        'link' => '/tailor-cv-content.php',
+                        'linkText' => 'Customise your CV'
                     ]
                 ];
                 foreach ($features as $feature): ?>
-                    <div class="relative">
+                    <div class="relative bg-white rounded-xl border-2 border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
                         <dt>
-                            <div class="absolute flex h-12 w-12 items-center justify-center rounded-md bg-blue-500 text-white">
+                            <div class="absolute flex h-12 w-12 items-center justify-center rounded-md bg-indigo-500 text-white -top-6 left-6">
                                 <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="<?php echo e($feature['icon']); ?>" />
                                 </svg>
                             </div>
-                            <p class="ml-16 text-lg leading-6 font-medium text-gray-900"><?php echo e($feature['title']); ?></p>
+                            <p class="ml-0 text-lg leading-6 font-medium text-gray-900 mb-2"><?php echo e($feature['title']); ?></p>
                         </dt>
-                        <dd class="mt-2 ml-16 text-base text-gray-500"><?php echo e($feature['description']); ?></dd>
+                        <dd class="mt-2 ml-0 text-base text-gray-500 mb-4">
+                            <?php echo $feature['description']; ?>
+                        </dd>
+                        <a href="<?php echo e($feature['link']); ?>" class="inline-flex items-center text-sm font-semibold text-indigo-600 hover:text-indigo-800">
+                            <?php echo e($feature['linkText']); ?>
+                            <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </a>
                     </div>
                 <?php endforeach; ?>
             </dl>
@@ -555,379 +584,35 @@
     </div>
 </div>
 
-<!-- Custom Homepage Feature Section -->
-<div class="bg-white py-12 sm:py-16">
+<!-- Who is this for? strip -->
+<div class="border-y border-gray-200 bg-gray-50/80 py-6 sm:py-8">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="overflow-hidden rounded-2xl border border-purple-200 bg-white shadow-xl">
-            <div class="grid lg:grid-cols-2">
-                <!-- Left side: Visual -->
-                <div class="flex items-center justify-center bg-gradient-to-br from-purple-500 to-purple-600 px-6 py-12 sm:px-10 sm:py-16 lg:px-12">
-                    <div class="text-center">
-                        <div class="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-white/20 shadow-lg backdrop-blur-sm">
-                            <svg class="h-12 w-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-2xl font-bold text-white">Custom Public Homepage</h3>
-                        <p class="mt-2 text-purple-100">AI-Powered • Fully Customisable</p>
-                    </div>
+        <p class="text-center text-sm font-semibold uppercase tracking-wider text-gray-500 mb-4">Who is this for?</p>
+        <div class="flex flex-col sm:flex-row gap-4 sm:gap-8 justify-center items-center">
+            <a href="/individual-users.php" class="flex items-center gap-3 rounded-xl border-2 border-gray-200 bg-white px-6 py-4 shadow-sm hover:border-blue-300 hover:shadow-md transition-all w-full sm:w-auto max-w-xs sm:max-w-none">
+                <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                </span>
+                <div class="text-left">
+                    <span class="font-semibold text-gray-900">Individual job seekers</span>
+                    <p class="text-sm text-gray-600">Build your CV, track applications, use AI tools</p>
                 </div>
-                <!-- Right side: Content -->
-                <div class="flex flex-col justify-center px-6 py-12 sm:px-10 sm:py-16 lg:px-12">
-                    <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-                        Create Your Unique Public Presence
-                    </h2>
-                    <p class="mt-4 text-lg text-gray-600">
-                        Design a fully customised public landing page for your organisation with AI-powered template generation. Showcase your brand and create unique experiences for your clients.
-                    </p>
-                    <ul class="mt-6 space-y-3 text-gray-600">
-                        <li class="flex items-start">
-                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                            </svg>
-                            <span>AI-powered template generation from descriptions or reference URLs</span>
-                        </li>
-                        <li class="flex items-start">
-                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                            </svg>
-                            <span>Full HTML/CSS control for complete design freedom</span>
-                        </li>
-                        <li class="flex items-start">
-                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                            </svg>
-                            <span>Dynamic placeholders for organisation data</span>
-                        </li>
-                        <li class="flex items-start">
-                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                            </svg>
-                            <span>Professional branding for your organisation's public page</span>
-                        </li>
-                    </ul>
+            </a>
+            <a href="/organisations.php" class="flex items-center gap-3 rounded-xl border-2 border-gray-200 bg-white px-6 py-4 shadow-sm hover:border-blue-300 hover:shadow-md transition-all w-full sm:w-auto max-w-xs sm:max-w-none">
+                <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                </span>
+                <div class="text-left">
+                    <span class="font-semibold text-gray-900">Recruitment agencies & organisations</span>
+                    <p class="text-sm text-gray-600">Manage candidates, teams, and branded CVs</p>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Centralised AI Configuration Feature Section -->
-<div class="bg-gradient-to-r from-indigo-50 to-purple-50 py-12 sm:py-16">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="overflow-hidden rounded-2xl border border-indigo-200 bg-white shadow-xl">
-            <div class="grid lg:grid-cols-2">
-                <!-- Left side: Content -->
-                <div class="flex flex-col justify-center px-6 py-12 sm:px-10 sm:py-16 lg:px-12">
-                    <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-                        Centralised AI for Your Entire Organisation
-                    </h2>
-                    <p class="mt-4 text-lg text-gray-600">
-                        Configure AI services once at the organisation level, and all your candidates benefit automatically. Streamline AI access, manage costs efficiently, and ensure consistent AI capabilities across your team.
-                    </p>
-                    <ul class="mt-6 space-y-3 text-gray-600">
-                        <li class="flex items-start">
-                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-indigo-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                            </svg>
-                            <span>Configure once, benefit organisation-wide</span>
-                        </li>
-                        <li class="flex items-start">
-                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-indigo-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                            </svg>
-                            <span>Support for cloud APIs (OpenAI, Anthropic, Gemini, Grok) and local AI</span>
-                        </li>
-                        <li class="flex items-start">
-                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-indigo-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                            </svg>
-                            <span>Centralised cost management and API key security</span>
-                        </li>
-                        <li class="flex items-start">
-                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-indigo-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                            </svg>
-                            <span>All candidates get automatic access to AI features</span>
-                        </li>
-                    </ul>
-                </div>
-                <!-- Right side: Visual -->
-                <div class="flex items-center justify-center bg-gradient-to-br from-indigo-500 to-indigo-600 px-6 py-12 sm:px-10 sm:py-16 lg:px-12">
-                    <div class="text-center">
-                        <div class="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-white/20 shadow-lg backdrop-blur-sm">
-                            <svg class="h-12 w-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-2xl font-bold text-white">Centralised AI</h3>
-                        <p class="mt-2 text-indigo-100">Configure Once • Benefit All</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Custom Email Settings Feature Section -->
-<div class="bg-white py-12 sm:py-16">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="overflow-hidden rounded-2xl border border-blue-200 bg-white shadow-xl">
-            <div class="grid lg:grid-cols-2">
-                <!-- Left side: Visual -->
-                <div class="flex items-center justify-center bg-gradient-to-br from-blue-500 to-blue-600 px-6 py-12 sm:px-10 sm:py-16 lg:px-12">
-                    <div class="text-center">
-                        <div class="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-white/20 shadow-lg backdrop-blur-sm">
-                            <svg class="h-12 w-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-2xl font-bold text-white">Professional Email</h3>
-                        <p class="mt-2 text-blue-100">Your Brand • Your Domain</p>
-                    </div>
-                </div>
-                <!-- Right side: Content -->
-                <div class="flex flex-col justify-center px-6 py-12 sm:px-10 sm:py-16 lg:px-12">
-                    <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-                        Send Emails from Your Organisation
-                    </h2>
-                    <p class="mt-4 text-lg text-gray-600">
-                        Professional email branding for your invitation emails. Send candidate and team invitations from your organisation's email address with a custom display name.
-                    </p>
-                    <ul class="mt-6 space-y-3 text-gray-600">
-                        <li class="flex items-start">
-                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                            </svg>
-                            <span>Custom "From" email address from your organisation domain</span>
-                        </li>
-                        <li class="flex items-start">
-                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                            </svg>
-                            <span>Custom display name for professional branding</span>
-                        </li>
-                        <li class="flex items-start">
-                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                            </svg>
-                            <span>Improved deliverability and recognition</span>
-                        </li>
-                        <li class="flex items-start">
-                            <svg class="mt-1 mr-3 h-5 w-5 shrink-0 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                            </svg>
-                            <span>Consistent branding across invitation emails</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- How It Works Section -->
-<div class="bg-white py-12 sm:py-16" id="process">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="lg:text-center">
-            <h2 class="text-lg font-semibold text-blue-600">Simple Process</h2>
-            <p class="mt-2 text-3xl leading-8 font-bold tracking-tight text-gray-900 sm:text-4xl">
-                How It Works for Organisations
-            </p>
-        </div>
-
-        <div class="mt-10">
-            <div class="relative">
-                <div class="absolute inset-0 flex items-center" aria-hidden="true">
-                    <div class="w-full border-t border-gray-300"></div>
-                </div>
-                <div class="relative flex justify-center">
-                    <span class="bg-white px-3 text-lg font-medium text-gray-900">Three simple steps</span>
-                </div>
-            </div>
-
-            <div class="mt-6 grid grid-cols-1 gap-10 sm:grid-cols-3">
-                <div class="text-center">
-                    <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-600">
-                        <span class="text-xl font-bold">1</span>
-                    </div>
-                    <h3 class="mt-3 text-lg font-medium text-gray-900">Set Up Your Organisation</h3>
-                    <p class="mt-2 text-base text-gray-500">
-                        Get your organisation account created, configure your branding, and invite your team members.
-                    </p>
-                </div>
-
-                <div class="text-center">
-                    <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-600">
-                        <span class="text-xl font-bold">2</span>
-                    </div>
-                    <h3 class="mt-3 text-lg font-medium text-gray-900">Invite Candidates</h3>
-                    <p class="mt-2 text-base text-gray-500">
-                        Send invitations to your candidates to create their professional CVs with your branding.
-                    </p>
-                </div>
-
-                <div class="text-center">
-                    <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-600">
-                        <span class="text-xl font-bold">3</span>
-                    </div>
-                    <h3 class="mt-3 text-lg font-medium text-gray-900">Manage & Share</h3>
-                    <p class="mt-2 text-base text-gray-500">
-                        View candidate CVs, track progress, download PDFs, and share professional profiles with clients.
-                    </p>
-                </div>
-            </div>
+            </a>
         </div>
     </div>
 </div>
 
 <!-- Pricing Section -->
-<div class="bg-gray-900 py-16 sm:py-24" id="pricing">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="max-w-2xl text-center mx-auto">
-            <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">Individual plans</h2>
-            <p class="mt-4 text-lg text-gray-300">
-                Plans for job seekers and personal CV use. Free tier includes unlimited job tracking and AI-assisted CV and cover letters; the free plan has limited CV sections and no PDF export. Upgrade to Pro for unlimited sections and print-ready PDFs.
-            </p>
-        </div>
-        <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            <?php
-            $pricingCards = [
-                [
-                    'label' => 'Free',
-                    'price' => '£0',
-                    'detail' => 'Forever free',
-                    'highlight' => false,
-                    'features' => [
-                        '1 work experience entry',
-                        '1 project showcase',
-                        '3 highlighted skills',
-                        'Minimal template',
-                    ],
-                    'button' => ['text' => 'Start for free', 'href' => '#', 'dataOpenRegister' => true],
-                ],
-                [
-                    'label' => 'Lifetime',
-                    'price' => '£34.99',
-                    'detail' => 'one-time payment',
-                    'highlight' => true,
-                    'badge' => 'Beta Special',
-                    'features' => [
-                        'Unlimited sections & entries',
-                        'Professional template with colours',
-                        'Download print-ready PDFs',
-                        'Priority email support',
-                        'Lifetime access - no recurring fees',
-                    ],
-                    'button' => ['text' => 'Create account to purchase', 'href' => '#', 'dataOpenRegister' => true, 'requiresAccount' => true],
-                ],
-                [
-                    'label' => 'Pro Monthly',
-                    'price' => '£4.99',
-                    'detail' => 'per month',
-                    'highlight' => false,
-                    'features' => [
-                        'Unlimited sections & entries',
-                        'Professional template with colours',
-                        'Download print-ready PDFs',
-                        'Priority email support',
-                    ],
-                    'button' => ['text' => 'Create account to purchase', 'href' => '#', 'dataOpenRegister' => true, 'requiresAccount' => true],
-                ],
-                [
-                    'label' => 'Pro Annual',
-                    'price' => '£29.99',
-                    'detail' => 'per year',
-                    'highlight' => false,
-                    'features' => [
-                        'Everything in Pro Monthly',
-                        'Best value for serious job seekers',
-                        'Annual billing with Stripe',
-                        'Priority email support',
-                    ],
-                    'button' => ['text' => 'Create account to purchase', 'href' => '#', 'dataOpenRegister' => true, 'requiresAccount' => true],
-                ],
-            ];
-            foreach ($pricingCards as $card):
-                $classes = $card['highlight']
-                    ? 'border-blue-500 ring-1 ring-blue-200 bg-white text-gray-900'
-                    : 'border-gray-700 bg-gray-800 text-gray-100';
-                ?>
-                <div class="flex flex-col rounded-2xl border <?php echo $classes; ?> p-8 shadow-xl relative">
-                    <?php if (!empty($card['badge'])): ?>
-                        <div class="absolute -top-3 left-1/2 -translate-x-1/2">
-                            <span class="inline-flex items-center rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white shadow-lg">
-                                <?php echo e($card['badge']); ?>
-                            </span>
-                        </div>
-                    <?php endif; ?>
-                    <div>
-                        <h3 class="text-xl font-semibold"><?php echo e($card['label']); ?></h3>
-                        <div class="mt-6 flex items-baseline gap-2">
-                            <span class="text-3xl font-bold"><?php echo e($card['price']); ?></span>
-                            <span class="text-sm text-gray-400"><?php echo e($card['detail']); ?></span>
-                        </div>
-                    </div>
-                    <ul class="mt-8 space-y-3 text-sm flex-1">
-                        <?php foreach ($card['features'] as $feature): ?>
-                            <li class="flex items-start gap-2">
-                                <svg class="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                                <span><?php echo e($feature); ?></span>
-                            </li>
-                        <?php endforeach; ?>
-                    </ul>
-                    <div class="mt-8">
-                        <?php
-                        $buttonHref = $card['button']['href'] ?? '#auth-section';
-                        $buttonPlan = $card['button']['plan'] ?? null;
-                        $requiresAccount = $card['button']['requiresAccount'] ?? false;
-                        if ($buttonPlan && $buttonHref === '/subscription.php') {
-                            $buttonHref .= '?plan=' . urlencode($buttonPlan);
-                        }
-                        ?>
-                        <?php
-                        $hasDataOpenRegister = $card['button']['dataOpenRegister'] ?? false;
-                        $buttonTag = $hasDataOpenRegister ? 'button' : 'a';
-                        $buttonAttrs = $hasDataOpenRegister 
-                            ? 'type="button" data-open-register'
-                            : 'href="' . e($buttonHref) . '"';
-                        ?>
-                        <<?php echo $buttonTag; ?> <?php echo $buttonAttrs; ?>
-                           class="inline-flex w-full items-center justify-center rounded-lg px-4 py-2 text-sm font-semibold transition
-                           <?php echo $card['highlight']
-                               ? 'bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white'
-                               : 'bg-white text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800'; ?>">
-                            <?php echo e($card['button']['text']); ?>
-                        </<?php echo $buttonTag; ?>>
-                        <?php if ($requiresAccount): ?>
-                            <p class="mt-2 text-xs text-center <?php echo $card['highlight'] ? 'text-gray-600' : 'text-gray-400'; ?>">
-                                Create a free account first, then upgrade from your dashboard
-                            </p>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            <?php endforeach; ?>
-        </div>
-        <div class="mt-12 rounded-xl border border-gray-700 bg-gray-800 p-6 sm:p-8 text-center">
-            <h3 class="text-lg font-semibold text-white">For organisations &amp; agencies</h3>
-            <p class="mt-2 text-gray-300">
-                Recruitment agencies: manage candidates, team collaboration, and branding in one platform.
-            </p>
-            <ul class="mt-4 flex flex-wrap justify-center gap-x-6 gap-y-1 text-sm text-gray-400">
-                <li>Custom candidate and team limits</li>
-                <li>White-label branding and support</li>
-            </ul>
-            <a href="/organisations.php" class="mt-6 inline-flex items-center justify-center rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
-                Contact us to set up your organisation
-            </a>
-        </div>
-        <p class="mt-8 text-center text-sm text-gray-400">
-            Secure payments powered by Stripe. Cancel anytime from your billing portal.
-        </p>
-    </div>
-</div>
+<?php partial('home-pricing', ['pricingLaunchOffer' => $pricingLaunchOffer, 'pricingUseRegisterModal' => true]); ?>
 
 <!-- Testimonials Section -->
 <div class="bg-gray-50 py-12 sm:py-16">
@@ -936,6 +621,9 @@
             <h2 class="text-lg font-semibold text-blue-600">Testimonials</h2>
             <p class="mt-2 text-3xl leading-8 font-bold tracking-tight text-gray-900 sm:text-4xl">
                 What Our Users Say
+            </p>
+            <p class="mt-3 text-lg text-gray-600 max-w-2xl mx-auto">
+                Join job seekers building professional CVs and tracking applications in one place.
             </p>
         </div>
 

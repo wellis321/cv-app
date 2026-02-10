@@ -31,16 +31,16 @@ $pricingDetails = [
         'subtext' => 'Forever free',
     ],
     'lifetime' => [
-        'price' => '£34.99',
+        'price' => '£39.99',
         'subtext' => 'one-time payment',
     ],
     'pro_monthly' => [
         'price' => '£4.99',
-        'subtext' => 'per month',
+        'subtext' => 'per month (1 month free trial)',
     ],
     'pro_annual' => [
         'price' => '£29.99',
-        'subtext' => 'per year (save over 40%)',
+        'subtext' => 'per year (1 month free trial, save over 40%)',
     ],
 ];
 
@@ -139,8 +139,8 @@ function renderPlanFeatures(string $planId, array $planConfig): array {
                 <div class="rounded-xl border <?php echo $isCurrentPlan ? 'border-blue-500 shadow-lg ring-1 ring-blue-200' : 'border-gray-200 shadow-sm'; ?> bg-white p-6 flex flex-col">
                     <div class="flex items-center justify-between">
                         <h2 class="text-xl font-semibold text-gray-900"><?php echo e($planConfig['label']); ?></h2>
-                        <?php if ($planId === 'lifetime'): ?>
-                            <span class="rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white">Beta Special</span>
+                        <?php if ($planId === 'pro_monthly'): ?>
+                            <span class="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">1 month free</span>
                         <?php elseif ($planId === 'pro_annual'): ?>
                             <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">Best value</span>
                         <?php endif; ?>
@@ -193,9 +193,9 @@ function renderPlanFeatures(string $planId, array $planConfig): array {
                                 data-plan-label="<?php echo e($planConfig['label']); ?>"
                                 class="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-gray-200 disabled:text-gray-500"
                             >
-                                Upgrade
+                                <?php echo in_array($planId, ['pro_monthly', 'pro_annual'], true) ? 'Start free trial' : 'Upgrade'; ?>
                             </button>
-                            <p class="mt-2 text-xs text-gray-500 text-center">Secure payments powered by Stripe</p>
+                            <p class="mt-2 text-xs text-gray-500 text-center"><?php echo in_array($planId, ['pro_monthly', 'pro_annual'], true) ? '1 month free, then billed. Secure payments via Stripe.' : 'Secure payments powered by Stripe'; ?></p>
                         <?php endif; ?>
                     </div>
                 </div>

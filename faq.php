@@ -88,7 +88,7 @@ $faqs = [
     ],
     [
         'question' => 'Can I set reminders for job applications?',
-        'answer' => 'Absolutely! You can set follow-up reminders for each application to ensure you never miss an important date. This is particularly useful when you\'re managing multiple applications and need to remember when to follow up with employers or prepare for interviews.'
+        'answer' => 'Absolutely! You can set follow-up reminders for each application to ensure you never miss an important date. When you set a follow-up or closing date, you\'ll automatically receive browser notifications before important deadlines. By default, you\'ll get reminders 7 days, 3 days, and 1 day before closing dates, but you can customize these in your Profile settings—choose from preset options (14, 7, 3, or 1 day) or add your own custom days. These notifications appear when you visit your dashboard or job list, keeping you informed without being overwhelming. This is particularly useful when you\'re managing multiple applications and need to remember when to follow up with employers or prepare for interviews.'
     ],
     [
         'question' => 'How does the job application tracker integrate with my CV?',

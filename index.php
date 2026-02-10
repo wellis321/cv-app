@@ -32,6 +32,18 @@ if (preg_match('#^/agency/([a-z0-9\-]+)$#', $requestPath, $matches)) {
     exit;
 }
 
+// Public pricing page: /pricing -> pricing.php
+if ($requestPath === '/pricing') {
+    require __DIR__ . '/pricing.php';
+    exit;
+}
+
+// Quick-add job (bookmarklet target): /quick-add-job -> quick-add-job.php
+if ($requestPath === '/quick-add-job') {
+    require __DIR__ . '/quick-add-job.php';
+    exit;
+}
+
 // Don't process as homepage if it's a specific file request
 if ($requestPath !== '/' && $requestPath !== '/index.php' && $requestPath !== '') {
     // Check if the requested file exists
@@ -171,8 +183,8 @@ $oldLoginEmail = getFlash('old_login_email') ?: null;
 <html lang="en">
 <head>
     <?php partial('head', [
-        'pageTitle' => 'Simple CV Builder | CV Management for Recruitment Agencies',
-        'metaDescription' => 'Professional CV management platform for recruitment agencies. Manage candidate CVs efficiently, provide branded CV building tools, and streamline your recruitment process.',
+        'pageTitle' => 'Simple CV Builder | Free CV Maker UK, Job Tracker & AI Cover Letters',
+        'metaDescription' => 'Free CV builder UK with job application tracking and AI-powered cover letters. Build your CV online, share a link, and export PDFs. For job seekers and recruitment agencies.',
         'canonicalUrl' => APP_URL . '/',
         'structuredDataType' => 'homepage',
     ]); ?>
