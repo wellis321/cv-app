@@ -37,31 +37,34 @@ if (!$rateLimit['allowed']) {
 }
 
 // Get form data
-$feedbackType = prepareForStorage(post('feedback_type', ''));
+$feedbackType = prepareForStorage(post('feedback_type', 'other'));
 $message = prepareForStorage(post('message', ''));
 $email = prepareForStorage(post('email', ''));
+$senderName = prepareForStorage(post('name', ''));
 $pageUrl = prepareForStorage(post('page_url', ''));
 $userAgent = prepareForStorage($_SERVER['HTTP_USER_AGENT'] ?? '');
 
-// Require user to be logged in
-if (!isLoggedIn()) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'error' => 'You must be logged in to submit feedback.']);
-    exit;
-}
-
-// Get user ID (required since we only allow logged-in users)
-$userId = getUserId();
-if (!$userId) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'error' => 'User session invalid. Please log in again.']);
-    exit;
-}
-
-// Get email from user profile if not provided in form
-if (empty($email)) {
-    $user = getCurrentUser();
-    $email = $user['email'] ?? null;
+// Allow anonymous submissions when email is provided (e.g. contact form)
+$userId = null;
+if (isLoggedIn()) {
+    $userId = getUserId();
+    if (!$userId) {
+        http_response_code(401);
+        echo json_encode(['success' => false, 'error' => 'User session invalid. Please log in again.']);
+        exit;
+    }
+    // Get email from user profile if not provided in form
+    if (empty($email)) {
+        $user = getCurrentUser();
+        $email = $user['email'] ?? null;
+    }
+} else {
+    // Anonymous: require email
+    if (empty($email)) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'Please provide your email address so we can respond.']);
+        exit;
+    }
 }
 
 // Validation
@@ -89,6 +92,11 @@ if (!empty($errors)) {
     http_response_code(400);
     echo json_encode(['success' => false, 'error' => implode('. ', $errors)]);
     exit;
+}
+
+// Prepend sender name to message for contact form submissions
+if (!empty($senderName)) {
+    $message = "From: " . $senderName . "\n\n" . $message;
 }
 
 try {

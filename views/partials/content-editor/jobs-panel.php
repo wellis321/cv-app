@@ -109,10 +109,6 @@ $stats = getJobApplicationStats($userId);
                     </svg>
                     Quick add from link
                 </button>
-                <a href="/save-job-token.php" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline focus:outline-none"
-                   title="Get save token for browser extension (one-click save from any job page)">
-                    Get save token
-                </a>
                 <button id="jobs-add-application-btn" 
                         class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-1 focus:ring-green-500 transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -283,12 +279,18 @@ $stats = getJobApplicationStats($userId);
             ? '<div class="text-center py-12 text-gray-500 col-span-full">No applications found.</div>'
             : filtered.map(app => {
                 var dueSoon = getDueSoon(app.next_follow_up);
-                var borderClass = dueSoon.urgent ? 'border-l-4 border-l-red-500' : (dueSoon.soon ? 'border-l-4 border-l-amber-500' : '');
+                var hasLeftBorder = dueSoon.urgent || dueSoon.soon;
+                var borderClass = dueSoon.urgent ? 'border-l-4' : (dueSoon.soon ? 'border-l-4' : '');
+                var borderStyle = dueSoon.urgent ? ' style="border-left-color: #f87171 !important;"' : (dueSoon.soon ? ' style="border-left-color: #f59e0b !important;"' : '');
+                // When there's a left border, only round right corners; otherwise round all corners
+                var roundedClass = hasLeftBorder ? 'rounded-tr-lg rounded-br-lg' : 'rounded-lg';
+                // Hover border - only apply if no left border to avoid overriding the left border color
+                var hoverBorderClass = hasLeftBorder ? '' : 'hover:border-green-300';
                 var priorityBadge = app.priority ? '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ' + (app.priority === 'high' ? 'bg-red-100 text-red-800' : (app.priority === 'medium' ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-600')) + '">' + escapeHtml(app.priority) + '</span>' : '';
                 var dueBadge = dueSoon.label ? '<span class="text-xs font-medium ' + (dueSoon.urgent ? 'text-red-600' : (dueSoon.soon ? 'text-amber-700' : 'text-gray-600')) + '">' + dueSoon.label + '</span>' : '';
                 return `
                 <div onclick="window.location.hash='#jobs&view=${app.id}'" 
-                     class="border border-gray-200 rounded-lg p-4 hover:shadow-lg hover:border-green-300 transition-all bg-white cursor-pointer ${borderClass}">
+                     class="border border-gray-200 ${roundedClass} p-4 hover:shadow-lg ${hoverBorderClass} transition-all bg-white cursor-pointer ${borderClass}"${borderStyle}>
                     <div class="mb-3 flex flex-wrap items-start justify-between gap-2">
                         <div>
                             <h3 class="text-lg font-semibold text-gray-900 mb-1">${escapeHtml(app.job_title || '')}</h3>
@@ -457,14 +459,24 @@ $stats = getJobApplicationStats($userId);
     
     function getDueSoon(nextFollowUp) {
         if (!nextFollowUp) return { soon: false, urgent: false, label: '', dateStr: '' };
-        const d = new Date(nextFollowUp);
+        // Parse date consistently across browsers - handle ISO format (YYYY-MM-DD) explicitly
+        let d;
+        if (typeof nextFollowUp === 'string' && nextFollowUp.match(/^\d{4}-\d{2}-\d{2}/)) {
+            // ISO date format - parse explicitly to avoid timezone issues
+            const parts = nextFollowUp.split('T')[0].split('-');
+            d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+        } else {
+            d = new Date(nextFollowUp);
+        }
         const today = new Date();
         // Normalize both to midnight for accurate day calculation
         today.setHours(0, 0, 0, 0);
         d.setHours(0, 0, 0, 0);
+        // Check if date is valid
+        if (isNaN(d.getTime())) return { soon: false, urgent: false, label: '', dateStr: '' };
         // Use floor instead of ceil for consistent calculation
         const days = Math.floor((d - today) / 86400000);
-        const dateStr = d.toLocaleDateString();
+        const dateStr = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
         if (days < 0) return { soon: false, urgent: false, label: 'Past due', dateStr: dateStr };
         if (days === 0) return { soon: true, urgent: true, label: 'Due today', dateStr: dateStr };
         if (days === 1) return { soon: true, urgent: true, label: 'Due tomorrow', dateStr: dateStr };

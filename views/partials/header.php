@@ -194,6 +194,7 @@
                             </a>
                         </div>
                     </div>
+                    <a href="/about.php" class="px-1.5 py-1.5 md:px-2 md:py-2 rounded-md text-xs md:text-sm font-medium transition-colors whitespace-nowrap <?php echo $currentPage === 'about.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?>">About</a>
                     <a href="/logout.php" class="px-1.5 py-1.5 md:px-2 md:py-2 rounded-md text-xs md:text-sm font-medium transition-colors whitespace-nowrap text-gray-700 hover:bg-red-50 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">Sign Out</a>
                 <?php else: ?>
                     <a href="/organisations.php" class="px-2 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap <?php echo $currentPage === 'organisations.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?>">Organisations</a>
@@ -259,7 +260,7 @@
                                             <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                             <span>Free with Account</span>
                                         </a>
-                                        <a href="/feedback-feature.php" role="menuitem" class="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors <?php echo $currentPage === 'feedback-feature.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
+                                        <a href="/feedback-feature.php" data-open-feedback role="menuitem" class="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors <?php echo $currentPage === 'feedback-feature.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
                                             <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
                                             <span>Feedback & Support</span>
                                         </a>
@@ -414,6 +415,7 @@
                             </a>
                         </div>
                     </div>
+                    <a href="/about.php" class="px-2 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap <?php echo $currentPage === 'about.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?>">About</a>
                     <button type="button"
                             data-open-login
                             aria-label="Log in"
@@ -586,6 +588,10 @@
                        class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'faq.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
                         FAQ
                     </a>
+                    <a href="/about.php" 
+                       class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'about.php' ? 'text-blue-700 bg-blue-100' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500 border-t border-gray-200 mt-2 pt-4">
+                        About
+                    </a>
                     <a href="/logout.php" 
                        class="block px-4 py-2 rounded-md text-base font-medium transition-colors text-gray-700 hover:bg-red-100 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 border-t border-gray-200 mt-2 pt-4">
                         Sign Out
@@ -601,6 +607,10 @@
                     <a href="/individual-users.php" 
                        class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'individual-users.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
                         Individuals
+                    </a>
+                    <a href="/about.php" 
+                       class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'about.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        About
                     </a>
                     <?php
                     // Check if current page is a feature page to expand by default
@@ -680,6 +690,10 @@
                     <a href="/faq.php" 
                        class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'faq.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
                         FAQ
+                    </a>
+                    <a href="/about.php" 
+                       class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'about.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500 border-t border-gray-200 mt-2 pt-4">
+                        About
                     </a>
                     <div class="border-t border-gray-200 mt-4 pt-4 space-y-2">
                         <button type="button"

@@ -50,6 +50,7 @@ require_once __DIR__ . '/php/helpers.php';
                         <li>Custom CV templates and designs (if you use AI template generation)</li>
                         <li>CV variants and versions (multiple versions of your CV for different job applications)</li>
                         <li>Feedback submissions (when you submit feedback through our feedback widget, we collect your feedback message, the page URL where you submitted it, and technical information about your device and browser to help us understand and address your feedback)</li>
+                        <li>Subscription and payment information (Stripe customer ID, subscription status, plan type, billing period end date) — when you subscribe to a paid plan, we store references to your Stripe account; payment details (card numbers, etc.) are processed directly by Stripe and we do not store them</li>
                     </ul>
 
                     <h3 class="text-xl font-semibold text-gray-900 mb-3">Automatically Collected Information</h3>
@@ -86,7 +87,18 @@ require_once __DIR__ . '/php/helpers.php';
                         <li>Respond to your inquiries and provide customer support</li>
                         <li>Provide system capability recommendations (only when you explicitly request this feature)</li>
                         <li>Process and respond to feedback submissions (we use the technical information collected with your feedback to understand and reproduce issues, improve our service, and respond to your concerns)</li>
+                        <li>Process subscription payments and manage your plan (we use Stripe to process payments; your payment details are handled by Stripe in accordance with their privacy policy)</li>
                     </ul>
+                </section>
+
+                <section class="mb-8">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-4">Payment Processing (Stripe)</h2>
+                    <p class="text-gray-700 mb-4">
+                        When you subscribe to a paid plan, payments are processed by Stripe. We do not store your full card number or payment details. Stripe collects and processes payment information in accordance with their privacy policy. We store only the Stripe customer ID, subscription status, and billing period information necessary to provide your subscription and manage your account.
+                    </p>
+                    <p class="text-gray-700 mb-4">
+                        For more information about how Stripe handles your data, please see <a href="https://stripe.com/privacy" class="text-blue-600 hover:text-blue-800 underline" target="_blank" rel="noopener noreferrer">Stripe's Privacy Policy</a>.
+                    </p>
                 </section>
 
                 <section class="mb-8">

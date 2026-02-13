@@ -27,14 +27,24 @@
 
     function getDueSoon(nextFollowUp) {
         if (!nextFollowUp) return { soon: false, urgent: false, label: '', dateStr: '' };
-        const d = new Date(nextFollowUp);
+        // Parse date consistently across browsers - handle ISO format (YYYY-MM-DD) explicitly
+        let d;
+        if (typeof nextFollowUp === 'string' && nextFollowUp.match(/^\d{4}-\d{2}-\d{2}/)) {
+            // ISO date format - parse explicitly to avoid timezone issues
+            const parts = nextFollowUp.split('T')[0].split('-');
+            d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+        } else {
+            d = new Date(nextFollowUp);
+        }
         const today = new Date();
         // Normalize both to midnight for accurate day calculation
         today.setHours(0, 0, 0, 0);
         d.setHours(0, 0, 0, 0);
+        // Check if date is valid
+        if (isNaN(d.getTime())) return { soon: false, urgent: false, label: '', dateStr: '' };
         // Use floor instead of ceil for consistent calculation
         const days = Math.floor((d - today) / 86400000);
-        const dateStr = d.toLocaleDateString();
+        const dateStr = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
         if (days < 0) return { soon: false, urgent: false, label: 'Past due', dateStr: dateStr };
         if (days === 0) return { soon: true, urgent: true, label: 'Due today', dateStr: dateStr };
         if (days === 1) return { soon: true, urgent: true, label: 'Due tomorrow', dateStr: dateStr };
@@ -179,8 +189,16 @@
             } else {
                 cardsContainer.innerHTML = filtered.map(function(app) {
                     var dateLabel = app.application_date ? ('Applied: ' + new Date(app.application_date).toLocaleDateString()) : (app.created_at ? ('Added: ' + new Date(app.created_at).toLocaleDateString()) : '');
+                    var dueSoon = getDueSoon(app.next_follow_up);
+                    var hasLeftBorder = dueSoon.urgent || dueSoon.soon;
+                    var borderClass = dueSoon.urgent ? 'border-l-4' : (dueSoon.soon ? 'border-l-4' : '');
+                    var borderStyle = dueSoon.urgent ? ' style="border-left-color: #f87171 !important;"' : (dueSoon.soon ? ' style="border-left-color: #f59e0b !important;"' : '');
+                    // When there's a left border, only round right corners; otherwise round all corners
+                    var roundedClass = hasLeftBorder ? 'rounded-tr-lg rounded-br-lg' : 'rounded-lg';
+                    // Hover border - only apply if no left border, or use specific hover that preserves left border
+                    var hoverBorderClass = hasLeftBorder ? '' : 'hover:border-green-300';
                     return '<div onclick="window.location.hash=\'#jobs&view=' + (app.id || '') + '\'" ' +
-                        'class="border border-gray-200 rounded-lg p-4 hover:shadow-lg hover:border-green-300 transition-all bg-white cursor-pointer">' +
+                        'class="border border-gray-200 ' + roundedClass + ' p-4 hover:shadow-lg ' + hoverBorderClass + ' transition-all bg-white cursor-pointer ' + borderClass + '"' + borderStyle + '>' +
                         '<div class="mb-3">' +
                         '<h3 class="text-lg font-semibold text-gray-900 mb-1">' + escapeHtml(app.job_title || '') + '</h3>' +
                         '<p class="text-sm text-gray-600 font-medium">' + escapeHtml(app.company_name || '') + '</p>' +

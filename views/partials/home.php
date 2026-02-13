@@ -330,16 +330,16 @@
                 </div>
 
                 <!-- Right side: Visual -->
-                <div class="flex items-center justify-center bg-gradient-to-br from-green-500 to-green-600 px-6 py-12 sm:px-10 sm:py-16 lg:px-12">
-                    <div class="text-center">
-                        <div class="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-white/20 shadow-lg backdrop-blur-sm">
-                            <svg class="h-12 w-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="flex items-center justify-center px-6 py-12 sm:px-10 sm:py-16 lg:px-12 bg-cover bg-center bg-no-repeat" style="background-image: url('/static/images/home/jobs.png');">
+                    <div class="text-center bg-white/95 backdrop-blur-sm rounded-lg px-6 py-8 shadow-xl border border-gray-200">
+                        <div class="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-green-100 shadow-lg">
+                            <svg class="h-12 w-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                             </svg>
                         </div>
-                        <h3 class="text-2xl font-bold text-white">Job Application Tracker</h3>
-                        <p class="mt-2 text-green-100">Organise • Track • Follow Up</p>
-                        <p class="mt-4 text-sm text-white/90">
+                        <h3 class="text-2xl font-bold text-gray-900">Job Application Tracker</h3>
+                        <p class="mt-2 text-gray-600">Organise • Track • Follow Up</p>
+                        <p class="mt-4 text-sm text-gray-500">
                             Included with every account
                         </p>
                     </div>

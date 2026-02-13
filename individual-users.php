@@ -24,7 +24,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
     <main id="main-content" role="main">
         <!-- Hero Section -->
         <div class="relative min-h-[42vh] flex flex-col justify-center bg-gray-900 text-white overflow-hidden">
-            <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1920&q=80');" aria-hidden="true"></div>
+            <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('/static/images/individuals/individuals.png');" aria-hidden="true"></div>
             <div class="absolute inset-0 bg-gray-900/70" aria-hidden="true"></div>
             <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
                 <h1 class="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl text-white">
@@ -78,7 +78,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                                 </div>
                             </div>
                             <div class="min-h-0">
-                                <img src="<?php echo e($img('1507003211169-0a1dd7228f2d', 600)); ?>" alt="Person using laptop to create CV" class="h-full w-full rounded-lg border border-gray-200 shadow-sm object-cover" width="600" height="340" />
+                                <img src="/static/images/individuals/getting-started.png" alt="Example CV profile showing completed professional profile" class="h-full w-full rounded-lg border border-gray-200 shadow-sm object-cover" width="600" height="340" />
                             </div>
                         </div>
                     </div>

@@ -6,6 +6,17 @@
 (function() {
     'use strict';
 
+    // Handle data-open-feedback clicks: open modal when available, else follow href
+    document.addEventListener('click', function(e) {
+        const trigger = e.target.closest('[data-open-feedback]');
+        if (!trigger) return;
+        const btn = document.getElementById('feedback-button');
+        if (btn) {
+            e.preventDefault();
+            btn.click();
+        }
+    });
+
     // Get elements
     const feedbackButton = document.getElementById('feedback-button');
     const feedbackModal = document.getElementById('feedback-modal');

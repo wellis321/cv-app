@@ -127,6 +127,23 @@ require_once __DIR__ . '/php/helpers.php';
                 </section>
 
                 <section class="mb-8">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-4">Subscriptions and Payments</h2>
+                    <p class="text-gray-700 mb-4">
+                        Simple CV Builder offers subscription plans including free, trial, and paid options. By subscribing to a paid plan, you agree to the following:
+                    </p>
+                    <ul class="list-disc list-inside text-gray-700 mb-4 space-y-2">
+                        <li><strong>Payment processing:</strong> Payments are processed securely by Stripe. You agree to provide accurate payment information and authorise us to charge your chosen payment method for subscription fees.</li>
+                        <li><strong>Subscription plans:</strong> We offer various plans including free, trial (e.g. 7-day), fixed-term (e.g. 3-month), monthly, annual, and lifetime access. Plan features, limits, and pricing are described on our pricing page and may change with notice.</li>
+                        <li><strong>Billing and renewal:</strong> For recurring plans (e.g. Pro Monthly, Pro Annual), you will be billed at the start of each billing period until you cancel. Trial plans convert to paid subscriptions at the end of the trial unless cancelled.</li>
+                        <li><strong>Cancellation:</strong> You may cancel your subscription at any time through your account settings or the Stripe billing portal. Cancellation takes effect at the end of your current billing period; you retain access until that date.</li>
+                        <li><strong>Refunds:</strong> We do not offer refunds for partial billing periods or for one-time payments (e.g. 3-month, lifetime) except where required by law or at our sole discretion.</li>
+                        <li><strong>Downgrade:</strong> When your subscription ends (by cancellation or non-payment), your account will be downgraded to the free plan. Features and limits of the free plan will apply.</li>
+                        <li><strong>Price changes:</strong> We may change subscription prices with reasonable notice. Price changes will apply at your next renewal. Continued use after a price change constitutes acceptance.</li>
+                        <li><strong>Organisation subscriptions:</strong> Organisation administrators are responsible for their organisation's subscription and billing. Organisation plans may have different terms, limits, and pricing.</li>
+                    </ul>
+                </section>
+
+                <section class="mb-8">
                     <h2 class="text-2xl font-semibold text-gray-900 mb-4">Disclaimers</h2>
                     <p class="text-gray-700 mb-4">
                         The materials on Simple CV Builder are provided on an 'as is' basis. Simple CV Builder makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.

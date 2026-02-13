@@ -168,7 +168,7 @@ try {
                             <div class="ml-5 w-0 flex-1">
                                 <dl>
                                     <dt class="text-sm font-medium text-gray-500 truncate">Total</dt>
-                                    <dd class="text-lg font-medium text-gray-900"><?php echo number_format($stats['total']); ?></dd>
+                                    <dd class="text-lg font-medium text-gray-900"><?php echo number_format((int)($stats['total'] ?? 0)); ?></dd>
                                 </dl>
                             </div>
                         </div>
@@ -188,7 +188,7 @@ try {
                             <div class="ml-5 w-0 flex-1">
                                 <dl>
                                     <dt class="text-sm font-medium text-gray-500 truncate">New</dt>
-                                    <dd class="text-lg font-medium text-gray-900"><?php echo number_format($stats['new_count']); ?></dd>
+                                    <dd class="text-lg font-medium text-gray-900"><?php echo number_format((int)($stats['new_count'] ?? 0)); ?></dd>
                                 </dl>
                             </div>
                         </div>
@@ -209,7 +209,7 @@ try {
                             <div class="ml-5 w-0 flex-1">
                                 <dl>
                                     <dt class="text-sm font-medium text-gray-500 truncate">Reviewed</dt>
-                                    <dd class="text-lg font-medium text-gray-900"><?php echo number_format($stats['reviewed_count']); ?></dd>
+                                    <dd class="text-lg font-medium text-gray-900"><?php echo number_format((int)($stats['reviewed_count'] ?? 0)); ?></dd>
                                 </dl>
                             </div>
                         </div>
@@ -229,7 +229,7 @@ try {
                             <div class="ml-5 w-0 flex-1">
                                 <dl>
                                     <dt class="text-sm font-medium text-gray-500 truncate">Resolved</dt>
-                                    <dd class="text-lg font-medium text-gray-900"><?php echo number_format($stats['resolved_count']); ?></dd>
+                                    <dd class="text-lg font-medium text-gray-900"><?php echo number_format((int)($stats['resolved_count'] ?? 0)); ?></dd>
                                 </dl>
                             </div>
                         </div>
@@ -249,7 +249,7 @@ try {
                             <div class="ml-5 w-0 flex-1">
                                 <dl>
                                     <dt class="text-sm font-medium text-gray-500 truncate">Closed</dt>
-                                    <dd class="text-lg font-medium text-gray-900"><?php echo number_format($stats['closed_count']); ?></dd>
+                                    <dd class="text-lg font-medium text-gray-900"><?php echo number_format((int)($stats['closed_count'] ?? 0)); ?></dd>
                                 </dl>
                             </div>
                         </div>
