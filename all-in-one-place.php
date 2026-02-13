@@ -75,7 +75,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                         </p>
                     </div>
                     <div class="flex items-center">
-                        <img src="<?php echo e($img('1586281380349-632531db7ed4', 800)); ?>" alt="Integrated CV and job application dashboard" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover aspect-video" width="800" height="450" />
+                        <img src="/static/images/all-in-one/seamless-workflow.png" alt="Seamless workflow - integrated CV and job application dashboard" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover aspect-video" width="800" height="450" />
                     </div>
                 </div>
             </div>
@@ -106,7 +106,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="lg:order-1 flex items-center">
-                            <img src="<?php echo e($img('1557804506-669a67965ba0', 800)); ?>" alt="Generating CV variants for job applications" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover aspect-video" width="800" height="450" />
+                            <img src="/static/images/all-in-one/cv-variants.png" alt="Generate CV variants for each application - job-specific AI CV creation" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover aspect-video" width="800" height="450" />
                         </div>
                     </div>
 
@@ -122,7 +122,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="flex items-center">
-                            <img src="<?php echo e($img('1531403009284-440f080d1e12', 800)); ?>" alt="Single CV source for all applications" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover aspect-video" width="800" height="450" />
+                            <img src="/static/images/all-in-one/update-once.png" alt="Update once, use everywhere - single CV source for all applications" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover aspect-video" width="800" height="450" />
                         </div>
                     </div>
 
@@ -138,7 +138,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="lg:order-1 flex items-center">
-                            <img src="<?php echo e($img('1504384308090-c894fdcc538d', 800)); ?>" alt="Unified dashboard for CV and applications" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover aspect-video" width="800" height="450" />
+                            <img src="/static/images/all-in-one/track-everything.png" alt="Track everything together - unified dashboard for CV and applications" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover aspect-video" width="800" height="450" />
                         </div>
                     </div>
                 </div>

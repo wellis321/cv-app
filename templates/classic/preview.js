@@ -24,9 +24,12 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
 
     let html = '<div style="font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, sans-serif; max-width: 800px; margin: 0 auto; padding: 40px; background: white;">'
 
-    // HEADER (Centered, Formal)
+    // HEADER (Centered, Formal - photo above like Structured template)
     if (sections?.profile !== false && profile) {
         html += '<div style="text-align: center; margin-bottom: 30px;">'
+        if (includePhoto && profile.photo_url) {
+            html += `<img src="${escapeHtml(profile.photo_url)}" alt="Profile" style="width: 80px; height: 80px; object-fit: cover; border-radius: 50%; border: 2px solid ${colors.divider}; margin-bottom: 12px; display: block; margin-left: auto; margin-right: auto;">`
+        }
 
         // Name
         if (profile.full_name) {
@@ -45,7 +48,7 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
 
         // LinkedIn
         if (profile.linkedin_url) {
-            html += `<p style="margin: 0 0 8px 0;"><a href="${escapeHtml(profile.linkedin_url)}" style="font-size: 12px; color: ${colors.link}; text-decoration: underline;">${escapeHtml(profile.linkedin_url)}</a></p>`
+            html += `<p style="margin: 0 0 8px 0;"><a href="${escapeHtml(profile.linkedin_url)}" style="font-size: 12px; color: ${colors.link}; text-decoration: underline;">LinkedIn</a></p>`
         }
 
         // Bio
@@ -58,6 +61,7 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
 
         html += '</div>'
     }
+
 
     // PROFESSIONAL SUMMARY
     if (sections?.summary !== false && cvData.professional_summary) {

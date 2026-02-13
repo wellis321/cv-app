@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="520" viewBox="0 0 400 520" fill="none">
+  <rect width="400" height="520" rx="4" fill="#f3f4f6" stroke="#d1d5db" stroke-width="1"/>
+  <rect x="24" y="24" width="120" height="16" rx="2" fill="#e5e7eb"/>
+  <rect x="24" y="52" width="352" height="8" rx="1" fill="#e5e7eb"/>
+  <rect x="24" y="72" width="280" height="8" rx="1" fill="#e5e7eb"/>
+  <rect x="24" y="92" width="320" height="8" rx="1" fill="#e5e7eb"/>
+  <rect x="24" y="120" width="80" height="12" rx="2" fill="#d1d5db"/>
+  <rect x="24" y="144" width="352" height="8" rx="1" fill="#e5e7eb"/>
+  <rect x="24" y="164" width="300" height="8" rx="1" fill="#e5e7eb"/>
+  <rect x="24" y="184" width="200" height="8" rx="1" fill="#e5e7eb"/>
+  <rect x="24" y="212" width="80" height="12" rx="2" fill="#d1d5db"/>
+  <rect x="24" y="236" width="352" height="8" rx="1" fill="#e5e7eb"/>
+  <rect x="24" y="256" width="280" height="8" rx="1" fill="#e5e7eb"/>
+  <text x="200" y="340" text-anchor="middle" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="14">Template PDF preview</text>
+  <text x="200" y="362" text-anchor="middle" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="12">Add a screenshot to show your template</text>
+</svg>

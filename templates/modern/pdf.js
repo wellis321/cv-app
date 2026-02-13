@@ -33,14 +33,15 @@ import {
 import {
     decodeHtmlEntities,
     hasVisibleText,
-    createDivider
+    createDivider,
+    mergeTemplateCustomization
 } from '../builders/utils.js'
 
 /**
  * Build modern template PDF document definition
  */
 export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage, templateId }) {
-    const template = {
+    const baseTemplate = {
         id: 'modern',
         colors: {
             header: '#0f172a',      // Slate 900
@@ -51,6 +52,7 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
             link: '#0891b2'         // Cyan 600
         }
     }
+    const template = mergeTemplateCustomization(baseTemplate, config?.customization)
 
     const sections = config?.sections || {}
     const includePhoto = config?.includePhoto !== false
@@ -476,15 +478,21 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
         }
     ]
 
-    // Footer with page numbers
+    // Footer with page numbers; free plan: add branding
     const footer = (currentPage, pageCount) => {
-        return {
-            text: `Page ${currentPage} of ${pageCount}`,
-            alignment: 'right',
-            fontSize: 8,
-            color: template.colors.muted,
-            margin: [0, 10, 45, 0]
+        const mutedColor = template.colors.muted || '#64748b'
+        const items = [{ text: `Page ${currentPage} of ${pageCount}`, alignment: 'right', fontSize: 8, color: mutedColor }]
+        if (config?.showFreePlanBranding && config?.siteUrl) {
+            const year = new Date().getFullYear()
+            items.push({
+                text: [{ text: `Simple CV Builder created by William Ellis. Dedicated to helping you get the job you want. © ${year} ` }, { text: 'simple-cv-builder.com', link: config.siteUrl }],
+                alignment: 'center',
+                fontSize: 7,
+                color: mutedColor,
+                margin: [0, 4, 0, 0]
+            })
         }
+        return { stack: items, margin: [0, 10, 45, 0] }
     }
 
     // Build final document definition

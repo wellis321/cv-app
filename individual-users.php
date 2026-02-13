@@ -78,7 +78,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                                 </div>
                             </div>
                             <div class="min-h-0">
-                                <img src="/static/images/individuals/getting-started.png" alt="Example CV profile showing completed professional profile" class="h-full w-full rounded-lg border border-gray-200 shadow-sm object-cover" width="600" height="340" />
+                                <button type="button" class="w-full h-full block cursor-zoom-in hover:opacity-95 transition-opacity text-left rounded-lg overflow-hidden" data-image-lightbox="/static/images/individuals/getting-started.png" aria-label="View getting started image larger">
+                                    <img src="/static/images/individuals/getting-started.png" alt="Example CV profile showing completed professional profile" class="h-full w-full rounded-lg border border-gray-200 shadow-sm object-cover" width="600" height="340" />
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -112,7 +114,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                                 </p>
                             </div>
                             <div class="min-h-0">
-                                <img src="<?php echo e($img('1586281380349-632531db7ed4', 600)); ?>" alt="CV link being shared on mobile and desktop" class="h-full w-full rounded-lg border border-gray-200 shadow-sm object-cover" width="600" height="340" />
+                                <img src="/static/images/individuals/living--breathimg.png" alt="QR code CV being scanned on mobile devices, showing a living breathing CV" class="h-full w-full rounded-lg border border-gray-200 shadow-sm object-cover" width="600" height="340" />
                             </div>
                         </div>
                     </div>
@@ -133,7 +135,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             Tailor your CV for different opportunities. With paid plans, drag-and-drop to reorder work experience, select which sections to include in PDFs, and choose from professional templates with customisable colours. Your CV evolves with your needs—add entries as you gain experience, reorganise as your focus shifts, and adjust presentation for your industry.
                         </p>
                         <div class="mt-4">
-                            <img src="<?php echo e($img('1504384308090-c894fdcc538d', 600)); ?>" alt="CV customisation interface showing drag-and-drop" class="w-full rounded-lg border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            <img src="/static/images/individuals/flexibility.png" alt="Wireframe sketches showing flexible design and customization options" class="w-full rounded-lg border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
                         </div>
                     </div>
                 </div>
@@ -186,7 +188,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                                 </p>
                             </div>
                             <div class="min-h-0">
-                                <img src="<?php echo e($img('1557804506-669a67965ba0', 600)); ?>" alt="PDF download example with QR code" class="h-full w-full rounded-lg border border-gray-200 shadow-sm object-cover" width="600" height="340" />
+                                <button type="button" class="w-full h-full block cursor-zoom-in hover:opacity-95 transition-opacity text-left rounded-lg overflow-hidden" data-image-lightbox="/static/images/individuals/professional-pdf.png" aria-label="View professional PDF download example larger">
+                                    <img src="/static/images/individuals/professional-pdf.png" alt="Professional PDF download - example CV with two-column layout" class="h-full w-full rounded-lg border border-gray-200 shadow-sm object-cover" width="600" height="340" />
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -216,7 +220,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                                 </p>
                             </div>
                             <div class="min-h-0">
-                                <img src="<?php echo e($img('1586281380349-632531db7ed4', 600)); ?>" alt="Job application tracker dashboard" class="h-full w-full rounded-lg border border-gray-200 shadow-sm object-cover" width="600" height="340" />
+                                <button type="button" class="w-full h-full block cursor-zoom-in hover:opacity-95 transition-opacity text-left rounded-lg overflow-hidden" data-image-lightbox="/static/images/individuals/complete-job-search.png" aria-label="View complete job search image larger">
+                                    <img src="/static/images/individuals/complete-job-search.png" alt="Complete job search - interconnected network of opportunities and applications" class="h-full w-full rounded-lg border border-gray-200 shadow-sm object-cover" width="600" height="340" />
+                                </button>
                             </div>
                         </div>
                         <div class="mt-6">
@@ -254,7 +260,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                                 </p>
                             </div>
                             <div class="min-h-0">
-                                <img src="<?php echo e($img('1557804506-669a67965ba0', 600)); ?>" alt="Pricing comparison and plan features" class="h-full w-full rounded-lg border border-gray-200 shadow-sm object-cover" width="600" height="340" />
+                                <button type="button" class="w-full h-full block cursor-zoom-in hover:opacity-95 transition-opacity text-left rounded-lg overflow-hidden" data-image-lightbox="/static/images/individuals/pricing.png" aria-label="View pricing and plans image larger">
+                                    <img src="/static/images/individuals/pricing.png" alt="Pricing and plans - Basic access, 7-day unlimited, 3-month unlimited" class="h-full w-full rounded-lg border border-gray-200 shadow-sm object-cover" width="600" height="340" />
+                                </button>
                             </div>
                         </div>
                         <p class="text-gray-700 text-lg leading-relaxed mb-4">
@@ -287,7 +295,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                                 </p>
                             </div>
                             <div class="min-h-0">
-                                <img src="<?php echo e($img('1557804506-669a67965ba0', 600)); ?>" alt="Security and privacy illustration" class="h-full w-full rounded-lg border border-gray-200 shadow-sm object-cover" width="600" height="340" />
+                                <button type="button" class="w-full h-full block cursor-zoom-in hover:opacity-95 transition-opacity text-left rounded-lg overflow-hidden" data-image-lightbox="/static/images/individuals/your-data-your-control.png" aria-label="View your data your control image larger">
+                                    <img src="/static/images/individuals/your-data-your-control.png" alt="Your data, your control - security and privacy illustration" class="h-full w-full rounded-lg border border-gray-200 shadow-sm object-cover" width="600" height="340" />
+                                </button>
                             </div>
                         </div>
                         <p class="text-gray-700 text-lg leading-relaxed">
@@ -319,7 +329,50 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
     <?php partial('footer'); ?>
     <?php partial('auth-modals'); ?>
 
+    <!-- Image lightbox -->
+    <div id="image-lightbox" class="fixed inset-0 z-[60] hidden overflow-y-auto" role="dialog" aria-modal="true" aria-label="Image preview">
+        <div class="flex min-h-full items-center justify-center p-4">
+            <div class="fixed inset-0 bg-black/70 transition-opacity" data-close-image-lightbox aria-hidden="true"></div>
+            <div class="relative max-w-4xl w-full flex items-center justify-center">
+                <button type="button" class="absolute right-2 top-2 z-10 rounded-full bg-white/90 p-2 text-gray-600 hover:bg-white hover:text-gray-900 transition-colors" data-close-image-lightbox aria-label="Close">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+                <img id="image-lightbox-img" src="" alt="" class="max-h-[90vh] w-auto rounded-lg shadow-2xl object-contain">
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Image lightbox for getting-started and other images
+        (function() {
+            var lightbox = document.getElementById('image-lightbox');
+            var lightboxImg = document.getElementById('image-lightbox-img');
+            if (!lightbox || !lightboxImg) return;
+            function openLightbox(src, alt) {
+                lightboxImg.src = src;
+                lightboxImg.alt = alt || 'Image preview';
+                lightbox.classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+                var closeBtn = lightbox.querySelector('button[data-close-image-lightbox]');
+                if (closeBtn) setTimeout(function() { closeBtn.focus(); }, 50);
+            }
+            function closeLightbox() {
+                lightbox.classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            }
+            document.querySelectorAll('[data-image-lightbox]').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    openLightbox(this.dataset.imageLightbox, this.getAttribute('aria-label') || 'Image preview');
+                });
+            });
+            document.querySelectorAll('[data-close-image-lightbox]').forEach(function(btn) {
+                btn.addEventListener('click', closeLightbox);
+            });
+            lightbox.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') closeLightbox();
+            });
+        })();
+
         // Smooth scroll for anchor links with offset for sticky header
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {

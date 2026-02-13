@@ -128,7 +128,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             <span class="inline-block rounded-full bg-blue-100 text-blue-800 px-3 py-1 text-sm font-semibold">Step 2</span>
                             <h3 class="mt-4 text-2xl font-bold text-gray-900">Download and install the extension</h3>
                             <p class="mt-3 text-gray-600">
-                                <a href="/download-extension.php" class="text-blue-600 hover:underline font-medium">Download the Simple CV Builder extension</a> as a ZIP file, extract it, then install it in Chrome. Open the extension’s <strong>Options</strong>: enter this site’s URL (copy it from your browser’s address bar) and paste your save token. Click <strong>Save settings</strong>.
+                                <a href="/download-extension.php" class="text-blue-600 hover:underline font-medium">Download the extension for Chrome/Edge/Brave</a> or <a href="/download-extension-firefox.php" class="text-orange-600 hover:underline font-medium">for Firefox</a> as a ZIP file, extract it, then install it. Firefox users must use the Firefox download. Open the extension’s <strong>Options</strong>: enter this site’s URL (copy it from your browser’s address bar) and paste your save token. Click <strong>Save settings</strong>.
                             </p>
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">

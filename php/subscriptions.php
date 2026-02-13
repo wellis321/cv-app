@@ -470,6 +470,7 @@ function getPlanUpgradeUrl(): string {
 }
 
 function buildSubscriptionFrontendContext(array $context): array {
+    $config = $context['config'] ?? [];
     return [
         'plan' => subscriptionPlanId($context),
         'planLabel' => subscriptionPlanLabel($context),
@@ -477,6 +478,7 @@ function buildSubscriptionFrontendContext(array $context): array {
         'allowedTemplateIds' => planAllowedTemplates($context),
         'defaultTemplateId' => planDefaultTemplateId($context),
         'pdfEnabled' => planPdfEnabled($context),
+        'templateCustomizationEnabled' => !empty($config['template_customization']),
         'upgradeUrl' => getPlanUpgradeUrl(),
     ];
 }

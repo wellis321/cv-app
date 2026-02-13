@@ -27,7 +27,8 @@ import {
     hasVisibleText,
     createDivider,
     formatDateRange,
-    getColor
+    getColor,
+    mergeTemplateCustomization
 } from '../builders/utils.js'
 
 /**
@@ -53,7 +54,7 @@ function createStructuredHeader(title, template) {
  * Build structured template PDF document definition
  */
 export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage, templateId }) {
-    const template = {
+    const baseTemplate = {
         id: 'structured',
         colors: {
             header: '#1e3a8a',
@@ -65,8 +66,10 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
             skillBg: '#e0f2fe'
         }
     }
+    const template = mergeTemplateCustomization(baseTemplate, config?.customization)
 
     const sections = config?.sections || {}
+    const includePhoto = config?.includePhoto !== false
     const includeQRCode = config?.includeQRCode !== false
 
     const docConfig = buildDocumentConfig(template, 'conservative', config?.customization || {})
@@ -103,11 +106,14 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
         if (profile?.location) contactParts.push(decodeHtmlEntities(profile.location))
         if (profile?.email) contactParts.push(decodeHtmlEntities(profile.email))
         if (profile?.phone) contactParts.push(decodeHtmlEntities(profile.phone))
-        if (profile?.linkedin_url) contactParts.push(decodeHtmlEntities(profile.linkedin_url))
+        if (profile?.linkedin_url) contactParts.push({ text: 'LinkedIn', link: decodeHtmlEntities(profile.linkedin_url), color: template.colors.link })
 
         if (contactParts.length > 0) {
+            const textContent = contactParts.length === 1
+                ? contactParts[0]
+                : contactParts.flatMap((part, i) => (i < contactParts.length - 1 ? [part, ' | '] : [part]))
             headerContent.push({
-                text: contactParts.join(' | '),
+                text: textContent,
                 fontSize: 10,
                 color: template.colors.muted,
                 alignment: 'center',
@@ -117,8 +123,11 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
 
         headerContent.push(createDivider(template.colors.divider, 1, [0, 0, 0, 16]))
 
-        // QR in header when chosen (replaces footer placement)
-        if (includeQRCode && cvUrl) {
+        const hasPhoto = includePhoto && profile?.photo_base64 && /^data:image\/(jpeg|png);base64,/.test(profile.photo_base64)
+        const hasQR = includeQRCode && cvUrl
+
+        // QR or profile photo in header when chosen (QR takes precedence)
+        if (hasQR) {
             content.push({
                 columns: [
                     { width: '*', stack: headerContent },
@@ -131,6 +140,13 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
                     }
                 ],
                 columnGap: 16
+            })
+        } else if (hasPhoto) {
+            content.push({
+                stack: [
+                    { image: 'profilePhoto', fit: [70, 70], alignment: 'center', margin: [0, 0, 0, 12] },
+                    ...headerContent
+                ]
             })
         } else {
             content.push(...headerContent)
@@ -443,13 +459,22 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
         })
     }
 
-    const footer = (currentPage, pageCount) => ({
-        text: `${profile?.full_name ? decodeHtmlEntities(profile.full_name) + ' - ' : ''}Page ${currentPage} of ${pageCount}`,
-        alignment: 'center',
-        fontSize: 9,
-        color: template.colors.muted,
-        margin: [0, 20, 0, 0]
-    })
+    const footer = (currentPage, pageCount) => {
+        const pageText = `${profile?.full_name ? decodeHtmlEntities(profile.full_name) + ' - ' : ''}Page ${currentPage} of ${pageCount}`
+        const mutedColor = template.colors.muted || '#64748b'
+        const items = [{ text: pageText, alignment: 'center', fontSize: 9, color: mutedColor }]
+        if (config?.showFreePlanBranding && config?.siteUrl) {
+            const year = new Date().getFullYear()
+            items.push({
+                text: [{ text: `Simple CV Builder created by William Ellis. Dedicated to helping you get the job you want. © ${year} ` }, { text: 'simple-cv-builder.com', link: config.siteUrl }],
+                alignment: 'center',
+                fontSize: 7,
+                color: mutedColor,
+                margin: [0, 4, 0, 0]
+            })
+        }
+        return { stack: items, margin: [0, 20, 0, 0] }
+    }
 
     return {
         ...docConfig,

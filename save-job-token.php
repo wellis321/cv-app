@@ -56,21 +56,19 @@ $pageTitle = 'Save job token | Simple CV Builder';
                         <p class="text-xs text-gray-600">Install the extension below to save jobs with one click from any job page without leaving the page or copying URLs.</p>
                     </div>
                     <h2 class="text-sm font-semibold text-gray-900 mb-3 mt-6">Using the extension</h2>
-                    <div class="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                        <p class="text-sm text-amber-800 font-medium mb-2">
-                            <svg class="inline-block w-4 h-4 mr-1.5 align-text-bottom" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                            </svg>
-                            Chrome/Chromium browsers only
-                        </p>
-                        <p class="text-xs text-amber-700">This extension works with Chrome, Edge, and Brave browsers. Firefox support is limited.</p>
-                    </div>
-                    <div class="mb-4">
+                    <p class="text-sm text-gray-700 mb-3">Use the correct download for your browser (Firefox needs a different manifest):</p>
+                    <div class="mb-4 flex flex-wrap gap-3">
                         <a href="/download-extension.php" class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-md hover:bg-blue-700 transition-colors">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                             </svg>
-                            Download Extension for Chrome
+                            Download for Chrome / Edge / Brave
+                        </a>
+                        <a href="/download-extension-firefox.php" class="inline-flex items-center justify-center rounded-lg bg-orange-600 px-6 py-3 text-sm font-semibold text-white shadow-md hover:bg-orange-700 transition-colors">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            Download for Firefox
                         </a>
                     </div>
                     <ol class="text-sm text-gray-600 space-y-2 list-decimal list-inside">

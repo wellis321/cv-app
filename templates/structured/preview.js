@@ -28,6 +28,11 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
     if (sections?.profile !== false && profile) {
         html += '<div style="text-align: center; margin-bottom: 24px;">'
 
+        // Profile photo (when included)
+        if (includePhoto && profile.photo_url) {
+            html += `<img src="${escapeHtml(profile.photo_url)}" alt="Profile" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid ${colors.divider}; margin-bottom: 12px; display: block; margin-left: auto; margin-right: auto;">`
+        }
+
         if (profile.full_name) {
             html += `<h1 style="font-size: 26px; font-weight: bold; color: ${colors.header}; margin: 0 0 8px 0; letter-spacing: 1px; text-transform: uppercase;">${escapeHtml(profile.full_name)}</h1>`
         }

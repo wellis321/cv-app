@@ -76,14 +76,13 @@ async function getImageAsBase64(url) {
             return null
         }
 
-        // If URL points to storage, use storage proxy
+        // If URL points to storage and is same-origin, use preview-photo API (converts to JPEG server-side)
         let fetchUrl = url
         let useStorageProxy = false
-        if (url.includes('/storage/')) {
-            // Extract the path after /storage/ (handles both relative and absolute URLs)
+        const isSameOrigin = typeof window !== 'undefined' && url.startsWith(window.location.origin)
+        if (isSameOrigin && url.includes('/storage/')) {
             const storageMatch = url.match(/\/storage\/(.+)$/)
             if (storageMatch) {
-                // Use preview-photo: converts to JPEG server-side for pdfmake compatibility
                 fetchUrl = `/api/preview-photo.php?path=${encodeURIComponent(storageMatch[1])}`
                 useStorageProxy = true
                 console.log('Using preview-photo for image:', fetchUrl, 'Original:', url)

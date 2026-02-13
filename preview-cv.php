@@ -195,6 +195,54 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                         <?php endif; ?>
                     </div>
 
+                    <?php if (!empty($subscriptionFrontendContext['templateCustomizationEnabled'])): ?>
+                    <div id="colour-customization-container" class="mt-6 pt-6 border-t">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">Customise Colours</label>
+                        <p class="text-xs text-gray-500 mb-3">Choose a preset or pick a custom accent colour.</p>
+                        <div class="space-y-2 mb-3">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="colour-preset" value="default" checked class="text-blue-600 focus:ring-blue-500">
+                                <span class="text-sm">Default (template colours)</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="colour-preset" value="conservative" class="text-blue-600 focus:ring-blue-500">
+                                <span class="text-sm">Conservative Navy</span>
+                                <span class="w-4 h-4 rounded-full border border-gray-300" style="background:#1e3a8a" title="#1e3a8a"></span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="colour-preset" value="professional" class="text-blue-600 focus:ring-blue-500">
+                                <span class="text-sm">Professional Blue</span>
+                                <span class="w-4 h-4 rounded-full border border-gray-300" style="background:#2563eb" title="#2563eb"></span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="colour-preset" value="teal" class="text-blue-600 focus:ring-blue-500">
+                                <span class="text-sm">Teal</span>
+                                <span class="w-4 h-4 rounded-full border border-gray-300" style="background:#0d9488" title="#0d9488"></span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="colour-preset" value="purple" class="text-blue-600 focus:ring-blue-500">
+                                <span class="text-sm">Purple</span>
+                                <span class="w-4 h-4 rounded-full border border-gray-300" style="background:#7c3aed" title="#7c3aed"></span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="colour-preset" value="rose" class="text-blue-600 focus:ring-blue-500">
+                                <span class="text-sm">Rose</span>
+                                <span class="w-4 h-4 rounded-full border border-gray-300" style="background:#e11d48" title="#e11d48"></span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="colour-preset" value="custom" class="text-blue-600 focus:ring-blue-500">
+                                <span class="text-sm">Custom accent</span>
+                            </label>
+                        </div>
+                        <div id="custom-accent-row" class="hidden mt-2">
+                            <div class="flex items-center gap-2">
+                                <input type="color" id="custom-accent-color" value="#2563eb" class="h-8 w-12 rounded border border-gray-300 cursor-pointer">
+                                <input type="text" id="custom-accent-hex" value="#2563eb" class="flex-1 text-sm border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 py-1.5 px-2" maxlength="7" placeholder="#2563eb">
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+
                     <!-- Skill Selection UI (shown when skills section is enabled) -->
                     <div id="skill-selection-container" class="mt-6 pt-6 border-t hidden">
                         <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -270,6 +318,7 @@ $masterVariantId = getOrCreateMasterVariant($userId);
         ?>
         const SubscriptionContext = <?php echo json_encode($subscriptionFrontendContext, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
         window.SubscriptionContext = SubscriptionContext;
+        const siteUrl = <?php echo json_encode(APP_URL, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
         const allowedTemplateIds = new Set(SubscriptionContext?.allowedTemplateIds || []);
         const previewVariantId = <?php echo json_encode($variantId ?? null, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
         let cvData = <?php echo json_encode($cvDataDecoded, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
@@ -373,6 +422,29 @@ $masterVariantId = getOrCreateMasterVariant($userId);
             return candidate;
         }
 
+        const COLOUR_PRESETS = {
+            default: {},
+            conservative: { header: '#1e3a8a', accent: '#1e3a8a', divider: '#1e3a8a', link: '#1e40af' },
+            professional: { header: '#1f2937', accent: '#2563eb', divider: '#2563eb', link: '#2563eb' },
+            teal: { header: '#0f172a', accent: '#0d9488', divider: '#0d9488', link: '#0891b2' },
+            purple: { header: '#3b0764', accent: '#7c3aed', divider: '#7c3aed', link: '#7c3aed' },
+            rose: { header: '#881337', accent: '#e11d48', divider: '#e11d48', link: '#e11d48' }
+        };
+
+        function getCustomization() {
+            const container = document.getElementById('colour-customization-container');
+            if (!container) return {};
+            const preset = document.querySelector('input[name="colour-preset"]:checked')?.value || 'default';
+            if (preset === 'default') return {};
+            if (preset === 'custom') {
+                const hex = document.getElementById('custom-accent-hex')?.value?.trim() || '#2563eb';
+                const valid = /^#[0-9A-Fa-f]{6}$/.test(hex) ? hex : '#2563eb';
+                return { colors: { accent: valid, divider: valid, link: valid, header: valid } };
+            }
+            const colors = COLOUR_PRESETS[preset];
+            return colors ? { colors } : {};
+        }
+
         async function generatePDF() {
             try {
                 console.log('🎨 Using client-side PDF generation with pdfmake');
@@ -432,12 +504,18 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                 // Get selected template
                 const selectedTemplate = getSelectedTemplate();
 
-                // Prepare config
+                // Prepare config (include colour customization for Pro users, free plan branding)
+                const customization = getCustomization();
                 const config = {
                     sections: sections,
                     includePhoto: includePhoto,
-                    includeQRCode: includeQr
+                    includeQRCode: includeQr,
+                    showFreePlanBranding: !SubscriptionContext?.isPaid,
+                    siteUrl: siteUrl || window.location.origin
                 };
+                if (customization?.colors && Object.keys(customization.colors).length > 0) {
+                    config.customization = customization;
+                }
 
                 // Build cvData with skills filtered by user's skill selection (only include checked skills)
                 const filteredSkills = (cvData.skills || []).filter(s => currentSkillSelection.includes(s.id));
@@ -446,15 +524,21 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                 // Build preview-photo URL for pdfmake (supports various photo_url formats)
                 const profileWithPhoto = { ...profile };
                 if (includePhoto && profile.photo_url) {
-                    let path = null;
+                    const origin = window.location.origin;
+                    let pdfUrl = null;
                     const m = profile.photo_url.match(/\/storage\/(.+)$/);
                     if (m) {
-                        path = m[1];
-                    } else if (/^profiles\//.test(profile.photo_url)) {
-                        path = profile.photo_url;
+                        const path = m[1];
+                        pdfUrl = origin + '/api/preview-photo.php?path=' + encodeURIComponent(path);
+                    } else if (/^profiles\//.test(profile.photo_url) || /^uploads\//.test(profile.photo_url)) {
+                        pdfUrl = origin + '/api/preview-photo.php?path=' + encodeURIComponent(profile.photo_url);
+                    } else if (/^https?:\/\//.test(profile.photo_url)) {
+                        pdfUrl = profile.photo_url;
+                    } else if (profile.photo_url.startsWith('/')) {
+                        pdfUrl = origin + profile.photo_url;
                     }
-                    if (path) {
-                        profileWithPhoto.photo_url_pdf = window.location.origin + '/api/preview-photo.php?path=' + encodeURIComponent(path);
+                    if (pdfUrl) {
+                        profileWithPhoto.photo_url_pdf = pdfUrl;
                     } else {
                         console.warn('[PDF] Could not parse photo_url for PDF:', profile.photo_url?.substring?.(0, 80));
                     }
@@ -574,7 +658,11 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                 const includePhoto = document.getElementById('include-photo')?.checked ?? true;
                 const includeQr = document.getElementById('include-qr')?.checked ?? true;
 
-                const templateMeta = getTemplateMeta(selectedTemplate);
+                let templateMeta = getTemplateMeta(selectedTemplate);
+                const customization = getCustomization();
+                if (customization?.colors && Object.keys(customization.colors).length > 0) {
+                    templateMeta = { ...templateMeta, colors: { ...templateMeta.colors, ...customization.colors } };
+                }
                 const previewRenderer = getPreviewRenderer(selectedTemplate);
 
                 if (!previewRenderer || typeof previewRenderer.render !== 'function') {
@@ -638,6 +726,21 @@ $masterVariantId = getOrCreateMasterVariant($userId);
             }
             if (includeQrEl && prefs.includeQr !== undefined) {
                 includeQrEl.checked = !!prefs.includeQr;
+            }
+            const colourContainer = document.getElementById('colour-customization-container');
+            if (colourContainer && prefs.colourPreset) {
+                const presetRadio = colourContainer.querySelector(`input[name="colour-preset"][value="${prefs.colourPreset}"]`);
+                if (presetRadio) {
+                    presetRadio.checked = true;
+                    const customRow = document.getElementById('custom-accent-row');
+                    if (customRow) customRow.classList.toggle('hidden', prefs.colourPreset !== 'custom');
+                }
+                if (prefs.customAccentHex && /^#[0-9A-Fa-f]{6}$/.test(prefs.customAccentHex)) {
+                    const customColor = document.getElementById('custom-accent-color');
+                    const customHex = document.getElementById('custom-accent-hex');
+                    if (customColor) customColor.value = prefs.customAccentHex;
+                    if (customHex) customHex.value = prefs.customAccentHex;
+                }
             }
 
             const checkboxes = document.querySelectorAll('input[type="checkbox"]');
@@ -722,6 +825,40 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                     renderPreview();
                 });
                 } // Close the else block for listTemplates check
+
+            // Colour customization – preset change, custom picker, preview updates
+            const colourContainer = document.getElementById('colour-customization-container');
+            if (colourContainer) {
+                const presetRadios = colourContainer.querySelectorAll('input[name="colour-preset"]');
+                const customRow = document.getElementById('custom-accent-row');
+                const customColor = document.getElementById('custom-accent-color');
+                const customHex = document.getElementById('custom-accent-hex');
+                presetRadios.forEach((radio) => {
+                    radio.addEventListener('change', () => {
+                        if (customRow) customRow.classList.toggle('hidden', radio.value !== 'custom');
+                        if (radio.value === 'custom' && customColor) customHex.value = customColor.value;
+                        savePreviewPrefs({ colourPreset: radio.value });
+                        renderPreview();
+                    });
+                });
+                if (customColor) {
+                    customColor.addEventListener('input', () => {
+                        customHex.value = customColor.value;
+                        savePreviewPrefs({ customAccentHex: customColor.value });
+                        if (document.querySelector('input[name="colour-preset"]:checked')?.value === 'custom') renderPreview();
+                    });
+                }
+                if (customHex) {
+                    customHex.addEventListener('input', () => {
+                        const hex = customHex.value.trim();
+                        if (/^#[0-9A-Fa-f]{6}$/.test(hex) && customColor) {
+                            customColor.value = hex;
+                            savePreviewPrefs({ customAccentHex: hex });
+                        }
+                        if (document.querySelector('input[name="colour-preset"]:checked')?.value === 'custom') renderPreview();
+                    });
+                }
+            }
             } else {
                 updateTemplateDescription(selectedTemplate);
             }

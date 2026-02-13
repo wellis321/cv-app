@@ -262,7 +262,7 @@ function buildHeader(content, profile, config, palette, template, cvUrl, qrCodeI
         ]
         if (profile.linkedin_url) {
             overlayContent.push({
-                text: 'LinkedIn Profile',
+                text: 'LinkedIn',
                 style: 'linkedIn',
                 link: profile.linkedin_url,
                 margin: [headerPadding, 8, headerPadding, 0],
@@ -289,7 +289,7 @@ function buildHeader(content, profile, config, palette, template, cvUrl, qrCodeI
         content.push({ columns: headerColumns })
         if (profile.linkedin_url) {
             content.push({
-                text: 'LinkedIn Profile',
+                text: 'LinkedIn',
                 style: 'linkedIn',
                 link: profile.linkedin_url,
                 margin: [0, 10, 0, 0]
@@ -355,7 +355,10 @@ function pushParagraphs(content, value, palette) {
 }
 
 function buildProfessionalDocDefinition({ cvData = {}, profile = {}, config = {}, cvUrl, qrCodeImage, templateId = DEFAULT_TEMPLATE_ID }) {
-    const template = getTemplate(templateId)
+    let template = getTemplate(templateId)
+    if (config?.customization?.colors && typeof config.customization.colors === 'object') {
+        template = { ...template, colors: { ...template.colors, ...config.customization.colors } }
+    }
     const palette = template.colors || {}
 
     const styles = {
@@ -387,7 +390,18 @@ function buildProfessionalDocDefinition({ cvData = {}, profile = {}, config = {}
         footer: (currentPage, pageCount) => {
             const p = (typeof pageCount === 'number' && !Number.isNaN(pageCount)) ? pageCount : 1
             const c = (typeof currentPage === 'number' && !Number.isNaN(currentPage)) ? currentPage : 1
-            return { text: `${c} / ${p}`, alignment: 'center', style: 'footer' }
+            const items = [{ text: `${c} / ${p}`, alignment: 'center', style: 'footer' }]
+            if (config?.showFreePlanBranding && config?.siteUrl) {
+                const year = new Date().getFullYear()
+                items.push({
+                    text: [{ text: `Simple CV Builder created by William Ellis. Dedicated to helping you get the job you want. © ${year} ` }, { text: 'simple-cv-builder.com', link: config.siteUrl }],
+                    alignment: 'center',
+                    fontSize: 7,
+                    color: palette.muted || '#6b7280',
+                    margin: [0, 4, 0, 0]
+                })
+            }
+            return { stack: items, margin: [0, 10, 0, 0] }
         },
         content,
         styles,
@@ -560,9 +574,7 @@ function buildProfessionalDocDefinition({ cvData = {}, profile = {}, config = {}
 
         certifications.forEach((cert) => {
             if (cert.name) {
-                const cols = [
-                    { width: '*', text: decodeHtmlEntities(cert.name), style: 'certificationTitle' }
-                ]
+                certBlocks.push({ text: decodeHtmlEntities(cert.name), style: 'certificationTitle', margin: [0, 0, 0, 2] })
 
                 const issued = formatDate(cert.date_obtained || cert.date_issued)
                 const expires = formatDate(cert.expiry_date)
@@ -575,10 +587,8 @@ function buildProfessionalDocDefinition({ cvData = {}, profile = {}, config = {}
                 }
 
                 if (details.length) {
-                    cols.push({ width: 'auto', text: details.join(' · '), style: 'dates' })
+                    certBlocks.push({ text: details.join(' · '), style: 'dates', margin: [0, 2, 0, 2] })
                 }
-
-                certBlocks.push({ columns: cols, margin: [0, 0, 0, 2] })
             }
 
             if (cert.issuer) {

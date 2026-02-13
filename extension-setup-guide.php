@@ -46,23 +46,21 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                 <section>
                     <h2 class="text-2xl font-bold text-gray-900 mb-4">Step 1: Download and Install the Extension</h2>
                     
-                    <div class="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                        <p class="text-sm text-amber-800 font-medium mb-2">
-                            <svg class="inline-block w-4 h-4 mr-1.5 align-text-bottom" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                            </svg>
-                            Chrome/Chromium browsers only
-                        </p>
-                        <p class="text-xs text-amber-700">This extension works with Chrome, Edge, and Brave browsers. Firefox support is limited.</p>
-                    </div>
+                    <p class="text-sm text-gray-700 mb-4">This extension works with Chrome, Edge, Brave, and Firefox. <strong>Use the correct download for your browser:</strong></p>
 
-                    <div class="mb-6">
+                    <div class="mb-6 flex flex-wrap gap-3">
                         <?php if (isLoggedIn()): ?>
                             <a href="/download-extension.php" class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-md hover:bg-blue-700 transition-colors">
                                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                 </svg>
-                                Download Extension for Chrome
+                                Download for Chrome / Edge / Brave
+                            </a>
+                            <a href="/download-extension-firefox.php" class="inline-flex items-center justify-center rounded-lg bg-orange-600 px-6 py-3 text-sm font-semibold text-white shadow-md hover:bg-orange-700 transition-colors">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                Download for Firefox
                             </a>
                         <?php else: ?>
                             <p class="text-sm text-gray-600 mb-2">Log in to download the extension</p>
@@ -103,8 +101,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                     </ol>
 
                     <h3 class="text-xl font-semibold text-gray-900 mb-3 mt-6">For Firefox</h3>
+                    <p class="mb-4 text-sm text-amber-800 font-medium">⚠️ Use <strong>Download for Firefox</strong> above — Firefox always loads <code class="bg-amber-100 px-1 rounded text-xs">manifest.json</code> from the folder and requires <code class="bg-amber-100 px-1 rounded text-xs">background.scripts</code> (Chrome uses <code class="bg-amber-100 px-1 rounded text-xs">background.service_worker</code>). The Firefox ZIP has the correct manifest.</p>
                     <ol class="list-decimal list-inside space-y-3 text-gray-700">
-                        <li><strong>Download the extension files</strong> (same as Chrome above).</li>
+                        <li><strong>Download for Firefox</strong> (orange button above) — extract the ZIP to a folder.</li>
                         <li><strong>Open Firefox Add-ons page:</strong>
                             <ul class="list-disc list-inside ml-6 mt-2 space-y-1">
                                 <li>Type <code class="bg-gray-100 px-1 rounded text-xs">about:debugging</code> in your address bar.</li>
@@ -114,7 +113,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                         <li><strong>Load the extension:</strong>
                             <ul class="list-disc list-inside ml-6 mt-2 space-y-1">
                                 <li>Click <strong>Load Temporary Add-on...</strong>.</li>
-                                <li>Navigate to the <code class="bg-gray-100 px-1 rounded text-xs">extension</code> folder and select <code class="bg-gray-100 px-1 rounded text-xs">manifest.json</code>.</li>
+                                <li>Navigate to the extracted folder and select <code class="bg-gray-100 px-1 rounded text-xs">manifest.json</code>.</li>
                                 <li>Click <strong>Open</strong>.</li>
                             </ul>
                         </li>

@@ -11,6 +11,22 @@ $canonicalUrl = APP_URL . '/all-features.php';
 
 // Define all features organized by category
 $features = [
+    'Platform & Value' => [
+        [
+            'name' => 'All in One Place',
+            'description' => 'Manage your CV and job applications together in a single integrated platform. Build, track, and tailor—all seamlessly connected',
+            'free' => true,
+            'pro' => true,
+            'link' => '/all-in-one-place.php'
+        ],
+        [
+            'name' => 'Free with Account',
+            'description' => 'Job application tracking is included with every account at no extra cost. Track applications, generate CV variants, and manage your job search—all included',
+            'free' => true,
+            'pro' => true,
+            'link' => '/free-with-account.php'
+        ],
+    ],
     'CV Building' => [
         [
             'name' => 'CV Building',
@@ -59,6 +75,13 @@ $features = [
         ],
     ],
     'Job Application Tracking' => [
+        [
+            'name' => 'Job Applications Overview',
+            'description' => 'Comprehensive overview of job application tracking: save jobs, track status, follow up, and manage your applications in one place',
+            'free' => true,
+            'pro' => true,
+            'link' => '/job-applications-features.php'
+        ],
         [
             'name' => 'Save Jobs from Anywhere',
             'description' => 'Save job listings from any website using browser extension or quick-add link',

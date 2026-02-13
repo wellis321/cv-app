@@ -106,6 +106,20 @@ export function getColor(template, colorKey, fallback) {
 }
 
 /**
+ * Merge customization colors over template colors
+ * Returns a new template object with merged colors (does not mutate)
+ */
+export function mergeTemplateCustomization(template, customization) {
+    if (!template) return template
+    const customColors = customization?.colors
+    if (!customColors || typeof customColors !== 'object') return template
+    return {
+        ...template,
+        colors: { ...template.colors, ...customColors }
+    }
+}
+
+/**
  * Apply font size multiplier to base size
  */
 export function scaleFontSize(baseSize, multiplier = 1.0) {

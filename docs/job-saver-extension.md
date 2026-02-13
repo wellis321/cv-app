@@ -47,15 +47,17 @@ This extension lets you save the **current tab's URL and title** as a job in you
 
 ### For Firefox
 
-1. **Download the extension files** (same as Chrome above).
+1. **Download the extension for Firefox** — use **Download for Firefox** (not the Chrome download). Firefox always loads `manifest.json` from the extension folder and requires `background.scripts`; the Chrome manifest uses `background.service_worker` which Firefox rejects. The Firefox download packages the correct `manifest.json`.
 
-2. **Open Firefox Add-ons page:**
+2. **Extract the ZIP** to a folder (e.g. `Downloads/simple-cv-extension-firefox`).
+
+3. **Open Firefox Add-ons page:**
    - Type `about:debugging` in your address bar.
    - Click **This Firefox** in the left sidebar.
 
-3. **Load the extension:**
+4. **Load the extension:**
    - Click **Load Temporary Add-on...**.
-   - Navigate to the `extension` folder and select `manifest.json`.
+   - Navigate to the extracted folder and select `manifest.json`.
    - Click **Open**.
 
 > **Note:** Firefox requires the extension to be reloaded each time you restart Firefox. For a permanent installation, you'll need to package it as a `.xpi` file or publish it to Firefox Add-ons.

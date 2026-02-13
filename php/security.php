@@ -185,6 +185,11 @@ function jsonResponse($data, $statusCode = 200) {
  * @return array ['allowed' => bool, 'remaining' => int, 'reset_at' => int]
  */
 function checkRateLimit($key, $maxAttempts, $windowSeconds) {
+    // Bypass rate limiting in local development
+    if (defined('APP_ENV') && APP_ENV === 'development') {
+        return ['allowed' => true, 'remaining' => $maxAttempts, 'reset_at' => time() + $windowSeconds];
+    }
+
     $cacheDir = sys_get_temp_dir() . '/ratelimit';
     if (!is_dir($cacheDir)) {
         @mkdir($cacheDir, 0755, true);

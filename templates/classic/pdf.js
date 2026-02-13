@@ -33,14 +33,15 @@ import {
 import {
     decodeHtmlEntities,
     hasVisibleText,
-    createDivider
+    createDivider,
+    mergeTemplateCustomization
 } from '../builders/utils.js'
 
 /**
  * Build classic template PDF document definition
  */
 export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage, templateId }) {
-    const template = {
+    const baseTemplate = {
         id: 'classic',
         colors: {
             header: '#1e3a8a',      // Navy blue
@@ -51,6 +52,7 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
             link: '#1e40af'         // Slightly lighter navy
         }
     }
+    const template = mergeTemplateCustomization(baseTemplate, config?.customization)
 
     const sections = config?.sections || {}
     const includePhoto = config?.includePhoto !== false
@@ -103,7 +105,7 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
         // LinkedIn (if provided)
         if (profile?.linkedin_url) {
             headerContent.push({
-                text: decodeHtmlEntities(profile.linkedin_url),
+                text: 'LinkedIn',
                 link: decodeHtmlEntities(profile.linkedin_url),
                 fontSize: 9,
                 color: template.colors.link,
@@ -128,8 +130,11 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
         // Divider after header
         headerContent.push(createDivider(template.colors.divider, 1.5, [0, 12, 0, 12]))
 
-        // QR in header when chosen (replaces footer placement)
-        if (includeQRCode && cvUrl) {
+        const hasPhoto = includePhoto && profile?.photo_base64 && /^data:image\/(jpeg|png);base64,/.test(profile.photo_base64)
+        const hasQR = includeQRCode && cvUrl
+
+        // Photo/QR above header (like Structured template) to avoid squashing
+        if (hasQR) {
             content.push({
                 columns: [
                     { width: '*', stack: headerContent },
@@ -142,6 +147,13 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
                     }
                 ],
                 columnGap: 16
+            })
+        } else if (hasPhoto) {
+            content.push({
+                stack: [
+                    { image: 'profilePhoto', fit: [70, 70], alignment: 'center', margin: [0, 0, 0, 12] },
+                    ...headerContent
+                ]
             })
         } else {
             content.push(...headerContent)
@@ -303,15 +315,22 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
         ))
     }
 
-    // Footer with page numbers
+    // Footer with page numbers; free plan: add branding
     const footer = (currentPage, pageCount) => {
-        return {
-            text: `${profile?.full_name ? decodeHtmlEntities(profile.full_name) + ' - ' : ''}Page ${currentPage} of ${pageCount}`,
-            alignment: 'center',
-            fontSize: 9,
-            color: template.colors.muted,
-            margin: [0, 20, 0, 0]
+        const pageText = `${profile?.full_name ? decodeHtmlEntities(profile.full_name) + ' - ' : ''}Page ${currentPage} of ${pageCount}`
+        const mutedColor = template.colors.muted || '#64748b'
+        const items = [{ text: pageText, alignment: 'center', fontSize: 9, color: mutedColor }]
+        if (config?.showFreePlanBranding && config?.siteUrl) {
+            const year = new Date().getFullYear()
+            items.push({
+                text: [{ text: `Simple CV Builder created by William Ellis. Dedicated to helping you get the job you want. © ${year} ` }, { text: 'simple-cv-builder.com', link: config.siteUrl }],
+                alignment: 'center',
+                fontSize: 7,
+                color: mutedColor,
+                margin: [0, 4, 0, 0]
+            })
         }
+        return { stack: items, margin: [0, 20, 0, 0] }
     }
 
     // Build final document definition
