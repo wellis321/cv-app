@@ -12,6 +12,7 @@ require_once __DIR__ . '/php/helpers.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Terms of Service - Simple CV Builder</title>
+    <meta name="description" content="Terms of Service for Simple CV Builder. Read our use license, disclaimer, and user agreement for the free CV builder and job tracker.">
     <link rel="stylesheet" href="/static/css/tailwind.css">
 </head>
 <body class="bg-gray-50">

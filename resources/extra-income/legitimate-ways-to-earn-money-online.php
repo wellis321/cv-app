@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__ . '/../../php/helpers.php';
 
-$pageTitle = '20+ Legitimate Ways to Earn Money Online & From Home in 2025';
-$metaDescription = 'Practical, flexible, and legitimate ways to earn extra money from home in 2025—covering quick wins, remote work, creative ideas, and long-term income builders.';
+$pageTitle = '20+ Legitimate Ways to Earn Money Online From Home (UK 2025)';
+$metaDescription = 'Earn money online from home—legitimately. 20+ proven ways: surveys, freelancing, remote work, creative ideas. No scams. UK-friendly. Quick wins £50–£300/month.';
 $canonicalUrl = APP_URL . '/resources/extra-income/legitimate-ways-to-earn-money-online.php';
 ?>
 <!DOCTYPE html>
@@ -30,8 +30,19 @@ $canonicalUrl = APP_URL . '/resources/extra-income/legitimate-ways-to-earn-money
                 </div>
                 <h1 class="text-4xl font-semibold tracking-tight sm:text-5xl"><?php echo e($pageTitle); ?></h1>
                 <p class="text-lg text-slate-200 max-w-3xl leading-relaxed">
-                    No gimmicks—just honest, practical ways to boost your income from home. Whether you need £50 to cover rising costs or want to build a significant second income, these 20+ ideas are genuinely working for people right now.
+                    Earn money online from home—legitimately. 20+ proven ways: surveys, freelancing, remote work, creative ideas. No scams. UK-friendly. Quick wins £50–£300/month.
                 </p>
+                <nav aria-label="Page sections" class="rounded-xl border border-white/20 bg-white/5 p-4">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-white/70 mb-3">Jump to a section</p>
+                    <ul class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 text-sm">
+                        <li><a href="#quick-wins" class="text-white/90 hover:text-white underline underline-offset-2">Quick wins</a></li>
+                        <li><a href="#flexible-remote" class="text-white/90 hover:text-white underline underline-offset-2">Remote work</a></li>
+                        <li><a href="#creative-ideas" class="text-white/90 hover:text-white underline underline-offset-2">Creative ideas</a></li>
+                        <li><a href="#long-term" class="text-white/90 hover:text-white underline underline-offset-2">Long-term builders</a></li>
+                        <li><a href="#selling-renting" class="text-white/90 hover:text-white underline underline-offset-2">Selling & renting</a></li>
+                        <li><a href="#professional-services" class="text-white/90 hover:text-white underline underline-offset-2">Professional services</a></li>
+                    </ul>
+                </nav>
                 <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
                     <a href="/resources/extra-income/" class="inline-flex items-center justify-center rounded-lg bg-white px-5 py-2 text-sm font-semibold text-slate-900 shadow hover:bg-slate-100">
                         Back to extra income ideas
@@ -480,7 +491,30 @@ $canonicalUrl = APP_URL . '/resources/extra-income/legitimate-ways-to-earn-money
             </p>
             <div class="rounded-2xl border border-white/10 bg-white/5 px-6 py-5 text-base text-slate-100">
                 <h3 class="text-lg font-semibold text-white">Need Help Presenting Your Skills?</h3>
-                <p class="mt-2 leading-relaxed text-slate-100/80">Whether you’re applying for remote positions or building a freelance portfolio, having a professional CV matters. Use <a href="/" class="text-sky-300 underline hover:text-sky-200">Simple CV Builder</a> to craft an impressive, shareable CV in minutes.</p>
+                <p class="mt-2 leading-relaxed text-slate-100/80">Whether you’re applying for remote positions or building a freelance portfolio, having a professional CV matters. Use <a href="/#pricing" class="text-sky-300 underline hover:text-sky-200">Simple CV Builder</a> to craft an impressive, shareable CV in minutes.</p>
+            </div>
+        </section>
+
+        <section class="bg-white border-y border-slate-200 py-16">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-2xl font-semibold text-slate-900 mb-8">Related Guides</h2>
+                <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    <a href="/resources/jobs/remote-jobs-begginers.php" class="group rounded-xl border border-slate-200 bg-slate-50 p-5 shadow-sm transition hover:border-blue-200 hover:shadow-md">
+                        <h3 class="font-semibold text-slate-900 group-hover:text-blue-600">11 Simple Work From Home Jobs</h3>
+                        <p class="mt-2 text-sm text-slate-600">Entry-level remote jobs for UK beginners—no experience needed.</p>
+                    </a>
+                    <a href="/resources/career/how-to-update-your-cv.php" class="group rounded-xl border border-slate-200 bg-slate-50 p-5 shadow-sm transition hover:border-blue-200 hover:shadow-md">
+                        <h3 class="font-semibold text-slate-900 group-hover:text-blue-600">How to Update Your CV</h3>
+                        <p class="mt-2 text-sm text-slate-600">Step-by-step advice for refreshing every section of your CV.</p>
+                    </a>
+                    <a href="/resources/jobs/how-to-refresh-your-cv-in-30-minutes.php" class="group rounded-xl border border-slate-200 bg-slate-50 p-5 shadow-sm transition hover:border-blue-200 hover:shadow-md">
+                        <h3 class="font-semibold text-slate-900 group-hover:text-blue-600">Refresh Your CV in 30 Minutes</h3>
+                        <p class="mt-2 text-sm text-slate-600">Quick wins to modernise your CV layout, keywords, and story.</p>
+                    </a>
+                </div>
+                <p class="mt-6 text-center">
+                    <a href="/resources/" class="text-blue-600 hover:underline font-medium">View all resources →</a>
+                </p>
             </div>
         </section>
 

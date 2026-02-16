@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__ . '/../../php/helpers.php';
 
-$pageTitle = '11 Remote Jobs for Beginners in 2026 | Work From Home UK';
-$metaDescription = '11 beginner-friendly remote jobs for 2026. Salaries, skills needed, where to find them. UK work-from-home guide. No experience required.';
+$pageTitle = '11 Simple Work From Home Jobs for Beginners (UK 2026)';
+$metaDescription = 'Simple work from home jobs with no experience needed. 11 entry-level remote jobs for UK beginners—salaries, skills, where to apply. Virtual assistant, customer support, data entry & more.';
 
 $jobs = [
     [
@@ -254,6 +254,8 @@ $gettingStartedTips = [
     [
         'title' => 'Tailor your CV',
         'body' => 'Highlight transferable skills from previous work, volunteering, or education. Communication, organisation, and reliability matter across all remote roles.',
+        'cta' => 'Create a free CV that stands out',
+        'cta_url' => '/#pricing',
     ],
     [
         'title' => 'Watch for scams',
@@ -291,8 +293,16 @@ $gettingStartedTips = [
                 </div>
                 <h1 class="text-4xl font-semibold tracking-tight sm:text-5xl"><?php echo e($pageTitle); ?></h1>
                 <p class="text-lg text-slate-200 max-w-3xl leading-relaxed">
-                    Breaking into remote work doesn’t require years of experience. These entry-level positions offer flexibility, competitive pay, and the chance to build valuable skills from home.
+                    Simple work from home jobs with no experience needed. These 11 entry-level remote roles offer flexibility, competitive UK salaries, and the chance to build skills from home—virtual assistant, customer support, data entry, and more.
                 </p>
+                <nav aria-label="Job list" class="rounded-xl border border-white/20 bg-white/5 p-4">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-white/70 mb-3">Jump to a role</p>
+                    <ul class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 text-sm">
+                        <?php foreach ($jobs as $job): ?>
+                        <li><a href="#<?php echo e($job['id']); ?>" class="text-white/90 hover:text-white underline underline-offset-2"><?php echo e($job['title']); ?></a></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </nav>
                 <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
                     <a href="/resources/jobs/" class="inline-flex items-center justify-center rounded-lg bg-white px-5 py-2 text-sm font-semibold text-slate-900 shadow hover:bg-slate-100">
                         Back to job insights
@@ -405,10 +415,6 @@ $gettingStartedTips = [
                                 </div>
                             <?php endforeach; ?>
                         </div>
-                        <div class="mt-4 flex flex-wrap items-center gap-3 text-xs text-slate-500">
-                            <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 font-medium">Placeholder tag</span>
-                            <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 font-medium">Add success story CTA</span>
-                        </div>
                     </div>
                 </section>
             <?php endforeach; ?>
@@ -423,7 +429,7 @@ $gettingStartedTips = [
                     <div class="rounded-2xl border border-slate-200 bg-slate-50 px-6 py-5 shadow-sm">
                         <h3 class="text-sm font-semibold uppercase tracking-wide text-slate-500"><?php echo e($tip['title']); ?></h3>
                         <p class="mt-3 text-base text-slate-600">
-                            <?php echo e($tip['body']); ?>
+                            <?php echo e($tip['body']); ?><?php if (!empty($tip['cta']) && !empty($tip['cta_url'])): ?> <a href="<?php echo e($tip['cta_url']); ?>" class="text-blue-600 hover:underline font-medium"><?php echo e($tip['cta']); ?></a><?php endif; ?>
                         </p>
                     </div>
                 <?php endforeach; ?>
@@ -513,6 +519,29 @@ $gettingStartedTips = [
                     </form>
                 </div>
             </div>
+    </section>
+
+    <section class="bg-white border-y border-slate-200 py-16">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-2xl font-semibold text-slate-900 mb-8">Related Guides</h2>
+            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <a href="/resources/career/how-to-update-your-cv.php" class="group rounded-xl border border-slate-200 bg-slate-50 p-5 shadow-sm transition hover:border-blue-200 hover:shadow-md">
+                    <h3 class="font-semibold text-slate-900 group-hover:text-blue-600">How to Update Your CV</h3>
+                    <p class="mt-2 text-sm text-slate-600">Step-by-step advice for refreshing every section of your CV.</p>
+                </a>
+                <a href="/resources/jobs/how-to-refresh-your-cv-in-30-minutes.php" class="group rounded-xl border border-slate-200 bg-slate-50 p-5 shadow-sm transition hover:border-blue-200 hover:shadow-md">
+                    <h3 class="font-semibold text-slate-900 group-hover:text-blue-600">Refresh Your CV in 30 Minutes</h3>
+                    <p class="mt-2 text-sm text-slate-600">Quick wins to modernise your CV layout, keywords, and story.</p>
+                </a>
+                <a href="/resources/jobs/using-ai-in-job-applications.php" class="group rounded-xl border border-slate-200 bg-slate-50 p-5 shadow-sm transition hover:border-blue-200 hover:shadow-md">
+                    <h3 class="font-semibold text-slate-900 group-hover:text-blue-600">Using AI in Job Applications</h3>
+                    <p class="mt-2 text-sm text-slate-600">Harness AI for CVs and cover letters without losing authenticity.</p>
+                </a>
+            </div>
+            <p class="mt-6 text-center">
+                <a href="/resources/jobs/" class="text-blue-600 hover:underline font-medium">View all job guides →</a>
+            </p>
+        </div>
     </section>
 
     <section class="bg-slate-900 text-slate-100">

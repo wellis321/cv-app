@@ -15,7 +15,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
 <head>
     <?php partial('head', [
         'pageTitle' => $pageTitle . ' | Simple CV Builder',
-        'metaDescription' => 'Get comprehensive AI-powered feedback on your CV with scores and actionable recommendations. Assess overall quality, ATS compatibility, content quality, and more.',
+        'metaDescription' => 'AI CV quality assessment UK. Get scores and actionable feedback on your CV. Check ATS compatibility, content quality, and improve your job application success.',
         'canonicalUrl' => $canonicalUrl,
     ]); ?>
 </head>

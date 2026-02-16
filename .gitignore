@@ -50,6 +50,9 @@ scripts/exports/*.json
 # SEO plan (internal – do not push)
 docs/SEO_PLAN.md
 
+# GSC export data (temporary – do not commit)
+views/partials/*Performance*
+
 # Old SvelteKit/Node.js files (if not deleted yet)
 /node_modules
 /.svelte-kit

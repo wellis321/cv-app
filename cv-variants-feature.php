@@ -15,7 +15,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
 <head>
     <?php partial('head', [
         'pageTitle' => $pageTitle . ' | Simple CV Builder',
-        'metaDescription' => 'Create multiple versions of your CV for different job types. Generate job-specific variants with AI and keep them all organised in one place.',
+        'metaDescription' => 'CV variants for different jobs. Create multiple CV versions with AI. Job-specific tailoring, UK CV builder. Keep all variants organised in one place.',
         'canonicalUrl' => $canonicalUrl,
     ]); ?>
 </head>

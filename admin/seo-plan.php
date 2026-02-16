@@ -15,38 +15,28 @@ $user = getCurrentUser();
 $siteUrl = 'https://simple-cv-builder.com';
 $siteUrlEnc = urlencode($siteUrl);
 
-// Recommended SEO tools (from awesome-seo: https://github.com/teles/awesome-seo)
+// Essential SEO tools (Lighthouse = PageSpeed Insights; GSC for rankings)
 $recommendedTools = [
     [
         'name' => 'Google Search Console',
-        'description' => 'Monitor rankings, impressions, clicks, and indexing status',
+        'description' => 'Monitor rankings, impressions, clicks, indexing. Export data to find quick wins (position 4–10, low CTR).',
         'url' => 'https://search.google.com/search-console',
         'icon' => 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z',
     ],
     [
-        'name' => 'PageSpeed Insights',
-        'description' => 'Test site performance and get optimization tips',
+        'name' => 'Lighthouse (PageSpeed Insights)',
+        'description' => 'Performance, accessibility, SEO, best practices. Run on mobile or desktop.',
         'url' => 'https://pagespeed.web.dev/analysis?url=' . $siteUrlEnc,
         'icon' => 'M13 10V3L4 14h7v7l9-11h-7z',
     ],
-    [
-        'name' => 'Mobile Friendly Test',
-        'description' => 'Check mobile compatibility according to Google',
-        'url' => 'https://search.google.com/test/mobile-friendly?url=' . $siteUrlEnc,
-        'icon' => 'M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z',
-    ],
-    [
-        'name' => 'Rich Results Test',
-        'description' => 'Validate FAQ schema and structured data markup',
-        'url' => 'https://search.google.com/test/rich-results?url=' . $siteUrlEnc,
-        'icon' => 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
-    ],
-    [
-        'name' => 'Ubersuggest',
-        'description' => 'Free keyword research and competitor analysis',
-        'url' => 'https://neilpatel.com/ubersuggest/',
-        'icon' => 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
-    ],
+];
+
+// GSC Quick Wins: pages ranking position 4–10 with low CTR (from export 2026-02-16)
+$gscQuickWins = [
+    ['page' => '/resources/jobs/remote-jobs-begginers.php', 'position' => 8.7, 'impressions' => 205, 'ctr' => '0%', 'priority' => 'High', 'action' => 'Improve title & meta'],
+    ['page' => '/resources/extra-income/legitimate-ways-to-earn-money-online.php', 'position' => 8.9, 'impressions' => 48, 'ctr' => '0%', 'priority' => 'High', 'action' => 'Done – title, meta, TOC, links'],
+    ['page' => '/terms.php', 'position' => 4.5, 'impressions' => 4, 'ctr' => '0%', 'priority' => 'Medium', 'action' => 'Done – meta description added'],
+    ['page' => '/resources/', 'position' => 6.0, 'impressions' => 2, 'ctr' => '0%', 'priority' => 'Low', 'action' => 'Done – index page added'],
 ];
 
 // SEO plan data (synced with docs/SEO_PLAN.md – do not push)
@@ -74,7 +64,7 @@ $longTailKeywords = [
 $phases = [
     ['name' => 'Phase 1: Title & H1 Optimization', 'done' => true, 'items' => ['Feature page titles include primary keywords', 'H1 tags include primary keywords', 'Resource article titles optimised']],
     ['name' => 'Phase 2: Internal Linking', 'done' => true, 'items' => ['Homepage links to Free CV & Job Guides', 'FAQ links to key resource articles', 'Footer links to Job Market Insights, Career Advice Hub', 'CTAs at end of resource articles']],
-    ['name' => 'Phase 3: Meta Descriptions', 'done' => true, 'items' => ['Resource articles have keyword-rich meta descriptions'], 'pending' => ['Audit feature page meta descriptions']],
+    ['name' => 'Phase 3: Meta Descriptions', 'done' => true, 'items' => ['Resource articles have keyword-rich meta descriptions', 'Feature pages audited and meta descriptions improved']],
     ['name' => 'Phase 4: Content & On-Page', 'done' => false, 'items' => ['Ensure keywords in first paragraph of key pages', 'Add keywords to image alt text', 'Optimise internal link anchor text']],
     ['name' => 'Phase 5: Technical & Monitoring', 'done' => false, 'items' => ['Submit sitemap to Google Search Console', 'Request indexing for key pages', 'Monitor rankings in GSC', 'Track organic traffic growth']],
 ];
@@ -118,14 +108,14 @@ $keyPages = [
 
             <div class="mb-8">
                 <h1 class="text-2xl font-bold text-gray-900">SEO Plan</h1>
-                <p class="mt-1 text-sm text-gray-500">Target keywords, implementation phases, and key pages. Last updated: 2025-02-10.</p>
+                <p class="mt-1 text-sm text-gray-500">Target keywords, implementation phases, and key pages. Last updated: 2026-02-16.</p>
             </div>
 
             <!-- Recommended Tools -->
             <section class="mb-10">
                 <h2 class="text-lg font-semibold text-gray-900 mb-4">Recommended Tools</h2>
-                <p class="text-sm text-gray-600 mb-4">Free SEO tools from the <a href="https://github.com/teles/awesome-seo" target="_blank" rel="noopener" class="text-blue-600 hover:underline">awesome-seo</a> list. Use these regularly as part of your improvement plan.</p>
-                <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <p class="text-sm text-gray-600 mb-4">Essential tools for monitoring performance and search performance.</p>
+                <div class="grid gap-4 sm:grid-cols-2">
                     <?php foreach ($recommendedTools as $tool): ?>
                     <a href="<?php echo e($tool['url']); ?>" target="_blank" rel="noopener" class="flex items-start gap-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm hover:border-blue-300 hover:shadow-md transition-all group">
                         <div class="flex-shrink-0 rounded-lg bg-blue-50 p-2 group-hover:bg-blue-100 transition-colors">
@@ -146,15 +136,48 @@ $keyPages = [
             </section>
 
             <!-- GSC Quick Wins -->
-            <section class="mb-10 rounded-lg border-2 border-dashed border-cyan-200 bg-cyan-50/50 p-6">
+            <section class="mb-10">
                 <h2 class="text-lg font-semibold text-gray-900 mb-2">GSC Quick Wins</h2>
-                <p class="text-sm text-gray-600 mb-4">Detect pages ranking in positions 4–10 with low CTR—easy wins to improve titles and meta descriptions. Use Cursor's GSC MCP (<code class="text-xs bg-cyan-100 px-1 rounded">mcp_gsc_detect_quick_wins</code>) when configured, or run audits directly in Search Console.</p>
-                <a href="https://search.google.com/search-console" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-lg bg-cyan-600 px-4 py-2 text-sm font-medium text-white hover:bg-cyan-700 transition-colors">
-                    Open Search Console
-                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                    </svg>
-                </a>
+                <p class="text-sm text-gray-600 mb-4">Pages ranking position 4–10 with low CTR. Improve titles and meta descriptions to boost clicks. Export fresh data from Search Console → Performance → Export to Google Sheets, then filter Position 4–10 and sort by CTR ascending.</p>
+                <div class="mb-4">
+                    <a href="https://search.google.com/search-console" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-lg bg-cyan-600 px-4 py-2 text-sm font-medium text-white hover:bg-cyan-700 transition-colors">
+                        Open Search Console
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                        </svg>
+                    </a>
+                </div>
+                <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Page</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Position</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Impressions</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">CTR</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Priority</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <?php foreach ($gscQuickWins as $row): ?>
+                            <tr>
+                                <td class="px-4 py-3 text-sm font-medium text-gray-900">
+                                    <a href="<?php echo e($siteUrl . $row['page']); ?>" target="_blank" rel="noopener" class="text-blue-600 hover:underline"><?php echo e($row['page']); ?></a>
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-600"><?php echo e($row['position']); ?></td>
+                                <td class="px-4 py-3 text-sm text-gray-600"><?php echo e($row['impressions']); ?></td>
+                                <td class="px-4 py-3 text-sm text-gray-600"><?php echo e($row['ctr']); ?></td>
+                                <td class="px-4 py-3">
+                                    <span class="inline-flex rounded-full px-2 py-0.5 text-xs font-medium <?php echo $row['priority'] === 'High' ? 'bg-amber-100 text-amber-800' : ($row['priority'] === 'Medium' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'); ?>"><?php echo e($row['priority']); ?></span>
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-600"><?php echo e($row['action']); ?></td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="mt-3 text-xs text-gray-500">Data from GSC export 2026-02-16. Re-export periodically to refresh.</p>
             </section>
 
             <!-- Primary Keywords -->

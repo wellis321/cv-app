@@ -340,7 +340,7 @@ $features = [
 <head>
     <?php partial('head', [
         'pageTitle' => $pageTitle . ' | Simple CV Builder',
-        'metaDescription' => 'Complete overview of all features: CV building, job application tracking, AI-powered tools, file management, and organisation features.',
+        'metaDescription' => 'All features of Simple CV Builder: free CV builder UK, job application tracker, AI cover letters, CV templates, PDF export. Complete feature overview.',
         'canonicalUrl' => $canonicalUrl,
     ]); ?>
     <style>

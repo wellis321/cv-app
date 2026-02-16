@@ -15,7 +15,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
 <head>
     <?php partial('head', [
         'pageTitle' => $pageTitle . ' | Simple CV Builder',
-        'metaDescription' => 'Customise CV template colours to match your personal brand. Choose header colours and accent presets for your CV and PDF exports.',
+        'metaDescription' => 'Customise free CV templates UK. Change colours, header styles, and accent presets to match your personal brand. Professional CV and PDF exports.',
         'canonicalUrl' => $canonicalUrl,
     ]); ?>
 </head>

@@ -15,7 +15,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
 <head>
     <?php partial('head', [
         'pageTitle' => $pageTitle . ' | Simple CV Builder',
-        'metaDescription' => 'Export your CV as a professional PDF document. Choose which sections to include, add QR codes, and create print-ready documents.',
+        'metaDescription' => 'Download your CV as PDF. Free PDF export for UK job applications. Choose sections, add QR codes, create print-ready CV documents.',
         'canonicalUrl' => $canonicalUrl,
     ]); ?>
 </head>
