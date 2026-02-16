@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__ . '/../../php/helpers.php';
 
-$pageTitle = 'CV Keywords and ATS: A Complete Guide';
-$metaDescription = 'Learn how Applicant Tracking Systems (ATS) work, why keywords matter in your CV, and how to optimise your CV to pass ATS screening and reach human recruiters.';
+$pageTitle = 'CV Keywords & ATS: Pass Applicant Tracking Systems';
+$metaDescription = 'How ATS works and which keywords to add to your CV. UK guide to passing ATS screening and reaching recruiters. Free from Simple CV Builder.';
 $canonicalUrl = APP_URL . '/resources/career/keywords-and-ats-guide.php';
 
 $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $id . '?w=' . $w . '&q=80'; };
@@ -480,6 +480,8 @@ $sections = [
             </section>
         <?php endforeach; ?>
     </section>
+
+    <?php partial('resources/article-cta'); ?>
 
     <?php partial('footer'); ?>
 </body>

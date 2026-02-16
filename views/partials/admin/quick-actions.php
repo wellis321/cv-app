@@ -151,6 +151,20 @@ $quickActionsExpanded = $isDashboard;
                 <p class="truncate text-sm text-gray-500">User feedback</p>
             </div>
         </a>
+
+        <a href="/admin/seo-plan.php"
+           class="relative flex items-center space-x-3 rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-gray-400 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2">
+            <div class="flex-shrink-0">
+                <svg class="h-6 w-6 text-cyan-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+            </div>
+            <div class="min-w-0 flex-1">
+                <span class="absolute inset-0" aria-hidden="true"></span>
+                <p class="text-sm font-medium text-gray-900">SEO Plan</p>
+                <p class="truncate text-sm text-gray-500">Target keywords & strategy</p>
+            </div>
+        </a>
     </div>
     </div>
 </div>

@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__ . '/../../php/helpers.php';
 
-$pageTitle = 'AI Prompt Cheat Sheet for Job Applications';
-$metaDescription = 'Master AI prompts for CV writing, cover letters, and interview prep. Copy-paste ready prompts to get better results from ChatGPT, Claude, and other AI tools.';
+$pageTitle = 'AI Prompts for CV & Cover Letters | Free Cheat Sheet';
+$metaDescription = 'Copy-paste AI prompts for CV writing, cover letters, and interview prep. ChatGPT and Claude prompts for UK job applications.';
 
 $promptCategories = [
     [

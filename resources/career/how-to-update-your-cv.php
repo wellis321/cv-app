@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../php/helpers.php';
 
-$pageTitle = 'How to Update Your CV: A Complete Guide';
+$pageTitle = 'How to Update Your CV: Complete Guide UK';
 $metaDescription = 'Step-by-step advice for refreshing your CV, from personal statements to ATS optimisation, so you’re always ready for the next opportunity.';
 
 $sections = [
@@ -170,7 +170,7 @@ $sections = [
 <head>
     <?php partial('head', [
         'pageTitle' => $pageTitle . ' | Simple CV Builder',
-        'metaDescription' => $metaDescription,
+        'metaDescription' => 'Step-by-step guide to updating your CV. ATS optimisation, personal statement, and format tips for UK job seekers. Free from Simple CV Builder.',
         'canonicalUrl' => APP_URL . '/resources/career/how-to-update-your-cv.php',
     ]); ?>
 </head>
@@ -300,10 +300,13 @@ $sections = [
                 By making CV maintenance a habit, you’ll ensure your CV remains a powerful tool in your career advancement toolkit—ready whenever the right opportunity appears.
             </p>
             <div class="rounded-2xl border border-white/10 bg-white/5 px-6 py-6">
-                <p class="text-base font-semibold text-white">Next steps placeholder</p>
+                <p class="text-base font-semibold text-white">Create your free CV with Simple CV Builder</p>
                 <p class="mt-3 text-sm text-slate-200">
-                    Replace this block with a relevant call-to-action—perhaps a coaching invitation or interview guide download.
+                    Build your professional CV, update it anytime, and export polished PDFs. Track job applications and use AI to tailor content—all in one place.
                 </p>
+                <a href="/index.php#register" class="mt-4 inline-flex items-center justify-center rounded-lg bg-white px-5 py-2 text-sm font-semibold text-slate-900 shadow hover:bg-slate-100">
+                    Create free CV →
+                </a>
             </div>
         </div>
     </section>

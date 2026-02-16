@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__ . '/../../php/helpers.php';
 
-$pageTitle = 'CV Update Checklist';
-$metaDescription = 'A comprehensive checklist to help you update your CV systematically. Use this printable guide to ensure your CV is current and ready for new opportunities.';
+$pageTitle = 'CV Update Checklist | Free Printable';
+$metaDescription = 'Free CV update checklist for UK job seekers. Systematic guide to refreshing your CV. Printable, nothing missed.';
 $canonicalUrl = APP_URL . '/resources/career/cv-update-checklist.php';
 
 $checklistItems = [

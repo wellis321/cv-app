@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../../php/helpers.php';
 
 $pageTitle = 'How to Refresh Your CV in 30 Minutes';
-$metaDescription = 'Use this 30-minute workflow to modernise your CV summary, skills, and experience so you can respond to new job opportunities fast.';
+$metaDescription = 'Update your CV fast. Free 30-minute workflow to modernise your CV summary, skills, and experience. UK job seeker guide.';
 $canonicalUrl = APP_URL . '/resources/jobs/how-to-refresh-your-cv-in-30-minutes.php';
 
 $sections = [

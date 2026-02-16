@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__ . '/../../php/helpers.php';
 
-$pageTitle = 'Healthcare Career Paths: Start Your Journey Without a Degree';
-$metaDescription = 'Discover rewarding healthcare support roles you can start without a university degree. Learn about entry-level positions, training requirements, salaries, and how to begin your healthcare career today.';
+$pageTitle = 'Healthcare Careers Without a Degree UK | Entry-Level Jobs';
+$metaDescription = 'Healthcare careers you can start without a degree. Entry-level roles, training, salaries. UK guide for healthcare support jobs.';
 
 $jobs = [
     [
@@ -586,6 +586,8 @@ $jobs = [
         </div>
     </section>
     <?php endif; ?>
+
+    <?php partial('resources/article-cta'); ?>
 </main>
 
 <?php partial('footer'); ?>

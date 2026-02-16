@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__ . '/../../php/helpers.php';
 
-$pageTitle = '11 Remote Jobs Perfect for Beginners in 2026';
-$metaDescription = 'Discover 11 beginner-friendly remote jobs that require little to no experience. Learn about salaries, skills needed, and where to find these opportunities.';
+$pageTitle = '11 Remote Jobs for Beginners in 2026 | Work From Home UK';
+$metaDescription = '11 beginner-friendly remote jobs for 2026. Salaries, skills needed, where to find them. UK work-from-home guide. No experience required.';
 
 $jobs = [
     [
@@ -525,10 +525,13 @@ $gettingStartedTips = [
                 Start with one or two roles that appeal to you, refine your CV to highlight relevant abilities, and begin applying consistently. Your first remote job might be closer than you think.
             </p>
             <div class="rounded-2xl border border-white/10 bg-white/5 px-6 py-6">
-                <p class="text-base font-semibold text-white">Next steps placeholder</p>
+                <p class="text-base font-semibold text-white">Create your free CV with Simple CV Builder</p>
                 <p class="mt-3 text-sm text-slate-200">
-                    Replace this with a newsletter opt-in, course promotion, or deep-dive guide link when you’re ready.
+                    Build your professional CV, tailor it for remote roles, and track applications—all in one place. Free to start.
                 </p>
+                <a href="/index.php#register" class="mt-4 inline-flex items-center justify-center rounded-lg bg-white px-5 py-2 text-sm font-semibold text-slate-900 shadow hover:bg-slate-100">
+                    Create free CV →
+                </a>
             </div>
         </div>
     </section>

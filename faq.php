@@ -262,7 +262,18 @@ $faqs = [
                 <?php endforeach; ?>
             </div>
 
-            <div class="mt-12 bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+            <div class="mt-12 bg-indigo-50 border border-indigo-200 rounded-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-3">Related guides</h3>
+                <p class="text-sm text-gray-700 mb-4">Get more help with your CV and job search:</p>
+                <ul class="flex flex-wrap gap-2 justify-center mb-6">
+                    <li><a href="/resources/jobs/how-to-refresh-your-cv-in-30-minutes.php" class="inline-block px-4 py-2 rounded-md bg-white border border-indigo-200 text-sm font-medium text-indigo-700 hover:bg-indigo-100 transition-colors">Refresh your CV in 30 minutes</a></li>
+                    <li><a href="/resources/jobs/using-ai-in-job-applications.php" class="inline-block px-4 py-2 rounded-md bg-white border border-indigo-200 text-sm font-medium text-indigo-700 hover:bg-indigo-100 transition-colors">Using AI in job applications</a></li>
+                    <li><a href="/resources/career/keywords-and-ats-guide.php" class="inline-block px-4 py-2 rounded-md bg-white border border-indigo-200 text-sm font-medium text-indigo-700 hover:bg-indigo-100 transition-colors">CV keywords & ATS guide</a></li>
+                    <li><a href="/resources/jobs/ai-prompt-cheat-sheet.php" class="inline-block px-4 py-2 rounded-md bg-white border border-indigo-200 text-sm font-medium text-indigo-700 hover:bg-indigo-100 transition-colors">AI prompt cheat sheet</a></li>
+                    <li><a href="/resources/jobs/" class="inline-block px-4 py-2 rounded-md bg-indigo-600 text-sm font-medium text-white hover:bg-indigo-700 transition-colors">All job guides →</a></li>
+                </ul>
+            </div>
+            <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
                 <h3 class="text-lg font-semibold text-gray-900 mb-2">Still have questions?</h3>
                 <p class="text-gray-700 mb-4">
                     Can't find the answer you're looking for? We're here to help!

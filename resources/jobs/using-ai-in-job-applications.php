@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__ . '/../../php/helpers.php';
 
-$pageTitle = 'Using AI in Your Job Applications: A Practical Guide';
-$metaDescription = 'Learn how to use AI tools like ChatGPT responsibly for CVs, cover letters, and interview prep without losing your authentic voice.';
+$pageTitle = 'Using AI in Job Applications: CV, Cover Letters & Interviews';
+$metaDescription = 'Free guide: Use AI for CVs, cover letters, and interview prep. ChatGPT and Claude tips for UK job seekers. Stay authentic while saving time.';
 
 $sections = [
     [
@@ -336,10 +336,13 @@ $sections = [
                 AI speeds up the heavy lifting, but your personality, experience, and honesty make applications memorable. Keep refining your process to blend both beautifully.
             </p>
             <div class="rounded-2xl border border-white/10 bg-white/5 px-6 py-6">
-                <p class="text-base font-semibold text-white">Next resource placeholder</p>
+                <p class="text-base font-semibold text-white">Create your free CV with Simple CV Builder</p>
                 <p class="mt-3 text-sm text-slate-200">
-                    Replace this block with a relevant call-to-action—perhaps an interview prep guide or coaching invitation.
+                    Build your professional CV, use AI to tailor content for each job, and track applications—all in one place.
                 </p>
+                <a href="/index.php#register" class="mt-4 inline-flex items-center justify-center rounded-lg bg-white px-5 py-2 text-sm font-semibold text-slate-900 shadow hover:bg-slate-100">
+                    Create free CV →
+                </a>
             </div>
         </div>
     </section>

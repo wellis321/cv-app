@@ -1,7 +1,8 @@
 <?php
 require_once __DIR__ . '/../../php/helpers.php';
 
-$pageTitle = 'Job Market Insights';
+$pageTitle = 'Job Search Advice UK | CV Tips & Career Guides';
+$metaDescription = 'Free job search guides, CV tips, and career advice for UK job seekers. Learn how to update your CV, use AI in applications, pass ATS, and land your next role.';
 $canonicalUrl = APP_URL . '/resources/jobs/';
 $sections = [
     [
@@ -74,7 +75,7 @@ $sections = [
 <head>
     <?php partial('head', [
         'pageTitle' => $pageTitle . ' | Simple CV Builder',
-        'metaDescription' => 'Stay ahead of hiring trends with curated job search guides, templates, and advice from Simple CV Builder.',
+        'metaDescription' => $metaDescription,
         'canonicalUrl' => $canonicalUrl,
     ]); ?>
 </head>
