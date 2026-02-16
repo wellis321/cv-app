@@ -53,6 +53,10 @@ docs/SEO_PLAN.md
 # GSC export data (temporary – do not commit)
 views/partials/*Performance*
 
+# Ahrefs exports (temporary – do not commit)
+*image-broken*.csv
+*orphan*.csv
+
 # Old SvelteKit/Node.js files (if not deleted yet)
 /node_modules
 /.svelte-kit

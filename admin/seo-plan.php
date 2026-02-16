@@ -275,9 +275,20 @@ $keyPages = [
                         </div>
                     </div>
                     <div class="rounded-lg bg-white p-4 border border-cyan-100">
-                        <div class="font-medium text-gray-900 mb-3">3. Request indexing for key pages</div>
+                        <div class="font-medium text-gray-900 mb-3">3. Submit URLs to Bing (IndexNow) – one click</div>
+                        <p class="text-sm text-gray-600 mb-3">
+                            Submit all sitemap URLs to Bing, Yandex and other search engines at once. No daily quota.
+                        </p>
+                        <button type="button" id="indexnow-submit" class="inline-flex items-center gap-2 rounded-lg bg-cyan-600 px-4 py-2 text-sm font-medium text-white hover:bg-cyan-700 transition-colors">
+                            <span id="indexnow-text">Submit all URLs to IndexNow</span>
+                            <span id="indexnow-spinner" class="hidden animate-spin">⏳</span>
+                        </button>
+                        <p id="indexnow-result" class="mt-2 text-sm hidden"></p>
+                    </div>
+                    <div class="rounded-lg bg-white p-4 border border-cyan-100">
+                        <div class="font-medium text-gray-900 mb-3">4. Request indexing in Google (manual)</div>
                         <p class="text-sm text-gray-600 mb-4">
-                            <a href="https://search.google.com/search-console" target="_blank" rel="noopener" class="text-cyan-600 hover:underline font-medium">Open URL Inspection</a> → paste each URL below → Request indexing.
+                            <a href="https://search.google.com/search-console" target="_blank" rel="noopener" class="text-cyan-600 hover:underline font-medium">Open URL Inspection</a> → paste each URL below → Request indexing. (Google has a daily quota.)
                         </p>
                         <div class="overflow-x-auto rounded-lg border border-gray-200">
                             <table class="min-w-full divide-y divide-gray-200 text-sm">
@@ -304,13 +315,13 @@ $keyPages = [
                         </div>
                     </div>
                     <div class="flex flex-col sm:flex-row sm:items-center gap-3 rounded-lg bg-white p-4 border border-cyan-100">
-                        <div class="flex-shrink-0 font-medium text-gray-900">4. Monitor rankings</div>
+                        <div class="flex-shrink-0 font-medium text-gray-900">5. Monitor rankings</div>
                         <div class="flex-1 text-sm text-gray-600">
                             <a href="https://search.google.com/search-console" target="_blank" rel="noopener" class="text-cyan-600 hover:underline font-medium">Search Console</a> → Performance. Check weekly for impressions, clicks, average position. Export to find quick wins.
                         </div>
                     </div>
                 </div>
-                <p class="mt-4 text-xs text-gray-500">After completing steps 1–3, mark Phase 5 as done in the plan below.</p>
+                <p class="mt-4 text-xs text-gray-500">After completing steps 1–4, mark Phase 5 as done in the plan below.</p>
             </section>
 
             <!-- Implementation Phases -->
@@ -402,6 +413,50 @@ $keyPages = [
                 });
             });
         });
+
+        var indexnowBtn = document.getElementById('indexnow-submit');
+        if (indexnowBtn) {
+            indexnowBtn.addEventListener('click', function() {
+                var textEl = document.getElementById('indexnow-text');
+                var spinnerEl = document.getElementById('indexnow-spinner');
+                var resultEl = document.getElementById('indexnow-result');
+                indexnowBtn.disabled = true;
+                textEl.textContent = 'Submitting…';
+                spinnerEl.classList.remove('hidden');
+                resultEl.classList.add('hidden');
+
+                var formData = new FormData();
+                formData.append('<?php echo CSRF_TOKEN_NAME; ?>', '<?php echo csrfToken(); ?>');
+
+                fetch('/api/indexnow-submit.php', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'same-origin'
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    indexnowBtn.disabled = false;
+                    textEl.textContent = 'Submit all URLs to IndexNow';
+                    spinnerEl.classList.add('hidden');
+                    resultEl.classList.remove('hidden');
+                    if (data.success) {
+                        resultEl.textContent = '✓ ' + data.message + ' (' + data.urlCount + ' URLs)';
+                        resultEl.className = 'mt-2 text-sm text-green-600';
+                    } else {
+                        resultEl.textContent = '✗ ' + (data.error || 'Unknown error');
+                        resultEl.className = 'mt-2 text-sm text-red-600';
+                    }
+                })
+                .catch(function(err) {
+                    indexnowBtn.disabled = false;
+                    textEl.textContent = 'Submit all URLs to IndexNow';
+                    spinnerEl.classList.add('hidden');
+                    resultEl.classList.remove('hidden');
+                    resultEl.textContent = '✗ Request failed: ' + err.message;
+                    resultEl.className = 'mt-2 text-sm text-red-600';
+                });
+            });
+        }
     })();
     </script>
 </body>

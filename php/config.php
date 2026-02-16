@@ -213,6 +213,11 @@ define('ANTHROPIC_MODEL', env('ANTHROPIC_MODEL', 'claude-3-opus-20240229'));
 define('MAX_CV_TEMPLATES_PER_USER', 10); // Maximum number of templates a user can create
 define('MAX_TEMPLATE_SIZE_KB', 500); // Maximum size per template (HTML + CSS) in KB
 
+// IndexNow (Bing, Yandex) - notify search engines when URLs change
+define('INDEXNOW_KEY', env('INDEXNOW_KEY', '3c9dc093a70141689f13ee385002d0d1'));
+// Use production URL for IndexNow (key file must be publicly accessible)
+define('INDEXNOW_SITE_URL', env('INDEXNOW_SITE_URL', 'https://simple-cv-builder.com'));
+
 // Timezone
 date_default_timezone_set('UTC');
 
