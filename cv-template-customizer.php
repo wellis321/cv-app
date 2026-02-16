@@ -587,10 +587,11 @@ $canonicalUrl = APP_URL . '/cv-template-customizer.php';
                     previewDoc.write('<!DOCTYPE html><html><head></head><body></body></html>');
                     previewDoc.close();
                     
-                    // Add Tailwind script
-                    const script = previewDoc.createElement('script');
-                    script.src = 'https://cdn.tailwindcss.com';
-                    previewDoc.head.appendChild(script);
+                    // Add Tailwind CSS
+                    const link = previewDoc.createElement('link');
+                    link.rel = 'stylesheet';
+                    link.href = '/static/css/tailwind.css';
+                    previewDoc.head.appendChild(link);
                     
                     // Add CSS
                     const style = previewDoc.createElement('style');
@@ -928,10 +929,11 @@ $canonicalUrl = APP_URL . '/cv-template-customizer.php';
                     previewDoc.write('<!DOCTYPE html><html><head></head><body></body></html>');
                     previewDoc.close();
                     
-                    // Add Tailwind script
-                    const script = previewDoc.createElement('script');
-                    script.src = 'https://cdn.tailwindcss.com';
-                    previewDoc.head.appendChild(script);
+                    // Add Tailwind CSS
+                    const link = previewDoc.createElement('link');
+                    link.rel = 'stylesheet';
+                    link.href = '/static/css/tailwind.css';
+                    previewDoc.head.appendChild(link);
                     
                     // Add CSS
                     const style = previewDoc.createElement('style');

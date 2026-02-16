@@ -58,7 +58,7 @@ $customHomepageJs = $organisation['custom_homepage_js'] ?? null;
     <?php if ($customHomepageEnabled): ?>
     <!-- CSS Framework CDNs - Available for all custom homepages -->
     <!-- Tailwind CSS Play CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/css/tailwind.css">
     <!-- Bootstrap 5.3 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <!-- Bootstrap 5.3 JavaScript Bundle -->

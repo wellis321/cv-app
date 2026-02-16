@@ -172,44 +172,38 @@
 </script>
 
 <script>
-// Enhance markdown rendering with marked.js on all pages
+// Enhance markdown rendering - load marked.js only when .markdown-content exists
 (function() {
-    if (typeof marked !== 'undefined') {
-        // Wait for DOM to be ready
-        function enhanceMarkdown() {
-            document.querySelectorAll('.markdown-content').forEach(function(el) {
-                // Skip if already enhanced
-                if (el.dataset.markdownEnhanced === 'true') {
-                    return;
-                }
-                
-                const originalHtml = el.innerHTML;
+    function enhanceMarkdown() {
+        var els = document.querySelectorAll('.markdown-content');
+        if (els.length === 0) return;
+        
+        function runEnhancement() {
+            els.forEach(function(el) {
+                if (el.dataset.markdownEnhanced === 'true') return;
+                var originalHtml = el.innerHTML;
                 try {
-                    // Parse markdown and render
-                    const rendered = marked.parse(originalHtml, { 
-                        breaks: true, 
-                        gfm: true,
-                        headerIds: false,
-                        mangle: false
-                    });
-                    el.innerHTML = rendered;
+                    el.innerHTML = (typeof marked !== 'undefined' ? marked : window.marked).parse(originalHtml, { breaks: true, gfm: true, headerIds: false, mangle: false });
                     el.dataset.markdownEnhanced = 'true';
-                } catch (e) {
-                    // Fallback to original if parsing fails
-                    console.warn('Markdown parsing failed:', e);
-                }
+                } catch (e) { console.warn('Markdown parsing failed:', e); }
             });
         }
         
-        // Run on load and after a short delay for dynamically loaded content
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', enhanceMarkdown);
+        if (typeof marked !== 'undefined') {
+            runEnhancement();
+            setTimeout(runEnhancement, 500);
         } else {
-            enhanceMarkdown();
+            var s = document.createElement('script');
+            s.src = 'https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js';
+            s.onload = function() { runEnhancement(); setTimeout(runEnhancement, 500); };
+            document.head.appendChild(s);
         }
-        
-        // Re-run after a delay for content loaded via AJAX
-        setTimeout(enhanceMarkdown, 500);
+    }
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', enhanceMarkdown);
+    } else {
+        enhanceMarkdown();
     }
 })();
 </script>

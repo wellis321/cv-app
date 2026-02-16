@@ -55,7 +55,7 @@ if (!$profile) {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>CV Not Found</title>
-        <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="stylesheet" href="/static/css/tailwind.css">
     </head>
     <body class="bg-gray-50">
         <div class="max-w-4xl mx-auto px-4 py-16 text-center">
@@ -107,7 +107,7 @@ if (!$canView) {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Access Denied</title>
-        <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="stylesheet" href="/static/css/tailwind.css">
     </head>
     <body class="bg-gray-50">
         <div class="max-w-4xl mx-auto px-4 py-16 text-center">
@@ -205,7 +205,7 @@ if ($activeTemplate) {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title><?php echo e($profile['full_name'] ?? 'CV'); ?> - CV</title>
-        <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="stylesheet" href="/static/css/tailwind.css">
         <?php if (!empty($customCss)): ?>
             <style><?php echo $customCss; ?></style>
         <?php endif; ?>
@@ -385,7 +385,7 @@ if ($activeTemplate) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo e($profile['full_name'] ?? 'CV'); ?> - CV</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/css/tailwind.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js"></script>
     <style>

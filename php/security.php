@@ -352,7 +352,7 @@ function setSecurityHeaders() {
     if (defined('APP_ENV') && APP_ENV === 'development') {
         $imgSrc .= " http://localhost:* http://127.0.0.1:*";
     }
-    $csp = "default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; img-src {$imgSrc}; font-src 'self' data: https:; connect-src 'self' http://localhost:* http://127.0.0.1:* ws://localhost:* ws://127.0.0.1:* https:; worker-src 'self' blob: data: https:; child-src 'self' blob: data:; script-src-elem 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com;";
+    $csp = "default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src {$imgSrc}; font-src 'self' data: https:; connect-src 'self' http://localhost:* http://127.0.0.1:* ws://localhost:* ws://127.0.0.1:* https:; worker-src 'self' blob: data: https:; child-src 'self' blob: data:; script-src-elem 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com;";
     header("Content-Security-Policy: {$csp}");
 
     // HSTS (only if HTTPS)

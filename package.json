@@ -4,6 +4,12 @@
   "private": true,
   "description": "B2B CV Builder (web app). Use sync-to-desktop to update the Electron app.",
   "scripts": {
-    "sync-to-desktop": "node scripts/sync-to-desktop.js"
+    "sync-to-desktop": "node scripts/sync-to-desktop.js",
+    "build:css": "tailwindcss -i ./static/css/input.css -o ./static/css/tailwind.css --minify"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.24",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.19"
   }
 }
