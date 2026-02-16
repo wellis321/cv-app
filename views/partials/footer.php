@@ -69,7 +69,7 @@
     <?php partial('feedback-widget'); ?>
 </footer>
 
-<script src="/js/feedback-widget.js"></script>
+<script src="/js/feedback-widget.js" defer></script>
 
 <div
     data-cookie-banner
@@ -207,4 +207,4 @@
     }
 })();
 </script>
-<script src="/js/closing-date-reminders.js"></script>
+<script src="/js/closing-date-reminders.js" defer></script>

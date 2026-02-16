@@ -94,6 +94,6 @@ outputStructuredData($schemas);
     }
 }
 </style>
+<link rel="preload" href="/static/css/tailwind.css" as="style">
 <link rel="stylesheet" href="/static/css/tailwind.css">
-<!-- Markdown support (deferred - loaded only when .markdown-content exists) -->
-<script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js"></script>
+<!-- marked.js loaded by footer only when .markdown-content exists -->
