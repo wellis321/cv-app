@@ -415,7 +415,7 @@ function generateStructuredData($type = 'default', $data = []) {
         'name' => 'Simple CV Builder',
         'url' => APP_URL,
         'logo' => APP_URL . '/static/favicon.png',
-        'description' => 'Build a standout CV online, share it instantly, and unlock premium templates with Simple CV Builder.',
+        'description' => 'Free CV builder UK with job application tracking and AI cover letters. Build, share, and export professional CVs online.',
         'sameAs' => [
             // Add social media URLs if available
         ]
@@ -445,16 +445,12 @@ function generateStructuredData($type = 'default', $data = []) {
             'name' => 'Simple CV Builder',
             'applicationCategory' => 'BusinessApplication',
             'operatingSystem' => 'Web Browser',
+            'description' => 'Free CV builder UK with job application tracking and AI cover letters. Build, share, and export professional CVs.',
             'offers' => [
                 '@type' => 'Offer',
                 'price' => '0',
                 'priceCurrency' => 'GBP',
                 'description' => 'Free CV builder with premium templates available'
-            ],
-            'aggregateRating' => [
-                '@type' => 'AggregateRating',
-                'ratingValue' => '4.5',
-                'ratingCount' => '100'
             ]
         ];
     }

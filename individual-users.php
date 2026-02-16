@@ -10,11 +10,11 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
 
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
     <?php partial('head', [
-        'pageTitle' => 'For Individual Users | Simple CV Builder',
-        'metaDescription' => 'Learn how to create a professional CV with Simple CV Builder. Build, share, and manage your CV with our comprehensive platform.',
+        'pageTitle' => 'Free CV Builder UK | Create Professional CVs Online | Simple CV Builder',
+        'metaDescription' => 'Free CV builder UK for job seekers. Create professional CVs online, share a link, track job applications, and generate AI cover letters. Start free.',
         'canonicalUrl' => APP_URL . '/individual-users.php',
     ]); ?>
 </head>
@@ -28,10 +28,10 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
             <div class="absolute inset-0 bg-gray-900/70" aria-hidden="true"></div>
             <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
                 <h1 class="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl text-white">
-                    For Individual Users
+                    Free CV Builder UK – Create Professional CVs Online
                 </h1>
                 <p class="mt-6 text-xl text-gray-200 max-w-2xl mx-auto leading-relaxed">
-                    Create a professional CV that stands out, updates in real-time, and can be shared as a simple link. Build your career profile with our CV builder.
+                    Create a professional CV that stands out, updates in real-time, and can be shared as a simple link. Track job applications and generate AI cover letters—all free.
                 </p>
             </div>
         </div>

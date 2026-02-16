@@ -44,6 +44,12 @@ if ($requestPath === '/quick-add-job') {
     exit;
 }
 
+// Sitemap for SEO (PHP built-in server doesn't use .htaccess)
+if ($requestPath === '/sitemap.xml') {
+    require __DIR__ . '/sitemap.php';
+    exit;
+}
+
 // Don't process as homepage if it's a specific file request
 if ($requestPath !== '/' && $requestPath !== '/index.php' && $requestPath !== '') {
     // Check if the requested file exists
@@ -185,7 +191,7 @@ $oldLoginEmail = getFlash('old_login_email') ?: null;
 
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
     <?php partial('head', [
         'pageTitle' => 'Simple CV Builder | Free CV Maker UK, Job Tracker & AI Cover Letters',

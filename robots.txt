@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://simple-cv-builder.com/sitemap.php
+Sitemap: https://simple-cv-builder.com/sitemap.xml

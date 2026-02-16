@@ -6,13 +6,13 @@
 
 require_once __DIR__ . '/php/helpers.php';
 
-$pageTitle = 'Pricing | Simple CV Builder';
-$metaDescription = 'Free CV builder and job tracker. 1 week, 1 month, or 3 months—all with a 7-day free trial. Cancel anytime.';
+$pageTitle = 'Free CV Builder UK | Pricing & Plans | Simple CV Builder';
+$metaDescription = 'Free CV builder UK and job tracker. Start free or choose 1 week, 1 month, or 3 months—all with a 7-day free trial. Cancel anytime.';
 $canonicalUrl = APP_URL . '/pricing';
 
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
     <?php partial('head', [
         'pageTitle' => $pageTitle,
@@ -26,9 +26,9 @@ $canonicalUrl = APP_URL . '/pricing';
     <main id="main-content" role="main">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="text-center mb-8">
-                <h1 class="text-3xl font-bold text-gray-900">Pricing</h1>
+                <h1 class="text-3xl font-bold text-gray-900">Free CV Builder UK – Pricing & Plans</h1>
                 <p class="mt-2 text-lg text-gray-600">
-                    Find the plan that fits your job search best. Free, 1 week, 1 month, or 3 months.
+                    Find the plan that fits your job search best. Start free, or choose 1 week, 1 month, or 3 months—all with a 7-day free trial.
                 </p>
             </div>
             <?php partial('home-pricing', ['pricingUseRegisterModal' => false]); ?>

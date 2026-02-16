@@ -94,11 +94,11 @@ function renderPlanFeatures(string $planId, array $planConfig): array {
 
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
     <?php partial('head', [
-        'pageTitle' => 'Subscription Plans | Simple CV Builder',
-        'metaDescription' => 'Compare Simple CV Builder plans. Unlock unlimited sections, premium templates, and priority support. Choose 1 week, 1 month, or 3 months—all with a 7-day free trial.',
+        'pageTitle' => 'Free CV Builder UK | Subscription Plans | Simple CV Builder',
+        'metaDescription' => 'Free CV builder UK – compare plans. Unlock unlimited sections, premium templates, and AI cover letters. 1 week, 1 month, or 3 months—all with a 7-day free trial.',
         'canonicalUrl' => APP_URL . '/subscription.php',
     ]); ?>
 </head>
@@ -108,7 +108,7 @@ function renderPlanFeatures(string $planId, array $planConfig): array {
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div class="mb-10 text-center">
             <span class="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700">Subscriptions</span>
-            <h1 class="mt-4 text-3xl font-bold text-gray-900 sm:text-4xl">Choose the plan that fits your career goals</h1>
+            <h1 class="mt-4 text-3xl font-bold text-gray-900 sm:text-4xl">Free CV Builder UK – Choose Your Plan</h1>
             <p class="mt-4 text-gray-600 max-w-2xl mx-auto">
                 You're logged in! Upgrade to unlock unlimited sections, premium templates, and career-building resources.
             </p>

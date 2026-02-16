@@ -28,6 +28,9 @@ RewriteRule ^cv/([a-f0-9\-]{36})$ cv.php?userid=$1 [L,QSA]
 # Handle organisation public pages: /agency/{slug} -> agency-public.php?slug={slug}
 RewriteRule ^agency/([a-z0-9\-]+)$ agency-public.php?slug=$1 [L,QSA]
 
+# Sitemap for SEO (Google prefers sitemap.xml)
+RewriteRule ^sitemap\.xml$ sitemap.php [L]
+
 # Redirect to index.php if file doesn't exist (for routing)
 RewriteRule ^(.*)$ index.php [QSA,L]
 

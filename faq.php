@@ -200,11 +200,11 @@ $faqs = [
 
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
     <?php partial('head', [
-        'pageTitle' => 'Frequently Asked Questions | Simple CV Builder',
-        'metaDescription' => 'Find answers to common questions about Simple CV Builder, including how to create your CV, pricing, features, and more.',
+        'pageTitle' => 'Free CV Builder UK | FAQ | Simple CV Builder',
+        'metaDescription' => 'FAQ for Simple CV Builder UK. How to create your CV, pricing, job tracking, AI cover letters, PDF export, and more. Get answers fast.',
         'canonicalUrl' => APP_URL . '/faq.php',
         'structuredDataType' => 'faq',
         'structuredData' => ['faqs' => $faqs],
@@ -216,7 +216,7 @@ $faqs = [
     <main id="main-content" role="main">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div class="text-center mb-12">
-                <h1 class="text-4xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h1>
+                <h1 class="text-4xl font-bold text-gray-900 mb-4">Free CV Builder UK – Frequently Asked Questions</h1>
                 <p class="text-lg text-gray-600">
                     Everything you need to know about Simple CV Builder
                 </p>
