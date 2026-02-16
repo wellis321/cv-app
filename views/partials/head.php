@@ -94,6 +94,6 @@ outputStructuredData($schemas);
     }
 }
 </style>
-<link rel="preload" href="/static/css/tailwind.css" as="style">
-<link rel="stylesheet" href="/static/css/tailwind.css">
+<link rel="preload" href="/static/css/tailwind.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="/static/css/tailwind.css"></noscript>
 <!-- marked.js loaded by footer only when .markdown-content exists -->
