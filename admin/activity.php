@@ -94,6 +94,8 @@ foreach ($uniqueActions as $actionRow) {
                 <p class="mt-1 text-sm text-gray-500">System-wide activity and audit trail</p>
             </div>
 
+            <?php partial('admin/quick-actions'); ?>
+
             <!-- Filters -->
             <div class="bg-white shadow-lg rounded-xl border-2 border-gray-200 p-6 mb-6">
                 <form method="GET" action="" class="space-y-4">

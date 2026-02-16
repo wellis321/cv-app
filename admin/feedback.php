@@ -144,6 +144,8 @@ try {
                 <p class="mt-1 text-sm text-gray-500">View and manage user feedback submissions</p>
             </div>
 
+            <?php partial('admin/quick-actions'); ?>
+
             <!-- Statistics Cards -->
             <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5 mb-6">
                 <?php

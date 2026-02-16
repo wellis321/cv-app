@@ -165,7 +165,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="flex items-center">
-                            <img src="<?php echo e($img('1557804506-669a67965ba0', 800)); ?>" alt="Visual progress tracking dashboard" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover aspect-video" width="800" height="450" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/interview-tracking/update-status.png" aria-label="View update status image larger">
+                                <img src="/static/images/interview-tracking/update-status.png" alt="Update job status, work arrangement and follow-up date at a glance" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover" width="800" height="450" />
+                            </button>
                         </div>
                     </div>
 
@@ -181,7 +183,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="lg:order-1 flex items-center">
-                            <img src="<?php echo e($img('1586281380349-632531db7ed4', 800)); ?>" alt="Organised job application tracking" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover aspect-video" width="800" height="450" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/follow-up/view-dates.png" aria-label="View view dates image larger">
+                                <img src="/static/images/follow-up/view-dates.png" alt="Job cards with status dates and follow-up indicators" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover" width="800" height="450" />
+                            </button>
                         </div>
                     </div>
 
@@ -197,7 +201,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="flex items-center">
-                            <img src="<?php echo e($img('1531403009284-440f080d1e12', 800)); ?>" alt="Data-driven job search decisions" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover aspect-video" width="800" height="450" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/all-in-one/seamless-workflow.png" aria-label="View seamless workflow image larger">
+                                <img src="/static/images/all-in-one/seamless-workflow.png" alt="Dashboard with CV building, job tracking and AI tools for informed decisions" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover" width="800" height="450" />
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -301,5 +307,6 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
     <?php if (!isLoggedIn()): ?>
         <?php partial('auth-modals'); ?>
     <?php endif; ?>
+    <?php partial('image-lightbox'); ?>
 </body>
 </html>

@@ -21,6 +21,15 @@ cd scripts && npm install
 # Generate PDF (test)
 node scripts/generate-pdf.js https://example.com ./output.pdf
 
+# Academic template PDF fonts (Liberation Serif - matches Georgia/Times in preview)
+./scripts/download-academic-fonts.sh
+
+# Demo/showcase account (noreply@simple-job-tracker.com)
+php scripts/create-example-cv.php              # Creates example CV (marketing professional)
+php scripts/create-demo-jobs.php               # Adds demo jobs (run after create-example-cv)
+php scripts/create-example-cv.php --with-demo-jobs   # Both in one command
+# Login: noreply@simple-job-tracker.com / ExampleAccount123!
+
 # Database setup
 mysql -u user -p database_name < database/mysql_schema.sql
 

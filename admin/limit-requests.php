@@ -100,6 +100,8 @@ $allRequests = db()->fetchAll(
                 <p class="mt-1 text-sm text-gray-500">Review and manage limit increase requests from organisations</p>
             </div>
 
+            <?php partial('admin/quick-actions'); ?>
+
             <!-- Pending Requests -->
             <?php if (!empty($pendingRequests)): ?>
                 <div class="mb-8">

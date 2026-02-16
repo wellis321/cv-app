@@ -452,23 +452,28 @@ class AIService {
      * @param array $options Additional options (custom_instructions, etc.)
      */
     public function generateCoverLetter($cvData, $jobApplication, $options = []) {
-        $prompt = $this->buildCoverLetterPrompt($cvData, $jobApplication, $options);
-        
+        // Use condensed prompt for Browser AI to avoid context overflow and model degeneration
+        $isBrowserAI = ($this->service === 'browser');
+        $prompt = $isBrowserAI
+            ? $this->buildCoverLetterPromptCondensed($cvData, $jobApplication, $options)
+            : $this->buildCoverLetterPrompt($cvData, $jobApplication, $options);
+
+        // Use lower temperature for cover letters - 0.8 causes repetition/degeneration in Browser AI (WebLLM)
         $response = $this->callAI($prompt, [
-            'temperature' => 0.8,
+            'temperature' => 0.5,
             'max_tokens' => 2000,
         ]);
-        
+
         if (!$response['success']) {
             return $response;
         }
-        
+
         // Check if this is browser execution mode
         if (isset($response['browser_execution']) && $response['browser_execution']) {
             // Browser AI - return prompt for client-side execution
             return $response;
         }
-        
+
         // Server-side AI - clean the response
         if (!isset($response['content'])) {
             return [
@@ -476,10 +481,10 @@ class AIService {
                 'error' => 'No content received from AI service'
             ];
         }
-        
+
         // Clean the response - remove markdown formatting, extra whitespace
         $coverLetterText = $this->cleanCoverLetterText($response['content']);
-        
+
         return [
             'success' => true,
             'cover_letter_text' => $coverLetterText,
@@ -583,30 +588,26 @@ class AIService {
         
         $prompt .= "\n";
         
-        // Instructions
-        $defaultInstructions = "Write a professional cover letter that:\n";
-        $defaultInstructions .= "1. Addresses the hiring manager or company directly\n";
-        $defaultInstructions .= "2. Opens with a strong, engaging introduction that shows genuine interest in the role\n";
-        $defaultInstructions .= "3. Highlights 2-3 most relevant experiences or achievements from the candidate's background\n";
-        $defaultInstructions .= "4. Demonstrates knowledge of the company or role (if information is available)\n";
-        $defaultInstructions .= "5. Connects the candidate's skills and experience to the job requirements\n";
-        $defaultInstructions .= "6. Closes with enthusiasm and a clear call to action\n";
-        $defaultInstructions .= "7. Is professional, concise (3-4 paragraphs), and well-structured\n";
-        $defaultInstructions .= "8. Uses a professional but personable tone\n";
-        $defaultInstructions .= "9. Includes specific examples and achievements where relevant\n";
-        $defaultInstructions .= "10. Does NOT include placeholders, brackets, or generic text\n";
-        $defaultInstructions .= "11. Uses British English spelling (e.g., 'organised' not 'organized', 'colour' not 'color', 'centre' not 'center')\n\n";
+        $companyName = $jobApplication['company_name'] ?? 'the company';
+        $defaultInstructions = "Write a professional cover letter using this structure:\n\n";
+        $defaultInstructions .= "1. Start with the greeting (e.g., 'Dear Hiring Manager,' or 'Dear " . $companyName . " Team,')\n";
+        $defaultInstructions .= "2. Include these three section headings exactly as written, each on its own line, followed by 1-2 paragraphs of content:\n";
+        $defaultInstructions .= "   - About Me (brief personal introduction and why you're interested in the role)\n";
+        $defaultInstructions .= "   - Why " . $companyName . "? (why you want to work for this company specifically)\n";
+        $defaultInstructions .= "   - Why Me? (your qualifications, relevant experience, and what you bring)\n";
+        $defaultInstructions .= "3. End with a professional closing (e.g., 'Sincerely,' followed by the candidate's name)\n";
+        $defaultInstructions .= "4. Use British English spelling (e.g., 'organised' not 'organized', 'colour' not 'color', 'centre' not 'center')\n";
+        $defaultInstructions .= "5. Does NOT include placeholders, brackets, or generic text\n";
+        $defaultInstructions .= "6. Each section heading must appear on its own line, exactly as: 'About Me', 'Why " . $companyName . "?', 'Why Me?'\n\n";
         $defaultInstructions .= "CRITICAL FORMATTING RULES:\n";
         $defaultInstructions .= "- Return ONLY plain text - NO JSON, NO markdown, NO code blocks\n";
         $defaultInstructions .= "- Do NOT wrap the text in curly braces { } or quotation marks\n";
         $defaultInstructions .= "- Do NOT put quotation marks around paragraphs\n";
-        $defaultInstructions .= "- Do NOT use markdown formatting (no **bold**, no headers, no lists)\n";
+        $defaultInstructions .= "- Do NOT use markdown formatting (no **bold**, no # headers, no bullet lists)\n";
         $defaultInstructions .= "- Do NOT include explanatory text before or after the letter\n";
-        $defaultInstructions .= "- Do NOT include placeholder text or brackets\n";
         $defaultInstructions .= "- Do NOT include the words 'Cover Letter' as a title\n";
-        $defaultInstructions .= "- Start directly with the greeting (e.g., 'Dear Hiring Manager,' or 'Dear [Company Name] Team,')\n";
-        $defaultInstructions .= "- End with a professional closing (e.g., 'Sincerely,' followed by the candidate's name)\n";
-        $defaultInstructions .= "- Write the letter as plain text paragraphs, separated by blank lines\n";
+        $defaultInstructions .= "- Put a blank line between each section heading and its content\n";
+        $defaultInstructions .= "- Write paragraphs separated by blank lines\n";
         
         $instructions = $defaultInstructions;
         if (!empty($customInstructions)) {
@@ -617,10 +618,61 @@ class AIService {
         $prompt .= "IMPORTANT: Write the cover letter as plain text. Do NOT use JSON format. Do NOT wrap it in { } or use \"letter\": \"...\" format.\n";
         $prompt .= "Start directly with the greeting and write the letter as normal paragraphs.\n\n";
         $prompt .= "Now write the cover letter:\n";
-        
+
         return $prompt;
     }
-    
+
+    /**
+     * Build condensed cover letter prompt for Browser AI (limited context window).
+     * Trims job description, work experience, and other sections to avoid model degeneration.
+     */
+    private function buildCoverLetterPromptCondensed($cvData, $jobApplication, $options = []) {
+        $customInstructions = $options['custom_instructions'] ?? null;
+        $maxJobDescChars = 1200;
+        $maxWorkDescChars = 80;
+        $maxSummaryChars = 200;
+        $maxSkills = 8;
+        $maxWorkEntries = 3;
+
+        $prompt = "You are a professional cover letter writer. Write a compelling, personalized cover letter.\n\n";
+
+        $prompt .= "Job: " . ($jobApplication['job_title'] ?? 'Position') . " at " . ($jobApplication['company_name'] ?? 'Unknown Company') . "\n";
+        if (!empty($jobApplication['job_description'])) {
+            $jobDesc = $jobApplication['job_description'];
+            if (function_exists('stripMarkdown')) {
+                $jobDesc = stripMarkdown($jobDesc);
+            }
+            $prompt .= "Job Description (summary):\n" . substr($jobDesc, 0, $maxJobDescChars) . (strlen($jobDesc) > $maxJobDescChars ? "\n..." : "") . "\n\n";
+        }
+
+        $prompt .= "Candidate: " . ($cvData['profile']['full_name'] ?? 'Candidate') . "\n";
+        if (!empty($cvData['professional_summary']['description'])) {
+            $s = $cvData['professional_summary']['description'];
+            if (function_exists('stripMarkdown')) {
+                $s = stripMarkdown($s);
+            }
+            $prompt .= "Summary: " . substr($s, 0, $maxSummaryChars) . (strlen($s) > $maxSummaryChars ? "..." : "") . "\n";
+        }
+        if (!empty($cvData['work_experience'])) {
+            $prompt .= "Experience: ";
+            $parts = [];
+            foreach (array_slice($cvData['work_experience'], 0, $maxWorkEntries) as $w) {
+                $parts[] = ($w['position'] ?? '') . ' at ' . ($w['company_name'] ?? '');
+            }
+            $prompt .= implode('; ', $parts) . "\n";
+        }
+        if (!empty($cvData['skills'])) {
+            $skills = array_map(function($s) { return $s['name']; }, array_slice($cvData['skills'], 0, $maxSkills));
+            $prompt .= "Skills: " . implode(', ', $skills) . "\n";
+        }
+
+        $companyName = $jobApplication['company_name'] ?? 'the company';
+        $prompt .= "\nWrite a cover letter with these sections: About Me, Why " . $companyName . "?, Why Me? Use British English. Plain text only, no JSON or markdown. Start with 'Dear Hiring Manager,'.\n\n";
+        $prompt .= "Now write the cover letter:\n";
+
+        return $prompt;
+    }
+
     /**
      * Clean cover letter text - remove markdown, JSON formatting, quotation marks, etc.
      */
@@ -716,29 +768,10 @@ class AIService {
         // Remove common AI prefixes/suffixes
         $text = preg_replace('/^(Here is|Here\'s|This is|I\'ve written|I\'ll write)[\s\S]*?(?=Dear|To|Dear Hiring)/i', '', $text);
         $text = preg_replace('/^(Cover Letter|Letter)[\s\S]*?(?=Dear|To|Dear Hiring)/i', '', $text);
-        
-        // Convert American to British spelling (common words)
-        $text = preg_replace('/\borganized\b/i', 'organised', $text);
-        $text = preg_replace('/\borganization\b/i', 'organisation', $text);
-        $text = preg_replace('/\borganizing\b/i', 'organising', $text);
-        $text = preg_replace('/\bcolor\b/i', 'colour', $text);
-        $text = preg_replace('/\bcolors\b/i', 'colours', $text);
-        $text = preg_replace('/\bcenter\b/i', 'centre', $text);
-        $text = preg_replace('/\bcenters\b/i', 'centres', $text);
-        $text = preg_replace('/\brealize\b/i', 'realise', $text);
-        $text = preg_replace('/\brealized\b/i', 'realised', $text);
-        $text = preg_replace('/\brecognize\b/i', 'recognise', $text);
-        $text = preg_replace('/\brecognized\b/i', 'recognised', $text);
-        $text = preg_replace('/\banalyze\b/i', 'analyse', $text);
-        $text = preg_replace('/\banalyzed\b/i', 'analysed', $text);
-        $text = preg_replace('/\bfavor\b/i', 'favour', $text);
-        $text = preg_replace('/\bfavors\b/i', 'favours', $text);
-        $text = preg_replace('/\bhonor\b/i', 'honour', $text);
-        $text = preg_replace('/\bhonors\b/i', 'honours', $text);
-        $text = preg_replace('/\blabor\b/i', 'labour', $text);
-        $text = preg_replace('/\bneighbor\b/i', 'neighbour', $text);
-        $text = preg_replace('/\bneighbors\b/i', 'neighbours', $text);
-        
+
+        // Convert American to British spelling (UK documents)
+        $text = convertToBritishSpelling($text);
+
         // Clean up whitespace
         $text = preg_replace('/\n{3,}/', "\n\n", $text); // Multiple newlines to double
         $text = trim($text);

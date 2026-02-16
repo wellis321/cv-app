@@ -205,7 +205,7 @@ function buildHeader(content, profile, config, palette, template, cvUrl, qrCodeI
         headerImages.push({
             width: 'auto',
             qr: cvUrl,
-            fit: 50,
+            fit: 110,
             alignment: 'right',
             margin: [0, 0, 5, 0]
         })

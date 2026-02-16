@@ -10,6 +10,8 @@ let modernPreview = null
 let modernPdf = null
 let structuredPreview = null
 let structuredPdf = null
+let academicPreview = null
+let academicPdf = null
 
 // Dynamic imports with cache busting
 async function loadProfessionalBluePreview() {
@@ -74,6 +76,22 @@ async function loadStructuredPdf() {
         structuredPdf = module.buildDocDefinition
     }
     return structuredPdf
+}
+
+async function loadAcademicPreview() {
+    if (!academicPreview) {
+        const module = await import(`./academic/preview.js?v=${CACHE_BUSTER}`)
+        academicPreview = module.render
+    }
+    return academicPreview
+}
+
+async function loadAcademicPdf() {
+    if (!academicPdf) {
+        const module = await import(`./academic/pdf.js?v=${CACHE_BUSTER}`)
+        academicPdf = module.buildDocDefinition
+    }
+    return academicPdf
 }
 
 const DEFAULT_TEMPLATE_ID = 'professional'
@@ -173,6 +191,30 @@ const templateRegistry = {
         },
         pdf: {
             buildDocDefinition: loadStructuredPdf
+        }
+    },
+    academic: {
+        id: 'academic',
+        name: 'Academic',
+        description: 'Traditional academic CV with red accent headings, ideal for research and academia.',
+        colors: {
+            header: '#c41e3a',
+            body: '#374151',
+            accent: '#c41e3a',
+            muted: '#64748b',
+            divider: '#c41e3a',
+            link: '#b91c1c'
+        },
+        sectionDivider: {
+            color: '#c41e3a',
+            width: 1,
+            margin: [0, 6, 0, 10]
+        },
+        preview: {
+            render: loadAcademicPreview
+        },
+        pdf: {
+            buildDocDefinition: loadAcademicPdf
         }
     },
     modern: {

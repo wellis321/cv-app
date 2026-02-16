@@ -1,29 +1,31 @@
-# Subscription & Trial System (Resume.co-style)
+# Subscription & Trial System
 
-This app uses a **simple 3-plan model** aligned with [Resume.co](https://resume.co/pricing):
+This app uses a **4-plan model** with 7-day free trials on all paid plans:
 
 1. **Basic access (Free)** — CV builder, templates, limited job tracking & AI. PDF export.
-2. **7-day unlimited access** — £1.95. After 7 days, renews to £22/month. Cancel anytime.
-3. **3-month unlimited access** — £27.88 one-time. Best value. Save 66%.
+2. **1 week** — £4.99/week. 7-day free trial. Cancel anytime.
+3. **1 month** — £14.99/month. 7-day free trial. Most popular. Cancel anytime.
+4. **3 months** — £34.99 every 3 months. 7-day free trial. Best value. Cancel anytime.
 
-Pro Monthly, Pro Annual, and Lifetime exist in the backend for existing users and for trial renewals, but are **not shown** in marketing/pricing.
+Pro Annual, Pro Trial 7-day (legacy), and Lifetime exist in the backend for existing users but are **not shown** in marketing/pricing.
 
 ## How it works
 
 1. **New users** register and start on the **free plan**.
-2. **7-day trial**: User pays £1.95 via Stripe. We set `plan` = `pro_trial_7day`, `subscription_status` = `trialing`, `subscription_current_period_end` = now + 7 days. No Stripe subscription.
-3. **When the 7 days end**: User is downgraded to free. They can subscribe to Pro Monthly (£22/month) to continue.
-4. **3-month access**: One-time payment, `plan` = `pro_3month`, `period_end` = now + 90 days.
+2. **Paid plans**: User selects 1 week, 1 month, or 3 months. Stripe Checkout creates a subscription with `trial_period_days=7`. User gets 7 days free, then is charged (weekly, monthly, or every 3 months).
+3. **Trial end**: If they cancel before the trial ends, they stay on free. Otherwise they're charged and continue with full access.
 
 ## Implementation
 
-- **Marketing plans** (`getMarketingPlanIds()`): `free`, `pro_trial_7day`, `pro_3month` — only these 3 are shown on home, pricing, and subscription pages.
-- **Full plans** (`getSubscriptionPlansConfig()`): All plans for backend (existing users, trial renewals).
+- **Marketing plans** (`getMarketingPlanIds()`): `free`, `pro_1week`, `pro_monthly`, `pro_3month`.
+- **Full plans** (`getSubscriptionPlansConfig()`): All plans for backend (existing users, legacy).
 
 ### Environment
 
 ```
-STRIPE_PRICE_PRO_TRIAL_7DAY=price_xxx   # £1.95 one-time
-STRIPE_PRICE_PRO_3MONTH=price_xxx      # £27.88 one-time
-STRIPE_PRICE_PRO_MONTHLY=price_xxx      # £22/month (for trial renewals)
+STRIPE_PRICE_PRO_1WEEK=price_1T1GcsEMgRyvTqUXq1uIM8dT  # £4.99/week, recurring
+STRIPE_PRICE_PRO_MONTHLY=price_1T1GcuEMgRyvTqUXcBTpflSH  # £14.99/month, recurring
+STRIPE_PRICE_PRO_3MONTH=price_1T1GcvEMgRyvTqUXWF8UdH7C  # £34.99 every 3 months, recurring
 ```
+
+All three use Stripe subscription mode with `subscription_data[trial_period_days]=7`.

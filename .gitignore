@@ -38,6 +38,12 @@ Thumbs.db
 # Account creation SQL files (may contain sensitive data)
 database/create_account_*.sql
 
+# Database exports (contain passwords, emails, PII – never commit)
+database/data_export_for_hostinger.sql
+database/complete_schema_for_hostinger.sql
+database/user_cv_export_*.sql
+backup.sql
+
 # Export files (certifications/skills) – may contain user data; do not commit
 scripts/exports/*.json
 

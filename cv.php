@@ -289,6 +289,12 @@ if ($activeTemplate) {
                             <a href="/" class="text-blue-600 hover:text-blue-800">← Back to Dashboard</a>
                         </div>
                         <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                            <?php if (!empty($profile['username'])): ?>
+                                <button type="button" class="copy-cv-link-btn inline-flex items-center justify-center px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm sm:text-base transition-colors" data-cv-url="<?php echo e(APP_URL . '/cv/@' . $profile['username']); ?>" aria-label="Copy CV link">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                                    <span class="copy-cv-link-label">Copy CV link</span>
+                                </button>
+                            <?php endif; ?>
                             <?php if (!empty($variantId)): ?>
                                 <a href="/content-editor.php#work-experience&variant_id=<?php echo e($variantId); ?>" class="inline-flex items-center justify-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 text-sm sm:text-base transition-colors">
                                     Edit this variant
@@ -332,6 +338,39 @@ if ($activeTemplate) {
             }
         });
     }
+    </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.copy-cv-link-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var url = this.getAttribute('data-cv-url');
+                if (!url) return;
+                var label = this.querySelector('.copy-cv-link-label');
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(url).then(function () {
+                        if (label) label.textContent = 'Copied!';
+                        setTimeout(function () {
+                            if (label) label.textContent = 'Copy CV link';
+                        }, 2000);
+                    }).catch(function () { /* fallback below */ });
+                } else {
+                    var ta = document.createElement('textarea');
+                    ta.value = url;
+                    ta.style.position = 'fixed'; ta.style.opacity = '0';
+                    document.body.appendChild(ta);
+                    ta.select();
+                    try {
+                        document.execCommand('copy');
+                        if (label) label.textContent = 'Copied!';
+                        setTimeout(function () {
+                            if (label) label.textContent = 'Copy CV link';
+                        }, 2000);
+                    } catch (e) {}
+                    document.body.removeChild(ta);
+                }
+            });
+        });
+    });
     </script>
 </body>
 </html>
@@ -431,6 +470,12 @@ if ($activeTemplate) {
                     <a href="/" class="text-blue-600 hover:text-blue-800">← Back to Dashboard</a>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                    <?php if (!empty($profile['username'])): ?>
+                        <button type="button" class="copy-cv-link-btn inline-flex items-center justify-center px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm sm:text-base transition-colors" data-cv-url="<?php echo e(APP_URL . '/cv/@' . $profile['username']); ?>" aria-label="Copy CV link">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                            <span class="copy-cv-link-label">Copy CV link</span>
+                        </button>
+                    <?php endif; ?>
                     <?php if (!empty($variantId)): ?>
                         <a href="/content-editor.php#work-experience&variant_id=<?php echo e($variantId); ?>" class="inline-flex items-center justify-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 text-sm sm:text-base transition-colors">
                             Edit this variant
@@ -961,6 +1006,36 @@ if ($activeTemplate) {
                 const hideText = button.getAttribute('data-hide-label') || 'Hide';
                 if (label) {
                     label.textContent = nextState ? hideText : viewText;
+                }
+            });
+        });
+
+        document.querySelectorAll('.copy-cv-link-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var url = this.getAttribute('data-cv-url');
+                if (!url) return;
+                var label = this.querySelector('.copy-cv-link-label');
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(url).then(function () {
+                        if (label) label.textContent = 'Copied!';
+                        setTimeout(function () {
+                            if (label) label.textContent = 'Copy CV link';
+                        }, 2000);
+                    }).catch(function () {});
+                } else {
+                    var ta = document.createElement('textarea');
+                    ta.value = url;
+                    ta.style.position = 'fixed'; ta.style.opacity = '0';
+                    document.body.appendChild(ta);
+                    ta.select();
+                    try {
+                        document.execCommand('copy');
+                        if (label) label.textContent = 'Copied!';
+                        setTimeout(function () {
+                            if (label) label.textContent = 'Copy CV link';
+                        }, 2000);
+                    } catch (e) {}
+                    document.body.removeChild(ta);
                 }
             });
         });

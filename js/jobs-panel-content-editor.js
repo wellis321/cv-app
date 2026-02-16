@@ -235,10 +235,14 @@
                         '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">' + escapeHtml(app.salary_range || '') + '</td>' +
                         '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">' + dateLabel + '</td>' +
                         '<td class="px-6 py-4 whitespace-nowrap text-sm" onclick="event.stopPropagation()">' +
-                        '<a href="' + viewHash + '" class="text-blue-600 hover:text-blue-800 mr-3">View</a>' +
-                        '<a href="' + editHash + '" class="text-blue-600 hover:text-blue-800 mr-3">Edit</a>' +
-                        '<button type="button" onclick="event.stopPropagation(); deleteJob(\'' + escapeHtml(app.id || '') + '\', \'' + (csrfToken || '').replace(/'/g, "\\'") + '\'); return false;" class="text-red-600 hover:text-red-800">Delete</button>' +
-                        '</td></tr>';
+                        '<div style="display:flex;flex-direction:row;flex-wrap:nowrap;align-items:center;gap:8px;">' +
+                        '<a href="' + viewHash + '" style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;font-size:13px;font-weight:500;color:#374151;background:#fff;border:1px solid #d1d5db;border-radius:6px;text-decoration:none;">' +
+                        '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>View</a>' +
+                        '<a href="' + editHash + '" style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;font-size:13px;font-weight:500;color:#15803d;background:#dcfce7;border:1px solid #bbf7d0;border-radius:6px;text-decoration:none;">' +
+                        '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>Edit</a>' +
+                        '<button type="button" onclick="event.stopPropagation(); deleteJob(\'' + (app.id || '').replace(/'/g, "\\'") + '\', \'' + (csrfToken || '').replace(/'/g, "\\'") + '\'); return false;" style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;font-size:13px;font-weight:500;color:#b91c1c;background:#fee2e2;border:1px solid #fecaca;border-radius:6px;cursor:pointer;">' +
+                        '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>Delete</button>' +
+                        '</div></td></tr>';
                 }).join('');
             }
         }
@@ -342,6 +346,48 @@
      * Init job view when shown in content-editor (#jobs&view=id).
      * Loads cover letter, renders empty/content, wires Generate Cover Letter + AI CV Tools.
      */
+    function initCollapsibleSections(root) {
+        if (!root) return;
+        var sections = root.querySelectorAll('.collapsible-section[data-collapsible]');
+        sections.forEach(function(section) {
+            if (section.dataset.collapsibleInitialized) return;
+            section.dataset.collapsibleInitialized = '1';
+            var content = section.querySelector('.collapsible-section-content');
+            var toggle = section.querySelector('.collapsible-section-toggle');
+            if (!content || !toggle) return;
+            var maxHeight = section.getAttribute('data-max-height') || '12rem';
+            content.style.maxHeight = maxHeight;
+            content.style.overflow = 'hidden';
+            section.dataset.expanded = 'false';
+            section.dataset.collapsed = 'true';
+            function checkOverflow() {
+                var overflows = content.scrollHeight > content.clientHeight + 2;
+                section.dataset.overflows = overflows ? 'true' : 'false';
+                toggle.style.display = overflows ? 'inline-block' : 'none';
+            }
+            requestAnimationFrame(function() { checkOverflow(); });
+            var viewLabel = section.getAttribute('data-toggle-label') || 'View all';
+            toggle.addEventListener('click', function() {
+                var expanded = section.dataset.expanded === 'true';
+                if (expanded) {
+                    content.style.maxHeight = maxHeight;
+                    content.style.overflow = 'hidden';
+                    section.dataset.expanded = 'false';
+                    section.dataset.collapsed = 'true';
+                    toggle.textContent = viewLabel;
+                    toggle.setAttribute('aria-expanded', 'false');
+                } else {
+                    content.style.maxHeight = content.scrollHeight + 20 + 'px';
+                    content.style.overflow = 'visible';
+                    section.dataset.expanded = 'true';
+                    section.dataset.collapsed = 'false';
+                    toggle.textContent = 'Show less';
+                    toggle.setAttribute('aria-expanded', 'true');
+                }
+            });
+        });
+    }
+
     window.initJobsView = function(container) {
         if (!container) return;
         var applicationId = container.getAttribute('data-application-id');
@@ -368,6 +414,26 @@
             if (btn) btn.addEventListener('click', function() { doGenerateCoverLetter(); });
         }
 
+        function formatCoverLetterContent(text) {
+            if (!text || !text.trim()) return '';
+            var html = '';
+            var paragraphs = text.split(/\n\n+/);
+            var sectionRe = /^(About Me|Why .+\?|Why Me)\s*$/i;
+            paragraphs.forEach(function(p) {
+                p = p.trim();
+                if (!p) return;
+                var firstLine = p.split('\n')[0] || '';
+                if (sectionRe.test(firstLine)) {
+                    html += '<h3 class="cl-section">' + esc(firstLine) + '</h3>';
+                    var rest = p.slice(firstLine.length).trim();
+                    if (rest) html += '<p class="cl-para">' + esc(rest).replace(/\n/g, '</p><p class="cl-para">') + '</p>';
+                } else {
+                    html += '<p class="cl-para">' + esc(p).replace(/\n/g, '</p><p class="cl-para">') + '</p>';
+                }
+            });
+            return html || '<p class="cl-para">' + esc(text).replace(/\n/g, '</p><p class="cl-para">') + '</p>';
+        }
+
         function doExportCoverLetterPdf(coverLetterId) {
             if (!coverLetterId) return;
             fetch('/api/export-cover-letter-pdf.php?cover_letter_id=' + encodeURIComponent(coverLetterId), { credentials: 'include' })
@@ -378,9 +444,31 @@
                         return;
                     }
                     var d = result.cover_letter;
+                    var origin = window.location.origin || '';
+                    var photoSrc = d.photo_url ? (d.photo_url.indexOf('/') === 0 ? origin + d.photo_url : d.photo_url) : '';
+                    var headerHtml = '';
+                    if (photoSrc || d.applicant_name || d.professional_title || d.applicant_email || d.applicant_phone || d.applicant_location) {
+                        headerHtml = '<div class="cl-header">';
+                        if (photoSrc) headerHtml += '<img src="' + esc(photoSrc) + '" alt="" class="cl-photo">';
+                        headerHtml += '<div class="cl-header-right">';
+                        if (d.applicant_name) headerHtml += '<div class="cl-name">' + esc(d.applicant_name) + '</div>';
+                        if (d.professional_title) headerHtml += '<div class="cl-title">' + esc(d.professional_title) + '</div>';
+                        var contacts = [];
+                        if (d.applicant_phone) contacts.push(esc(d.applicant_phone));
+                        if (d.applicant_email) contacts.push(esc(d.applicant_email));
+                        if (d.applicant_location) contacts.push(esc(d.applicant_location));
+                        if (contacts.length) headerHtml += '<div class="cl-contact">' + contacts.join(' &bull; ') + '</div>';
+                        headerHtml += '</div></div>';
+                    }
+                    var recipientHtml = '<div class="cl-recipient">' + esc(d.date || '') + '</div>' +
+                        '<div class="cl-recipient-block">' + esc(d.company_name || '') + '<br>' + esc(d.job_title || '') + '</div>';
+                    var bodyHtml = '<div class="cl-body">' + formatCoverLetterContent(d.text || '') + '</div>';
+                    var footerHtml = '<div class="cl-footer">' + esc(d.date || '') + ' &nbsp;|&nbsp; ' + esc(d.applicant_name || 'Applicant') + ' &ndash; Cover Letter</div>';
+                    var styles = 'body{font-family:Georgia,"Times New Roman",serif;max-width:800px;margin:40px auto;padding:40px;line-height:1.6;color:#333}.cl-header{display:flex;gap:24px;margin-bottom:24px;align-items:flex-start}.cl-photo{width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid #c41e3a;flex-shrink:0}.cl-header-right{flex:1}.cl-name{font-size:24px;font-weight:bold;color:#222;margin-bottom:4px}.cl-title{font-size:14px;font-weight:bold;color:#c41e3a;margin-bottom:8px;text-transform:uppercase}.cl-contact{font-size:13px;color:#555}.cl-recipient{text-align:right;margin-bottom:16px;font-size:14px}.cl-recipient-block{margin-bottom:24px;font-size:14px;line-height:1.5}.cl-body{margin-bottom:24px}.cl-section{font-size:16px;font-weight:bold;color:#c41e3a;margin:20px 0 8px;padding-bottom:4px;border-bottom:1px solid #e5e5e5}.cl-section:first-child{margin-top:0}.cl-para{margin:0 0 12px}.cl-footer{margin-top:32px;padding-top:16px;border-top:1px solid #ddd;font-size:12px;color:#888}';
+                    var fullHtml = '<!DOCTYPE html><html><head><title>Cover Letter - ' + esc(d.company_name || '') + '</title><style>' + styles + '</style></head><body>' + headerHtml + recipientHtml + bodyHtml + footerHtml + '</body></html>';
                     var pw = window.open('', '_blank');
                     if (pw) {
-                        pw.document.write('<!DOCTYPE html><html><head><title>Cover Letter - ' + esc(d.company_name || '') + '</title><style>body{font-family:Arial,sans-serif;max-width:800px;margin:40px auto;padding:20px;line-height:1.6}.date{text-align:right;margin-bottom:20px}.content{white-space:pre-wrap}</style></head><body><div class="date">' + esc(d.date || '') + '</div><div><strong>' + esc(d.company_name || '') + '</strong></div><div>' + esc(d.job_title || '') + '</div><div class="content">' + esc(d.text || '') + '</div></body></html>');
+                        pw.document.write(fullHtml);
                         pw.document.close();
                         pw.print();
                     } else {
@@ -445,8 +533,12 @@
             var el = document.getElementById(coverLetterContainerId);
             if (!el) return;
             var id = coverLetter.id || '';
-            el.innerHTML = '<div class="bg-white border border-gray-200 rounded-lg p-6"><div class="prose max-w-none">' +
+            el.innerHTML = '<div class="bg-white border border-gray-200 rounded-lg p-6">' +
+                '<div class="collapsible-section" data-collapsible data-max-height="12rem" data-toggle-label="View Cover letter">' +
+                '<div class="collapsible-section-content"><div class="prose max-w-none">' +
                 '<div class="text-base text-gray-700 whitespace-pre-wrap">' + esc(coverLetter.cover_letter_text || '') + '</div></div></div>' +
+                '<button type="button" class="collapsible-section-toggle mt-3 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-1 transition-colors" aria-expanded="false">View Cover letter</button>' +
+                '</div></div>' +
                 '<div id="cover-letter-actions" class="mt-3 pt-3 border-t border-gray-200 scroll-mt-6" role="group" aria-labelledby="cover-letter-actions-heading">' +
                 '<p id="cover-letter-actions-heading" class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Cover letter actions</p>' +
                 '<div class="flex flex-wrap gap-2">' +
@@ -486,6 +578,7 @@
                     })
                     .catch(function() { alert('Could not delete cover letter. Please try again.'); });
             });
+            initCollapsibleSections(container);
         }
 
         function loadCoverLetter() {
@@ -524,7 +617,7 @@
                     if (msgEl && progress && progress.message) msgEl.textContent = progress.message;
                 }).then(function() {
                     if (msgEl) msgEl.textContent = 'Generating cover letter... This may take 30-60 seconds.';
-                    return BrowserAIService.generateText(result.prompt, { temperature: 0.8, maxTokens: 2000 });
+                    return BrowserAIService.generateText(result.prompt, { temperature: (result.options && result.options.temperature) || 0.5, maxTokens: 2000 });
                 }).then(function(coverLetterText) {
                     if (!coverLetterText || !coverLetterText.trim()) {
                         throw new Error('Browser AI returned empty response. Please try again.');
@@ -622,6 +715,7 @@
         }
 
         loadCoverLetter();
+        initCollapsibleSections(container);
 
         var genBtn = container.querySelector('[data-cover-letter-generate]');
         if (genBtn) genBtn.addEventListener('click', function(e) { e.preventDefault(); doGenerateCoverLetter(); });
@@ -783,7 +877,13 @@
         function renderFiles() {
             var list = document.getElementById('file-list');
             if (!list) return;
-            if (currentFiles.length === 0) { list.innerHTML = ''; return; }
+            var emptyEl = document.getElementById('file-list-empty');
+            if (currentFiles.length === 0) {
+                list.innerHTML = '';
+                if (emptyEl) emptyEl.classList.remove('hidden');
+                return;
+            }
+            if (emptyEl) emptyEl.classList.add('hidden');
             list.innerHTML = currentFiles.map(function(file) {
                 var name = file.custom_name || file.original_name;
                 var size = formatFileSize(file.size || 0);
@@ -1012,7 +1112,13 @@
         function renderFiles() {
             var list = document.getElementById('file-list');
             if (!list) return;
-            if (currentFiles.length === 0) { list.innerHTML = ''; return; }
+            var emptyEl = document.getElementById('file-list-empty');
+            if (currentFiles.length === 0) {
+                list.innerHTML = '';
+                if (emptyEl) emptyEl.classList.remove('hidden');
+                return;
+            }
+            if (emptyEl) emptyEl.classList.add('hidden');
             list.innerHTML = currentFiles.map(function(file) {
                 var name = file.custom_name || file.original_name;
                 var size = formatFileSize(file.size || 0);

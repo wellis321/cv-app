@@ -84,6 +84,7 @@ if ($sectionId === 'cv-variants') {
         $job = getJobApplication($viewId, $userId);
         if ($job) {
             $job['questions'] = getJobApplicationQuestions($viewId, $userId);
+            $job['files'] = getJobApplicationFiles($viewId, $userId);
         }
         $partialPath = __DIR__ . '/../../views/partials/content-editor/jobs-panel-view.php';
         if ($job && file_exists($partialPath)) {

@@ -133,7 +133,8 @@ $jobJson = htmlspecialchars(json_encode($job), ENT_QUOTES, 'UTF-8');
 
             <!-- File Upload Section -->
             <div>
-                <label class="block text-base font-semibold text-gray-900 mb-3">Files</label>
+                <h3 class="block text-base font-semibold text-gray-900 mb-3">Files</h3>
+                <p class="text-sm text-gray-600 mb-4">Upload documents related to this job (job description PDFs, role specs, etc.). Extract text into the job description when needed.</p>
                 <div id="file-upload-area" class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors">
                     <input type="file" id="file-input" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.jpg,.jpeg,.png" class="hidden">
                     <div class="space-y-2">
@@ -154,7 +155,14 @@ $jobJson = htmlspecialchars(json_encode($job), ENT_QUOTES, 'UTF-8');
                            class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                     <label for="format-extract-with-ai" class="ml-2 text-sm text-gray-700">Format with AI when extracting (clearer sections and paragraphs)</label>
                 </div>
-                <div id="file-list" class="mt-4 space-y-2"></div>
+                <div class="mt-6 border border-gray-200 rounded-lg p-4 bg-gray-50/50">
+                    <h4 class="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        Uploaded files
+                    </h4>
+                    <div id="file-list" class="space-y-2"></div>
+                    <p id="file-list-empty" class="text-sm text-gray-500 italic py-2 hidden">No files uploaded yet. Use the upload area above to add files.</p>
+                </div>
             </div>
 
             <div class="flex flex-wrap items-center gap-6">

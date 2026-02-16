@@ -277,7 +277,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                 <section>
                     <h2 class="text-2xl font-bold text-gray-900 mb-4">Need Help?</h2>
                     <ul class="list-disc list-inside space-y-2 text-gray-700">
-                        <li>Visit the <a href="/save-job-from-anywhere.php" class="text-blue-600 hover:underline">Save Job From Anywhere</a> feature page.</li>
+                        <li>Visit the <a href="/job-applications-features.php" class="text-blue-600 hover:underline">Job Applications</a> feature page.</li>
                         <li>Check your <a href="/save-job-token.php" class="text-blue-600 hover:underline">save token page</a> for setup instructions.</li>
                         <li>Contact support if you continue to have issues.</li>
                     </ul>

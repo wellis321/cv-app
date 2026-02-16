@@ -21,7 +21,8 @@ export function buildWorkExperienceSection(experiences, template, options = {}) 
         showDescription = true,
         showResponsibilities = true,
         fontSize = 11,
-        spacing = 1.0
+        spacing = 1.0,
+        layout = 'default'  // 'default' | 'academic' (company left, dates right, position in small caps)
     } = options
 
     if (!Array.isArray(experiences) || experiences.length === 0) {
@@ -37,38 +38,75 @@ export function buildWorkExperienceSection(experiences, template, options = {}) 
     experiences.forEach((exp, index) => {
         const expContent = []
 
-        // Position and Company
-        if (exp.position) {
-            expContent.push({
-                text: decodeHtmlEntities(exp.position),
-                style: 'jobPosition',
-                fontSize: fontSize + 1.5,
-                bold: true,
-                color: bodyColor,
-                margin: [0, 0, 0, 2]
-            })
-        }
+        if (layout === 'academic') {
+            // Academic layout: company left, dates right on same line; position in small caps below
+            const leftPart = []
+            const rightPart = []
 
-        if (exp.company_name) {
-            expContent.push({
-                text: decodeHtmlEntities(exp.company_name),
-                style: 'company',
-                fontSize: fontSize + 0.5,
-                bold: true,
-                color: accentColor,
-                margin: [0, 0, 0, 2]
-            })
-        }
-
-        // Dates
-        if (showDates && !exp.hide_date && (exp.start_date || exp.end_date)) {
-            expContent.push({
-                text: formatDateRange(exp.start_date, exp.end_date),
-                style: 'dates',
-                fontSize: fontSize - 0.5,
-                color: mutedColor,
-                margin: [0, 0, 0, 4]
-            })
+            if (exp.company_name) {
+                leftPart.push({
+                    text: decodeHtmlEntities(exp.company_name),
+                    fontSize: fontSize + 0.5,
+                    bold: true,
+                    color: accentColor
+                })
+            }
+            if (showDates && !exp.hide_date && (exp.start_date || exp.end_date)) {
+                rightPart.push({
+                    text: formatDateRange(exp.start_date, exp.end_date),
+                    fontSize: fontSize - 0.5,
+                    color: mutedColor,
+                    alignment: 'right'
+                })
+            }
+            if (leftPart.length > 0 || rightPart.length > 0) {
+                expContent.push({
+                    columns: [
+                        { stack: leftPart, width: '*' },
+                        { stack: rightPart, width: 'auto', alignment: 'right' }
+                    ],
+                    margin: [0, 0, 0, 2]
+                })
+            }
+            if (exp.position) {
+                expContent.push({
+                    text: decodeHtmlEntities(exp.position).toUpperCase(),
+                    fontSize: fontSize - 0.5,
+                    color: bodyColor,
+                    margin: [0, 0, 0, 4]
+                })
+            }
+        } else {
+            // Default layout: position, company, dates stacked
+            if (exp.position) {
+                expContent.push({
+                    text: decodeHtmlEntities(exp.position),
+                    style: 'jobPosition',
+                    fontSize: fontSize + 1.5,
+                    bold: true,
+                    color: bodyColor,
+                    margin: [0, 0, 0, 2]
+                })
+            }
+            if (exp.company_name) {
+                expContent.push({
+                    text: decodeHtmlEntities(exp.company_name),
+                    style: 'company',
+                    fontSize: fontSize + 0.5,
+                    bold: true,
+                    color: accentColor,
+                    margin: [0, 0, 0, 2]
+                })
+            }
+            if (showDates && !exp.hide_date && (exp.start_date || exp.end_date)) {
+                expContent.push({
+                    text: formatDateRange(exp.start_date, exp.end_date),
+                    style: 'dates',
+                    fontSize: fontSize - 0.5,
+                    color: mutedColor,
+                    margin: [0, 0, 0, 4]
+                })
+            }
         }
 
         // Description
@@ -128,7 +166,8 @@ export function buildEducationSection(education, template, options = {}) {
     const {
         showDates = true,
         showDescription = true,
-        fontSize = 11
+        fontSize = 11,
+        layout = 'default'  // 'default' | 'academic' (institution left, dates right, degree in small caps)
     } = options
 
     if (!Array.isArray(education) || education.length === 0) {
@@ -144,44 +183,85 @@ export function buildEducationSection(education, template, options = {}) {
     education.forEach((edu, index) => {
         const eduContent = []
 
-        // Degree
-        if (edu.degree) {
-            eduContent.push({
-                text: decodeHtmlEntities(edu.degree),
-                fontSize: fontSize + 1,
-                bold: true,
-                color: bodyColor
-            })
-        }
-
-        // Institution
-        if (edu.institution) {
-            eduContent.push({
-                text: decodeHtmlEntities(edu.institution),
-                fontSize: fontSize,
-                color: accentColor,
-                margin: [0, 2, 0, 2]
-            })
-        }
-
-        // Field of study
-        if (edu.field_of_study) {
-            eduContent.push({
-                text: decodeHtmlEntities(edu.field_of_study),
-                fontSize: fontSize - 0.5,
-                color: mutedColor,
-                margin: [0, 0, 0, 2]
-            })
-        }
-
-        // Dates
-        if (showDates && (edu.start_date || edu.end_date)) {
-            eduContent.push({
-                text: formatDateRange(edu.start_date, edu.end_date),
-                fontSize: fontSize - 1,
-                color: mutedColor,
-                margin: [0, 0, 0, 4]
-            })
+        if (layout === 'academic') {
+            // Academic layout: institution left, dates right; degree in small caps below
+            const leftPart = []
+            const rightPart = []
+            if (edu.institution) {
+                leftPart.push({
+                    text: decodeHtmlEntities(edu.institution),
+                    fontSize: fontSize + 0.5,
+                    bold: true,
+                    color: accentColor
+                })
+            }
+            if (showDates && (edu.start_date || edu.end_date)) {
+                rightPart.push({
+                    text: formatDateRange(edu.start_date, edu.end_date),
+                    fontSize: fontSize - 0.5,
+                    color: mutedColor,
+                    alignment: 'right'
+                })
+            }
+            if (leftPart.length > 0 || rightPart.length > 0) {
+                eduContent.push({
+                    columns: [
+                        { stack: leftPart, width: '*' },
+                        { stack: rightPart, width: 'auto', alignment: 'right' }
+                    ],
+                    margin: [0, 0, 0, 2]
+                })
+            }
+            if (edu.degree) {
+                eduContent.push({
+                    text: decodeHtmlEntities(edu.degree).toUpperCase(),
+                    fontSize: fontSize - 0.5,
+                    color: bodyColor,
+                    margin: [0, 0, 0, 2]
+                })
+            }
+            if (edu.field_of_study) {
+                eduContent.push({
+                    text: decodeHtmlEntities(edu.field_of_study),
+                    fontSize: fontSize - 0.5,
+                    color: mutedColor,
+                    margin: [0, 0, 0, 4]
+                })
+            }
+        } else {
+            // Default layout
+            if (edu.degree) {
+                eduContent.push({
+                    text: decodeHtmlEntities(edu.degree),
+                    fontSize: fontSize + 1,
+                    bold: true,
+                    color: bodyColor
+                })
+            }
+            if (edu.institution) {
+                eduContent.push({
+                    text: decodeHtmlEntities(edu.institution),
+                    fontSize: fontSize,
+                    color: accentColor,
+                    margin: [0, 2, 0, 2]
+                })
+            }
+            if (edu.field_of_study) {
+                eduContent.push({
+                    text: decodeHtmlEntities(edu.field_of_study),
+                    fontSize: fontSize - 0.5,
+                    color: mutedColor,
+                    margin: [0, 0, 0, 2]
+                })
+            }
+            if (showDates && (edu.start_date || edu.end_date)) {
+                eduContent.push({
+                    text: formatDateRange(edu.start_date, edu.end_date),
+                    fontSize: fontSize - 1,
+                    color: mutedColor,
+                    margin: [0, 0, 0, 4]
+                })
+            }
         }
 
         // Description

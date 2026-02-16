@@ -31,48 +31,11 @@ $user = getCurrentUser();
                 </svg>
             </button>
 
-            <!-- Desktop navigation -->
+            <!-- Desktop navigation: Dashboard + account only; section links are in Quick Actions on the page -->
             <nav role="navigation" aria-label="Main navigation" class="hidden md:flex items-center space-x-0.5 md:space-x-1 lg:space-x-2 text-xs md:text-sm flex-shrink-0">
                 <a href="/admin/dashboard.php"
                    class="px-1.5 py-1.5 md:px-2 md:py-2 rounded-md text-xs md:text-sm font-medium transition-colors whitespace-nowrap <?php echo $currentPage === 'dashboard.php' ? 'bg-green-100 text-green-700' : 'text-gray-700 hover:bg-green-50 hover:text-green-700'; ?> focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
                     Dashboard
-                </a>
-
-                <a href="/admin/organisations.php"
-                   class="px-1.5 py-1.5 md:px-2 md:py-2 rounded-md text-xs md:text-sm font-medium transition-colors whitespace-nowrap <?php echo $currentPage === 'organisations.php' ? 'bg-green-100 text-green-700' : 'text-gray-700 hover:bg-green-50 hover:text-green-700'; ?> focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-                    Organisations
-                </a>
-
-                <a href="/admin/users.php"
-                   class="px-1.5 py-1.5 md:px-2 md:py-2 rounded-md text-xs md:text-sm font-medium transition-colors whitespace-nowrap <?php echo $currentPage === 'users.php' ? 'bg-green-100 text-green-700' : 'text-gray-700 hover:bg-green-50 hover:text-green-700'; ?> focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-                    Users
-                </a>
-
-                <a href="/admin/activity.php"
-                   class="px-1.5 py-1.5 md:px-2 md:py-2 rounded-md text-xs md:text-sm font-medium transition-colors whitespace-nowrap <?php echo $currentPage === 'activity.php' ? 'bg-green-100 text-green-700' : 'text-gray-700 hover:bg-green-50 hover:text-green-700'; ?> focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-                    Activity
-                </a>
-
-                <a href="/admin/security-logs.php"
-                   class="px-1.5 py-1.5 md:px-2 md:py-2 rounded-md text-xs md:text-sm font-medium transition-colors whitespace-nowrap <?php echo $currentPage === 'security-logs.php' ? 'bg-green-100 text-green-700' : 'text-gray-700 hover:bg-green-50 hover:text-green-700'; ?> focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-                    Security
-                </a>
-
-                <a href="/admin/limit-requests.php"
-                   class="px-1.5 py-1.5 md:px-2 md:py-2 rounded-md text-xs md:text-sm font-medium transition-colors whitespace-nowrap <?php echo $currentPage === 'limit-requests.php' ? 'bg-green-100 text-green-700' : 'text-gray-700 hover:bg-green-50 hover:text-green-700'; ?> focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-                    Limits
-                </a>
-                <a href="/admin/remote-work-stories.php"
-                   class="px-1.5 py-1.5 md:px-2 md:py-2 rounded-md text-xs md:text-sm font-medium transition-colors whitespace-nowrap <?php echo $currentPage === 'remote-work-stories.php' ? 'bg-green-100 text-green-700' : 'text-gray-700 hover:bg-green-50 hover:text-green-700'; ?> focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-                    Stories
-                </a>
-                <a href="/admin/feedback.php"
-                   class="px-1.5 py-1.5 md:px-2 md:py-2 rounded-md text-xs md:text-sm font-medium transition-colors whitespace-nowrap <?php echo $currentPage === 'feedback.php' ? 'bg-green-100 text-green-700' : 'text-gray-700 hover:bg-green-50 hover:text-green-700'; ?> focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-                    Feedback
-                </a>
-                <a href="/admin/settings.php"
-                   class="px-1.5 py-1.5 md:px-2 md:py-2 rounded-md text-xs md:text-sm font-medium transition-colors whitespace-nowrap <?php echo $currentPage === 'settings.php' ? 'bg-green-100 text-green-700' : 'text-gray-700 hover:bg-green-50 hover:text-green-700'; ?> focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-                    Settings
                 </a>
 
                 <div class="relative group flex-shrink-0">
@@ -109,52 +72,12 @@ $user = getCurrentUser();
             </nav>
         </div>
 
-        <!-- Mobile menu -->
+        <!-- Mobile menu: Dashboard + account only; section links are in Quick Actions on the page -->
         <nav id="mobile-menu" role="navigation" aria-label="Mobile navigation" class="hidden md:hidden pb-4 border-t border-gray-200 mt-4">
             <div class="flex flex-col space-y-2 pt-4">
                 <a href="/admin/dashboard.php"
                    class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'dashboard.php' ? 'text-green-700 bg-green-100' : 'text-gray-700 hover:bg-green-100 hover:text-green-700'; ?> focus:outline-none focus:ring-2 focus:ring-green-500">
                     Dashboard
-                </a>
-
-                <a href="/admin/organisations.php"
-                   class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'organisations.php' ? 'text-green-700 bg-green-100' : 'text-gray-700 hover:bg-green-100 hover:text-green-700'; ?> focus:outline-none focus:ring-2 focus:ring-green-500">
-                    Organisations
-                </a>
-
-                <a href="/admin/users.php"
-                   class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'users.php' ? 'text-green-700 bg-green-100' : 'text-gray-700 hover:bg-green-100 hover:text-green-700'; ?> focus:outline-none focus:ring-2 focus:ring-green-500">
-                    Users
-                </a>
-
-                <a href="/admin/activity.php"
-                   class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'activity.php' ? 'text-green-700 bg-green-100' : 'text-gray-700 hover:bg-green-100 hover:text-green-700'; ?> focus:outline-none focus:ring-2 focus:ring-green-500">
-                    Activity
-                </a>
-
-                <a href="/admin/security-logs.php"
-                   class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'security-logs.php' ? 'text-green-700 bg-green-100' : 'text-gray-700 hover:bg-green-100 hover:text-green-700'; ?> focus:outline-none focus:ring-2 focus:ring-green-500">
-                    Security
-                </a>
-
-                <a href="/admin/limit-requests.php"
-                   class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'limit-requests.php' ? 'text-green-700 bg-green-100' : 'text-gray-700 hover:bg-green-100 hover:text-green-700'; ?> focus:outline-none focus:ring-2 focus:ring-green-500">
-                    Limits
-                </a>
-
-                <a href="/admin/remote-work-stories.php"
-                   class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'remote-work-stories.php' ? 'text-green-700 bg-green-100' : 'text-gray-700 hover:bg-green-100 hover:text-green-700'; ?> focus:outline-none focus:ring-2 focus:ring-green-500">
-                    Stories
-                </a>
-
-                <a href="/admin/feedback.php"
-                   class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'feedback.php' ? 'text-green-700 bg-green-100' : 'text-gray-700 hover:bg-green-100 hover:text-green-700'; ?> focus:outline-none focus:ring-2 focus:ring-green-500">
-                    Feedback
-                </a>
-
-                <a href="/admin/settings.php"
-                   class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'settings.php' ? 'text-green-700 bg-green-100' : 'text-gray-700 hover:bg-green-100 hover:text-green-700'; ?> focus:outline-none focus:ring-2 focus:ring-green-500">
-                    Settings
                 </a>
 
                 <div class="border-t border-gray-200 pt-2 mt-2">

@@ -87,6 +87,8 @@ $allOrganisations = getAllOrganisations();
                 <p class="mt-1 text-sm text-gray-500">Manage all users across all organisations</p>
             </div>
 
+            <?php partial('admin/quick-actions'); ?>
+
             <!-- Filters -->
             <div class="bg-white shadow rounded-lg p-4 mb-6">
                 <form method="GET" action="" id="filter-form" class="flex flex-wrap gap-4">

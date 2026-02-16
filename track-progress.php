@@ -75,7 +75,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                         </p>
                     </div>
                     <div class="flex items-center">
-                        <img src="<?php echo e($img('1557804506-669a67965ba0', 800)); ?>" alt="Dashboard showing job application statistics" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover aspect-video" width="800" height="450" />
+                        <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/all-in-one/seamless-workflow.png" aria-label="View seamless workflow dashboard image larger">
+                            <img src="/static/images/all-in-one/seamless-workflow.png" alt="See the big picture - dashboard with Build My CV, Manage Jobs, CV Quality Assess and more" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover aspect-video" width="800" height="450" />
+                        </button>
                     </div>
                 </div>
             </div>
@@ -106,7 +108,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="lg:order-1 flex items-center">
-                            <img src="<?php echo e($img('1586281380349-632531db7ed4', 800)); ?>" alt="Total applications counter" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover aspect-video" width="800" height="450" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/search-filter/search.png" aria-label="View job list image larger">
+                                <img src="/static/images/search-filter/search.png" alt="Job list with search, filters and application cards" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover" width="800" height="450" />
+                            </button>
                         </div>
                     </div>
 
@@ -122,7 +126,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="flex items-center">
-                            <img src="<?php echo e($img('1531403009284-440f080d1e12', 800)); ?>" alt="Status breakdown visualisation" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover aspect-video" width="800" height="450" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/search-filter/filter-status.png" aria-label="View status bar image larger">
+                                <img src="/static/images/search-filter/filter-status.png" alt="Status bar with counts for Applied, Interviewing, Offered and more" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover" width="800" height="450" />
+                            </button>
                         </div>
                     </div>
 
@@ -138,7 +144,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="lg:order-1 flex items-center">
-                            <img src="<?php echo e($img('1504384308090-c894fdcc538d', 800)); ?>" alt="Upcoming dates calendar view" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover aspect-video" width="800" height="450" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/follow-up/view-dates.png" aria-label="View upcoming dates image larger">
+                                <img src="/static/images/follow-up/view-dates.png" alt="Job cards with follow-up dates and deadline indicators" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover" width="800" height="450" />
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -217,5 +225,6 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
     <?php if (!isLoggedIn()): ?>
         <?php partial('auth-modals'); ?>
     <?php endif; ?>
+    <?php partial('image-lightbox'); ?>
 </body>
 </html>

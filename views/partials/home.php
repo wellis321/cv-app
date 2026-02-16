@@ -22,7 +22,7 @@
                     </a>
                 </div>
                 <p class="mt-6 text-sm text-gray-500">
-                    <a href="/#pricing" class="font-medium text-blue-600 hover:text-blue-800">Try 7 days for £1.95</a> — full access, then subscribe or stay free.
+                    <a href="/#pricing" class="font-medium text-blue-600 hover:text-blue-800">7-day free trial on all paid plans</a> — full access, then subscribe or stay free.
                 </p>
             </div>
             <div>
@@ -242,7 +242,7 @@
 <div class="bg-gradient-to-r from-blue-50 to-green-50 py-12 sm:py-16">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="overflow-hidden rounded-2xl border border-blue-200 bg-white shadow-xl">
-            <div class="grid lg:grid-cols-2">
+            <div class="grid lg:grid-cols-2 lg:items-stretch">
                 <!-- Left side: Content -->
                 <div class="flex flex-col justify-center px-6 py-12 sm:px-10 sm:py-16 lg:px-12">
                     <div class="mb-6 flex items-center gap-3 flex-wrap">
@@ -330,8 +330,9 @@
                 </div>
 
                 <!-- Right side: Visual -->
-                <div class="flex items-center justify-center px-6 py-12 sm:px-10 sm:py-16 lg:px-12 bg-cover bg-center bg-no-repeat" style="background-image: url('/static/images/home/jobs.png');">
-                    <div class="text-center bg-white/95 backdrop-blur-sm rounded-lg px-6 py-8 shadow-xl border border-gray-200">
+                <div class="relative flex min-h-[280px] lg:min-h-0 items-center justify-center px-6 py-12 sm:px-10 sm:py-16 lg:px-12">
+                    <img src="/static/images/home/jobs.png" alt="Job Application Tracker showing job cards" class="absolute inset-0 h-full w-full object-contain object-center" />
+                    <div class="relative z-10 text-center bg-white/95 backdrop-blur-sm rounded-lg px-6 py-8 shadow-xl border border-gray-200">
                         <div class="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-green-100 shadow-lg">
                             <svg class="h-12 w-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -487,10 +488,10 @@
                 What Makes Us Different
             </span>
             <h2 class="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
-                Features That Set You Apart
+                Features That Set Us Apart
             </h2>
             <p class="mt-3 max-w-2xl text-lg text-gray-600 lg:mx-auto">
-                Stand out from the crowd with unique features that make your CV more accessible, shareable, and tailored to every opportunity.
+                Stand out from the crowd with unique features that will make your CV more accessible, shareable, and tailored to every opportunity.
             </p>
             <div class="mt-8 mb-12 pt-8 border-t border-indigo-200">
                 <a href="/all-features.php" class="inline-flex items-center justify-center rounded-lg bg-indigo-600 px-8 py-4 text-base font-semibold text-white shadow-lg hover:bg-indigo-700 transition-colors">
@@ -722,6 +723,9 @@
             <form method="POST" action="/">
                 <input type="hidden" name="action" value="login">
                 <input type="hidden" name="<?php echo CSRF_TOKEN_NAME; ?>" value="<?php echo csrfToken(); ?>">
+                <?php if (!empty($redirect ?? null)): ?>
+                <input type="hidden" name="redirect" value="<?php echo e($redirect); ?>">
+                <?php endif; ?>
 
                 <div class="mb-4">
                     <label for="modal-login-email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
@@ -745,6 +749,10 @@
                 <button type="submit" class="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                     Log in
                 </button>
+
+                <div class="mt-4 text-center text-sm text-gray-600">
+                    <p>Don't have an account? <button type="button" data-open-register class="text-blue-600 hover:text-blue-800 font-semibold underline">Create free account</button></p>
+                </div>
 
                 <div class="mt-4 text-right text-xs text-gray-500 space-y-1">
                     <div>
@@ -944,9 +952,23 @@
                 variant: authState.variant
             });
         } else {
-            // Check for register query parameter from footer link
             const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('register') === '1') {
+            // Redirect param = user tried to access protected page (e.g. subscription) → open login
+            if (urlParams.get('redirect')) {
+                openModal('login');
+                const loginModal = document.querySelector('[data-modal="login"]');
+                const redirectInput = loginModal?.querySelector('input[name="redirect"]');
+                if (loginModal && redirectInput) {
+                    redirectInput.value = decodeURIComponent(urlParams.get('redirect') || '');
+                } else if (loginModal) {
+                    const form = loginModal.querySelector('form');
+                    const hidden = document.createElement('input');
+                    hidden.type = 'hidden';
+                    hidden.name = 'redirect';
+                    hidden.value = decodeURIComponent(urlParams.get('redirect') || '');
+                    form?.appendChild(hidden);
+                }
+            } else if (urlParams.get('register') === '1') {
                 openModal('register');
             }
         }

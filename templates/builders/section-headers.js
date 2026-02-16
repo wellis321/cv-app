@@ -211,7 +211,7 @@ export function createSideBorderHeader(title, template, options = {}) {
 }
 
 /**
- * Create a classic section header (centered with borders)
+ * Create a classic section header (centered with single underline, no line above)
  */
 export function createClassicHeader(title, template, options = {}) {
     const {
@@ -225,16 +225,59 @@ export function createClassicHeader(title, template, options = {}) {
     const headerColor = getColor(template, 'header', '#1e3a8a')
 
     return [
-        createDivider(dividerColor, 1, [0, margin[0], 0, 3]),
         {
             text: uppercase ? title.toUpperCase() : title,
             fontSize: fontSize,
             bold: bold,
             color: headerColor,
             alignment: 'center',
-            margin: [0, 0, 0, 3]
+            margin: [0, margin[0], 0, 3]
         },
         createDivider(dividerColor, 1, [0, 0, 0, margin[3]])
+    ]
+}
+
+/**
+ * Create an academic section header (left-aligned with line extending to right margin)
+ * Matches academic CV style: bold red title, thin line extending right, no line above
+ */
+export function createAcademicHeader(title, template, options = {}) {
+    const {
+        fontSize = 13,
+        bold = true,
+        margin = [0, 10, 0, 8],
+        uppercase = true
+    } = options
+
+    const dividerColor = getColor(template, 'divider', '#c41e3a')
+    const headerColor = getColor(template, 'header', '#c41e3a')
+
+    return [
+        {
+            table: {
+                widths: ['auto', '*'],
+                body: [
+                    [
+                        {
+                            text: uppercase ? title.toUpperCase() : title,
+                            fontSize: fontSize,
+                            bold: bold,
+                            color: headerColor,
+                            margin: [0, 0, 8, 0]
+                        },
+                        {
+                            text: '',
+                            border: [false, false, false, true],
+                            borderColor: [dividerColor],
+                            borderLineWidth: 1,
+                            margin: [0, 0, 0, 4]
+                        }
+                    ]
+                ]
+            },
+            layout: 'noBorders',
+            margin: [0, margin[0], 0, margin[3]]
+        }
     ]
 }
 
@@ -249,7 +292,8 @@ export function getSectionHeaderBuilder(style) {
         filled: createFilledHeader,
         icon: createIconHeader,
         sideBorder: createSideBorderHeader,
-        classic: createClassicHeader
+        classic: createClassicHeader,
+        academic: createAcademicHeader
     }
     return builders[style] || createLineHeader
 }

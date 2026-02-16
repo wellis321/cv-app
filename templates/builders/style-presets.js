@@ -276,13 +276,15 @@ export function getSectionSpacing(preset = 'conservative') {
 
 /**
  * Build complete pdfmake document config with styles
+ * @param {Object} options - optional overrides, e.g. { font: 'Times' } for serif/academic
  */
-export function buildDocumentConfig(template, preset = 'conservative', customization = {}) {
+export function buildDocumentConfig(template, preset = 'conservative', customization = {}, options = {}) {
+    const font = options.font || 'Roboto'
     return {
         pageSize: 'A4',
         pageMargins: getPageMargins(preset, customization),
         defaultStyle: {
-            font: 'Roboto',
+            font: font,
             fontSize: scaleFontSize(11, getFontSizeMultiplier(customization.fontSize || 'medium')),
             color: getColor(template, 'body', '#374151'),
             lineHeight: getLineHeight(preset)

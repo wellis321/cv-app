@@ -117,7 +117,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">
-                            <img src="<?php echo e($img('1586281380349-632531db7ed4', 600)); ?>" alt="Choose username" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/online-cv/choose-your-username.png" aria-label="View choose your username image larger">
+                                <img src="/static/images/online-cv/choose-your-username.png" alt="Choose your username - profile details form with username field and CV link example" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            </button>
                         </div>
                     </div>
 
@@ -130,7 +132,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">
-                            <img src="<?php echo e($img('1504384308090-c894fdcc538d', 600)); ?>" alt="Build your CV" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/online-cv/build-your-cv.png" aria-label="View build your CV image larger">
+                                <img src="/static/images/online-cv/build-your-cv.png" alt="Build your CV - CV sections and Professional Summary editor" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            </button>
                         </div>
                     </div>
 
@@ -143,7 +147,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">
-                            <img src="<?php echo e($img('1531403009284-440f080d1e12', 600)); ?>" alt="Share CV link" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/online-cv/share-your-link.png" aria-label="View share your link image larger">
+                                <img src="/static/images/online-cv/share-your-link.png" alt="Share your link - CV page with Copy CV link button" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -274,5 +280,6 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
     <?php if (!isLoggedIn()): ?>
         <?php partial('auth-modals'); ?>
     <?php endif; ?>
+    <?php partial('image-lightbox'); ?>
 </body>
 </html>

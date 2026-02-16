@@ -1,5 +1,5 @@
 <?php
-// Shared pricing section. Resume.co-style: 3 plans only — Free, 7-day trial, 3-month.
+// Shared pricing section. 4 plans: Free, 1 week, 1 month, 3 months. All paid include 7-day free trial.
 $pricingUseRegisterModal = $pricingUseRegisterModal ?? false;
 $pricingCards = [
     [
@@ -16,12 +16,28 @@ $pricingCards = [
             'Limited job tracking & AI',
             'Keep your account & data — no payment',
         ],
-        'button' => ['text' => 'Create account', 'href' => '/#auth-section', 'dataOpenRegister' => true],
+        'button' => ['text' => 'Create free account', 'href' => '/#auth-section', 'dataOpenRegister' => true, 'planId' => null],
     ],
     [
-        'label' => '7-day unlimited access',
-        'price' => '£1.95',
-        'detail' => 'After 7 days, renews to £22/month. Cancel anytime.',
+        'label' => '1 week',
+        'price' => '£4.99',
+        'detail' => 'Per week. 7-day free trial. Cancel anytime.',
+        'highlight' => false,
+        'badge' => null,
+        'features' => [
+            'CV & Cover Letter Builder',
+            'ATS-friendly templates',
+            'Resume sharing',
+            'Unlimited downloads',
+            'Unlimited AI-tailoring',
+            'Unlimited AI cover letters',
+        ],
+        'button' => ['text' => 'Start 7-day free trial', 'href' => '/subscription.php?plan=pro_1week', 'planId' => 'pro_1week'],
+    ],
+    [
+        'label' => '1 month',
+        'price' => '£14.99',
+        'detail' => 'Per month. 7-day free trial. Cancel anytime.',
         'highlight' => true,
         'badge' => 'Most popular',
         'features' => [
@@ -32,12 +48,12 @@ $pricingCards = [
             'Unlimited AI-tailoring',
             'Unlimited AI cover letters',
         ],
-        'button' => ['text' => 'Create account', 'href' => '/#auth-section', 'dataOpenRegister' => true, 'requiresAccount' => true],
+        'button' => ['text' => 'Start 7-day free trial', 'href' => '/subscription.php?plan=pro_monthly', 'planId' => 'pro_monthly'],
     ],
     [
-        'label' => '3-month unlimited access',
-        'price' => '£27.88',
-        'detail' => 'One-time payment today — save 66%',
+        'label' => '3 months',
+        'price' => '£34.99',
+        'detail' => 'Every 3 months. 7-day free trial. Save 22%. Cancel anytime.',
         'highlight' => false,
         'badge' => 'Best value',
         'features' => [
@@ -48,7 +64,7 @@ $pricingCards = [
             'Unlimited AI-tailoring',
             'Unlimited AI cover letters',
         ],
-        'button' => ['text' => 'Create account', 'href' => '/#auth-section', 'dataOpenRegister' => true, 'requiresAccount' => true],
+        'button' => ['text' => 'Start 7-day free trial', 'href' => '/subscription.php?plan=pro_3month', 'planId' => 'pro_3month'],
     ],
 ];
 // Remove null feature lines
@@ -62,10 +78,10 @@ unset($card);
         <div class="max-w-2xl text-center mx-auto">
             <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">Find the plan that fits your job search best</h2>
             <p class="mt-4 text-lg text-gray-300">
-                Free CV builder with job tracking. Upgrade for unlimited AI, templates, and PDF downloads.
+                Start with a free account (no card required), or choose a paid plan to begin your 7-day trial. You'll enter payment details at checkout—no charge until after your trial.
             </p>
         </div>
-        <div class="mt-12 grid gap-6 sm:grid-cols-1 md:grid-cols-3 max-w-4xl mx-auto">
+        <div class="mt-12 grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 max-w-5xl mx-auto">
             <?php foreach ($pricingCards as $card):
                 $classes = $card['highlight']
                     ? 'border-blue-500 ring-1 ring-blue-200 bg-white text-gray-900'
@@ -102,8 +118,9 @@ unset($card);
                     <div class="mt-8">
                         <?php
                         $buttonHref = $card['button']['href'] ?? '/#auth-section';
-                        $requiresAccount = $card['button']['requiresAccount'] ?? false;
+                        $planId = $card['button']['planId'] ?? null;
                         $useModal = $pricingUseRegisterModal && !empty($card['button']['dataOpenRegister']);
+                        $isPaidPlan = !empty($planId);
                         ?>
                         <?php if ($useModal): ?>
                         <button type="button" data-open-register
@@ -113,6 +130,9 @@ unset($card);
                                : 'bg-white text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800'; ?>">
                             <?php echo e($card['button']['text']); ?>
                         </button>
+                        <p class="mt-2 text-xs text-center <?php echo $card['highlight'] ? 'text-gray-600' : 'text-gray-400'; ?>">
+                            No payment required
+                        </p>
                         <?php else: ?>
                         <a href="<?php echo e($buttonHref); ?>"
                            class="inline-flex w-full items-center justify-center rounded-lg px-4 py-2 text-sm font-semibold transition
@@ -121,11 +141,11 @@ unset($card);
                                : 'bg-white text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800'; ?>">
                             <?php echo e($card['button']['text']); ?>
                         </a>
-                        <?php endif; ?>
-                        <?php if ($requiresAccount): ?>
+                        <?php if ($isPaidPlan): ?>
                             <p class="mt-2 text-xs text-center <?php echo $card['highlight'] ? 'text-gray-600' : 'text-gray-400'; ?>">
-                                Create a free account first, then upgrade from your dashboard
+                                Log in or create account → enter card at checkout. No charge until trial ends.
                             </p>
+                        <?php endif; ?>
                         <?php endif; ?>
                     </div>
                 </div>

@@ -7,7 +7,7 @@
 require_once __DIR__ . '/php/helpers.php';
 
 $pageTitle = 'Pricing | Simple CV Builder';
-$metaDescription = 'Free CV builder and job tracker. Try 7 days for £1.95 or 3 months for £27.88. Find the plan that fits your job search best.';
+$metaDescription = 'Free CV builder and job tracker. 1 week, 1 month, or 3 months—all with a 7-day free trial. Cancel anytime.';
 $canonicalUrl = APP_URL . '/pricing';
 
 ?>
@@ -28,7 +28,7 @@ $canonicalUrl = APP_URL . '/pricing';
             <div class="text-center mb-8">
                 <h1 class="text-3xl font-bold text-gray-900">Pricing</h1>
                 <p class="mt-2 text-lg text-gray-600">
-                    Find the plan that fits your job search best. Free, 7-day trial, or 3 months.
+                    Find the plan that fits your job search best. Free, 1 week, 1 month, or 3 months.
                 </p>
             </div>
             <?php partial('home-pricing', ['pricingUseRegisterModal' => false]); ?>

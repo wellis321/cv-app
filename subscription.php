@@ -32,13 +32,21 @@ $pricingDetails = [
         'price' => '£0',
         'subtext' => 'Forever free',
     ],
+    'pro_1week' => [
+        'price' => '£4.99',
+        'subtext' => 'Per week. 7-day free trial. Cancel anytime.',
+    ],
     'pro_trial_7day' => [
-        'price' => '£1.95',
-        'subtext' => 'After 7 days, renews to £22/month. Cancel anytime.',
+        'price' => '£1.99',
+        'subtext' => 'Legacy plan. After 7 days, subscribe or stay free.',
+    ],
+    'pro_monthly' => [
+        'price' => '£14.99',
+        'subtext' => 'Per month. 7-day free trial. Cancel anytime.',
     ],
     'pro_3month' => [
-        'price' => '£27.88',
-        'subtext' => 'One-time payment today — save 66%',
+        'price' => '£34.99',
+        'subtext' => 'Every 3 months. 7-day free trial. Save 22%. Cancel anytime.',
     ],
 ];
 
@@ -90,7 +98,7 @@ function renderPlanFeatures(string $planId, array $planConfig): array {
 <head>
     <?php partial('head', [
         'pageTitle' => 'Subscription Plans | Simple CV Builder',
-        'metaDescription' => 'Compare Simple CV Builder plans. Unlock unlimited sections, premium templates, and priority support with Pro Monthly or Pro Annual options.',
+        'metaDescription' => 'Compare Simple CV Builder plans. Unlock unlimited sections, premium templates, and priority support. Choose 1 week, 1 month, or 3 months—all with a 7-day free trial.',
         'canonicalUrl' => APP_URL . '/subscription.php',
     ]); ?>
 </head>
@@ -146,7 +154,7 @@ function renderPlanFeatures(string $planId, array $planConfig): array {
         <?php endif; ?>
         <div data-subscription-message class="hidden mb-6 rounded-md p-4 text-sm font-medium"></div>
 
-        <div class="grid gap-6 sm:grid-cols-1 md:grid-cols-3 max-w-4xl mx-auto">
+        <div class="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 max-w-6xl mx-auto">
             <?php foreach ($plans as $planId => $planConfig): ?>
                 <?php
                 $isCurrentPlan = subscriptionPlanId($subscriptionContext) === $planId;
@@ -158,10 +166,12 @@ function renderPlanFeatures(string $planId, array $planConfig): array {
                 <div class="rounded-xl border <?php echo $isCurrentPlan ? 'border-blue-500 shadow-lg ring-1 ring-blue-200' : 'border-gray-200 shadow-sm'; ?> bg-white p-6 flex flex-col">
                     <div class="flex items-center justify-between">
                         <h2 class="text-xl font-semibold text-gray-900"><?php echo e($planConfig['label']); ?></h2>
-                        <?php if ($planId === 'pro_3month'): ?>
-                            <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">Best value</span>
-                        <?php elseif ($planId === 'pro_trial_7day'): ?>
+                        <?php if ($planId === 'pro_1week'): ?>
+                            <span class="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700">Short term</span>
+                        <?php elseif ($planId === 'pro_monthly'): ?>
                             <span class="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">Most popular</span>
+                        <?php elseif ($planId === 'pro_3month'): ?>
+                            <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">Best value</span>
                         <?php endif; ?>
                     </div>
                     <p class="mt-3 text-sm text-gray-600 flex-1"><?php echo e($planConfig['description']); ?></p>
@@ -229,7 +239,7 @@ function renderPlanFeatures(string $planId, array $planConfig): array {
         ?>
             <div class="mt-6 max-w-md mx-auto rounded-lg border border-blue-200 bg-blue-50 p-4 text-center">
                 <p class="text-sm font-medium text-blue-900">On trial? Subscribe to continue after 7 days</p>
-                <p class="text-xs text-blue-700 mt-1">£22/month, cancel anytime</p>
+                <p class="text-xs text-blue-700 mt-1">£14.99/month, cancel anytime</p>
                 <button type="button" data-plan-button="1" data-plan="pro_monthly" data-plan-label="Pro Monthly"
                     class="mt-3 inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
                     Subscribe to continue
@@ -288,7 +298,7 @@ function renderPlanFeatures(string $planId, array $planConfig): array {
                 <h3 class="text-lg font-semibold text-gray-900">Need help deciding?</h3>
                 <div class="mt-4 space-y-3 text-sm text-gray-600">
                     <p>Stay on the Free plan to build a simple, public CV with a QR code to share.</p>
-                    <p>Try 7 days for £1.95, or go straight to 3 months for the best value. Cancel anytime.</p>
+                    <p>All paid plans include a 7-day free trial. Choose 1 week, 1 month, or 3 months. Cancel anytime.</p>
                     <p class="font-medium text-gray-900">Have questions? <a href="mailto:noreply@simple-job-tracker.com" class="text-blue-600 hover:text-blue-800 underline">Email support</a> and we'll be happy to help.</p>
                 </div>
             </div>

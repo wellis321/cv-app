@@ -126,7 +126,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">
-                            <img src="<?php echo e($img('1504384308090-c894fdcc538d', 600)); ?>" alt="Set follow-up or closing date" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/follow-up/set-a-date.png" aria-label="View set date image larger">
+                                <img src="/static/images/follow-up/set-a-date.png" alt="Set follow-up or closing date - Application Date and Follow-up date fields with date picker" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover" width="600" height="340" />
+                            </button>
                         </div>
                     </div>
 
@@ -142,7 +144,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">
-                            <img src="<?php echo e($img('1531403009284-440f080d1e12', 600)); ?>" alt="Browser notifications for closing dates" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/follow-up/browser-notification.png" aria-label="View browser notification image larger">
+                                <img src="/static/images/follow-up/browser-notification.png" alt="Job application closing date reminders - enable browser notifications and set reminder days" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover" width="600" height="340" />
+                            </button>
                         </div>
                     </div>
 
@@ -155,7 +159,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">
-                            <img src="<?php echo e($img('1586281380349-632531db7ed4', 600)); ?>" alt="Dashboard with upcoming dates" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/follow-up/view-dates.png" aria-label="View upcoming dates image larger">
+                                <img src="/static/images/follow-up/view-dates.png" alt="Job list with upcoming dates - cards showing job titles, organisations and dates" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover" width="600" height="340" />
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -194,15 +200,15 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
             </div>
         </section>
 
-        <!-- Customize Reminders Section -->
+        <!-- Customise Reminders Section -->
         <section class="py-20 bg-gray-50">
             <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center mb-12">
                     <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-                        Customize Your Reminders
+                        Customise Your Reminders
                     </h2>
                     <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
-                        You have full control over when you receive closing date reminders. Customize the timing to match your workflow.
+                        You have full control over when you receive closing date reminders. Customise the timing to match your workflow.
                     </p>
                 </div>
                 <div class="bg-white rounded-xl border-2 border-gray-200 shadow-lg p-8 md:p-10">
@@ -210,7 +216,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                         <div>
                             <h3 class="text-2xl font-bold text-gray-900 mb-4">Set Your Preferences</h3>
                             <p class="text-gray-600 mb-6">
-                                Go to your <?php if (isLoggedIn()): ?><a href="/profile.php" class="text-blue-600 hover:underline font-medium">Profile settings</a><?php else: ?><button type="button" data-open-login data-redirect="/profile.php" class="text-blue-600 hover:underline font-medium bg-transparent border-0 p-0 cursor-pointer">Profile settings</button><?php endif; ?> and open the <strong>Reminders</strong> tab to customize your notification preferences.
+                                Go to your <?php if (isLoggedIn()): ?><a href="/profile.php" class="text-blue-600 hover:underline font-medium">Profile settings</a><?php else: ?><button type="button" data-open-login data-redirect="/profile.php" class="text-blue-600 hover:underline font-medium bg-transparent border-0 p-0 cursor-pointer">Profile settings</button><?php endif; ?> and open the <strong>Reminders</strong> tab to customise your notification preferences.
                             </p>
                             <div class="space-y-4">
                                 <div class="flex items-start gap-3">
@@ -279,7 +285,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                                 <h2 class="text-3xl font-bold text-gray-900">Automatic Browser Notifications</h2>
                             </div>
                             <p class="text-lg text-gray-700 mb-6">
-                                Never miss a deadline with automatic browser notifications. When you visit your dashboard or job list, you'll receive notifications for upcoming closing dates. By default, you'll get reminders 7 days, 3 days, and 1 day before each deadline, but you can customize these in your <?php if (isLoggedIn()): ?><a href="/profile.php" class="text-blue-600 hover:underline font-medium">Profile settings</a><?php else: ?><button type="button" data-open-login data-redirect="/profile.php" class="text-blue-600 hover:underline font-medium bg-transparent border-0 p-0 cursor-pointer">Profile settings</button><?php endif; ?>.
+                                Never miss a deadline with automatic browser notifications. When you visit your dashboard or job list, you'll receive notifications for upcoming closing dates. By default, you'll get reminders 7 days, 3 days, and 1 day before each deadline, but you can customise these in your <?php if (isLoggedIn()): ?><a href="/profile.php" class="text-blue-600 hover:underline font-medium">Profile settings</a><?php else: ?><button type="button" data-open-login data-redirect="/profile.php" class="text-blue-600 hover:underline font-medium bg-transparent border-0 p-0 cursor-pointer">Profile settings</button><?php endif; ?>.
                             </p>
                             <div class="space-y-4 mb-8">
                                 <div class="flex items-start gap-3">
@@ -315,8 +321,8 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                                 <p class="text-sm text-blue-800"><strong>Note:</strong> Browser notifications require permission from your browser. You'll be prompted to allow notifications the first time you visit your dashboard. You can disable notifications anytime in your browser settings.</p>
                             </div>
                             <div class="p-4 bg-green-50 border border-green-200 rounded-lg">
-                                <p class="text-sm text-green-800 font-medium mb-2">Customize your reminders</p>
-                                <p class="text-xs text-green-700">You can customize when you receive reminders in your <?php if (isLoggedIn()): ?><a href="/profile.php" class="underline font-medium">Profile settings</a><?php else: ?><button type="button" data-open-login data-redirect="/profile.php" class="underline font-medium bg-transparent border-0 p-0 text-green-700 cursor-pointer">Profile settings</button><?php endif; ?>. Choose from preset options (14, 7, 3, or 1 day before) or add your own custom days. Default is 7, 3, and 1 day before closing dates.</p>
+                                <p class="text-sm text-green-800 font-medium mb-2">Customise your reminders</p>
+                                <p class="text-xs text-green-700">You can customise when you receive reminders in your <?php if (isLoggedIn()): ?><a href="/profile.php" class="underline font-medium">Profile settings</a><?php else: ?><button type="button" data-open-login data-redirect="/profile.php" class="underline font-medium bg-transparent border-0 p-0 text-green-700 cursor-pointer">Profile settings</button><?php endif; ?>. Choose from preset options (14, 7, 3, or 1 day before) or add your own custom days. Default is 7, 3, and 1 day before closing dates.</p>
                             </div>
                         </div>
                         <div class="bg-white rounded-xl p-8 border-2 border-blue-200 shadow-lg">
@@ -370,7 +376,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
         <section class="py-16 bg-gradient-to-r from-orange-600 via-red-600 to-orange-600">
             <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
                 <h2 class="text-2xl font-bold sm:text-3xl">
-                    Start using dates to stay organized
+                    Start using dates to stay organised
                 </h2>
                 <p class="mt-4 text-orange-50 max-w-xl mx-auto">
                     Follow-up and closing dates with automatic browser notifications are included with every account. Set your first date and never miss an opportunity again.
@@ -400,5 +406,6 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
     <?php if (!isLoggedIn()): ?>
         <?php partial('auth-modals'); ?>
     <?php endif; ?>
+    <?php partial('image-lightbox'); ?>
 </body>
 </html>

@@ -286,13 +286,15 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </div>
                         </div>
                         <div class="mt-8">
-                            <a href="/save-job-from-anywhere.php" class="inline-flex items-center gap-2 rounded-lg bg-green-600 px-6 py-3 text-base font-semibold text-white shadow-lg hover:bg-green-700 transition-colors">
+                            <a href="/download-extension.php" class="inline-flex items-center gap-2 rounded-lg bg-green-600 px-6 py-3 text-base font-semibold text-white shadow-lg hover:bg-green-700 transition-colors">
                                 Learn how to save jobs →
                             </a>
                         </div>
                     </div>
-                    <div class="flex items-center">
-                        <img src="<?php echo e($img('1586281380349-632531db7ed4', 800)); ?>" alt="Save jobs from any website" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover aspect-video" width="800" height="450" />
+                    <div class="flex h-full min-h-0">
+                        <button type="button" class="w-full h-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-template-lightbox="/static/images/job-appplications/save-jobs-anywhere.png" aria-label="View Save jobs from anywhere image larger">
+                            <img src="/static/images/job-appplications/save-jobs-anywhere.png" alt="Quick add from link - save jobs from any website" class="w-full aspect-video lg:aspect-auto lg:h-full rounded-xl border border-gray-200 shadow-lg object-cover object-center" width="800" height="450" />
+                        </button>
                     </div>
                 </div>
             </div>
@@ -432,7 +434,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                         </div>
                     </div>
                     <div class="flex items-center">
-                        <img src="<?php echo e($img('1504384308090-c894fdcc538d', 800)); ?>" alt="Browser AI running in browser" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover aspect-video" width="800" height="450" />
+                        <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-template-lightbox="/static/images/why-save/browser-ai.png" aria-label="View Browser AI image larger">
+                            <img src="/static/images/why-save/browser-ai.png" alt="Generating cover letter - Browser AI running in browser" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover aspect-video" width="800" height="450" />
+                        </button>
                     </div>
                 </div>
 
@@ -519,7 +523,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
 
                 <div class="grid gap-12 lg:grid-cols-2 lg:items-stretch mb-12">
                     <div class="order-2 lg:order-1 flex items-center">
-                        <img src="<?php echo e($img('1531403009284-440f080d1e12', 800)); ?>" alt="File uploads and AI integration" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover aspect-video" width="800" height="450" />
+                        <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-template-lightbox="/static/images/job-appplications/upload-files.png" aria-label="View Upload files and AI reads automatically image larger">
+                            <img src="/static/images/job-appplications/upload-files.png" alt="Key Keywords & Skills - upload files and AI reads automatically" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover aspect-video" width="800" height="450" />
+                        </button>
                     </div>
                     <div class="order-1 lg:order-2 flex flex-col">
                         <h3 class="text-2xl font-bold text-gray-900 mb-4">Upload Files & AI Reads Automatically</h3>
@@ -713,5 +719,50 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
     <?php if (!isLoggedIn()): ?>
         <?php partial('auth-modals'); ?>
     <?php endif; ?>
+
+    <!-- Image lightbox -->
+    <div id="template-lightbox" class="fixed inset-0 z-[60] hidden overflow-y-auto" role="dialog" aria-modal="true" aria-label="Image preview">
+        <div class="flex min-h-full items-center justify-center p-4">
+            <div class="fixed inset-0 bg-black/70 transition-opacity" data-close-template-lightbox aria-hidden="true"></div>
+            <div class="relative max-w-4xl w-full flex items-center justify-center">
+                <button type="button" class="absolute right-2 top-2 z-10 rounded-full bg-white/90 p-2 text-gray-600 hover:bg-white hover:text-gray-900 transition-colors" data-close-template-lightbox aria-label="Close">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+                <img id="template-lightbox-image" src="" alt="" class="max-h-[90vh] w-auto rounded-lg shadow-2xl object-contain">
+            </div>
+        </div>
+    </div>
+    <script>
+(function() {
+    const lightbox = document.getElementById('template-lightbox');
+    const lightboxImage = document.getElementById('template-lightbox-image');
+    if (!lightbox || !lightboxImage) return;
+
+    function openLightbox(src, alt) {
+        lightboxImage.src = src;
+        lightboxImage.alt = alt || 'Image preview';
+        lightbox.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
+        var closeBtn = lightbox.querySelector('button[data-close-template-lightbox]');
+        if (closeBtn) setTimeout(function() { closeBtn.focus(); }, 50);
+    }
+    function closeLightbox() {
+        lightbox.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+    }
+
+    document.querySelectorAll('[data-template-lightbox]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            openLightbox(this.dataset.templateLightbox, this.getAttribute('aria-label') || 'Image preview');
+        });
+    });
+    document.querySelectorAll('[data-close-template-lightbox]').forEach(function(btn) {
+        btn.addEventListener('click', closeLightbox);
+    });
+    lightbox.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeLightbox();
+    });
+})();
+    </script>
 </body>
 </html>

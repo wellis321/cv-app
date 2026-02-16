@@ -200,7 +200,8 @@ $oldLoginEmail = getFlash('old_login_email') ?: null;
                 'success' => $success,
                 'needsVerification' => $needsVerification,
                 'verificationEmail' => $verificationEmail,
-                'oldLoginEmail' => $oldLoginEmail
+                'oldLoginEmail' => $oldLoginEmail,
+                'redirect' => get('redirect', '')
             ]);
         } catch (Exception $e) {
             echo '<div style="padding: 20px; background: #fee; color: #c00;">';

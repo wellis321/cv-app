@@ -75,7 +75,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                         </p>
                     </div>
                     <div class="flex items-center">
-                        <img src="/static/images/all-in-one/seamless-workflow.png" alt="Seamless workflow - integrated CV and job application dashboard" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover aspect-video" width="800" height="450" />
+                        <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/all-in-one/seamless-workflow.png" aria-label="View seamless workflow image larger">
+                            <img src="/static/images/all-in-one/seamless-workflow.png" alt="Seamless workflow - integrated CV and job application dashboard" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover aspect-video" width="800" height="450" />
+                        </button>
                     </div>
                 </div>
             </div>
@@ -106,7 +108,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="lg:order-1 flex items-center">
-                            <img src="/static/images/all-in-one/cv-variants.png" alt="Generate CV variants for each application - job-specific AI CV creation" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover aspect-video" width="800" height="450" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/all-in-one/cv-variants.png" aria-label="View CV variants image larger">
+                                <img src="/static/images/all-in-one/cv-variants.png" alt="Generate CV variants for each application - job-specific AI CV creation" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover aspect-video" width="800" height="450" />
+                            </button>
                         </div>
                     </div>
 
@@ -122,7 +126,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="flex items-center">
-                            <img src="/static/images/all-in-one/update-once.png" alt="Update once, use everywhere - single CV source for all applications" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover aspect-video" width="800" height="450" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/all-in-one/update-once.png" aria-label="View update once image larger">
+                                <img src="/static/images/all-in-one/update-once.png" alt="Update once, use everywhere - single CV source for all applications" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover aspect-video" width="800" height="450" />
+                            </button>
                         </div>
                     </div>
 
@@ -138,7 +144,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="lg:order-1 flex items-center">
-                            <img src="/static/images/all-in-one/track-everything.png" alt="Track everything together - unified dashboard for CV and applications" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover aspect-video" width="800" height="450" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/all-in-one/track-everything.png" aria-label="View track everything image larger">
+                                <img src="/static/images/all-in-one/track-everything.png" alt="Track everything together - unified dashboard for CV and applications" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover aspect-video" width="800" height="450" />
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -217,5 +225,6 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
     <?php if (!isLoggedIn()): ?>
         <?php partial('auth-modals'); ?>
     <?php endif; ?>
+    <?php partial('image-lightbox'); ?>
 </body>
 </html>

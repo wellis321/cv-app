@@ -102,7 +102,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">
-                            <img src="<?php echo e($img('1586281380349-632531db7ed4', 600)); ?>" alt="Create cover letter from job" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/cover-letters-features/use-and-manage.png" aria-label="View Create from a job application image larger">
+                                <img src="/static/images/cover-letters-features/use-and-manage.png" alt="Create from a job application - Cover Letter section with Generate Cover Letter with AI" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            </button>
                         </div>
                     </div>
 
@@ -115,7 +117,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">
-                            <img src="<?php echo e($img('1504384308090-c894fdcc538d', 600)); ?>" alt="Edit cover letter" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/cover-letters-features/review-and-edit.png" aria-label="View Review and edit cover letter image larger">
+                                <img src="/static/images/cover-letters-features/review-and-edit.png" alt="Review and edit - Cover Letter with Edit, Regenerate, Export PDF and Delete actions" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            </button>
                         </div>
                     </div>
 
@@ -124,11 +128,13 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             <span class="inline-block rounded-full bg-rose-100 text-rose-800 px-3 py-1 text-sm font-semibold">Step 3</span>
                             <h3 class="mt-4 text-2xl font-bold text-gray-900">Use and manage</h3>
                             <p class="mt-3 text-gray-600">
-                                Copy the text for email applications, export to PDF, or view it alongside the job application. All your cover letters are organised in one place.
+                                Once your cover letter is ready, use it however you need: <strong>copy the text</strong> to paste into email applications or web forms, <strong>export to PDF</strong> to attach to applications, or <strong>view it in the job view</strong> whenever you open that application. Every cover letter stays linked to its job so you always know which letter goes with which role.
                             </p>
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">
-                            <img src="<?php echo e($img('1531403009284-440f080d1e12', 600)); ?>" alt="Manage cover letters" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/cover-letters-features/create-from-a-job.png" aria-label="View Use and manage cover letters image larger">
+                                <img src="/static/images/cover-letters-features/create-from-a-job.png" alt="Use and manage - tailored cover letter for GreenTech Solutions" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -244,5 +250,6 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
     <?php if (!isLoggedIn()): ?>
         <?php partial('auth-modals'); ?>
     <?php endif; ?>
+    <?php partial('image-lightbox'); ?>
 </body>
 </html>

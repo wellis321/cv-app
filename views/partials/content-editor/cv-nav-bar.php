@@ -20,7 +20,7 @@ foreach ($cvVariants as $variant) {
     }
 }
 ?>
-<div class="bg-white border-b border-gray-200 px-6 py-3">
+<div id="cv-nav-bar" class="bg-white border-b border-gray-200 px-6 py-3">
     <div class="flex items-center justify-between gap-3 flex-wrap min-w-0">
         <!-- Left: CV Variant Selector -->
         <div class="flex items-center gap-3 flex-shrink-0">

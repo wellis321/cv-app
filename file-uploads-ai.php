@@ -110,7 +110,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">
-                            <img src="<?php echo e($img('1586281380349-632531db7ed4', 600)); ?>" alt="Upload file to application" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/file-uploads/upload-a-file.png" aria-label="View upload file to application image larger">
+                                <img src="/static/images/file-uploads/upload-a-file.png" alt="Upload file to application - Files section showing uploaded document and upload area" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            </button>
                         </div>
                     </div>
 
@@ -123,7 +125,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">
-                            <img src="<?php echo e($img('1504384308090-c894fdcc538d', 600)); ?>" alt="AI reads uploaded files" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/file-uploads/extract-file.png" aria-label="View AI reads uploaded files image larger">
+                                <img src="/static/images/file-uploads/extract-file.png" alt="AI reads uploaded files - extract text with AI formatting option" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            </button>
                         </div>
                     </div>
 
@@ -136,7 +140,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">
-                            <img src="<?php echo e($img('1531403009284-440f080d1e12', 600)); ?>" alt="Generate tailored CV" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/file-uploads/generate-tailored.png" aria-label="View generate tailored CV image larger">
+                                <img src="/static/images/file-uploads/generate-tailored.png" alt="Generate tailored CV - Source CV, job application and job description inputs" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -170,7 +176,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                         <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-500 text-white mb-4">
                             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
                         </div>
-                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Stay organized</h3>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Stay organised</h3>
                         <p class="text-sm text-gray-600">Keep all application materials in one place. Files are stored with each application for easy reference.</p>
                     </div>
                 </div>
@@ -236,5 +242,6 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
     <?php if (!isLoggedIn()): ?>
         <?php partial('auth-modals'); ?>
     <?php endif; ?>
+    <?php partial('image-lightbox'); ?>
 </body>
 </html>

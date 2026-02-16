@@ -1,7 +1,7 @@
 <?php
 /**
  * Track All Applications – feature page
- * Describes the centralized dashboard for tracking all job applications.
+ * Describes the centralised dashboard for tracking all job applications.
  */
 
 require_once __DIR__ . '/php/helpers.php';
@@ -15,7 +15,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
 <head>
     <?php partial('head', [
         'pageTitle' => $pageTitle . ' | Simple CV Builder',
-        'metaDescription' => 'Keep track of every job application in one centralized dashboard. Never lose track of where you\'ve applied or what stage each application is at.',
+        'metaDescription' => 'Keep track of every job application in one centralised dashboard. Never lose track of where you\'ve applied or what stage each application is at.',
         'canonicalUrl' => $canonicalUrl,
     ]); ?>
 </head>
@@ -33,7 +33,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                     Track All Applications
                 </h1>
                 <p class="mt-6 text-xl text-blue-50 max-w-2xl mx-auto leading-relaxed">
-                    Keep track of every job application in one <strong class="text-white">centralized dashboard</strong>. Never lose track of where you've applied or what stage each application is at.
+                    Keep track of every job application in one <strong class="text-white">centralised dashboard</strong>. Never lose track of where you've applied or what stage each application is at.
                 </p>
                 <div class="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-center">
                     <?php if (isLoggedIn()): ?>
@@ -64,7 +64,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
                         </div>
                         <h3 class="text-lg font-semibold text-gray-900 mb-2">Never lose track</h3>
-                        <p class="text-sm text-gray-600">When you're applying to multiple roles, it's easy to forget where you've applied. A centralized dashboard keeps everything in one place.</p>
+                        <p class="text-sm text-gray-600">When you're applying to multiple roles, it's easy to forget where you've applied. A centralised dashboard keeps everything in one place.</p>
                     </div>
 
                     <div class="bg-gradient-to-br from-cyan-50 to-teal-50 rounded-xl border-2 border-cyan-200 p-6">
@@ -79,7 +79,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                         <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-teal-500 text-white mb-4">
                             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         </div>
-                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Stay organized</h3>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Stay organised</h3>
                         <p class="text-sm text-gray-600">All your job search information in one place—applications, CVs, cover letters, notes, and files. No more scattered spreadsheets or notes.</p>
                     </div>
                 </div>
@@ -141,7 +141,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                         </div>
                         <div>
                             <h3 class="text-xl font-semibold text-gray-900 mb-2">Add applications</h3>
-                            <p class="text-gray-600">Save jobs from any website, upload files, or add applications manually. Every application appears in your centralized dashboard.</p>
+                            <p class="text-gray-600">Save jobs from any website, upload files, or add applications manually. Every application appears in your centralised dashboard.</p>
                         </div>
                     </div>
                     <div class="flex gap-6">
@@ -159,7 +159,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                         </div>
                         <div>
                             <h3 class="text-xl font-semibold text-gray-900 mb-2">Stay updated</h3>
-                            <p class="text-gray-600">Update statuses, add notes, set dates, and attach files as you progress through each application. Everything stays organized.</p>
+                            <p class="text-gray-600">Update statuses, add notes, set dates, and attach files as you progress through each application. Everything stays organised.</p>
                         </div>
                     </div>
                 </div>
@@ -198,7 +198,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                     Start tracking all your applications
                 </h2>
                 <p class="mt-4 text-blue-50 max-w-xl mx-auto">
-                    The centralized dashboard is included with every account. Add your first application and see how easy it is to stay organized.
+                    The centralised dashboard is included with every account. Add your first application and see how easy it is to stay organised.
                 </p>
                 <div class="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
                     <?php if (isLoggedIn()): ?>

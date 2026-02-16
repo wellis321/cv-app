@@ -71,12 +71,6 @@ $urls = [
         'priority' => '0.7',
     ],
     [
-        'loc' => APP_URL . '/browser-extension-feature.php',
-        'lastmod' => date('Y-m-d'),
-        'changefreq' => 'monthly',
-        'priority' => '0.7',
-    ],
-    [
         'loc' => APP_URL . '/template-customisation-feature.php',
         'lastmod' => date('Y-m-d'),
         'changefreq' => 'monthly',
@@ -87,12 +81,6 @@ $urls = [
         'lastmod' => date('Y-m-d'),
         'changefreq' => 'monthly',
         'priority' => '0.7',
-    ],
-    [
-        'loc' => APP_URL . '/save-job-from-anywhere.php',
-        'lastmod' => date('Y-m-d'),
-        'changefreq' => 'monthly',
-        'priority' => '0.6',
     ],
     [
         'loc' => APP_URL . '/smart-text-extraction.php',

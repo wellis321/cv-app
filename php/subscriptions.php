@@ -39,32 +39,43 @@ function getSubscriptionPlansConfig(): array {
             ],
             'pro_trial_7day' => [
                 'label' => '7-day unlimited access',
-                'description' => 'Full access for 7 days. After 7 days, renews to £22/month. Cancel anytime.',
+                'description' => 'Legacy plan. Full access for 7 days. Cancel anytime.',
                 'limits' => [],
                 'word_limits' => [],
-                'allowed_templates' => ['professional', 'minimal', 'classic', 'modern', 'structured'],
+                'allowed_templates' => ['professional', 'minimal', 'classic', 'modern', 'structured', 'academic'],
+                'default_template' => 'professional',
+                'template_customization' => true,
+                'pdf_enabled' => true,
+                'support_level' => 'priority',
+            ],
+            'pro_1week' => [
+                'label' => '1 week',
+                'description' => 'Full access for 1 week. 7-day free trial, then £4.99/week. Cancel anytime.',
+                'limits' => [],
+                'word_limits' => [],
+                'allowed_templates' => ['professional', 'minimal', 'classic', 'modern', 'structured', 'academic'],
                 'default_template' => 'professional',
                 'template_customization' => true,
                 'pdf_enabled' => true,
                 'support_level' => 'priority',
             ],
             'pro_monthly' => [
-                'label' => 'Pro Monthly',
-                'description' => 'Unlimited sections, premium templates, and PDF exports. Cancel anytime.',
+                'label' => '1 month',
+                'description' => 'Full access. 7-day free trial, then £14.99/month. Cancel anytime.',
                 'limits' => [],
                 'word_limits' => [],
-                'allowed_templates' => ['professional', 'minimal', 'classic', 'modern', 'structured'],
+                'allowed_templates' => ['professional', 'minimal', 'classic', 'modern', 'structured', 'academic'],
                 'default_template' => 'professional',
                 'template_customization' => true,
                 'pdf_enabled' => true,
                 'support_level' => 'priority',
             ],
             'pro_3month' => [
-                'label' => '3-month unlimited access',
-                'description' => 'One-time payment for 3 months. Best value.',
+                'label' => '3 months',
+                'description' => 'Full access. 7-day free trial, then £34.99 every 3 months. Best value.',
                 'limits' => [],
                 'word_limits' => [],
-                'allowed_templates' => ['professional', 'minimal', 'classic', 'modern', 'structured'],
+                'allowed_templates' => ['professional', 'minimal', 'classic', 'modern', 'structured', 'academic'],
                 'default_template' => 'professional',
                 'template_customization' => true,
                 'pdf_enabled' => true,
@@ -75,7 +86,7 @@ function getSubscriptionPlansConfig(): array {
                 'description' => 'Everything in Pro Monthly plus discounted pricing and priority support.',
                 'limits' => [],
                 'word_limits' => [],
-                'allowed_templates' => ['professional', 'minimal', 'classic', 'modern', 'structured'],
+                'allowed_templates' => ['professional', 'minimal', 'classic', 'modern', 'structured', 'academic'],
                 'default_template' => 'professional',
                 'template_customization' => true,
                 'pdf_enabled' => true,
@@ -86,7 +97,7 @@ function getSubscriptionPlansConfig(): array {
                 'description' => 'One-time payment for lifetime access. All Pro features, forever.',
                 'limits' => [],
                 'word_limits' => [],
-                'allowed_templates' => ['professional', 'minimal', 'classic', 'modern', 'structured'],
+                'allowed_templates' => ['professional', 'minimal', 'classic', 'modern', 'structured', 'academic'],
                 'default_template' => 'professional',
                 'template_customization' => true,
                 'pdf_enabled' => true,
@@ -99,10 +110,10 @@ function getSubscriptionPlansConfig(): array {
 }
 
 /**
- * Plans shown in marketing/pricing (Resume.co-style: Free, 7-day trial, 3-month only)
+ * Plans shown in marketing/pricing: Free, 1 week, 1 month, 3 months (all paid plans include 7-day free trial)
  */
 function getMarketingPlanIds(): array {
-    return ['free', 'pro_trial_7day', 'pro_3month'];
+    return ['free', 'pro_1week', 'pro_monthly', 'pro_3month'];
 }
 
 /**
@@ -145,8 +156,9 @@ function getUserSubscriptionContext(string $userId): array {
     $periodEnd = $profile['subscription_current_period_end'] ?? null;
     $stripeSubId = $profile['stripe_subscription_id'] ?? null;
 
-    // One-time or trial plans (no Stripe subscription): when period ends, downgrade to free.
-    // Applies to: pro_trial_7day (7-day trial), pro_3month (3-month access).
+    // One-time or legacy plans (no Stripe subscription): when period ends, downgrade to free.
+    // pro_trial_7day = legacy £1.99 trial. pro_3month with empty stripe_sub_id = legacy one-time 3-month.
+    // New pro_1week, pro_monthly, pro_3month use Stripe subscriptions and have stripe_subscription_id.
     $trialOrOneTimePlans = ['pro_trial_7day', 'pro_3month'];
     if (in_array($planId, $trialOrOneTimePlans, true) && empty($stripeSubId) && $periodEnd) {
         if (strtotime($periodEnd) < time()) {
@@ -488,6 +500,8 @@ function buildSubscriptionFrontendContext(array $context): array {
  */
 function getStripePriceIdForPlan(string $planId): ?string {
     switch ($planId) {
+        case 'pro_1week':
+            return defined('STRIPE_PRICE_PRO_1WEEK') && STRIPE_PRICE_PRO_1WEEK ? STRIPE_PRICE_PRO_1WEEK : null;
         case 'pro_monthly':
             return STRIPE_PRICE_PRO_MONTHLY ?: null;
         case 'pro_annual':
@@ -507,6 +521,9 @@ function getStripePriceIdForPlan(string $planId): ?string {
  * Reverse map from Stripe price ID to our internal plan ID.
  */
 function getPlanIdForStripePrice(string $priceId): ?string {
+    if (defined('STRIPE_PRICE_PRO_1WEEK') && STRIPE_PRICE_PRO_1WEEK && $priceId === STRIPE_PRICE_PRO_1WEEK) {
+        return 'pro_1week';
+    }
     if (!empty(STRIPE_PRICE_PRO_MONTHLY) && $priceId === STRIPE_PRICE_PRO_MONTHLY) {
         return 'pro_monthly';
     }
@@ -565,7 +582,7 @@ function getOrganisationPlansConfig(): array {
                 'features' => [
                     'candidate_management' => true,
                     'team_roles' => true,
-                    'cv_templates' => ['minimal', 'classic', 'modern', 'professional', 'structured'],
+                    'cv_templates' => ['minimal', 'classic', 'modern', 'professional', 'structured', 'academic'],
                     'pdf_export' => true,
                     'custom_branding' => true,
                     'bulk_export' => true,
@@ -583,7 +600,7 @@ function getOrganisationPlansConfig(): array {
                 'features' => [
                     'candidate_management' => true,
                     'team_roles' => true,
-                    'cv_templates' => ['minimal', 'classic', 'modern', 'professional', 'structured'],
+                    'cv_templates' => ['minimal', 'classic', 'modern', 'professional', 'structured', 'academic'],
                     'pdf_export' => true,
                     'custom_branding' => true,
                     'bulk_export' => true,

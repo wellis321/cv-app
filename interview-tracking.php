@@ -102,7 +102,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">
-                            <img src="<?php echo e($img('1586281380349-632531db7ed4', 600)); ?>" alt="Update status to Interviewing" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/interview-tracking/update-status.png" aria-label="View update status image larger">
+                                <img src="/static/images/interview-tracking/update-status.png" alt="Update status - Status dropdown with Interested, Interviewing, Applied and other stages" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover" width="600" height="340" />
+                            </button>
                         </div>
                     </div>
 
@@ -115,7 +117,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">
-                            <img src="<?php echo e($img('1504384308090-c894fdcc538d', 600)); ?>" alt="Add interview notes" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/interview-tracking/notes.png" aria-label="View interview notes image larger">
+                                <img src="/static/images/interview-tracking/notes.png" alt="Add interview notes - rich text editor for recording recruiter calls, interview feedback and next steps" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover" width="600" height="340" />
+                            </button>
                         </div>
                     </div>
 
@@ -128,7 +132,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">
-                            <img src="<?php echo e($img('1531403009284-440f080d1e12', 600)); ?>" alt="Move through interview stages" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/interview-tracking/update-status.png" aria-label="View move through stages image larger">
+                                <img src="/static/images/interview-tracking/update-status.png" alt="Move through stages - Status dropdown with Interviewing, Offered, Accepted, Rejected" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover" width="600" height="340" />
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -228,5 +234,6 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
     <?php if (!isLoggedIn()): ?>
         <?php partial('auth-modals'); ?>
     <?php endif; ?>
+    <?php partial('image-lightbox'); ?>
 </body>
 </html>

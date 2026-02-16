@@ -108,7 +108,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">
-                            <img src="<?php echo e($img('1504384308090-c894fdcc538d', 600)); ?>" alt="Selecting sections for PDF export" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/pdf-export/chooose-sections.png" aria-label="View choosing sections image larger">
+                                <img src="/static/images/pdf-export/chooose-sections.png" alt="Selecting sections for PDF export" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover" width="600" height="340" />
+                            </button>
                         </div>
                     </div>
 
@@ -121,7 +123,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">
-                            <img src="<?php echo e($img('1531403009284-440f080d1e12', 600)); ?>" alt="QR code in PDF" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/pdf-export/add-qr-code.pdf.png" aria-label="View QR code in PDF image larger">
+                                <img src="/static/images/pdf-export/add-qr-code.pdf.png" alt="QR code in PDF" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover" width="600" height="340" />
+                            </button>
                         </div>
                     </div>
 
@@ -134,7 +138,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">
-                            <img src="<?php echo e($img('1586281380349-632531db7ed4', 600)); ?>" alt="Downloading PDF" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/pdf-export/download-and-share.png" aria-label="View download and share image larger">
+                                <img src="/static/images/pdf-export/download-and-share.png" alt="Downloading PDF" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover" width="600" height="340" />
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -261,5 +267,6 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
     <?php if (!isLoggedIn()): ?>
         <?php partial('auth-modals'); ?>
     <?php endif; ?>
+    <?php partial('image-lightbox'); ?>
 </body>
 </html>

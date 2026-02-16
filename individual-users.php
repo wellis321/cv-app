@@ -63,7 +63,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                                     Creating your professional CV takes just minutes. No downloads, no software installation—everything works right in your browser on any device.
                                 </p>
                                 <p class="text-gray-700 text-lg leading-relaxed">
-                                    Click "Register" on our homepage and enter your name, email, and password. We'll send a verification link to activate your account. Start free, or <strong>try 7 days for £1.95</strong>—full access, then subscribe or stay on free. No pressure.
+                                    Click "Register" on our homepage and enter your name, email, and password. We'll send a verification link to activate your account. Start free, or <strong>try any paid plan with a 7-day free trial</strong>—1 week, 1 month, or 3 months. Cancel anytime. No pressure.
                                 </p>
                                 <div class="mt-6">
                                     <?php if (!isLoggedIn()): ?>
@@ -253,23 +253,23 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                                     <strong>Basic access (Free)</strong> — CV builder, templates, resume sharing, PDF export. Limited job tracking and AI. No credit card required.
                                 </p>
                                 <p class="text-gray-700 text-lg leading-relaxed mb-4">
-                                    <strong>7-day unlimited access</strong> — £1.95 for 7 days full access. After 7 days, renews to £22/month. Cancel anytime.
+                                    <strong>1 week</strong> — £4.99/week. 7-day free trial. Cancel anytime.
                                 </p>
                                 <p class="text-gray-700 text-lg leading-relaxed">
-                                    <strong>3-month unlimited access</strong> — £27.88 one-time today. Best value. Save 66%.
+                                    <strong>1 month</strong> — £14.99/month. 7-day free trial. Cancel anytime.
                                 </p>
                             </div>
                             <div class="min-h-0">
                                 <button type="button" class="w-full h-full block cursor-zoom-in hover:opacity-95 transition-opacity text-left rounded-lg overflow-hidden" data-image-lightbox="/static/images/individuals/pricing.png" aria-label="View pricing and plans image larger">
-                                    <img src="/static/images/individuals/pricing.png" alt="Pricing and plans - Basic access, 7-day unlimited, 3-month unlimited" class="h-full w-full rounded-lg border border-gray-200 shadow-sm object-cover" width="600" height="340" />
+                                    <img src="/static/images/individuals/pricing.png" alt="Pricing and plans - Basic access, 7-day unlimited, monthly" class="h-full w-full rounded-lg border border-gray-200 shadow-sm object-cover" width="600" height="340" />
                                 </button>
                             </div>
                         </div>
                         <p class="text-gray-700 text-lg leading-relaxed mb-4">
-                            All payments are processed securely through Stripe. Start free, or try 7 days for £1.95. After 7 days, it renews to £22/month—cancel anytime. Or pay £27.88 once for 3 months. See your <a href="/subscription.php" class="text-blue-600 hover:text-blue-800 underline font-medium">Plan</a> page for details.
+                            All payments are processed securely through Stripe. Start free, or choose 1 week (£4.99), 1 month (£14.99), or 3 months (£34.99)—all include a 7-day free trial. Cancel anytime. See your <a href="/subscription.php" class="text-blue-600 hover:text-blue-800 underline font-medium">Plan</a> page for details.
                         </p>
                         <p class="text-gray-700 text-lg leading-relaxed">
-                            <strong>How it works:</strong> Create your account and use the free plan, or pay £1.95 for 7 days of full access. After 7 days, add payment to continue at £22/month or stay on free. No pressure.
+                            <strong>How it works:</strong> Create your account and use the free plan, or start a paid plan (1 week, 1 month, or 3 months). All paid plans include a 7-day free trial—cancel before the trial ends to avoid being charged. No pressure.
                         </p>
                     </div>
                 </div>
@@ -311,7 +311,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
             <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg p-10 text-center text-white">
                 <h2 class="text-3xl font-bold mb-4">Ready to Build Your Professional CV?</h2>
                 <p class="text-blue-100 text-lg mb-6 max-w-2xl mx-auto leading-relaxed">
-                    Start free, or try 7 days for £1.95. Build your CV at your own pace, then subscribe or stay on the free plan. Your career journey starts here.
+                    Start free, or try any paid plan with a 7-day free trial. Build your CV at your own pace—cancel anytime. Your career journey starts here.
                 </p>
                 <?php if (isLoggedIn()): ?>
                     <a href="/profile.php" class="inline-block bg-white text-blue-600 px-8 py-4 rounded-md font-semibold text-lg hover:bg-blue-50 transition-colors">

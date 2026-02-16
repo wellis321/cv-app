@@ -148,6 +148,10 @@ foreach ($counts as $count) {
             </div>
         </div>
 
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
+            <?php partial('admin/quick-actions'); ?>
+        </div>
+
         <!-- Filters -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
             <div class="bg-white rounded-lg shadow p-4">

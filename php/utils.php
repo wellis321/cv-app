@@ -45,6 +45,18 @@ function generateUuid() {
 }
 
 /**
+ * Format file size in human-readable form
+ */
+function formatFileSize($bytes) {
+    $bytes = (int) $bytes;
+    if ($bytes === 0) return '0 Bytes';
+    $k = 1024;
+    $s = ['Bytes', 'KB', 'MB', 'GB'];
+    $i = (int) floor(log($bytes) / log($k));
+    return round($bytes / pow($k, $i), 2) . ' ' . $s[$i];
+}
+
+/**
  * Truncate text
  */
 function truncate($text, $length = 100, $suffix = '...') {

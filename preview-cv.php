@@ -579,6 +579,20 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                 // DEBUG: pdfmake version
                 console.log('[PDF DEBUG] pdfMake version:', typeof pdfMake?.version !== 'undefined' ? pdfMake.version : 'unknown');
 
+                // Academic template uses serif font (Georgia/Times) to match preview - register Liberation Serif as 'Times'
+                if (selectedTemplate === 'academic' && typeof pdfMake !== 'undefined') {
+                    const origin = window.location.origin;
+                    const fontBase = origin + '/static/fonts/liberation-serif/';
+                    if (!pdfMake.fonts?.Times) {
+                        pdfMake.fonts = { ...(pdfMake.fonts || {}), Times: {
+                            normal: fontBase + 'LiberationSerif-Regular.ttf',
+                            bold: fontBase + 'LiberationSerif-Bold.ttf',
+                            italics: fontBase + 'LiberationSerif-Italic.ttf',
+                            bolditalics: fontBase + 'LiberationSerif-BoldItalic.ttf'
+                        }};
+                    }
+                }
+
                 // DEBUG: Test with minimal 1x1 PNG - set ?test=1 in URL to try (isolates pdfmake vs our image)
                 const TEST_MINIMAL = (new URLSearchParams(window.location.search)).get('test') === '1';
                 if (TEST_MINIMAL) {
@@ -684,6 +698,7 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                     sections,
                     includePhoto,
                     includeQr,
+                    cvUrl,
                     template: templateMeta
                 });
             } catch (error) {

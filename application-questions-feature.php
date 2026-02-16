@@ -71,11 +71,13 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             Application forms often ask questions like "Why do you want this role?" or "What makes you a good fit?" Generic answers won't cut it—employers want to see that you've researched the role and understand how your experience aligns with their needs.
                         </p>
                         <p class="text-gray-600 leading-relaxed">
-                            With AI-powered question answering, you get draft answers that are tailored to the specific job description and your CV. The AI analyzes the role requirements, your experience, and generates answers that highlight relevant skills and achievements—giving you a strong starting point that you can then refine to match your authentic voice.
+                            With AI-powered question answering, you get draft answers that are tailored to the specific job description and your CV. The AI analyses the role requirements, your experience, and generates answers that highlight relevant skills and achievements—giving you a strong starting point that you can then refine to match your authentic voice.
                         </p>
                     </div>
                     <div class="flex items-center">
-                        <img src="<?php echo e($img('1557804506-669a67965ba0', 800)); ?>" alt="Application form with questions" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover aspect-video" width="800" height="450" />
+                        <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/application-questions/stand-out.png" aria-label="View Stand out with tailored answers image larger">
+                            <img src="/static/images/application-questions/stand-out.png" alt="Stand out with tailored answers - Application questions and Generate AI CV" class="w-full rounded-xl border border-gray-200 shadow-lg object-cover aspect-video" width="800" height="450" />
+                        </button>
                     </div>
                 </div>
             </div>
@@ -107,7 +109,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                         </div>
                         <h3 class="text-lg font-semibold text-gray-900 mb-2">AI-generated answers</h3>
-                        <p class="text-sm text-gray-600">Generate tailored answers using free Browser AI. The AI analyzes the job description, your CV, and the question to create relevant, compelling answers.</p>
+                        <p class="text-sm text-gray-600">Generate tailored answers using free Browser AI. The AI analyses the job description, your CV, and the question to create relevant, compelling answers.</p>
                     </div>
 
                     <div class="bg-white rounded-xl border-2 border-teal-200 p-6 shadow-lg">
@@ -161,7 +163,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">
-                            <img src="<?php echo e($img('1504384308090-c894fdcc538d', 600)); ?>" alt="Adding questions to a job application" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/application-questions/add-questions.png" aria-label="View adding questions to a job application image larger">
+                                <img src="/static/images/application-questions/add-questions.png" alt="Adding questions to a job application" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            </button>
                         </div>
                     </div>
 
@@ -170,14 +174,16 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             <span class="inline-block rounded-full bg-green-100 text-green-800 px-3 py-1 text-sm font-semibold">Step 2</span>
                             <h3 class="mt-4 text-2xl font-bold text-gray-900">Generate AI answers</h3>
                             <p class="mt-3 text-gray-600">
-                                Click "Generate answer with AI" for any question. Our free Browser AI analyzes the job description, your CV, and the question to create a tailored answer. The AI considers your experience, skills, and achievements to craft responses that highlight your fit for the role.
+                                Click "Generate answer with AI" for any question. Our free Browser AI analyses the job description, your CV, and the question to create a tailored answer. The AI considers your experience, skills, and achievements to craft responses that highlight your fit for the role.
                             </p>
                             <p class="mt-3 text-sm text-gray-500">
                                 The AI runs entirely in your browser—no cloud services, no API keys, completely free and private.
                             </p>
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">
-                            <img src="<?php echo e($img('1531403009284-440f080d1e12', 600)); ?>" alt="AI generating answers to application questions" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/application-questions/generating.png" aria-label="View AI generating answers to application questions image larger">
+                                <img src="/static/images/application-questions/generating.png" alt="AI generating answers to application questions" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            </button>
                         </div>
                     </div>
 
@@ -190,7 +196,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">
-                            <img src="<?php echo e($img('1586281380349-632531db7ed4', 600)); ?>" alt="Editing and refining AI-generated answers" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/application-questions/review%20and%20refine.png" aria-label="View editing and refining AI-generated answers image larger">
+                                <img src="/static/images/application-questions/review%20and%20refine.png" alt="Editing and refining AI-generated answers" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -221,7 +229,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             Application forms can take hours to complete, especially when you're applying to multiple roles. AI-generated answers give you a strong starting point in seconds, so you can focus on refining rather than starting from scratch.
                         </p>
                         <p class="text-gray-700">
-                            Instead of staring at a blank text box wondering how to answer "Why do you want this role?", you get a tailored draft that you can edit and personalize.
+                            Instead of staring at a blank text box wondering how to answer "Why do you want this role?", you get a tailored draft that you can edit and personalise.
                         </p>
                     </div>
 
@@ -233,7 +241,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             <h3 class="text-2xl font-bold text-gray-900">Better answers</h3>
                         </div>
                         <p class="text-gray-700 mb-4">
-                            The AI analyzes the job description and your CV to create answers that highlight relevant experience and skills. It connects your background to the role requirements, helping you demonstrate fit more effectively.
+                            The AI analyses the job description and your CV to create answers that highlight relevant experience and skills. It connects your background to the role requirements, helping you demonstrate fit more effectively.
                         </p>
                         <p class="text-gray-700">
                             Answers are tailored to each specific role, so you're not submitting generic responses that could apply to any job.
@@ -245,7 +253,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             <div class="flex h-14 w-14 items-center justify-center rounded-xl bg-teal-500 text-white">
                                 <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
                             </div>
-                            <h3 class="text-2xl font-bold text-gray-900">Stay organized</h3>
+                            <h3 class="text-2xl font-bold text-gray-900">Stay organised</h3>
                         </div>
                         <p class="text-gray-700 mb-4">
                             All questions and answers are stored with each job application. When you're ready to submit, everything is in one place—no searching through notes or documents to find your answers.
@@ -289,11 +297,11 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                     <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border-2 border-green-200 p-8">
                         <h3 class="text-xl font-bold text-gray-900 mb-4">"Why do you want this role?"</h3>
                         <p class="text-gray-700 mb-4">
-                            The AI analyzes the job description to identify what the employer values, then connects your relevant experience and skills to show genuine interest and fit.
+                            The AI analyses the job description to identify what the employer values, then connects your relevant experience and skills to show genuine interest and fit.
                         </p>
                         <div class="bg-white rounded-lg p-4 border border-green-200">
                             <p class="text-sm text-gray-600 mb-2"><strong>Example AI approach:</strong></p>
-                            <p class="text-sm text-gray-700 italic">"Based on your CV, the AI highlights your experience in [relevant area] and connects it to the role's focus on [key requirement]. It emphasizes specific achievements that align with the company's goals."</p>
+                            <p class="text-sm text-gray-700 italic">"Based on your CV, the AI highlights your experience in [relevant area] and connects it to the role's focus on [key requirement]. It emphasises specific achievements that align with the company's goals."</p>
                         </div>
                     </div>
 
@@ -315,7 +323,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                         </p>
                         <div class="bg-white rounded-lg p-4 border border-teal-200">
                             <p class="text-sm text-gray-600 mb-2"><strong>Example AI approach:</strong></p>
-                            <p class="text-sm text-gray-700 italic">"The AI selects a project from your work experience that aligns with the role, structures it clearly, and emphasizes outcomes and skills relevant to the position."</p>
+                            <p class="text-sm text-gray-700 italic">"The AI selects a project from your work experience that aligns with the role, structures it clearly, and emphasises outcomes and skills relevant to the position."</p>
                         </div>
                     </div>
                 </div>
@@ -459,5 +467,6 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
     <?php if (!isLoggedIn()): ?>
         <?php partial('auth-modals'); ?>
     <?php endif; ?>
+    <?php partial('image-lightbox'); ?>
 </body>
 </html>

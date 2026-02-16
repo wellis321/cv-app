@@ -30,7 +30,20 @@ $csrf = csrfToken();
 $appDate = !empty($job['application_date']) ? date('j M Y', strtotime($job['application_date'])) : null;
 $savedDate = !empty($job['created_at']) ? date('j M Y, g:i a', strtotime($job['created_at'])) : '—';
 ?>
-<div class="flex gap-6 relative" data-jobs-view-container data-application-id="<?php echo e($job['id']); ?>" data-csrf="<?php echo e($csrf); ?>">
+<style>
+/* Collapsible sections for long content - no shadow/fade, clean overflow */
+.collapsible-section { position: relative; }
+.collapsible-section .collapsible-section-content { overflow: hidden; transition: max-height 0.2s ease; }
+.collapsible-section-toggle { display: none; }
+.collapsible-section[data-overflows="true"] .collapsible-section-toggle { display: inline-flex; }
+.collapsible-section[data-expanded="true"] .collapsible-section-toggle { display: inline-flex; }
+/* Job view section cards - clear separation */
+.job-view-section { border: 1px solid #e5e7eb; border-radius: 0.5rem; padding: 1rem 1.25rem; margin-bottom: 1rem; background: #fff; }
+.job-view-section:last-child { margin-bottom: 0; }
+/* Job view nav: constrain height so Back to list stays visible when not sticky */
+#job-view-nav { max-height: calc(100vh - 140px); }
+</style>
+<div class="flex items-start gap-6 relative" data-jobs-view-container data-application-id="<?php echo e($job['id']); ?>" data-csrf="<?php echo e($csrf); ?>">
     <!-- Sticky Navigation Sidebar -->
     <aside class="hidden lg:block w-64 flex-shrink-0 self-start">
         <nav class="bg-white border border-gray-200 rounded-lg shadow-sm" id="job-view-nav" aria-label="Job view navigation" style="display: flex; flex-direction: column; overflow: hidden;">
@@ -51,35 +64,42 @@ $savedDate = !empty($job['created_at']) ? date('j M Y, g:i a', strtotime($job['c
                 <?php if (!empty($job['notes'])): ?>
                 <li><a href="#notes" class="job-nav-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors" data-section="notes">Notes</a></li>
                 <?php endif; ?>
+                <li><a href="#files" class="job-nav-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors" data-section="files">Files</a></li>
                 <li><a href="#application-questions" class="job-nav-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors" data-section="application-questions">Application questions</a></li>
+                <li><a href="#generate-ai-cv" class="job-nav-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors" data-section="generate-ai-cv">Generate AI CV</a></li>
                 <li><a href="#job-actions" class="job-nav-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors" data-section="job-actions">Job Actions</a></li>
                 <li><a href="#cover-letter" class="job-nav-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors" data-section="cover-letter">Cover Letter</a></li>
                 <li><a href="#cover-letter-actions" class="job-nav-link block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md transition-colors" data-section="cover-letter-actions">Cover Letter Actions</a></li>
             </ul>
+            <div id="nav-back-to-list" class="flex-shrink-0 p-4 pt-2 border-t border-gray-100">
+                <a href="#jobs" class="block px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors" data-jobs-back>
+                    <span class="inline-flex items-center gap-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>Back to list</span>
+                </a>
+            </div>
         </nav>
     </aside>
     
     <!-- Main Content -->
     <div class="flex-1 min-w-0">
         <div class="p-6 max-w-3xl mx-auto">
-            <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div class="mb-4 flex flex-wrap items-center justify-between gap-4">
                 <a href="#jobs" class="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900" data-jobs-back>
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                     Back to list
                 </a>
-                <nav class="flex flex-wrap items-center gap-2" aria-label="Job actions">
-                    <a href="#jobs&amp;edit=<?php echo e($job['id']); ?>" class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-green-700 bg-green-50 rounded-md border border-green-200 hover:bg-green-100 hover:border-green-300 focus:outline-none focus:ring-1 focus:ring-green-500 transition-colors" data-jobs-edit data-edit-id="<?php echo e($job['id']); ?>">
+                <div class="flex flex-wrap items-center gap-2">
+                    <a href="#jobs&amp;edit=<?php echo e($job['id']); ?>" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-green-700 bg-green-50 rounded-md border border-green-200 hover:bg-green-100 hover:border-green-300 focus:outline-none focus:ring-1 focus:ring-green-500 transition-colors" data-jobs-edit data-edit-id="<?php echo e($job['id']); ?>">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                         Edit
                     </a>
-                    <button type="button" data-jobs-delete data-job-id="<?php echo e($job['id']); ?>" data-csrf="<?php echo e($csrf); ?>" class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 rounded-md border border-red-200 hover:bg-red-100 hover:border-red-300 focus:outline-none focus:ring-1 focus:ring-red-500 transition-colors">
+                    <button type="button" data-jobs-delete data-job-id="<?php echo e($job['id']); ?>" data-csrf="<?php echo e($csrf); ?>" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-700 bg-red-50 rounded-md border border-red-200 hover:bg-red-100 hover:border-red-300 focus:outline-none focus:ring-1 focus:ring-red-500 transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                         Delete
                     </button>
-                </nav>
+                </div>
             </div>
-    <div class="bg-white rounded-lg shadow p-6">
-        <div id="job-overview" class="scroll-mt-6">
+    <div class="space-y-4">
+        <section id="job-overview" class="job-view-section scroll-mt-6">
             <div class="flex justify-between items-start mb-6">
                 <div>
                     <h1 class="text-2xl font-bold text-gray-900"><?php echo e($job['job_title'] ?? 'Untitled'); ?></h1>
@@ -143,17 +163,30 @@ $savedDate = !empty($job['created_at']) ? date('j M Y, g:i a', strtotime($job['c
             </div>
             <?php endif; ?>
         </div>
+        </section>
         <?php if (!empty($job['job_description'])): ?>
-        <div id="job-description" class="mt-6 pt-6 border-t border-gray-200 scroll-mt-6">
+        <section id="job-description" class="job-view-section scroll-mt-6">
             <h2 class="text-sm font-semibold text-gray-900 mb-2">Description</h2>
-            <div class="text-gray-700 job-description-content"><?php echo renderJobDescription($job['job_description'] ?? ''); ?></div>
-        </div>
+            <div class="collapsible-section" data-collapsible data-max-height="12rem" data-toggle-label="View Description">
+                <div class="collapsible-section-content text-gray-700 job-description-content"><?php echo renderJobDescription($job['job_description'] ?? ''); ?></div>
+                <button type="button" class="collapsible-section-toggle mt-3 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-1 transition-colors" aria-expanded="false">View Description</button>
+            </div>
+        </section>
         <style>.job-description-content table { border-collapse: collapse; width: 100%; margin: 0.75rem 0; }
 .job-description-content td, .job-description-content th { border: 1px solid #d1d5db; padding: 0.375rem 0.5rem; text-align: left; vertical-align: top; }
 .job-description-content th { background: #f3f4f6; font-weight: 600; }</style>
+        <?php if (!empty($job['application_url'])): ?>
+        <section id="application-link" class="job-view-section scroll-mt-6">
+            <h2 class="text-sm font-semibold text-gray-900 mb-2">Application Link</h2>
+            <a href="<?php echo e($job['application_url']); ?>" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-1 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                Open application page
+            </a>
+        </section>
+        <?php endif; ?>
         
         <!-- Keywords Section -->
-        <div id="keywords" class="mt-6 pt-6 border-t border-gray-200 scroll-mt-6">
+        <section id="keywords" class="job-view-section scroll-mt-6">
             <div class="flex items-center justify-between mb-2">
                 <h2 class="text-sm font-semibold text-gray-900">Key Keywords & Skills</h2>
                 <div class="flex items-center gap-2">
@@ -217,23 +250,55 @@ $savedDate = !empty($job['created_at']) ? date('j M Y, g:i a', strtotime($job['c
                     </div>
                 <?php endif; ?>
             </div>
-        </div>
+        </section>
         <?php endif; ?>
         <?php if (!empty($job['notes'])): ?>
-        <div id="notes" class="mt-6 pt-6 border-t border-gray-200 scroll-mt-6">
+        <section id="notes" class="job-view-section scroll-mt-6">
             <h2 class="text-sm font-semibold text-gray-900 mb-2">Notes</h2>
-            <div class="text-gray-700 notes-content"><?php echo renderMarkdown($job['notes'] ?? ''); ?></div>
-        </div>
-        <?php endif; ?>
-        <?php if (!empty($job['application_url'])): ?>
-        <div id="application-link" class="mt-6 pt-6 border-t border-gray-200 scroll-mt-6">
-            <h2 class="text-sm font-semibold text-gray-900 mb-2">Application Link</h2>
-            <a href="<?php echo e($job['application_url']); ?>" target="_blank" rel="noopener" class="text-blue-600 hover:underline">Link here</a>
-        </div>
+            <div class="collapsible-section" data-collapsible data-max-height="12rem" data-toggle-label="View Notes">
+                <div class="collapsible-section-content text-gray-700 notes-content"><?php echo renderMarkdown($job['notes'] ?? ''); ?></div>
+                <button type="button" class="collapsible-section-toggle mt-3 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-1 transition-colors" aria-expanded="false">View Notes</button>
+            </div>
+        </section>
         <?php endif; ?>
 
+        <!-- Files (read-only) -->
+        <section id="files" class="job-view-section scroll-mt-6">
+            <h2 class="text-sm font-semibold text-gray-900 mb-2">Files</h2>
+            <?php 
+            $jobFiles = isset($job['files']) && is_array($job['files']) ? $job['files'] : [];
+            ?>
+            <?php if (!empty($jobFiles)): ?>
+            <p class="text-xs text-gray-600 mb-3">Documents attached to this application</p>
+            <div class="border border-gray-200 rounded-lg bg-gray-50/50 divide-y divide-gray-200">
+                <?php foreach ($jobFiles as $file): ?>
+                <?php 
+                $displayName = !empty($file['custom_name']) ? $file['custom_name'] : ($file['original_name'] ?? 'Unknown');
+                $fileSize = isset($file['size']) ? formatFileSize($file['size']) : '—';
+                $fileUrl = $file['url'] ?? '#';
+                ?>
+                <div class="flex items-center justify-between px-4 py-3">
+                    <div class="flex items-center gap-3 min-w-0 flex-1">
+                        <svg class="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        <div class="min-w-0">
+                            <p class="text-sm font-medium text-gray-900 truncate"><?php echo e($displayName); ?></p>
+                            <p class="text-xs text-gray-500"><?php echo e($fileSize); ?></p>
+                        </div>
+                    </div>
+                    <a href="<?php echo e($fileUrl); ?>" target="_blank" rel="noopener" download class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 ml-4 flex-shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                        Download
+                    </a>
+                </div>
+                <?php endforeach; ?>
+            </div>
+            <?php else: ?>
+            <p class="text-sm text-gray-500 italic py-4">No files attached. <a href="#jobs&amp;edit=<?php echo e($job['id']); ?>" class="text-blue-600 hover:underline">Edit the job</a> to add files.</p>
+            <?php endif; ?>
+        </section>
+
         <!-- Application questions -->
-        <div id="application-questions" class="mt-6 pt-6 border-t border-gray-200 scroll-mt-6">
+        <section id="application-questions" class="job-view-section scroll-mt-6">
             <h2 class="text-sm font-semibold text-gray-900 mb-2">Application questions</h2>
             <p class="text-xs text-gray-600 mb-4">Add questions from the application form and generate draft answers tailored to this role and your CV.</p>
             <div class="space-y-4 mb-4">
@@ -276,38 +341,39 @@ $savedDate = !empty($job['created_at']) ? date('j M Y, g:i a', strtotime($job['c
                 <div id="application-questions-empty" class="text-sm text-gray-500 italic">No questions yet. Add a question above to get started.</div>
                 <?php endif; ?>
             </div>
-        </div>
+        </section>
 
-        <!-- Job actions (pertain to job description, not cover letter) -->
-        <div id="job-actions" class="mt-6 pt-6 border-t border-gray-200 scroll-mt-6" role="group" aria-labelledby="job-actions-heading">
+        <!-- Generate AI CV -->
+        <section id="generate-ai-cv" class="job-view-section scroll-mt-6">
+            <h2 class="text-sm font-semibold text-gray-900 mb-3">Generate AI CV</h2>
+            <p class="text-xs text-gray-500 mb-3">One-click tailored CV for this job using AI and your selected keywords.</p>
+            <button type="button" data-ai-cv-generate class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-md border border-purple-700 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-1 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                Generate AI CV for this job
+            </button>
+        </section>
+
+        <!-- Job actions -->
+        <section id="job-actions" class="job-view-section" role="group" aria-labelledby="job-actions-heading">
             <p id="job-actions-heading" class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Job actions</p>
-            <p class="text-xs text-gray-500 mb-2">Use <strong>Generate AI CV for this job</strong> for a one-click tailored CV, or <strong>Tailor CV for this job…</strong> to choose which sections to tailor.</p>
             <div class="flex flex-wrap gap-2">
-                <button type="button" data-ai-cv-generate class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-purple-600 rounded-md border border-purple-700 hover:bg-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-500 transition-colors">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                    Generate AI CV for this job
-                </button>
-                <a href="#cv-variants&amp;create=1&amp;job=<?php echo e($job['id']); ?>" class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-indigo-700 bg-indigo-50 rounded-md border border-indigo-200 hover:bg-indigo-100 hover:border-indigo-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                    Tailor CV for this job…
-                </a>
-                <a href="#jobs" class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-50 rounded-md border border-gray-300 hover:bg-gray-100" data-jobs-back>
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-                    Back to list
-                </a>
-                <a href="#jobs&amp;edit=<?php echo e($job['id']); ?>" class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-green-700 bg-green-50 rounded-md border border-green-200 hover:bg-green-100 hover:border-green-300 focus:outline-none focus:ring-1 focus:ring-green-500 transition-colors" data-jobs-edit data-edit-id="<?php echo e($job['id']); ?>">
+                <a href="#jobs&amp;edit=<?php echo e($job['id']); ?>" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-green-700 bg-green-50 rounded-md border border-green-200 hover:bg-green-100 hover:border-green-300 focus:outline-none focus:ring-1 focus:ring-green-500 transition-colors" data-jobs-edit data-edit-id="<?php echo e($job['id']); ?>">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                     Edit
                 </a>
-                <button type="button" data-jobs-delete data-job-id="<?php echo e($job['id']); ?>" data-csrf="<?php echo e($csrf); ?>" class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 rounded-md border border-red-200 hover:bg-red-100 hover:border-red-300 focus:outline-none focus:ring-1 focus:ring-red-500 transition-colors">
+                <a href="#cv-variants&amp;create=1&amp;job=<?php echo e($job['id']); ?>" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-indigo-700 bg-indigo-50 rounded-md border border-indigo-200 hover:bg-indigo-100 hover:border-indigo-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    Tailor CV for this job…
+                </a>
+                <button type="button" data-jobs-delete data-job-id="<?php echo e($job['id']); ?>" data-csrf="<?php echo e($csrf); ?>" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-700 bg-red-50 rounded-md border border-red-200 hover:bg-red-100 hover:border-red-300 focus:outline-none focus:ring-1 focus:ring-red-500 transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                     Delete
                 </button>
             </div>
-        </div>
+        </section>
 
         <!-- Cover Letter -->
-        <div id="cover-letter" class="mt-6 pt-6 border-t border-gray-200 scroll-mt-6">
+        <section id="cover-letter" class="job-view-section scroll-mt-6">
             <h2 class="text-sm font-semibold text-gray-900 mb-3">Cover Letter</h2>
             <div id="cover-letter-container-<?php echo e($job['id']); ?>" class="space-y-3" data-cover-letter-container>
                 <div class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
@@ -323,7 +389,7 @@ $savedDate = !empty($job['created_at']) ? date('j M Y, g:i a', strtotime($job['c
                     </button>
                 </div>
             </div>
-        </div>
+        </section>
         </div>
     </div>
 </div>
@@ -570,7 +636,7 @@ $savedDate = !empty($job['created_at']) ? date('j M Y, g:i a', strtotime($job['c
         if (genBtn) {
             e.preventDefault();
             var questionId = genBtn.getAttribute('data-question-id');
-            var row = genBtn.closest('[data-question-id]');
+            var row = genBtn.closest('div[data-question-id]');
             var ta = row ? row.querySelector('.app-question-answer') : null;
             var instInput = row ? row.querySelector('.app-question-instructions') : null;
             if (!questionId || !csrf || !applicationId) return;
@@ -588,7 +654,7 @@ $savedDate = !empty($job['created_at']) ? date('j M Y, g:i a', strtotime($job['c
                         if (ta) ta.value = result.answer_text;
                     } else if (result.success && result.browser_execution) {
                         if (typeof BrowserAIService !== 'undefined' && BrowserAIService.generateText) {
-                            BrowserAIService.initBrowserAI(result.model_type || 'webllm', result.model).then(function() {
+                            return BrowserAIService.initBrowserAI(result.model_type || 'webllm', result.model).then(function() {
                                 return BrowserAIService.generateText(result.prompt, { temperature: 0.6, maxTokens: 600 });
                             }).then(function(text) {
                                 if (ta) ta.value = text || '';
@@ -598,8 +664,10 @@ $savedDate = !empty($job['created_at']) ? date('j M Y, g:i a', strtotime($job['c
                                 saveFd.append('question_id', questionId);
                                 saveFd.append('answer_text', text || '');
                                 return fetch('/api/ai-generate-application-answer.php', { method: 'POST', body: saveFd, credentials: 'include' });
-                            }).then(function(r) { return r.json(); }).then(function() {
-                                if (ta) { /* already set */ }
+                            }).then(function(r) { return r.json(); }).then(function(saveResult) {
+                                if (!saveResult || !saveResult.success) {
+                                    alert(saveResult && saveResult.error ? saveResult.error : 'Failed to save answer. Please click Save answer to try again.');
+                                }
                             }).catch(function(err) {
                                 alert('Browser AI failed: ' + (err.message || 'Please try again.'));
                             });
@@ -623,7 +691,7 @@ $savedDate = !empty($job['created_at']) ? date('j M Y, g:i a', strtotime($job['c
         if (saveBtn) {
             e.preventDefault();
             var questionId = saveBtn.getAttribute('data-question-id');
-            var row = saveBtn.closest('[data-question-id]');
+            var row = saveBtn.closest('div[data-question-id]');
             var ta = row ? row.querySelector('.app-question-answer') : null;
             var instInput = row ? row.querySelector('.app-question-instructions') : null;
             var answerText = ta ? ta.value : '';
@@ -657,7 +725,7 @@ $savedDate = !empty($job['created_at']) ? date('j M Y, g:i a', strtotime($job['c
             e.preventDefault();
             if (!confirm('Delete this question and its answer?')) return;
             var questionId = delBtn.getAttribute('data-question-id');
-            var row = delBtn.closest('[data-question-id]');
+            var row = delBtn.closest('div[data-question-id]');
             var body = JSON.stringify({ question_id: questionId, csrf_token: delBtn.getAttribute('data-csrf') });
             fetch('/api/job-application-questions.php', {
                 method: 'DELETE',
@@ -881,7 +949,7 @@ $savedDate = !empty($job['created_at']) ? date('j M Y, g:i a', strtotime($job['c
     // Initialize sticky navigation
     function initJobViewNavigation() {
         var navLinks = document.querySelectorAll('.job-nav-link');
-        var sections = document.querySelectorAll('[id^="job-"], #keywords, #notes, #application-link, #application-questions, #cover-letter, #cover-letter-actions');
+        var sections = document.querySelectorAll('[id^="job-"], #keywords, #notes, #application-link, #application-questions, #generate-ai-cv, #cover-letter, #cover-letter-actions');
         
         // Ensure nav structure is correct
         var nav = document.getElementById('job-view-nav');
@@ -915,10 +983,12 @@ $savedDate = !empty($job['created_at']) ? date('j M Y, g:i a', strtotime($job['c
         var nav = document.getElementById('job-view-nav');
         
         if (sidebar && nav && mainContent) {
-            // Calculate top offset: account for main navbar height
+            // Calculate top offset: header + CV nav bar (when on content editor) + padding
             var header = document.querySelector('header');
-            var headerHeight = header ? header.offsetHeight : 64; // Default to 64px if not found
-            var sidebarTop = headerHeight + 24; // Navbar height + padding
+            var cvNavBar = document.getElementById('cv-nav-bar');
+            var headerHeight = header ? header.offsetHeight : 64;
+            var cvNavBarHeight = cvNavBar ? cvNavBar.offsetHeight : 0;
+            var sidebarTop = headerHeight + cvNavBarHeight + 24;
             var bottomPadding = 24; // Bottom padding
             var isSticky = false;
             
@@ -928,36 +998,34 @@ $savedDate = !empty($job['created_at']) ? date('j M Y, g:i a', strtotime($job['c
                 
                 var containerRect = container.getBoundingClientRect();
                 var viewportHeight = window.innerHeight;
-                var navHeight = nav.scrollHeight; // Full content height
                 var availableHeight = viewportHeight - sidebarTop - bottomPadding;
                 
-                // Always ensure nav fits in viewport when sticky
-                var maxHeight = Math.min(navHeight, availableHeight);
+                // Hysteresis: different thresholds for enter vs leave to prevent flickering
+                var enterThreshold = sidebarTop + 10;
+                var leaveThreshold = sidebarTop + Math.min(availableHeight, 300);
+                var shouldBeSticky = isSticky
+                    ? containerRect.bottom > leaveThreshold - 30
+                    : (containerRect.top <= enterThreshold && containerRect.bottom > leaveThreshold);
                 
-                // Check if sidebar should be sticky
-                if (containerRect.top <= sidebarTop && containerRect.bottom > sidebarTop + navHeight) {
+                if (shouldBeSticky) {
                     if (!isSticky) {
                         // Get the sidebar's left position relative to viewport
                         var sidebarRect = sidebar.getBoundingClientRect();
                         var heading = nav.querySelector('#nav-heading');
                         var menuList = nav.querySelector('#nav-menu-list');
+                        var backToList = nav.querySelector('#nav-back-to-list');
+                        var backToListHeight = backToList ? backToList.offsetHeight : 52;
                         
-                        // Measure heading height before making sticky - use getBoundingClientRect for accurate measurement
+                        // Measure heading height before making sticky
                         var headingRect = heading ? heading.getBoundingClientRect() : null;
                         var headingHeight = headingRect ? headingRect.height : 50;
                         // Account for nav's border
                         var computedStyle = window.getComputedStyle(nav);
                         var borderTop = parseInt(computedStyle.borderTopWidth) || 0;
                         var borderBottom = parseInt(computedStyle.borderBottomWidth) || 0;
-                        var navBorderHeight = borderTop + borderBottom;
-                        // Menu gets remaining space after heading
-                        var menuMaxHeight = availableHeight - headingHeight;
-                        
-                        // Calculate actual nav border height
-                        var computedStyle = window.getComputedStyle(nav);
-                        var borderTop = parseInt(computedStyle.borderTopWidth) || 0;
-                        var borderBottom = parseInt(computedStyle.borderBottomWidth) || 0;
                         var actualNavBorderHeight = borderTop + borderBottom;
+                        // Menu gets remaining space after heading AND back-to-list footer
+                        var menuMaxHeight = Math.max(80, availableHeight - headingHeight - backToListHeight);
                         
                         nav.style.position = 'fixed';
                         nav.style.top = sidebarTop + 'px';
@@ -986,27 +1054,33 @@ $savedDate = !empty($job['created_at']) ? date('j M Y, g:i a', strtotime($job['c
                             heading.style.zIndex = '1';
                         }
                         if (menuList) {
-                            menuList.style.flex = '1 1 0%'; // Use 0% instead of auto for better flex behavior
+                            menuList.style.flex = '1 1 0%';
                             menuList.style.minHeight = '0';
                             menuList.style.maxHeight = menuMaxHeight + 'px';
                             menuList.style.overflowY = 'auto';
                             menuList.style.overflowX = 'hidden';
                             menuList.style.position = 'relative';
                         }
-                        
+                        if (backToList) {
+                            backToList.style.flexShrink = '0';
+                            backToList.style.flexGrow = '0';
+                        }
+                        sidebar.style.minHeight = (availableHeight + 32) + 'px';
                         isSticky = true;
                     } else {
                         // Update position and dimensions in case they changed
                         var sidebarRect = sidebar.getBoundingClientRect();
                         var heading = nav.querySelector('#nav-heading');
                         var menuList = nav.querySelector('#nav-menu-list');
+                        var backToList = nav.querySelector('#nav-back-to-list');
+                        var backToListHeight = backToList ? backToList.offsetHeight : 52;
                         var headingRect = heading ? heading.getBoundingClientRect() : null;
                         var headingHeight = headingRect ? headingRect.height : 50;
                         var computedStyle = window.getComputedStyle(nav);
                         var borderTop = parseInt(computedStyle.borderTopWidth) || 0;
                         var borderBottom = parseInt(computedStyle.borderBottomWidth) || 0;
                         var navBorderHeight = borderTop + borderBottom;
-                        var menuMaxHeight = availableHeight - headingHeight;
+                        var menuMaxHeight = Math.max(80, availableHeight - headingHeight - backToListHeight);
                         
                         nav.style.left = sidebarRect.left + 'px';
                         nav.style.width = sidebar.offsetWidth + 'px';
@@ -1040,6 +1114,7 @@ $savedDate = !empty($job['created_at']) ? date('j M Y, g:i a', strtotime($job['c
                     if (isSticky) {
                         var heading = nav.querySelector('#nav-heading');
                         var menuList = nav.querySelector('#nav-menu-list');
+                        var backToList = nav.querySelector('#nav-back-to-list');
                         nav.style.position = '';
                         nav.style.top = '';
                         nav.style.left = '';
@@ -1051,8 +1126,6 @@ $savedDate = !empty($job['created_at']) ? date('j M Y, g:i a', strtotime($job['c
                         nav.style.flexDirection = '';
                         nav.style.zIndex = '';
                         nav.style.boxSizing = '';
-                        // Reset top position
-                        nav.style.top = '';
                         if (heading) {
                             heading.style.flexShrink = '';
                             heading.style.overflow = '';
@@ -1064,6 +1137,11 @@ $savedDate = !empty($job['created_at']) ? date('j M Y, g:i a', strtotime($job['c
                             menuList.style.overflowY = '';
                             menuList.style.overflowX = '';
                         }
+                        if (backToList) {
+                            backToList.style.flexShrink = '';
+                            backToList.style.flexGrow = '';
+                        }
+                        sidebar.style.minHeight = '';
                         isSticky = false;
                     }
                 }

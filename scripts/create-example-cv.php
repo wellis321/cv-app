@@ -1,9 +1,12 @@
 <?php
 /**
  * Create Example CV Data
- * 
- * This script creates the example CV content for the username "simple-cv-example"
- * Run from command line: php scripts/create-example-cv.php
+ *
+ * Creates the example CV content for noreply@simple-job-tracker.com (username: simple-cv-example).
+ * Run from command line: php scripts/create-example-cv.php [--with-demo-jobs]
+ *
+ * Use --with-demo-jobs to also add demo job applications for showcasing cover letters,
+ * AI CV generation, and job tracking features.
  */
 
 require_once __DIR__ . '/../php/config.php';
@@ -243,7 +246,14 @@ try {
     echo "\n✓ Example CV data created successfully!\n";
     echo "Username: " . $username . "\n";
     echo "Profile ID: " . $userId . "\n";
-    echo "View at: " . APP_URL . "/cv/@simple-cv-example\n\n";
+    echo "View at: " . (defined('APP_URL') ? APP_URL : '') . "/cv/@simple-cv-example\n";
+    echo "Login: noreply@simple-job-tracker.com / ExampleAccount123!\n\n";
+
+    // Optionally add demo jobs
+    if (in_array('--with-demo-jobs', $argv ?? [])) {
+        echo "Adding demo jobs...\n";
+        passthru('php ' . escapeshellarg(__DIR__ . '/create-demo-jobs.php'));
+    }
     
 } catch (Exception $e) {
     die("Error: " . $e->getMessage() . "\n");

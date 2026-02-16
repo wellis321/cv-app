@@ -41,11 +41,19 @@ if (!$jobApplication) {
     exit;
 }
 
-// Get user profile for name/contact info
-$profile = db()->fetchOne("SELECT full_name, email, phone, location FROM profiles WHERE id = ?", [$user['id']]);
+// Get user profile for name/contact info and photo
+$profile = db()->fetchOne("SELECT full_name, email, phone, location, linkedin_url, photo_url, show_photo_pdf FROM profiles WHERE id = ?", [$user['id']]);
+
+// Get professional title from most recent work experience
+$latestRole = db()->fetchOne("SELECT position FROM work_experience WHERE profile_id = ? ORDER BY start_date DESC LIMIT 1", [$user['id']]);
+$professionalTitle = $latestRole['position'] ?? null;
 
 // Format date
 $date = date('F j, Y');
+
+// Photo URL for cover letter: use profile photo if user has one and show_photo_pdf is enabled
+$includePhoto = (!isset($profile['show_photo_pdf']) || $profile['show_photo_pdf']) && !empty($profile['photo_url']);
+$photoUrl = $includePhoto ? $profile['photo_url'] : null;
 
 // Return data for client-side PDF generation
 echo json_encode([
@@ -58,7 +66,10 @@ echo json_encode([
         'applicant_name' => $profile['full_name'] ?? 'Applicant',
         'applicant_email' => $profile['email'] ?? '',
         'applicant_phone' => $profile['phone'] ?? '',
-        'applicant_location' => $profile['location'] ?? ''
+        'applicant_location' => $profile['location'] ?? '',
+        'professional_title' => $professionalTitle,
+        'photo_url' => $photoUrl,
+        'app_url' => defined('APP_URL') ? APP_URL : ''
     ]
 ]);
 

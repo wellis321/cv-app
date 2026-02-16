@@ -65,7 +65,8 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                 </div>
 
                 <p class="text-center text-sm text-gray-500 mb-8">
-                    See what each template looks like when you generate a PDF. Add your content in the content editor, then go to <strong>Preview &amp; Generate PDF</strong> to try each template with your CV.
+                    See what each template looks like when you generate a PDF.<br>
+                    Add your content in the content editor, then go to <strong>Preview &amp; Generate PDF</strong> to try each template with your CV.
                 </p>
                 <div class="grid gap-8 md:grid-cols-3">
                     <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-gray-200 p-6">
@@ -138,6 +139,21 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                         <h3 class="text-lg font-semibold text-gray-900 mb-2">Structured</h3>
                         <p class="text-sm text-gray-600 mb-4">Clean, professional layout with light blue accents. Career highlights and shaded section headers.</p>
                         <span class="inline-flex items-center rounded-full bg-cyan-100 px-3 py-1 text-xs font-medium text-cyan-800">Pro plan</span>
+                        <?php if (isLoggedIn()): ?>
+                            <p class="mt-3"><a href="/preview-cv.php" class="text-sm text-gray-600 hover:text-blue-600 underline">Preview &amp; generate PDF →</a></p>
+                        <?php endif; ?>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-red-50 to-rose-50 rounded-xl border-2 border-red-200 p-6">
+                        <button type="button" class="aspect-[400/520] w-full rounded-lg border border-red-200 bg-white overflow-hidden mb-4 shadow-sm block cursor-zoom-in hover:opacity-95 transition-opacity text-left" data-template-lightbox="/static/images/templates/academic.pdf.png" aria-label="View Academic template larger">
+                            <img src="/static/images/templates/academic.pdf.png" alt="Academic template – PDF preview" class="w-full h-full object-cover object-top" onerror="this.onerror=null; this.src='/static/images/templates/placeholder-preview.svg'; this.alt='Academic template preview placeholder';">
+                        </button>
+                        <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-red-700 text-white mb-3">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Academic</h3>
+                        <p class="text-sm text-gray-600 mb-4">Traditional academic CV with red accent headings and clean structure. Ideal for research and academia.</p>
+                        <span class="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-800">Pro plan</span>
                         <?php if (isLoggedIn()): ?>
                             <p class="mt-3"><a href="/preview-cv.php" class="text-sm text-gray-600 hover:text-blue-600 underline">Preview &amp; generate PDF →</a></p>
                         <?php endif; ?>

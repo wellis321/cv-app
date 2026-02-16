@@ -197,7 +197,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">
-                            <img src="<?php echo e($img('1586281380349-632531db7ed4', 600)); ?>" alt="Add job description" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/keyword-extraction/add-a-job-description.png" aria-label="View Add a job description image larger">
+                                <img src="/static/images/keyword-extraction/add-a-job-description.png" alt="Add a job description - Description, Application Link and Keywords & Skills" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            </button>
                         </div>
                     </div>
 
@@ -210,7 +212,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">
-                            <img src="<?php echo e($img('1504384308090-c894fdcc538d', 600)); ?>" alt="Extract keywords button" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/keyword-integration/extract-keyword.png" aria-label="View Extract keywords image larger">
+                                <img src="/static/images/keyword-integration/extract-keyword.png" alt="Click Extract Keywords - Key Keywords & Skills with Re-extract button" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            </button>
                         </div>
                     </div>
 
@@ -223,7 +227,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">
-                            <img src="<?php echo e($img('1531403009284-440f080d1e12', 600)); ?>" alt="Select keywords" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/cv-variants/build-your-master.pdf.png" aria-label="View Select keywords to emphasise image larger">
+                                <img src="/static/images/cv-variants/build-your-master.pdf.png" alt="Select keywords to emphasise - CV with keywords integrated in professional summary" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            </button>
                         </div>
                     </div>
 
@@ -232,11 +238,13 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             <span class="inline-block rounded-full bg-teal-100 text-teal-800 px-3 py-1 text-sm font-semibold">Step 4</span>
                             <h3 class="mt-4 text-2xl font-bold text-gray-900">Generate your tailored CV</h3>
                             <p class="mt-3 text-gray-600">
-                                Use <strong>Generate AI CV for this job</strong> to create a CV variant that emphasizes your selected keywords. The AI will naturally incorporate these terms throughout your CV to improve ATS compatibility.
+                                Use <strong>Generate AI CV for this job</strong> to create a CV variant that emphasises your selected keywords. The AI will naturally incorporate these terms throughout your CV to improve ATS compatibility.
                             </p>
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">
-                            <img src="<?php echo e($img('1557804506-669a67965ba0', 600)); ?>" alt="Generate tailored CV" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/cv-variants/manage-and-use.png" aria-label="View Generate your tailored CV image larger">
+                                <img src="/static/images/cv-variants/manage-and-use.png" alt="Generate your tailored CV - manage and use CV variants" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -255,7 +263,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         </div>
                         <h3 class="text-lg font-semibold text-gray-900 mb-2">Improve ATS compatibility</h3>
-                        <p class="text-sm text-gray-600">ATS systems scan for specific keywords. By emphasizing the right terms, your CV is more likely to pass initial screening.</p>
+                        <p class="text-sm text-gray-600">ATS systems scan for specific keywords. By emphasising the right terms, your CV is more likely to pass initial screening.</p>
                     </div>
                     <div class="bg-gradient-to-br from-cyan-50 to-blue-50 rounded-xl border border-cyan-200 p-6">
                         <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-cyan-500 text-white mb-4">
@@ -269,7 +277,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
                         </div>
                         <h3 class="text-lg font-semibold text-gray-900 mb-2">Better match</h3>
-                        <p class="text-sm text-gray-600">By emphasizing the keywords employers are looking for, your CV better matches the job description and stands out to recruiters.</p>
+                        <p class="text-sm text-gray-600">By emphasising the keywords employers are looking for, your CV better matches the job description and stands out to recruiters.</p>
                     </div>
                 </div>
             </div>
@@ -306,6 +314,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
     </main>
 
     <?php partial('footer'); ?>
+    <?php partial('image-lightbox'); ?>
     <?php if (!isLoggedIn()): ?>
         <?php partial('auth-modals'); ?>
     <?php endif; ?>

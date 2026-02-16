@@ -141,7 +141,7 @@ This extension lets you save the **current tab's URL and title** as a job in you
 
 ## Need Help?
 
-- Visit the [Save Job From Anywhere](/save-job-from-anywhere.php) feature page.
+- Visit the [Job Applications](/job-applications-features.php) feature page.
 - Check your [save token page](/save-job-token.php) for setup instructions.
 - Contact support if you continue to have issues.
 

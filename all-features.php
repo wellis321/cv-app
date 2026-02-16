@@ -87,14 +87,14 @@ $features = [
             'description' => 'Save job listings from any website using browser extension or quick-add link',
             'free' => true,
             'pro' => true,
-            'link' => '/save-job-from-anywhere.php'
+            'link' => '/job-applications-features.php'
         ],
         [
             'name' => 'Browser Extension',
             'description' => 'One-click job saving from any job board (Chrome extension)',
             'free' => true,
             'pro' => true,
-            'link' => '/browser-extension-feature.php'
+            'link' => '/job-applications-features.php'
         ],
         [
             'name' => 'Track All Applications',

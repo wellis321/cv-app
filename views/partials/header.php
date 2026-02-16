@@ -35,6 +35,7 @@
                     $isDashboard = ($currentPage === 'dashboard.php');
                     $isPreview = ($currentPage === 'preview-cv.php');
                     $isSubscription = ($currentPage === 'subscription.php');
+                    $isFeatures = ($currentPage === 'all-features.php');
                     $user = getCurrentUser();
                     $isSuperAdmin = !empty($user['is_super_admin']);
                     $org = getUserOrganisation();
@@ -164,6 +165,8 @@
                             </div>
                         </div>
                     <?php endif; ?>
+                    <!-- Features link - available to all logged-in users -->
+                    <a href="/all-features.php" class="px-1.5 py-1.5 md:px-2 md:py-2 rounded-md text-xs md:text-sm font-medium transition-colors whitespace-nowrap <?php echo $isFeatures ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?>">Features</a>
                     <!-- Subscription link - available to all logged-in users -->
                     <a href="/subscription.php" class="px-1.5 py-1.5 md:px-2 md:py-2 rounded-md text-xs md:text-sm font-medium transition-colors whitespace-nowrap <?php echo $isSubscription ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?>">Plan</a>
                     <div class="relative group">
@@ -239,18 +242,6 @@
                                         <a href="/all-features.php" role="menuitem" class="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors <?php echo $currentPage === 'all-features.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
                                             <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
                                             <span>All Features</span>
-                                        </a>
-                                        <a href="/job-applications-features.php" role="menuitem" class="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors <?php echo $currentPage === 'job-applications-features.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
-                                            <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                                            <span>Overview</span>
-                                        </a>
-                                        <a href="/save-job-from-anywhere.php" role="menuitem" class="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors <?php echo $currentPage === 'save-job-from-anywhere.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
-                                            <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                                            <span>Save Jobs from Anywhere</span>
-                                        </a>
-                                        <a href="/browser-extension-feature.php" role="menuitem" class="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors <?php echo $currentPage === 'browser-extension-feature.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
-                                            <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-                                            <span>Browser Extension</span>
                                         </a>
                                         <a href="/all-in-one-place.php" role="menuitem" class="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors <?php echo $currentPage === 'all-in-one-place.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
                                             <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
@@ -442,6 +433,7 @@
                     $isDashboard = ($currentPage === 'dashboard.php');
                     $isPreview = ($currentPage === 'preview-cv.php');
                     $isSubscription = ($currentPage === 'subscription.php');
+                    $isFeatures = ($currentPage === 'all-features.php');
                     $user = getCurrentUser();
                     $isSuperAdmin = !empty($user['is_super_admin']);
                     $org = getUserOrganisation();
@@ -569,6 +561,10 @@
                        class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo $currentPage === 'ai-settings.php' ? 'text-blue-700 bg-blue-100' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
                         AI Settings
                     </a>
+                    <a href="/all-features.php" 
+                       class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'all-features.php' ? 'text-blue-700 bg-blue-100' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        Features
+                    </a>
                     <div class="px-4 py-2 text-base font-semibold text-gray-900 border-t border-gray-200 mt-2 pt-4">
                         Resources
                     </div>
@@ -615,8 +611,8 @@
                     <?php
                     // Check if current page is a feature page to expand by default
                     $isFeaturePage = in_array($currentPage, [
-                        'all-features.php', 'job-applications-features.php', 'save-job-from-anywhere.php',
-                        'browser-extension-feature.php', 'cv-building-feature.php', 'cv-templates-feature.php',
+                        'all-features.php',
+                        'cv-building-feature.php', 'cv-templates-feature.php',
                         'ai-cv-generation-feature.php', 'cover-letters-feature.php'
                     ]);
                     ?>
@@ -634,18 +630,6 @@
                         <a href="/all-features.php" 
                            class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo $currentPage === 'all-features.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
                             All Features
-                        </a>
-                        <a href="/job-applications-features.php" 
-                           class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo $currentPage === 'job-applications-features.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            Job Applications Overview
-                        </a>
-                        <a href="/save-job-from-anywhere.php" 
-                           class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo $currentPage === 'save-job-from-anywhere.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            Save Jobs from Anywhere
-                        </a>
-                        <a href="/browser-extension-feature.php" 
-                           class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo $currentPage === 'browser-extension-feature.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            Browser Extension
                         </a>
                         <a href="/cv-building-feature.php" 
                            class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo $currentPage === 'cv-building-feature.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">

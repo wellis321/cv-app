@@ -65,7 +65,7 @@ try {
     
     // If browser AI result is provided, just save it (browser AI already executed client-side)
     if ($browserAiResult) {
-        $coverLetterText = trim($browserAiResult);
+        $coverLetterText = convertToBritishSpelling(trim($browserAiResult));
         error_log("Browser AI cover letter text received. Length: " . strlen($coverLetterText) . " First 200 chars: " . substr($coverLetterText, 0, 200));
         
         if (empty($coverLetterText)) {
@@ -233,7 +233,7 @@ try {
     if (!$result['success']) {
         throw new Exception($result['error'] ?? 'Failed to generate cover letter');
     }
-    
+
     // Check if this is browser execution mode
     if (isset($result['browser_execution']) && $result['browser_execution']) {
         // #region agent log
@@ -247,6 +247,7 @@ try {
             'prompt' => $result['prompt'] ?? '',
             'model' => $result['model'] ?? 'llama3.2',
             'model_type' => $result['model_type'] ?? 'webllm',
+            'options' => $result['options'] ?? ['temperature' => 0.5, 'max_tokens' => 2000],
             'cv_data' => $cvData,
             'job_application' => $jobApplication,
             'job_application_id' => $jobApplicationId,

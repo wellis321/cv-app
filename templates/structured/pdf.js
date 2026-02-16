@@ -126,20 +126,14 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
         const hasPhoto = includePhoto && profile?.photo_base64 && /^data:image\/(jpeg|png);base64,/.test(profile.photo_base64)
         const hasQR = includeQRCode && cvUrl
 
-        // QR or profile photo in header when chosen (QR takes precedence)
+        // QR or profile photo in header when chosen (centered, like Academic template)
         if (hasQR) {
             content.push({
-                columns: [
-                    { width: '*', stack: headerContent },
-                    {
-                        width: 80,
-                        stack: [
-                            { qr: cvUrl, fit: 70, alignment: 'right' },
-                            { text: 'View Online', link: cvUrl, fontSize: 8, color: template.colors.link, alignment: 'center', margin: [0, 4, 0, 0] }
-                        ]
-                    }
-                ],
-                columnGap: 16
+                stack: [
+                    { qr: cvUrl, fit: 110, alignment: 'center', margin: [0, 0, 0, 8] },
+                    { text: 'View Online', link: cvUrl, fontSize: 8, color: template.colors.link, alignment: 'center', margin: [0, 0, 0, 12] },
+                    ...headerContent
+                ]
             })
         } else if (hasPhoto) {
             content.push({

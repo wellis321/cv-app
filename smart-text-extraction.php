@@ -52,44 +52,6 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
             </div>
         </section>
 
-        <!-- Why use it -->
-        <section class="py-16 bg-gray-50">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl text-center">
-                    Why extract text from files?
-                </h2>
-                <p class="mt-4 text-lg text-gray-600 max-w-3xl mx-auto text-center">
-                    Job ads often come as PDFs or Word docs. Instead of copying by hand, upload the file and pull the text into your application in one click.
-                </p>
-                <div class="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-                    <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-                        <img src="<?php echo e($img('1586281380349-632531db7ed4', 600)); ?>" alt="One click extract" class="w-full aspect-video object-cover rounded-lg border border-gray-200 mb-4" width="400" height="225" />
-                        <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
-                            <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                        </div>
-                        <h3 class="mt-4 text-lg font-semibold text-gray-900">One click</h3>
-                        <p class="mt-2 text-sm text-gray-600">Click <strong>Extract Text</strong> on any uploaded file. The job description field is filled automatically—no selecting or pasting.</p>
-                    </div>
-                    <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-                        <img src="<?php echo e($img('1504384308090-c894fdcc538d', 600)); ?>" alt="Multiple file types" class="w-full aspect-video object-cover rounded-lg border border-gray-200 mb-4" width="400" height="225" />
-                        <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
-                            <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-                        </div>
-                        <h3 class="mt-4 text-lg font-semibold text-gray-900">PDF, Word, Excel, text</h3>
-                        <p class="mt-2 text-sm text-gray-600">Supports PDFs, Word (.doc, .docx), Excel (.xls, .xlsx), and plain text. Upload once and extract whenever you need.</p>
-                    </div>
-                    <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm sm:col-span-2 lg:col-span-1">
-                        <img src="<?php echo e($img('1531403009284-440f080d1e12', 600)); ?>" alt="Optional AI formatting" class="w-full aspect-video object-cover rounded-lg border border-gray-200 mb-4" width="400" height="225" />
-                        <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
-                            <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/></svg>
-                        </div>
-                        <h3 class="mt-4 text-lg font-semibold text-gray-900">Optional AI formatting</h3>
-                        <p class="mt-2 text-sm text-gray-600">Turn on <strong>Format with AI</strong> when extracting to clean up sections, headings, and paragraphs so the description is easier to read and edit.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
         <!-- How it works -->
         <section id="how-it-works" class="py-16 bg-white">
             <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -112,7 +74,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">
                             <figure>
-                                <img src="<?php echo e($img('1586281380349-632531db7ed4', 600)); ?>" alt="Upload job description file" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                                <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/file-uploads/extract-file.png" aria-label="View upload job description file image larger">
+                                    <img src="/static/images/file-uploads/extract-file.png" alt="Upload job description file" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                                </button>
                                 <figcaption class="mt-2 text-sm text-gray-500">Upload PDF, Word, or Excel to your job application</figcaption>
                             </figure>
                         </div>
@@ -129,7 +93,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">
                             <figure>
-                                <img src="<?php echo e($img('1550751827-4bd374c3f58b', 600)); ?>" alt="Extract text button" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                                <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/keyword-extraction/add-a-job-description.png" aria-label="View extract text button image larger">
+                                    <img src="/static/images/keyword-extraction/add-a-job-description.png" alt="Extract text button" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                                </button>
                                 <figcaption class="mt-2 text-sm text-gray-500">Extract Text fills the job description field in one click</figcaption>
                             </figure>
                         </div>
@@ -146,7 +112,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">
                             <figure>
-                                <img src="<?php echo e($img('1531403009284-440f080d1e12', 600)); ?>" alt="Use description for AI CV" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                                <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/template-customisation/choose-a-template.png" aria-label="View use description for AI CV image larger">
+                                    <img src="/static/images/template-customisation/choose-a-template.png" alt="Use description for AI CV" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                                </button>
                                 <figcaption class="mt-2 text-sm text-gray-500">Use the job description for AI CV generation and keyword extraction</figcaption>
                             </figure>
                         </div>
@@ -237,5 +205,6 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
     <?php if (!isLoggedIn()): ?>
         <?php partial('auth-modals'); ?>
     <?php endif; ?>
+    <?php partial('image-lightbox'); ?>
 </body>
 </html>

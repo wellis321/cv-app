@@ -147,8 +147,8 @@ function stripeCreateCheckoutSession(string $userId, string $planId): array {
     $successUrl = APP_URL . '/subscription.php?checkout=success&session_id={CHECKOUT_SESSION_ID}';
     $cancelUrl = APP_URL . '/subscription.php?checkout=cancelled';
 
-    // One-time payment plans: lifetime, 7-day trial, 3-month access
-    $oneTimePlans = ['lifetime', 'pro_trial_7day', 'pro_3month'];
+    // One-time payment plans: lifetime, pro_trial_7day (legacy)
+    $oneTimePlans = ['lifetime', 'pro_trial_7day'];
     $isOneTime = in_array($planId, $oneTimePlans, true);
     $mode = $isOneTime ? 'payment' : 'subscription';
 
@@ -165,9 +165,10 @@ function stripeCreateCheckoutSession(string $userId, string $planId): array {
         'metadata[plan_id]' => $planId,
     ];
 
-    if (!$isOneTime) {
+    if ($mode === 'subscription') {
         $params['subscription_data[metadata][user_id]'] = $userId;
         $params['subscription_data[metadata][plan_id]'] = $planId;
+        $params['subscription_data[trial_period_days]'] = 7;
     }
 
     $session = stripeRequest(

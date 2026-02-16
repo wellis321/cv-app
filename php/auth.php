@@ -89,7 +89,7 @@ function registerUser($email, $password, $fullName = null) {
         $verificationToken = bin2hex(random_bytes(32));
         $verificationExpires = date('Y-m-d H:i:s', strtotime('+24 hours'));
 
-        // New accounts start on free plan. Try 7-day Pro trial for £1.95 or subscribe to continue.
+        // New accounts start on free plan. Try 7-day Pro trial for £1.99 or subscribe to continue.
         // Create user record (email not verified yet)
         $db->insert('profiles', [
             'id' => $userId,

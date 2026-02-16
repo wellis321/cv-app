@@ -205,7 +205,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">
-                            <img src="<?php echo e($img('1454167574059-b80302a6923a', 600)); ?>" alt="Select CV variant" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/cv-variants/create-variants.png" aria-label="View select CV variant image larger">
+                                <img src="/static/images/cv-variants/create-variants.png" alt="Select CV variant" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            </button>
                         </div>
                     </div>
 
@@ -221,7 +223,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">
-                            <img src="<?php echo e($img('1460925895917-9ada21bccfda', 600)); ?>" alt="Run CV assessment" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/cv-quality/run-assessment.png" aria-label="View run CV assessment image larger">
+                                <img src="/static/images/cv-quality/run-assessment.png" alt="Run CV assessment" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            </button>
                         </div>
                     </div>
 
@@ -234,22 +238,12 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">
-                            <img src="<?php echo e($img('1521737604893-d128efb9b3fb', 600)); ?>" alt="Review assessment results" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/cv-quality/review-results.png" aria-label="View review assessment results image larger">
+                                <img src="/static/images/cv-quality/review-results.png" alt="Review assessment results" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            </button>
                         </div>
                     </div>
 
-                    <div class="flex flex-col md:flex-row-reverse md:items-center md:gap-12">
-                        <div class="md:w-1/2">
-                            <span class="inline-block rounded-full bg-teal-100 text-teal-800 px-3 py-1 text-sm font-semibold">Step 4</span>
-                            <h3 class="mt-4 text-2xl font-bold text-gray-900">Make improvements</h3>
-                            <p class="mt-3 text-gray-600">
-                                Edit your CV based on the feedback, then re-assess to see improvement. Track your progress over time as your scores improve.
-                            </p>
-                        </div>
-                        <div class="mt-8 md:mt-0 md:w-1/2">
-                            <img src="<?php echo e($img('1450101491212-3f7e0d4dff11', 600)); ?>" alt="Improve CV based on feedback" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
-                        </div>
-                    </div>
                 </div>
             </div>
         </section>
@@ -389,5 +383,6 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
     <?php if (!isLoggedIn()): ?>
         <?php partial('auth-modals'); ?>
     <?php endif; ?>
+    <?php partial('image-lightbox'); ?>
 </body>
 </html>

@@ -288,20 +288,30 @@ $stats = getJobApplicationStats($userId);
                 var hoverBorderClass = hasLeftBorder ? '' : 'hover:border-green-300';
                 var priorityBadge = app.priority ? '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ' + (app.priority === 'high' ? 'bg-red-100 text-red-800' : (app.priority === 'medium' ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-600')) + '">' + escapeHtml(app.priority) + '</span>' : '';
                 var dueBadge = dueSoon.label ? '<span class="text-xs font-medium ' + (dueSoon.urgent ? 'text-red-600' : (dueSoon.soon ? 'text-amber-700' : 'text-gray-600')) + '">' + dueSoon.label + '</span>' : '';
+                const viewHash = '#jobs&view=' + app.id;
+                const editHash = '#jobs&edit=' + app.id;
+                const deleteCall = "event.stopPropagation(); deleteJob('" + (app.id || '').replace(/'/g, "\\'") + "', '" + (csrfToken || '').replace(/'/g, "\\'") + "'); return false;";
                 return `
-                <div onclick="window.location.hash='#jobs&view=${app.id}'" 
-                     class="border border-gray-200 ${roundedClass} p-4 hover:shadow-lg ${hoverBorderClass} transition-all bg-white cursor-pointer ${borderClass}"${borderStyle}>
-                    <div class="mb-3 flex flex-wrap items-start justify-between gap-2">
+                <div class="border border-gray-200 ${roundedClass} p-4 hover:shadow-lg ${hoverBorderClass} transition-all bg-white ${borderClass}"${borderStyle}>
+                    <div class="mb-3 flex flex-wrap items-start justify-between gap-2" onclick="window.location.hash='${viewHash}'" style="cursor:pointer">
                         <div>
                             <h3 class="text-lg font-semibold text-gray-900 mb-1">${escapeHtml(app.job_title || '')}</h3>
                             <p class="text-sm text-gray-600 font-medium">${escapeHtml(app.company_name || '')}</p>
                         </div>
                         <div class="flex flex-wrap gap-1.5 items-center">${priorityBadge} ${dueBadge}</div>
                     </div>
-                    <div class="space-y-2">
+                    <div class="space-y-2 mb-4" onclick="window.location.hash='${viewHash}'" style="cursor:pointer">
                         ${app.job_location ? '<p class="text-sm text-gray-500 flex items-center gap-1.5"><svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>' + escapeHtml(app.job_location) + '</p>' : ''}
                         ${app.salary_range ? '<p class="text-sm text-gray-500 flex items-center gap-1.5"><svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0-7v1m0-1c-1.11 0-2.08.402-2.599 1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>' + escapeHtml(app.salary_range) + '</p>' : ''}
                         <p class="text-xs text-gray-400">${app.application_date ? 'Applied: ' + new Date(app.application_date).toLocaleDateString() : (app.created_at ? 'Added: ' + new Date(app.created_at).toLocaleDateString() + ', ' + new Date(app.created_at).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}) : '—')}</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2 pt-3 border-t border-gray-100" onclick="event.stopPropagation()">
+                        <a href="${viewHash}" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-gray-400 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>View</a>
+                        <a href="${editHash}" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-md hover:bg-green-100 focus:outline-none focus:ring-1 focus:ring-green-500 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>Edit</a>
+                        <button type="button" onclick="${deleteCall}" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-md hover:bg-red-100 focus:outline-none focus:ring-1 focus:ring-red-500 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>Delete</button>
                     </div>
                 </div>
             `;
@@ -325,10 +335,14 @@ $stats = getJobApplicationStats($userId);
                     '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">' + escapeHtml(app.salary_range || '') + '</td>' +
                     '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">' + dateLabel + '</td>' +
                     '<td class="px-6 py-4 whitespace-nowrap text-sm" onclick="event.stopPropagation()">' +
-                    '<a href="' + viewHash + '" class="text-blue-600 hover:text-blue-800 mr-3">View</a>' +
-                    '<a href="' + editHash + '" class="text-blue-600 hover:text-blue-800 mr-3">Edit</a>' +
-                    '<button type="button" onclick="event.stopPropagation(); deleteJob(\'' + (app.id || '').replace(/'/g, "\\'") + '\', \'' + (csrfToken || '').replace(/'/g, "\\'") + '\'); return false;" class="text-red-600 hover:text-red-800">Delete</button>' +
-                    '</td></tr>';
+                    '<div style="display:flex;flex-direction:row;flex-wrap:nowrap;align-items:center;gap:8px;">' +
+                    '<a href="' + viewHash + '" style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;font-size:13px;font-weight:500;color:#374151;background:#fff;border:1px solid #d1d5db;border-radius:6px;text-decoration:none;">' +
+                    '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>View</a>' +
+                    '<a href="' + editHash + '" style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;font-size:13px;font-weight:500;color:#15803d;background:#dcfce7;border:1px solid #bbf7d0;border-radius:6px;text-decoration:none;">' +
+                    '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>Edit</a>' +
+                    '<button type="button" onclick="event.stopPropagation(); deleteJob(\'' + (app.id || '').replace(/'/g, "\\'") + '\', \'' + (csrfToken || '').replace(/'/g, "\\'") + '\'); return false;" style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;font-size:13px;font-weight:500;color:#b91c1c;background:#fee2e2;border:1px solid #fecaca;border-radius:6px;cursor:pointer;">' +
+                    '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>Delete</button>' +
+                    '</div></td></tr>';
             }).join('');
         if (cardsEl) cardsEl.innerHTML = cardsHtml;
         if (tableBody) tableBody.innerHTML = tableRowsHtml;

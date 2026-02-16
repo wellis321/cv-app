@@ -279,14 +279,12 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
 }
 
 /**
- * Render section header (classic centered style with borders)
+ * Render section header (classic centered style, underline only, no line above)
  */
 function renderSection(title, colors) {
     return `
-        <div style="margin: 24px 0 16px 0;">
-            <hr style="border: none; border-top: 1px solid ${colors.divider}; margin: 0 0 8px 0;">
-            <h2 style="font-size: 15px; font-weight: bold; color: ${colors.header}; text-align: center; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 8px 0;">${title}</h2>
-            <hr style="border: none; border-top: 1px solid ${colors.divider}; margin: 0 0 12px 0;">
+        <div style="margin: 16px 0 12px 0;">
+            <h2 style="font-size: 15px; font-weight: bold; color: ${colors.header}; text-align: center; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 6px 0; border-bottom: 1px solid ${colors.divider}; padding-bottom: 6px;">${title}</h2>
         </div>
     `
 }

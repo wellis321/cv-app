@@ -68,7 +68,7 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
     if (includeQRCode && cvUrl) {
         sidebarContent.push({
             qr: cvUrl,
-            fit: 90,
+            fit: 120,
             alignment: 'center',
             margin: [0, 0, 0, 16]
         })

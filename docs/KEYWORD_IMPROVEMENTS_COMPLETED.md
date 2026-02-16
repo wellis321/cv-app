@@ -150,7 +150,7 @@
 ### Medium Priority:
 1. **Additional Feature Pages**
    - Update remaining feature pages with keyword-rich titles/H1s
-   - Pages: browser-extension-feature.php, pdf-export-feature.php, etc.
+   - Pages: job-applications-features.php (save-job-from-anywhere and browser-extension pages consolidated), pdf-export-feature.php, etc.
 
 2. **Content Optimization**
    - Ensure keywords appear naturally in first paragraph

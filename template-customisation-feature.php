@@ -1,7 +1,7 @@
 <?php
 /**
  * Template Customisation – feature page
- * Describes template customisation capabilities including colours, fonts, and layout.
+ * Describes template customisation capabilities including colours and template choice.
  */
 
 require_once __DIR__ . '/php/helpers.php';
@@ -15,7 +15,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
 <head>
     <?php partial('head', [
         'pageTitle' => $pageTitle . ' | Simple CV Builder',
-        'metaDescription' => 'Customise CV template colours, fonts, and layout to match your personal brand. Create different versions for different opportunities.',
+        'metaDescription' => 'Customise CV template colours to match your personal brand. Choose header colours and accent presets for your CV and PDF exports.',
         'canonicalUrl' => $canonicalUrl,
     ]); ?>
 </head>
@@ -33,7 +33,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                     Template Customisation
                 </h1>
                 <p class="mt-6 text-xl text-pink-50 max-w-2xl mx-auto leading-relaxed">
-                    Customise your CV template to match your personal brand. <strong class="text-white">Choose colours, fonts, and layout</strong> to create a CV that stands out while remaining professional.
+                    Customise your CV template to match your personal brand. <strong class="text-white">Choose header and accent colours</strong> to create a CV that stands out while remaining professional.
                 </p>
                 <div class="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-center">
                     <?php if (isLoggedIn()): ?>
@@ -60,7 +60,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                         Customise your CV template
                     </h2>
                     <p class="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">
-                        Make your CV uniquely yours with custom colours, fonts, and layout options.
+                        Make your CV uniquely yours with custom colours and multiple template designs.
                     </p>
                 </div>
 
@@ -70,23 +70,23 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
                         </div>
                         <h3 class="text-lg font-semibold text-gray-900 mb-2">Custom Colours</h3>
-                        <p class="text-sm text-gray-600">Choose accent colours that match your personal brand or industry preferences. Create different colour schemes for different opportunities.</p>
+                        <p class="text-sm text-gray-600">Set your CV header gradient in your profile. Pro users get accent colour presets (Navy, Blue, Teal, Purple, Rose) for PDF exports.</p>
                     </div>
 
                     <div class="bg-gradient-to-br from-pink-50 to-rose-50 rounded-xl border-2 border-pink-200 p-6">
                         <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-pink-500 text-white mb-4">
                             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
                         </div>
-                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Font Selection</h3>
-                        <p class="text-sm text-gray-600">Select from professional font options for headings and body text. Choose fonts that reflect your style while maintaining readability.</p>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Multiple Templates</h3>
+                        <p class="text-sm text-gray-600">Choose from professional CV template designs. Free users get the Minimal template; Pro users can select from all premium templates.</p>
                     </div>
 
                     <div class="bg-gradient-to-br from-rose-50 to-purple-50 rounded-xl border-2 border-rose-200 p-6">
                         <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-rose-500 text-white mb-4">
                             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3zM14 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1v-3z"/></svg>
                         </div>
-                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Layout Options</h3>
-                        <p class="text-sm text-gray-600">Adjust spacing, section ordering, and layout to create the perfect CV structure for your needs.</p>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Template Designs</h3>
+                        <p class="text-sm text-gray-600">Each template has a distinct style—minimal, modern, or classic. Pick the design that best matches your industry and personal brand.</p>
                     </div>
                 </div>
             </div>
@@ -108,20 +108,24 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">
-                            <img src="<?php echo e($img('1504384308090-c894fdcc538d', 600)); ?>" alt="Choosing CV template" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/template-customisation/choose-a-template.png" aria-label="View choosing CV template image larger">
+                                <img src="/static/images/template-customisation/choose-a-template.png" alt="Choose a template - Minimal, Professional Blue, and Modern template options" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            </button>
                         </div>
                     </div>
 
                     <div class="flex flex-col md:flex-row-reverse md:items-center md:gap-12">
                         <div class="md:w-1/2">
                             <span class="inline-block rounded-full bg-purple-100 text-purple-800 px-3 py-1 text-sm font-semibold">Step 2</span>
-                            <h3 class="mt-4 text-2xl font-bold text-gray-900">Customise colours and fonts</h3>
+                            <h3 class="mt-4 text-2xl font-bold text-gray-900">Customise colours</h3>
                             <p class="mt-3 text-gray-600">
-                                With Pro plans, access the template customisation settings. Choose accent colours, select fonts for headings and body text, and adjust spacing to match your personal brand.
+                                Set your header colours in Profile → Colours. With Pro plans, choose accent colour presets or a custom colour when generating PDFs—Navy, Blue, Teal, Purple, Rose, or your own hex.
                             </p>
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">
-                            <img src="<?php echo e($img('1531403009284-440f080d1e12', 600)); ?>" alt="Customising template colours and fonts" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/pdf-export/chooose-sections.png" aria-label="View customising template colours image larger">
+                                <img src="/static/images/pdf-export/chooose-sections.png" alt="Customise colours - PDF style with template selection and accent colour presets" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            </button>
                         </div>
                     </div>
 
@@ -134,7 +138,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </p>
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">
-                            <img src="<?php echo e($img('1586281380349-632531db7ed4', 600)); ?>" alt="Multiple CV versions" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/cv-variants/create-variants.png" aria-label="View multiple CV versions image larger">
+                                <img src="/static/images/cv-variants/create-variants.png" alt="Create multiple versions - CV variants list with Master CV and AI-generated variants" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -159,7 +165,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             <h3 class="text-2xl font-bold text-gray-900">Stand out</h3>
                         </div>
                         <p class="text-gray-700">
-                            A customised CV template helps you stand out from other candidates. Choose colours and fonts that reflect your personality while maintaining professionalism.
+                            A customised CV template helps you stand out from other candidates. Choose colours that reflect your personality while maintaining professionalism.
                         </p>
                     </div>
 
@@ -171,7 +177,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             <h3 class="text-2xl font-bold text-gray-900">Match industry standards</h3>
                         </div>
                         <p class="text-gray-700">
-                            Customise your template to match industry expectations. Use conservative colours for finance, bold colours for creative roles, and professional fonts for all industries.
+                            Customise your template to match industry expectations. Use conservative colours for finance, bold colours for creative roles—each template is designed to look professional.
                         </p>
                     </div>
 
@@ -234,7 +240,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                     Start customising your CV template
                 </h2>
                 <p class="mt-4 text-purple-100 max-w-xl mx-auto">
-                    Template customisation is available on Pro plans. Upgrade to unlock custom colours, fonts, and layout options.
+                    Set header colours in your profile; Pro plans add accent colour presets for PDF exports. Upgrade to unlock the full range of template designs and colour options.
                 </p>
                 <div class="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center">
                     <?php if (isLoggedIn()): ?>
@@ -261,5 +267,6 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
     <?php if (!isLoggedIn()): ?>
         <?php partial('auth-modals'); ?>
     <?php endif; ?>
+    <?php partial('image-lightbox'); ?>
 </body>
 </html>
