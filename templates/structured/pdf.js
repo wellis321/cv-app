@@ -456,17 +456,21 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
     const footer = (currentPage, pageCount) => {
         const pageText = `${profile?.full_name ? decodeHtmlEntities(profile.full_name) + ' - ' : ''}Page ${currentPage} of ${pageCount}`
         const mutedColor = template.colors.muted || '#64748b'
+        const year = new Date().getFullYear()
         const items = [{ text: pageText, alignment: 'center', fontSize: 9, color: mutedColor }]
-        if (config?.showFreePlanBranding && config?.siteUrl) {
-            const year = new Date().getFullYear()
-            items.push({
-                text: [{ text: `Simple CV Builder created by William Ellis. Dedicated to helping you get the job you want. © ${year} ` }, { text: 'simple-cv-builder.com', link: config.siteUrl }],
-                alignment: 'center',
-                fontSize: 7,
-                color: mutedColor,
-                margin: [0, 4, 0, 0]
-            })
+        const brandingParts = [
+            { text: `Simple CV Builder Designed, Developed and Delivered by William Ellis. © ${year}` }
+        ]
+        if (config?.siteUrl) {
+            brandingParts.push({ text: ' ', fontSize: 7 }, { text: 'simple-cv-builder.com', link: config.siteUrl, fontSize: 7 })
         }
+        items.push({
+            text: brandingParts,
+            alignment: 'center',
+            fontSize: 7,
+            color: mutedColor,
+            margin: [0, 4, 0, 0]
+        })
         return { stack: items, margin: [0, 20, 0, 0] }
     }
 

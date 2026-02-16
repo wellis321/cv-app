@@ -1820,9 +1820,20 @@ $stats = getJobApplicationStats();
                     }
                     
                     // Use pdfMake to generate PDF
+                    const year = new Date().getFullYear();
+                    const siteUrl = window.location.origin;
+                    const footerParts = [{ text: `Simple CV Builder Designed, Developed and Delivered by William Ellis. © ${year}` }];
+                    if (siteUrl) footerParts.push({ text: ' ', fontSize: 7 }, { text: 'simple-cv-builder.com', link: siteUrl, fontSize: 7 });
                     const docDefinition = {
                         pageSize: 'A4',
                         pageMargins: [40, 60, 40, 60],
+                        footer: () => ({
+                            text: footerParts,
+                            alignment: 'center',
+                            fontSize: 7,
+                            color: '#6b7280',
+                            margin: [0, 10, 0, 0]
+                        }),
                         content: [
                             {
                                 text: data.date,

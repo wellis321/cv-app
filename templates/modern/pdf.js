@@ -481,17 +481,21 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
     // Footer with page numbers; free plan: add branding
     const footer = (currentPage, pageCount) => {
         const mutedColor = template.colors.muted || '#64748b'
+        const year = new Date().getFullYear()
         const items = [{ text: `Page ${currentPage} of ${pageCount}`, alignment: 'right', fontSize: 8, color: mutedColor }]
-        if (config?.showFreePlanBranding && config?.siteUrl) {
-            const year = new Date().getFullYear()
-            items.push({
-                text: [{ text: `Simple CV Builder created by William Ellis. Dedicated to helping you get the job you want. © ${year} ` }, { text: 'simple-cv-builder.com', link: config.siteUrl }],
-                alignment: 'center',
-                fontSize: 7,
-                color: mutedColor,
-                margin: [0, 4, 0, 0]
-            })
+        const brandingParts = [
+            { text: `Simple CV Builder Designed, Developed and Delivered by William Ellis. © ${year}` }
+        ]
+        if (config?.siteUrl) {
+            brandingParts.push({ text: ' ', fontSize: 7 }, { text: 'simple-cv-builder.com', link: config.siteUrl, fontSize: 7 })
         }
+        items.push({
+            text: brandingParts,
+            alignment: 'center',
+            fontSize: 7,
+            color: mutedColor,
+            margin: [0, 4, 0, 0]
+        })
         return { stack: items, margin: [0, 10, 45, 0] }
     }
 

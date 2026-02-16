@@ -390,17 +390,21 @@ function buildProfessionalDocDefinition({ cvData = {}, profile = {}, config = {}
         footer: (currentPage, pageCount) => {
             const p = (typeof pageCount === 'number' && !Number.isNaN(pageCount)) ? pageCount : 1
             const c = (typeof currentPage === 'number' && !Number.isNaN(currentPage)) ? currentPage : 1
+            const year = new Date().getFullYear()
             const items = [{ text: `${c} / ${p}`, alignment: 'center', style: 'footer' }]
-            if (config?.showFreePlanBranding && config?.siteUrl) {
-                const year = new Date().getFullYear()
-                items.push({
-                    text: [{ text: `Simple CV Builder created by William Ellis. Dedicated to helping you get the job you want. © ${year} ` }, { text: 'simple-cv-builder.com', link: config.siteUrl }],
-                    alignment: 'center',
-                    fontSize: 7,
-                    color: palette.muted || '#6b7280',
-                    margin: [0, 4, 0, 0]
-                })
+            const brandingParts = [
+                { text: `Simple CV Builder Designed, Developed and Delivered by William Ellis. © ${year}` }
+            ]
+            if (config?.siteUrl) {
+                brandingParts.push({ text: ' ', fontSize: 7 }, { text: 'simple-cv-builder.com', link: config.siteUrl, fontSize: 7 })
             }
+            items.push({
+                text: brandingParts,
+                alignment: 'center',
+                fontSize: 7,
+                color: palette.muted || '#6b7280',
+                margin: [0, 4, 0, 0]
+            })
             return { stack: items, margin: [0, 10, 0, 0] }
         },
         content,
