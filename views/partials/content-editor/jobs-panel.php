@@ -66,8 +66,8 @@ $stats = getJobApplicationStats($userId);
         </div>
 
         <!-- Actions Bar -->
-        <div class="mb-6 flex flex-wrap justify-between items-center gap-4">
-            <div class="flex flex-wrap gap-4 flex-1 items-center">
+        <div class="mb-6 flex flex-wrap justify-between items-center gap-3">
+            <div class="flex flex-wrap gap-3 flex-1 items-center min-w-0">
                 <select id="jobs-status-filter" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
                     <option value="all">All Status</option>
                     <option value="applied">Applied</option>
@@ -98,6 +98,30 @@ $stats = getJobApplicationStats($userId);
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                         </svg>
                     </button>
+                </div>
+                <!-- Column visibility dropdown -->
+                <div class="relative" id="jobs-columns-toggle-wrap">
+                    <button type="button" id="jobs-columns-toggle-btn"
+                            class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 border border-gray-300 rounded-md bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            title="Choose which columns to show">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                        </svg>
+                        Columns
+                    </button>
+                    <div id="jobs-columns-dropdown" class="hidden absolute left-0 top-full mt-1 min-w-[10rem] py-2 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                        <style>.jobs-col-check{width:1rem;height:1rem;flex-shrink:0;cursor:pointer;accent-color:#2563eb}</style>
+                        <div class="px-3 py-2 text-xs font-medium text-gray-500 uppercase border-b border-gray-100">Show columns</div>
+                        <label class="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm"><input type="checkbox" data-column="company" class="jobs-col-check"> Company</label>
+                        <label class="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm"><input type="checkbox" data-column="job_title" class="jobs-col-check"> Job Title</label>
+                        <label class="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm"><input type="checkbox" data-column="status" class="jobs-col-check"> Status</label>
+                        <label class="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm"><input type="checkbox" data-column="priority" class="jobs-col-check"> Priority</label>
+                        <label class="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm"><input type="checkbox" data-column="closing_date" class="jobs-col-check"> Closing</label>
+                        <label class="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm"><input type="checkbox" data-column="location" class="jobs-col-check"> Location</label>
+                        <label class="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm"><input type="checkbox" data-column="salary" class="jobs-col-check"> Salary</label>
+                        <label class="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm"><input type="checkbox" data-column="date_added" class="jobs-col-check"> Date</label>
+                        <label class="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm"><input type="checkbox" data-column="actions" class="jobs-col-check"> Actions</label>
+                    </div>
                 </div>
             </div>
             <div class="flex flex-wrap gap-2 shrink-0 items-center">
@@ -131,6 +155,25 @@ $stats = getJobApplicationStats($userId);
                     #jobs-applications-table {
                         position: relative;
                     }
+                    /* Column visibility - hide columns when jobs-hide-{column} is on wrapper */
+                    .jobs-table-wrap.jobs-hide-company th[data-column="company"],
+                    .jobs-table-wrap.jobs-hide-company td[data-column="company"] { display: none !important; }
+                    .jobs-table-wrap.jobs-hide-job_title th[data-column="job_title"],
+                    .jobs-table-wrap.jobs-hide-job_title td[data-column="job_title"] { display: none !important; }
+                    .jobs-table-wrap.jobs-hide-status th[data-column="status"],
+                    .jobs-table-wrap.jobs-hide-status td[data-column="status"] { display: none !important; }
+                    .jobs-table-wrap.jobs-hide-priority th[data-column="priority"],
+                    .jobs-table-wrap.jobs-hide-priority td[data-column="priority"] { display: none !important; }
+                    .jobs-table-wrap.jobs-hide-closing_date th[data-column="closing_date"],
+                    .jobs-table-wrap.jobs-hide-closing_date td[data-column="closing_date"] { display: none !important; }
+                    .jobs-table-wrap.jobs-hide-location th[data-column="location"],
+                    .jobs-table-wrap.jobs-hide-location td[data-column="location"] { display: none !important; }
+                    .jobs-table-wrap.jobs-hide-salary th[data-column="salary"],
+                    .jobs-table-wrap.jobs-hide-salary td[data-column="salary"] { display: none !important; }
+                    .jobs-table-wrap.jobs-hide-date_added th[data-column="date_added"],
+                    .jobs-table-wrap.jobs-hide-date_added td[data-column="date_added"] { display: none !important; }
+                    .jobs-table-wrap.jobs-hide-actions th[data-column="actions"],
+                    .jobs-table-wrap.jobs-hide-actions td[data-column="actions"] { display: none !important; }
                     #jobs-applications-table::-webkit-scrollbar {
                         height: 12px;
                     }
@@ -150,19 +193,19 @@ $stats = getJobApplicationStats($userId);
                         overflow-y: auto;
                     }
                 </style>
-                <div id="jobs-applications-table" class="hidden" style="max-height: calc(100vh - 300px); overflow-x: scroll; overflow-y: auto;">
-                    <table class="min-w-full divide-y divide-gray-200">
+                <div id="jobs-applications-table" class="hidden jobs-table-wrap" style="max-height: calc(100vh - 300px); overflow-x: scroll; overflow-y: auto;">
+                    <table class="min-w-full divide-y divide-gray-200 jobs-table">
                         <thead class="bg-gray-50 sticky top-0 z-10">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Company</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Job Title</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Status</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Priority</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Closing Date</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Location</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Salary</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Date Added</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Actions</th>
+                                <th data-column="company" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Company</th>
+                                <th data-column="job_title" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Job Title</th>
+                                <th data-column="status" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Status</th>
+                                <th data-column="priority" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Priority</th>
+                                <th data-column="closing_date" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Closing Date</th>
+                                <th data-column="location" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Location</th>
+                                <th data-column="salary" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Salary</th>
+                                <th data-column="date_added" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Date Added</th>
+                                <th data-column="actions" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="jobs-table-body" class="bg-white divide-y divide-gray-200">
@@ -235,7 +278,7 @@ $stats = getJobApplicationStats($userId);
         const container = document.getElementById('jobs-applications-container');
         if (!container) return;
         
-        // Load job applications via API and render manually
+        // Column visibility is set up by jobs-panel-content-editor.js to avoid duplicate handlers
         loadJobsData();
     }
     
@@ -326,15 +369,15 @@ $stats = getJobApplicationStats($userId);
                 const priorityCell = app.priority ? '<span class="inline-flex px-2 py-0.5 rounded text-xs font-medium ' + (app.priority === 'high' ? 'bg-red-100 text-red-800' : (app.priority === 'medium' ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-600')) + '">' + escapeHtml(app.priority) + '</span>' : '—';
                 const dueCell = dueSoon.label ? '<span class="text-xs font-medium ' + (dueSoon.urgent ? 'text-red-600' : (dueSoon.soon ? 'text-amber-700' : 'text-gray-600')) + '">' + escapeHtml(dueSoon.label) + '</span>' : '—';
                 return '<tr class="hover:bg-gray-50 cursor-pointer" role="button" tabindex="0" onclick="window.location.hash=\'' + viewHash.replace(/'/g, "\\'") + '\'" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();window.location.hash=\'' + viewHash.replace(/'/g, "\\'") + '\'}">' +
-                    '<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">' + escapeHtml(app.company_name || '') + '</td>' +
-                    '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">' + escapeHtml(app.job_title || '') + '</td>' +
-                    '<td class="px-6 py-4 whitespace-nowrap"><span class="status-badge status-' + (app.status || 'applied') + '">' + formatStatus(app.status) + '</span></td>' +
-                    '<td class="px-6 py-4 whitespace-nowrap text-sm">' + priorityCell + '</td>' +
-                    '<td class="px-6 py-4 whitespace-nowrap text-sm">' + dueCell + '</td>' +
-                    '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">' + escapeHtml(app.job_location || '') + '</td>' +
-                    '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">' + escapeHtml(app.salary_range || '') + '</td>' +
-                    '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">' + dateLabel + '</td>' +
-                    '<td class="px-6 py-4 whitespace-nowrap text-sm" onclick="event.stopPropagation()">' +
+                    '<td data-column="company" class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">' + escapeHtml(app.company_name || '') + '</td>' +
+                    '<td data-column="job_title" class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">' + escapeHtml(app.job_title || '') + '</td>' +
+                    '<td data-column="status" class="px-6 py-4 whitespace-nowrap"><span class="status-badge status-' + (app.status || 'applied') + '">' + formatStatus(app.status) + '</span></td>' +
+                    '<td data-column="priority" class="px-6 py-4 whitespace-nowrap text-sm">' + priorityCell + '</td>' +
+                    '<td data-column="closing_date" class="px-6 py-4 whitespace-nowrap text-sm">' + dueCell + '</td>' +
+                    '<td data-column="location" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">' + escapeHtml(app.job_location || '') + '</td>' +
+                    '<td data-column="salary" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">' + escapeHtml(app.salary_range || '') + '</td>' +
+                    '<td data-column="date_added" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">' + dateLabel + '</td>' +
+                    '<td data-column="actions" class="px-6 py-4 whitespace-nowrap text-sm" onclick="event.stopPropagation()">' +
                     '<div style="display:flex;flex-direction:row;flex-wrap:nowrap;align-items:center;gap:8px;">' +
                     '<a href="' + viewHash + '" style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;font-size:13px;font-weight:500;color:#374151;background:#fff;border:1px solid #d1d5db;border-radius:6px;text-decoration:none;">' +
                     '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>View</a>' +
@@ -348,6 +391,61 @@ $stats = getJobApplicationStats($userId);
         if (tableBody) tableBody.innerHTML = tableRowsHtml;
     }
     
+    const JOBS_COLUMNS = ['company', 'job_title', 'status', 'priority', 'closing_date', 'location', 'salary', 'date_added', 'actions'];
+    const JOBS_COL_VISIBILITY_KEY = 'jobApplicationsTableColumns';
+
+    function getJobsColumnVisibility() {
+        try {
+            var saved = localStorage.getItem(JOBS_COL_VISIBILITY_KEY);
+            if (saved) {
+                var parsed = JSON.parse(saved);
+                var out = {};
+                JOBS_COLUMNS.forEach(function(c) { out[c] = parsed[c] !== false; });
+                return out;
+            }
+        } catch (e) {}
+        var def = {};
+        JOBS_COLUMNS.forEach(function(c) { def[c] = true; });
+        return def;
+    }
+
+    function setJobsColumnVisibility(vis) {
+        try { localStorage.setItem(JOBS_COL_VISIBILITY_KEY, JSON.stringify(vis)); } catch (e) {}
+    }
+
+    function applyJobsColumnVisibility() {
+        var wrap = document.getElementById('jobs-applications-table');
+        if (!wrap) return;
+        var vis = getJobsColumnVisibility();
+        JOBS_COLUMNS.forEach(function(c) {
+            wrap.classList.toggle('jobs-hide-' + c, !vis[c]);
+        });
+    }
+
+    function setupJobsColumnVisibility() {
+        var btn = document.getElementById('jobs-columns-toggle-btn');
+        var dropdown = document.getElementById('jobs-columns-dropdown');
+        if (!btn || !dropdown) return;
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            dropdown.classList.toggle('hidden');
+        });
+        document.addEventListener('click', function() { dropdown.classList.add('hidden'); });
+        dropdown.addEventListener('click', function(e) { e.stopPropagation(); });
+        var checks = dropdown.querySelectorAll('.jobs-col-check');
+        var vis = getJobsColumnVisibility();
+        checks.forEach(function(ch) {
+            var col = ch.getAttribute('data-column');
+            ch.checked = vis[col] !== false;
+            ch.addEventListener('change', function() {
+                vis[col] = ch.checked;
+                setJobsColumnVisibility(vis);
+                applyJobsColumnVisibility();
+            });
+        });
+        applyJobsColumnVisibility();
+    }
+
     function setupJobsEventListeners(applications, csrfToken) {
         const statusFilter = document.getElementById('jobs-status-filter');
         const searchInput = document.getElementById('jobs-search-input');

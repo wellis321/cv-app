@@ -226,15 +226,15 @@
                     var priorityCell = app.priority ? '<span class="inline-flex px-2 py-0.5 rounded text-xs font-medium ' + (app.priority === 'high' ? 'bg-red-100 text-red-800' : (app.priority === 'medium' ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-600')) + '">' + escapeHtml(app.priority) + '</span>' : '—';
                     var dueCell = dueSoon.label ? '<span class="text-xs font-medium ' + (dueSoon.urgent ? 'text-red-600' : (dueSoon.soon ? 'text-amber-700' : 'text-gray-600')) + '">' + escapeHtml(dueSoon.label) + '</span>' : '—';
                     return '<tr class="hover:bg-gray-50 cursor-pointer" role="button" tabindex="0" onclick="window.location.hash=\'' + safeViewHash + '\'" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();window.location.hash=\'' + safeViewHash + '\'}">' +
-                        '<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">' + escapeHtml(app.company_name || '') + '</td>' +
-                        '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">' + escapeHtml(app.job_title || '') + '</td>' +
-                        '<td class="px-6 py-4 whitespace-nowrap"><span class="status-badge status-' + (app.status || 'applied') + '">' + formatStatus(app.status) + '</span></td>' +
-                        '<td class="px-6 py-4 whitespace-nowrap text-sm">' + priorityCell + '</td>' +
-                        '<td class="px-6 py-4 whitespace-nowrap text-sm">' + dueCell + '</td>' +
-                        '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">' + escapeHtml(app.job_location || '') + '</td>' +
-                        '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">' + escapeHtml(app.salary_range || '') + '</td>' +
-                        '<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">' + dateLabel + '</td>' +
-                        '<td class="px-6 py-4 whitespace-nowrap text-sm" onclick="event.stopPropagation()">' +
+                        '<td data-column="company" class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">' + escapeHtml(app.company_name || '') + '</td>' +
+                        '<td data-column="job_title" class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">' + escapeHtml(app.job_title || '') + '</td>' +
+                        '<td data-column="status" class="px-6 py-4 whitespace-nowrap"><span class="status-badge status-' + (app.status || 'applied') + '">' + formatStatus(app.status) + '</span></td>' +
+                        '<td data-column="priority" class="px-6 py-4 whitespace-nowrap text-sm">' + priorityCell + '</td>' +
+                        '<td data-column="closing_date" class="px-6 py-4 whitespace-nowrap text-sm">' + dueCell + '</td>' +
+                        '<td data-column="location" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">' + escapeHtml(app.job_location || '') + '</td>' +
+                        '<td data-column="salary" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">' + escapeHtml(app.salary_range || '') + '</td>' +
+                        '<td data-column="date_added" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">' + dateLabel + '</td>' +
+                        '<td data-column="actions" class="px-6 py-4 whitespace-nowrap text-sm" onclick="event.stopPropagation()">' +
                         '<div style="display:flex;flex-direction:row;flex-wrap:nowrap;align-items:center;gap:8px;">' +
                         '<a href="' + viewHash + '" style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;font-size:13px;font-weight:500;color:#374151;background:#fff;border:1px solid #d1d5db;border-radius:6px;text-decoration:none;">' +
                         '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>View</a>' +
@@ -313,9 +313,67 @@
             });
     };
 
+    var JOBS_COLUMNS = ['company', 'job_title', 'status', 'priority', 'closing_date', 'location', 'salary', 'date_added', 'actions'];
+    var JOBS_COL_VISIBILITY_KEY = 'jobApplicationsTableColumns';
+
+    function getJobsColumnVisibility() {
+        try {
+            var saved = localStorage.getItem(JOBS_COL_VISIBILITY_KEY);
+            if (saved) {
+                var parsed = JSON.parse(saved);
+                var out = {};
+                JOBS_COLUMNS.forEach(function(c) { out[c] = parsed[c] !== false; });
+                return out;
+            }
+        } catch (e) {}
+        var def = {};
+        JOBS_COLUMNS.forEach(function(c) { def[c] = true; });
+        return def;
+    }
+
+    function setJobsColumnVisibility(vis) {
+        try { localStorage.setItem(JOBS_COL_VISIBILITY_KEY, JSON.stringify(vis)); } catch (e) {}
+    }
+
+    function applyJobsColumnVisibility() {
+        var wrap = document.getElementById('jobs-applications-table');
+        if (!wrap) return;
+        var vis = getJobsColumnVisibility();
+        JOBS_COLUMNS.forEach(function(c) {
+            wrap.classList.toggle('jobs-hide-' + c, !vis[c]);
+        });
+    }
+
+    function setupJobsColumnVisibility() {
+        var btn = document.getElementById('jobs-columns-toggle-btn');
+        var dropdown = document.getElementById('jobs-columns-dropdown');
+        if (!btn || !dropdown) return;
+        if (dropdown.dataset.jobsColsWired) return;
+        dropdown.dataset.jobsColsWired = '1';
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            dropdown.classList.toggle('hidden');
+        });
+        document.addEventListener('click', function() { dropdown.classList.add('hidden'); });
+        dropdown.addEventListener('click', function(e) { e.stopPropagation(); });
+        var checks = dropdown.querySelectorAll('.jobs-col-check');
+        var vis = getJobsColumnVisibility();
+        checks.forEach(function(ch) {
+            var col = ch.getAttribute('data-column');
+            ch.checked = vis[col] !== false;
+            ch.addEventListener('change', function() {
+                vis[col] = ch.checked;
+                setJobsColumnVisibility(vis);
+                applyJobsColumnVisibility();
+            });
+        });
+        applyJobsColumnVisibility();
+    }
+
     function initJobsPanel() {
         var container = document.getElementById('jobs-applications-container');
         if (!container) return;
+        setupJobsColumnVisibility();
         setJobsView(jobsCurrentView);
         wireJobsViewToggleButtons();
         loadJobsData();
