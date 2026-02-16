@@ -6,6 +6,7 @@
 require_once __DIR__ . '/php/helpers.php';
 
 $token = get('token', '');
+$redirect = get('redirect', '');
 $error = null;
 $success = null;
 
@@ -71,7 +72,8 @@ if (!empty($token)) {
                     <p><?php echo e($success); ?></p>
                 </div>
                 <div class="text-center">
-                    <a href="/" class="inline-block bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">
+                    <?php $loginUrl = !empty($redirect) ? '/?redirect=' . urlencode($redirect) : '/'; ?>
+                    <a href="<?php echo e($loginUrl); ?>" class="inline-block bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">
                         Go to Login
                     </a>
                 </div>

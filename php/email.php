@@ -90,9 +90,13 @@ function sendEmail($to, $subject, $message, $fromEmail = null, $fromName = null)
 
 /**
  * Send email verification email
+ * @param string|null $redirect Optional redirect to preserve through verification (e.g. /subscription.php?plan=pro_week)
  */
-function sendVerificationEmail($email, $fullName, $verificationToken) {
+function sendVerificationEmail($email, $fullName, $verificationToken, $redirect = null) {
     $verifyUrl = APP_URL . '/verify-email.php?token=' . urlencode($verificationToken);
+    if (!empty($redirect)) {
+        $verifyUrl .= '&redirect=' . urlencode($redirect);
+    }
 
     $subject = 'Verify your email address';
 

@@ -106,12 +106,12 @@ if (isPost()) {
             redirect('/');
         }
 
-        $result = registerUser($email, $password, $fullName);
+        $registerRedirect = sanitizeInput(post('redirect', ''));
+        $result = registerUser($email, $password, $fullName, $registerRedirect ?: null);
 
         if ($result['success']) {
             logAuthAttempt('register', $email, true);
             setFlash('success', $result['message'] ?? 'Registration successful! Please check your email to verify your account.');
-            $registerRedirect = sanitizeInput(post('redirect', ''));
             $target = !empty($registerRedirect) ? '/?redirect=' . urlencode($registerRedirect) : '/';
             redirect($target);
         } else {
@@ -153,13 +153,14 @@ if (isPost()) {
     }
 }
 
-// Redirect logged-in users to dashboard (only if we're on the homepage)
+// Redirect logged-in users (only if we're on the homepage)
 // Don't redirect if we're already on a specific page to avoid redirect loops
 $requestUri = $_SERVER['REQUEST_URI'] ?? '/';
 $requestPath = parse_url($requestUri, PHP_URL_PATH);
 $isHomepage = ($requestPath === '/' || $requestPath === '/index.php' || empty($requestPath) || $requestPath === '');
 if (isLoggedIn() && $isHomepage) {
-    redirect('/dashboard.php');
+    $redirectTo = get('redirect', '');
+    redirect(!empty($redirectTo) ? $redirectTo : '/dashboard.php');
 }
 
 // Get user data if logged in (with error handling)

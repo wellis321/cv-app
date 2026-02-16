@@ -61,8 +61,9 @@ function requireAuth() {
 /**
  * Register a new user
  * Note: Password strength should be validated before calling this function
+ * @param string|null $redirect Optional redirect URL to preserve through verification (e.g. /subscription.php?plan=pro_week)
  */
-function registerUser($email, $password, $fullName = null) {
+function registerUser($email, $password, $fullName = null, $redirect = null) {
     $db = db();
 
     // Check if email already exists
@@ -109,9 +110,9 @@ function registerUser($email, $password, $fullName = null) {
 
         $db->commit();
 
-        // Send verification email
+        // Send verification email (include redirect so user lands on checkout after verifying)
         require_once __DIR__ . '/email.php';
-        $emailSent = sendVerificationEmail($email, $fullName, $verificationToken);
+        $emailSent = sendVerificationEmail($email, $fullName, $verificationToken, $redirect);
 
         if (!$emailSent && DEBUG) {
             error_log("Warning: Verification email could not be sent to {$email}");
