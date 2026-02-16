@@ -782,12 +782,13 @@
             </button>
             <div class="mb-4">
                 <h3 class="text-2xl font-semibold text-gray-900" id="register-modal-title">Create your free account</h3>
-                <p class="mt-1 text-sm text-gray-500">We’ll guide you through building a standout CV in minutes.</p>
+                <p class="mt-1 text-sm text-gray-500" id="register-modal-subtitle">We’ll guide you through building a standout CV in minutes.</p>
             </div>
             <div data-modal-message class="mb-4 hidden rounded-md border px-4 py-3 text-sm font-medium"></div>
-            <form method="POST" action="/">
+            <form method="POST" action="/" id="register-form">
                 <input type="hidden" name="action" value="register">
                 <input type="hidden" name="<?php echo CSRF_TOKEN_NAME; ?>" value="<?php echo csrfToken(); ?>">
+                <input type="hidden" name="redirect" value="" id="register-redirect-input">
 
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div class="sm:col-span-2">
@@ -953,19 +954,29 @@
             });
         } else {
             const urlParams = new URLSearchParams(window.location.search);
-            // Redirect param = user tried to access protected page (e.g. subscription) → open login
-            if (urlParams.get('redirect')) {
+            const redirect = urlParams.get('redirect') || '';
+            // Redirect to subscription = new user wanting to start trial → show REGISTER (they need an account first)
+            if (redirect && redirect.includes('subscription') && redirect.includes('plan=')) {
+                const registerModal = document.querySelector('[data-modal="register"]');
+                const titleEl = document.getElementById('register-modal-title');
+                const subtitleEl = document.getElementById('register-modal-subtitle');
+                const redirectInput = document.getElementById('register-redirect-input');
+                if (titleEl) titleEl.textContent = 'Create your account to start your 7-day trial';
+                if (subtitleEl) subtitleEl.textContent = 'Create a free account first, then you\'ll go straight to checkout. No charge until your trial ends.';
+                if (redirectInput) redirectInput.value = decodeURIComponent(redirect);
+                openModal('register');
+            } else if (redirect) {
                 openModal('login');
                 const loginModal = document.querySelector('[data-modal="login"]');
                 const redirectInput = loginModal?.querySelector('input[name="redirect"]');
                 if (loginModal && redirectInput) {
-                    redirectInput.value = decodeURIComponent(urlParams.get('redirect') || '');
+                    redirectInput.value = decodeURIComponent(redirect);
                 } else if (loginModal) {
                     const form = loginModal.querySelector('form');
                     const hidden = document.createElement('input');
                     hidden.type = 'hidden';
                     hidden.name = 'redirect';
-                    hidden.value = decodeURIComponent(urlParams.get('redirect') || '');
+                    hidden.value = decodeURIComponent(redirect);
                     form?.appendChild(hidden);
                 }
             } else if (urlParams.get('register') === '1') {

@@ -111,7 +111,9 @@ if (isPost()) {
         if ($result['success']) {
             logAuthAttempt('register', $email, true);
             setFlash('success', $result['message'] ?? 'Registration successful! Please check your email to verify your account.');
-            redirect('/');
+            $registerRedirect = sanitizeInput(post('redirect', ''));
+            $target = !empty($registerRedirect) ? '/?redirect=' . urlencode($registerRedirect) : '/';
+            redirect($target);
         } else {
             logAuthAttempt('register', $email, false, $result['error']);
             setFlash('error', $result['error']);
@@ -133,7 +135,7 @@ if (isPost()) {
 
         if ($result['success']) {
             logAuthAttempt('login', $email, true);
-            $redirect = get('redirect', '/profile.php');
+            $redirect = post('redirect', '/profile.php');
             redirect($redirect);
         } else {
             $reason = $result['error'] ?? 'Invalid credentials';
@@ -144,7 +146,9 @@ if (isPost()) {
             }
             setFlash('old_login_email', $email);
             setFlash('error', $result['error']);
-            redirect('/');
+            $loginRedirect = post('redirect', '');
+            $target = !empty($loginRedirect) ? '/?redirect=' . urlencode($loginRedirect) : '/';
+            redirect($target);
         }
     }
 }
