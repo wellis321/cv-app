@@ -1,5 +1,6 @@
 <?php
 $title = $pageTitle ?? 'Simple CV Builder';
+$useHomeCss = $useHomeCss ?? false;
 $description = $metaDescription ?? 'Build a standout CV online, share it instantly, and unlock premium templates with Simple CV Builder.';
 $canonicalUrl = $canonicalUrl ?? (APP_URL . $_SERVER['REQUEST_URI']);
 $metaImage = $metaImage ?? (APP_URL . '/static/images/default-profile.svg');
@@ -94,6 +95,7 @@ outputStructuredData($schemas);
     }
 }
 </style>
-<link rel="preload" href="/static/css/tailwind.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="/static/css/tailwind.css"></noscript>
+<?php $cssFile = ($useHomeCss && file_exists(__DIR__ . '/../../static/css/tailwind-home.css')) ? 'tailwind-home.css' : 'tailwind.css'; ?>
+<link rel="preload" href="/static/css/<?php echo $cssFile; ?>" as="style">
+<link rel="stylesheet" href="/static/css/<?php echo $cssFile; ?>">
 <!-- marked.js loaded by footer only when .markdown-content exists -->

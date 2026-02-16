@@ -15,6 +15,11 @@ composer install
 # Run local development server
 php -S localhost:8000
 
+# Build Tailwind CSS (run after changing templates/views)
+npm run build:css          # Full site CSS
+npm run build:css:home     # Homepage-only CSS (smaller, ~38KB vs ~113KB)
+npm run build:css:all      # Both (recommended for deploy)
+
 # Install PDF generator dependencies (in scripts/)
 cd scripts && npm install
 

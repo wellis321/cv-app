@@ -34,6 +34,13 @@ RewriteRule ^sitemap\.xml$ sitemap.php [L]
 # Redirect to index.php if file doesn't exist (for routing)
 RewriteRule ^(.*)$ index.php [QSA,L]
 
+# Cache static assets (1 month) - improves repeat visit performance
+<IfModule mod_headers.c>
+    <FilesMatch "\.(css|js|webp|jpg|jpeg|png|gif|svg|ico|woff2?)$">
+        Header set Cache-Control "public, max-age=2592000"
+    </FilesMatch>
+</IfModule>
+
 # Security Headers (backup - also set in PHP)
 <IfModule mod_headers.c>
     Header always set X-Frame-Options "SAMEORIGIN"

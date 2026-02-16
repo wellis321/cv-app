@@ -195,6 +195,7 @@ $oldLoginEmail = getFlash('old_login_email') ?: null;
 <head>
     <?php partial('head', [
         'pageTitle' => 'Simple CV Builder | Free CV Maker UK, Job Tracker & AI Cover Letters',
+        'useHomeCss' => true,
         'metaDescription' => 'Free CV builder UK with job application tracking and AI-powered cover letters. Build your CV online, share a link, and export PDFs. For job seekers and recruitment agencies.',
         'canonicalUrl' => APP_URL . '/',
         'structuredDataType' => 'homepage',

@@ -72,7 +72,7 @@
     <div class="absolute inset-0 z-0">
         <picture>
             <source srcset="/static/images/home/AI-in-the-browseer.webp" type="image/webp">
-            <img src="/static/images/home/AI-in-the-browseer.png" alt="" class="w-full h-full object-cover object-center" aria-hidden="true" fetchpriority="high">
+            <img src="/static/images/home/AI-in-the-browseer.png" alt="" class="w-full h-full object-cover object-center" width="1400" height="933" aria-hidden="true" fetchpriority="high">
         </picture>
     </div>
     <div class="absolute inset-0 z-[1] bg-gradient-to-br from-transparent via-transparent to-indigo-900/80" style="background: linear-gradient(to bottom right, rgba(88, 28, 135, 0.0), rgba(67, 56, 202, 0.78));" aria-hidden="true"></div>
@@ -340,7 +340,7 @@
                 <div class="relative flex min-h-[280px] lg:min-h-0 items-center justify-center px-6 py-12 sm:px-10 sm:py-16 lg:px-12">
                     <picture>
                         <source srcset="/static/images/home/jobs.webp" type="image/webp">
-                        <img src="/static/images/home/jobs.png" alt="Job Application Tracker showing job cards" class="absolute inset-0 h-full w-full object-contain object-center" loading="lazy">
+                        <img src="/static/images/home/jobs.png" alt="Job Application Tracker showing job cards" class="absolute inset-0 h-full w-full object-contain object-center" width="460" height="260" loading="lazy">
                     </picture>
                     <div class="relative z-10 text-center bg-white/95 backdrop-blur-sm rounded-lg px-6 py-8 shadow-xl border border-gray-200">
                         <div class="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-green-100 shadow-lg">

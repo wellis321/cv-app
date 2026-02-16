@@ -5,7 +5,9 @@
   "description": "B2B CV Builder (web app). Use sync-to-desktop to update the Electron app.",
   "scripts": {
     "sync-to-desktop": "node scripts/sync-to-desktop.js",
-    "build:css": "tailwindcss -i ./static/css/input.css -o ./static/css/tailwind.css --minify"
+    "build:css": "tailwindcss -i ./static/css/input.css -o ./static/css/tailwind.css --minify",
+    "build:css:home": "tailwindcss -i ./static/css/input.css -o ./static/css/tailwind-home.css --minify -c tailwind-home.config.js",
+    "build:css:all": "npm run build:css && npm run build:css:home"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.24",
