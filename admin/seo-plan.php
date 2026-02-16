@@ -95,7 +95,7 @@ $phases = [
     ['name' => 'Phase 2: Internal Linking', 'done' => true, 'items' => ['Homepage links to Free CV & Job Guides', 'FAQ links to key resource articles', 'Footer links to Job Market Insights, Career Advice Hub', 'CTAs at end of resource articles']],
     ['name' => 'Phase 3: Meta Descriptions', 'done' => true, 'items' => ['Resource articles have keyword-rich meta descriptions', 'Feature pages audited and meta descriptions improved']],
     ['name' => 'Phase 4: Content & On-Page', 'done' => true, 'items' => ['Ensure keywords in first paragraph of key pages', 'Add keywords to image alt text', 'Optimise internal link anchor text']],
-    ['name' => 'Phase 5: Technical & Monitoring', 'done' => false, 'items' => ['Submit sitemap to Google Search Console', 'Request indexing for key pages', 'Monitor rankings in GSC', 'Track organic traffic growth']],
+    ['name' => 'Phase 5: Technical & Monitoring', 'done' => false, 'items' => ['Submit sitemap to Google Search Console ✓', 'Submit sitemap to Bing Webmaster Tools ✓', 'Request indexing for key pages', 'Monitor rankings in GSC', 'Track organic traffic growth']],
 ];
 
 $keyPages = [
