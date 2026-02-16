@@ -252,7 +252,7 @@
                             </svg>
                         </div>
                         <span class="inline-flex rounded-full bg-green-100 px-3 py-1 text-sm font-semibold text-green-800">Built-in Feature</span>
-                        <span class="inline-flex rounded-full bg-green-600 px-3 py-1 text-sm font-semibold text-white">New: One-click save</span>
+                        <span class="inline-flex rounded-full bg-green-700 px-3 py-1 text-sm font-semibold text-white">New: One-click save</span>
                     </div>
                     <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
                         Land Your Dream Job
@@ -306,21 +306,21 @@
                     </ul>
                     <div class="mt-8 flex flex-col gap-3 sm:flex-row">
                         <?php if (isLoggedIn()): ?>
-                            <a href="/job-applications.php" class="inline-flex items-center justify-center rounded-lg bg-green-600 px-6 py-3 text-base font-semibold text-white shadow-lg hover:bg-green-700 transition-colors">
+                            <a href="/job-applications.php" class="inline-flex items-center justify-center rounded-lg bg-green-700 px-6 py-3 text-base font-semibold text-white shadow-lg hover:bg-green-800 transition-colors">
                                 Manage Job Applications
                                 <svg class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                 </svg>
                             </a>
                         <?php else: ?>
-                            <button type="button" data-open-register class="inline-flex items-center justify-center rounded-lg bg-green-600 px-6 py-3 text-base font-semibold text-white shadow-lg hover:bg-green-700 transition-colors">
+                            <button type="button" data-open-register class="inline-flex items-center justify-center rounded-lg bg-green-700 px-6 py-3 text-base font-semibold text-white shadow-lg hover:bg-green-800 transition-colors">
                                 Create Free Account
                                 <svg class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                 </svg>
                             </button>
                         <?php endif; ?>
-                        <a href="/job-applications-features.php" class="inline-flex items-center justify-center rounded-lg border-2 border-green-600 bg-white px-6 py-3 text-base font-semibold text-green-600 shadow-lg hover:bg-green-50 transition-colors">
+                        <a href="/job-applications-features.php" class="inline-flex items-center justify-center rounded-lg border-2 border-green-700 bg-white px-6 py-3 text-base font-semibold text-green-700 shadow-lg hover:bg-green-50 transition-colors">
                             View job application tracker features
                             <svg class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -368,7 +368,7 @@
                     Or scan the QR code with your phone to view it instantly!
                 </p>
                 <div class="mt-8">
-                    <a href="/cv/@simple-cv-example" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center rounded-lg bg-white px-6 py-3 text-base font-semibold text-green-600 shadow-lg hover:bg-green-50 transition-colors">
+                    <a href="/cv/@simple-cv-example" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center rounded-lg bg-white px-6 py-3 text-base font-semibold text-green-700 shadow-lg hover:bg-green-50 transition-colors">
                         View Example CV
                         <svg class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -569,12 +569,14 @@
                         <dd class="mt-2 ml-0 text-base text-gray-500 mb-4">
                             <?php echo $feature['description']; ?>
                         </dd>
-                        <a href="<?php echo e($feature['link']); ?>" class="inline-flex items-center text-sm font-semibold text-indigo-600 hover:text-indigo-800">
-                            <?php echo e($feature['linkText']); ?>
-                            <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                            </svg>
-                        </a>
+                        <dd class="mt-2 ml-0">
+                            <a href="<?php echo e($feature['link']); ?>" class="inline-flex items-center text-sm font-semibold text-indigo-600 hover:text-indigo-800">
+                                <?php echo e($feature['linkText']); ?>
+                                <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </a>
+                        </dd>
                     </div>
                 <?php endforeach; ?>
             </dl>

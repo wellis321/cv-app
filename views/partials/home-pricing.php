@@ -99,10 +99,10 @@ unset($card);
                         <h3 class="text-xl font-semibold"><?php echo e($card['label']); ?></h3>
                         <div class="mt-6 flex flex-wrap items-baseline gap-2">
                             <?php if (!empty($card['was_price'])): ?>
-                                <span class="text-lg text-gray-400 line-through"><?php echo e($card['was_price']); ?></span>
+                                <span class="text-lg <?php echo $card['highlight'] ? 'text-gray-500' : 'text-gray-400'; ?> line-through"><?php echo e($card['was_price']); ?></span>
                             <?php endif; ?>
                             <span class="text-3xl font-bold"><?php echo e($card['price']); ?></span>
-                            <span class="text-sm text-gray-400"><?php echo e($card['detail']); ?></span>
+                            <span class="text-sm <?php echo $card['highlight'] ? 'text-gray-600' : 'text-gray-400'; ?>"><?php echo e($card['detail']); ?></span>
                         </div>
                     </div>
                     <ul class="mt-8 space-y-3 text-sm flex-1">
@@ -156,7 +156,7 @@ unset($card);
             <p class="mt-2 text-gray-300">
                 Recruitment agencies: manage candidates, team collaboration, and branding in one platform.
             </p>
-            <ul class="mt-4 flex flex-wrap justify-center gap-x-6 gap-y-1 text-sm text-gray-400">
+            <ul class="mt-4 flex flex-wrap justify-center gap-x-6 gap-y-1 text-sm text-gray-500">
                 <li>Custom candidate and team limits</li>
                 <li>White-label branding and support</li>
             </ul>
@@ -164,7 +164,7 @@ unset($card);
                 Contact us to set up your organisation
             </a>
         </div>
-        <p class="mt-8 text-center text-sm text-gray-400">
+        <p class="mt-8 text-center text-sm text-gray-500">
             Secure payments powered by Stripe. Your card is safe; cancel anytime from your billing portal.
         </p>
     </div>
