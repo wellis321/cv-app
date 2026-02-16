@@ -3,7 +3,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
             <div>
                 <a href="/" class="inline-flex items-center space-x-3 mb-4">
-                    <img src="/static/images/logo/black-logo-300.jpg" alt="Simple CV Builder" class="h-12 w-auto" />
+                    <?php partial('logo', ['logoClass' => 'h-12 w-auto']); ?>
                     <span class="text-2xl font-bold text-blue-600">Simple CV Builder</span>
                 </a>
                 <p class="text-sm text-gray-600">
@@ -57,7 +57,7 @@
         <!-- Bottom section with logo and copyright -->
         <div class="pt-8 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-center gap-4">
             <a href="/" class="flex items-center">
-                <img src="/static/images/logo/black-logo-300.jpg" alt="Simple CV Builder" class="h-6 w-auto opacity-50" />
+                <?php partial('logo', ['logoClass' => 'h-6 w-auto opacity-50']); ?>
             </a>
             <p class="text-sm text-gray-500">
                 &copy; <?php echo date('Y'); ?> Simple CV Builder. All rights reserved.

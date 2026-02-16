@@ -15,7 +15,7 @@ $user = getCurrentUser();
         <div class="flex justify-between items-center py-3 md:py-4 gap-1 md:gap-2 lg:gap-4">
             <div class="flex items-center flex-shrink-0 min-w-0">
                 <a href="/admin/dashboard.php" class="flex items-center space-x-1 md:space-x-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 rounded">
-                    <img src="/static/images/logo/black-logo-300.jpg" alt="Simple CV Builder" class="h-10 md:h-10 lg:h-12 w-auto flex-shrink-0" />
+                    <?php partial('logo', ['logoClass' => 'h-10 md:h-10 lg:h-12 w-auto flex-shrink-0']); ?>
                     <span class="text-sm md:text-lg lg:text-xl xl:text-2xl font-bold text-blue-600 whitespace-nowrap hidden sm:inline">Simple CV Builder</span>
                 </a>
             </div>

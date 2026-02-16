@@ -68,8 +68,15 @@
 </div>
 
 <!-- Browser-Based AI Hero CTA - full width (for everyone) -->
-<section class="browser-ai-hero-bg relative overflow-hidden w-full bg-cover bg-center bg-no-repeat py-14 sm:py-18 lg:py-22" style="background-image: linear-gradient(to bottom right, rgba(88, 28, 135, 0.0), rgba(67, 56, 202, 0.78)), url('/static/images/home/AI-in-the-browseer.png');">
-    <div class="relative mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
+<section class="browser-ai-hero-bg relative overflow-hidden w-full py-14 sm:py-18 lg:py-22">
+    <div class="absolute inset-0 z-0">
+        <picture>
+            <source srcset="/static/images/home/AI-in-the-browseer.webp" type="image/webp">
+            <img src="/static/images/home/AI-in-the-browseer.png" alt="" class="w-full h-full object-cover object-center" aria-hidden="true" fetchpriority="high">
+        </picture>
+    </div>
+    <div class="absolute inset-0 z-[1] bg-gradient-to-br from-transparent via-transparent to-indigo-900/80" style="background: linear-gradient(to bottom right, rgba(88, 28, 135, 0.0), rgba(67, 56, 202, 0.78));" aria-hidden="true"></div>
+    <div class="relative z-10 mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
                 <div class="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/15 backdrop-blur-sm mb-6">
                     <svg class="w-9 h-9 sm:w-11 sm:h-11 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
@@ -331,7 +338,10 @@
 
                 <!-- Right side: Visual -->
                 <div class="relative flex min-h-[280px] lg:min-h-0 items-center justify-center px-6 py-12 sm:px-10 sm:py-16 lg:px-12">
-                    <img src="/static/images/home/jobs.png" alt="Job Application Tracker showing job cards" class="absolute inset-0 h-full w-full object-contain object-center" />
+                    <picture>
+                        <source srcset="/static/images/home/jobs.webp" type="image/webp">
+                        <img src="/static/images/home/jobs.png" alt="Job Application Tracker showing job cards" class="absolute inset-0 h-full w-full object-contain object-center" loading="lazy">
+                    </picture>
                     <div class="relative z-10 text-center bg-white/95 backdrop-blur-sm rounded-lg px-6 py-8 shadow-xl border border-gray-200">
                         <div class="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-green-100 shadow-lg">
                             <svg class="h-12 w-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

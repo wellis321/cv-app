@@ -77,7 +77,7 @@ unset($card);
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="max-w-2xl text-center mx-auto">
             <h2 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">Find the plan that fits your job search best</h2>
-            <p class="mt-4 text-lg text-gray-300">
+            <p class="mt-4 text-lg text-gray-200">
                 Start with a free account (no card required), or choose a paid plan to begin your 7-day trial. You'll enter payment details at checkout—no charge until after your trial.
             </p>
         </div>
@@ -156,7 +156,7 @@ unset($card);
             <p class="mt-2 text-gray-300">
                 Recruitment agencies: manage candidates, team collaboration, and branding in one platform.
             </p>
-            <ul class="mt-4 flex flex-wrap justify-center gap-x-6 gap-y-1 text-sm text-gray-500">
+            <ul class="mt-4 flex flex-wrap justify-center gap-x-6 gap-y-1 text-sm text-gray-300">
                 <li>Custom candidate and team limits</li>
                 <li>White-label branding and support</li>
             </ul>
@@ -164,7 +164,7 @@ unset($card);
                 Contact us to set up your organisation
             </a>
         </div>
-        <p class="mt-8 text-center text-sm text-gray-500">
+        <p class="mt-8 text-center text-sm text-gray-400">
             Secure payments powered by Stripe. Your card is safe; cancel anytime from your billing portal.
         </p>
     </div>
