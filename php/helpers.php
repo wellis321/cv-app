@@ -402,13 +402,13 @@ function getSectionNavigation($currentSectionId) {
 } // End function_exists check
 
 /**
- * Generate JSON-LD structured data
+ * Generate JSON-LD structured data for SEO and AI discoverability
  */
 if (!function_exists('generateStructuredData')) {
 function generateStructuredData($type = 'default', $data = []) {
     $schemas = [];
 
-    // Organization schema (always included)
+    // Organization schema (always included) - helps AI understand who publishes the content
     $schemas[] = [
         '@context' => 'https://schema.org',
         '@type' => 'Organization',
@@ -416,17 +416,19 @@ function generateStructuredData($type = 'default', $data = []) {
         'url' => APP_URL,
         'logo' => APP_URL . '/static/favicon.png',
         'description' => 'Free CV builder UK with job application tracking and AI cover letters. Build, share, and export professional CVs online.',
-        'sameAs' => [
-            // Add social media URLs if available
-        ]
+        'foundingDate' => '2024',
+        'areaServed' => ['@type' => 'Country', 'name' => 'United Kingdom'],
+        'knowsAbout' => ['CV building', 'job application tracking', 'career advice', 'AI cover letters', 'CV templates']
     ];
 
-    // WebSite schema (always included)
+    // WebSite schema (always included) - helps search and AI understand site structure
     $schemas[] = [
         '@context' => 'https://schema.org',
         '@type' => 'WebSite',
         'name' => 'Simple CV Builder',
         'url' => APP_URL,
+        'description' => 'Free CV builder UK with job application tracking and AI cover letters. Build your CV online, share a link, and export PDFs. For job seekers and recruitment agencies.',
+        'inLanguage' => 'en-GB',
         'potentialAction' => [
             '@type' => 'SearchAction',
             'target' => [
@@ -455,13 +457,15 @@ function generateStructuredData($type = 'default', $data = []) {
         ];
     }
 
-    // Article schema (for resource/blog pages)
+    // Article schema (for resource/blog pages) - helps AI cite and understand articles
     if ($type === 'article' && !empty($data)) {
+        $articleUrl = $data['url'] ?? (APP_URL . ($_SERVER['REQUEST_URI'] ?? ''));
         $schemas[] = [
             '@context' => 'https://schema.org',
             '@type' => 'Article',
             'headline' => $data['title'] ?? '',
             'description' => $data['description'] ?? '',
+            'url' => $articleUrl,
             'image' => $data['image'] ?? APP_URL . '/static/images/default-profile.svg',
             'datePublished' => $data['datePublished'] ?? date('Y-m-d'),
             'dateModified' => $data['dateModified'] ?? date('Y-m-d'),
@@ -476,6 +480,66 @@ function generateStructuredData($type = 'default', $data = []) {
                     '@type' => 'ImageObject',
                     'url' => APP_URL . '/static/favicon.png'
                 ]
+            ]
+        ];
+    }
+
+    // ItemList schema (for features page) - helps AI understand product capabilities
+    if ($type === 'features' && !empty($data['features'])) {
+        $itemListElement = [];
+        $position = 1;
+        foreach ($data['features'] as $feature) {
+            $name = is_array($feature) ? ($feature['name'] ?? '') : $feature;
+            $url = is_array($feature) && !empty($feature['link']) ? (str_starts_with($feature['link'], 'http') ? $feature['link'] : APP_URL . $feature['link']) : null;
+            $item = [
+                '@type' => 'ListItem',
+                'position' => $position++,
+                'name' => $name
+            ];
+            if ($url) {
+                $item['url'] = $url;
+            }
+            $itemListElement[] = $item;
+        }
+        $schemas[] = [
+            '@context' => 'https://schema.org',
+            '@type' => 'ItemList',
+            'name' => 'Simple CV Builder Features',
+            'description' => 'Complete list of CV building, job tracking, and AI features offered by Simple CV Builder.',
+            'numberOfItems' => count($itemListElement),
+            'itemListElement' => $itemListElement
+        ];
+    }
+
+    // CollectionPage schema (for resources hub) - helps AI understand content organisation
+    if ($type === 'collection' && !empty($data['sections'])) {
+        $itemListElement = [];
+        $position = 1;
+        foreach ($data['sections'] as $section) {
+            $name = is_array($section) ? ($section['title'] ?? '') : $section;
+            $url = is_array($section) && !empty($section['href']) ? (str_starts_with($section['href'], 'http') ? $section['href'] : APP_URL . $section['href']) : null;
+            $item = [
+                '@type' => 'ListItem',
+                'position' => $position++,
+                'name' => $name
+            ];
+            if ($url) {
+                $item['url'] = $url;
+            }
+            if (!empty($section['description'])) {
+                $item['description'] = $section['description'];
+            }
+            $itemListElement[] = $item;
+        }
+        $schemas[] = [
+            '@context' => 'https://schema.org',
+            '@type' => 'CollectionPage',
+            'name' => $data['name'] ?? 'Free CV & Job Guides',
+            'description' => $data['description'] ?? 'Free job search guides, CV tips, career advice, and extra income ideas for UK job seekers.',
+            'numberOfItems' => count($itemListElement),
+            'mainEntity' => [
+                '@type' => 'ItemList',
+                'itemListElement' => $itemListElement
             ]
         ];
     }
@@ -500,16 +564,17 @@ function generateStructuredData($type = 'default', $data = []) {
         ];
     }
 
-    // FAQPage schema (if FAQs provided)
+    // FAQPage schema (if FAQs provided) - helps AI answer user questions with citations
     if ($type === 'faq' && !empty($data['faqs'])) {
         $mainEntity = [];
         foreach ($data['faqs'] as $faq) {
+            $answerText = is_string($faq['answer']) ? strip_tags($faq['answer']) : '';
             $mainEntity[] = [
                 '@type' => 'Question',
                 'name' => $faq['question'],
                 'acceptedAnswer' => [
                     '@type' => 'Answer',
-                    'text' => $faq['answer']
+                    'text' => $answerText
                 ]
             ];
         }

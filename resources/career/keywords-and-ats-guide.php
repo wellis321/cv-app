@@ -298,6 +298,15 @@ $sections = [
         'pageTitle' => $pageTitle . ' | Simple CV Builder',
         'metaDescription' => $metaDescription,
         'canonicalUrl' => $canonicalUrl,
+        'structuredDataType' => 'article',
+        'structuredData' => [
+            'title' => $pageTitle,
+            'description' => $metaDescription,
+            'url' => $canonicalUrl,
+            'image' => 'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=800&q=80',
+            'datePublished' => '2025-01-01',
+            'dateModified' => date('Y-m-d'),
+        ],
     ]); ?>
 </head>
 <body class="bg-slate-50">

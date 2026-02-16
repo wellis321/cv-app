@@ -12,6 +12,14 @@ $canonicalUrl = APP_URL . '/resources/extra-income/legitimate-ways-to-earn-money
         'pageTitle' => $pageTitle . ' | Simple CV Builder',
         'metaDescription' => $metaDescription,
         'canonicalUrl' => $canonicalUrl,
+        'structuredDataType' => 'article',
+        'structuredData' => [
+            'title' => $pageTitle,
+            'description' => $metaDescription,
+            'url' => $canonicalUrl,
+            'datePublished' => '2025-01-01',
+            'dateModified' => date('Y-m-d'),
+        ],
     ]); ?>
 </head>
 <body class="bg-slate-50 text-slate-900">

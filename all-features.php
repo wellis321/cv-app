@@ -334,6 +334,14 @@ $features = [
         ],
     ],
 ];
+
+// Flatten features for ItemList structured data (AI discoverability)
+$featuresForSchema = [];
+foreach ($features as $categoryFeatures) {
+    foreach ($categoryFeatures as $f) {
+        $featuresForSchema[] = ['name' => $f['name'], 'link' => $f['link'] ?? null];
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -342,6 +350,8 @@ $features = [
         'pageTitle' => $pageTitle . ' | Simple CV Builder',
         'metaDescription' => 'All features of Simple CV Builder: free CV builder UK, job application tracker, AI cover letters, CV templates, PDF export. Complete feature overview.',
         'canonicalUrl' => $canonicalUrl,
+        'structuredDataType' => 'features',
+        'structuredData' => ['features' => $featuresForSchema],
     ]); ?>
     <style>
         .feature-table {

@@ -17,6 +17,14 @@ $canonicalUrl = APP_URL . '/resources/ai/setup-ollama.php';
         'pageTitle' => $pageTitle,
         'metaDescription' => $metaDescription,
         'canonicalUrl' => $canonicalUrl,
+        'structuredDataType' => 'article',
+        'structuredData' => [
+            'title' => $pageTitle,
+            'description' => $metaDescription,
+            'url' => $canonicalUrl,
+            'datePublished' => '2025-01-01',
+            'dateModified' => date('Y-m-d'),
+        ],
     ]); ?>
 </head>
 <body class="bg-gray-50">

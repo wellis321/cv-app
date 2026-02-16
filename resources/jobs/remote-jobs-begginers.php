@@ -275,6 +275,15 @@ $gettingStartedTips = [
         'pageTitle' => $pageTitle . ' | Simple CV Builder',
         'metaDescription' => $metaDescription,
         'canonicalUrl' => APP_URL . '/resources/jobs/remote-jobs-begginers.php',
+        'structuredDataType' => 'article',
+        'structuredData' => [
+            'title' => $pageTitle,
+            'description' => $metaDescription,
+            'url' => APP_URL . '/resources/jobs/remote-jobs-begginers.php',
+            'image' => APP_URL . '/static/images/resources-images/virtual-assistant.png',
+            'datePublished' => '2025-01-15',
+            'dateModified' => date('Y-m-d'),
+        ],
     ]); ?>
 </head>
 <body class="bg-slate-50 text-slate-900">

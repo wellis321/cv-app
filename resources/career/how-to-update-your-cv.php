@@ -172,6 +172,14 @@ $sections = [
         'pageTitle' => $pageTitle . ' | Simple CV Builder',
         'metaDescription' => 'Step-by-step guide to updating your CV. ATS optimisation, personal statement, and format tips for UK job seekers. Free from Simple CV Builder.',
         'canonicalUrl' => APP_URL . '/resources/career/how-to-update-your-cv.php',
+        'structuredDataType' => 'article',
+        'structuredData' => [
+            'title' => $pageTitle,
+            'description' => $metaDescription,
+            'url' => APP_URL . '/resources/career/how-to-update-your-cv.php',
+            'datePublished' => '2025-01-01',
+            'dateModified' => date('Y-m-d'),
+        ],
     ]); ?>
 </head>
 <body class="bg-slate-50 text-slate-900">

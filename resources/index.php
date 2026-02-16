@@ -45,6 +45,12 @@ $sections = [
         'pageTitle' => $pageTitle . ' | Simple CV Builder',
         'metaDescription' => $metaDescription,
         'canonicalUrl' => $canonicalUrl,
+        'structuredDataType' => 'collection',
+        'structuredData' => [
+            'name' => $pageTitle,
+            'description' => $metaDescription,
+            'sections' => $sections,
+        ],
     ]); ?>
 </head>
 <body class="bg-slate-50 text-slate-900">
