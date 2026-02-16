@@ -49,11 +49,12 @@ if (strpos($realFilePath, $realStoragePath) !== 0) {
 }
 
 // Determine if this is a public file (profile photos and project images are public for CV display)
-// Public paths: profiles/* (profile photos), uploads/profile-photos/*, uploads/projects/*
+// Public paths: profiles/*, uploads/profile-photos/*, uploads/projects/*, projects/* (project images)
 $isPublicFile = (
     strpos($path, 'profiles/') === 0 ||
     strpos($path, 'uploads/profile-photos/') === 0 ||
-    strpos($path, 'uploads/projects/') === 0
+    strpos($path, 'uploads/projects/') === 0 ||
+    strpos($path, 'projects/') === 0
 );
 
 // For non-public files, require authentication and verify ownership

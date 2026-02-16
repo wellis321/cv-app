@@ -1045,6 +1045,9 @@ $canonicalUrl = APP_URL . '/resources/ai/setup-ollama.php';
                                 Learn More About AI Features →
                             </a>
                         </div>
+                        <p class="mt-4 pt-4 border-t border-purple-200 text-sm text-gray-600">
+                            <a href="/resources/ai/prompt-best-practices.php" class="text-purple-600 hover:text-purple-700 font-medium">CV Prompt Best Practices</a> — learn how to write effective prompts for AI CV rewriting.
+                        </p>
                     </div>
                 </div>
             </div>

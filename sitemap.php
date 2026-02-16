@@ -29,6 +29,18 @@ $urls = [
         'priority' => '0.8',
     ],
     [
+        'loc' => APP_URL . '/terms.php',
+        'lastmod' => date('Y-m-d'),
+        'changefreq' => 'monthly',
+        'priority' => '0.5',
+    ],
+    [
+        'loc' => APP_URL . '/privacy.php',
+        'lastmod' => date('Y-m-d'),
+        'changefreq' => 'monthly',
+        'priority' => '0.5',
+    ],
+    [
         'loc' => APP_URL . '/individual-users.php',
         'lastmod' => date('Y-m-d'),
         'changefreq' => 'monthly',

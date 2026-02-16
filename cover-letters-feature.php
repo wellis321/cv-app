@@ -33,7 +33,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                     AI Cover Letter Generator - Create Tailored Cover Letters
                 </h1>
                 <p class="mt-6 text-xl text-pink-50 max-w-2xl mx-auto leading-relaxed">
-                    Create tailored cover letters for each job application. <strong class="text-white">Generate with AI</strong> or write your own, and keep them linked to the right job so you always know which letter goes with which application.
+                    AI cover letter generator UK. Create tailored cover letters for each job application. <strong class="text-white">Generate with AI</strong> or write your own, and keep them linked to the right job so you always know which letter goes with which application.
                 </p>
                 <div class="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-center">
                     <?php if (isLoggedIn()): ?>
@@ -103,7 +103,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">
                             <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/cover-letters-features/use-and-manage.png" aria-label="View Create from a job application image larger">
-                                <img src="/static/images/cover-letters-features/use-and-manage.png" alt="Create from a job application - Cover Letter section with Generate Cover Letter with AI" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                                <img src="/static/images/cover-letters-features/use-and-manage.png" alt="AI cover letter generator – create from job application, Generate Cover Letter with AI" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
                             </button>
                         </div>
                     </div>

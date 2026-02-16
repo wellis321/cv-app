@@ -28,7 +28,7 @@ $canonicalUrl = APP_URL . '/pricing';
             <div class="text-center mb-8">
                 <h1 class="text-3xl font-bold text-gray-900">Free CV Builder UK – Pricing & Plans</h1>
                 <p class="mt-2 text-lg text-gray-600">
-                    Find the plan that fits your job search best. Start free, or choose 1 week, 1 month, or 3 months—all with a 7-day free trial.
+                    Free CV builder UK plans to fit your job search. Start free, or choose 1 week, 1 month, or 3 months—all with a 7-day free trial.
                 </p>
             </div>
             <?php partial('home-pricing', ['pricingUseRegisterModal' => false]); ?>

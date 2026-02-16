@@ -33,7 +33,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                     Free Job Application Tracker - Manage Applications Online
                 </h1>
                 <p class="mt-6 text-xl text-gray-200 max-w-2xl mx-auto leading-relaxed">
-                    Track and manage all your job applications in one place. <strong class="text-white">Save job listings from any website in one click</strong>—then fill in the details later. Never lose track of where you've applied, set priorities and deadlines, and land your next role.
+                    Free job application tracker UK. Track and manage all your job applications in one place. <strong class="text-white">Save job listings from any website in one click</strong>—then fill in the details later. Never lose track of where you've applied, set priorities and deadlines, and land your next role.
                 </p>
                 <div class="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-center">
                     <?php if (isLoggedIn()): ?>
@@ -293,7 +293,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                     </div>
                     <div class="flex h-full min-h-0">
                         <button type="button" class="w-full h-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-template-lightbox="/static/images/job-appplications/save-jobs-anywhere.png" aria-label="View Save jobs from anywhere image larger">
-                            <img src="/static/images/job-appplications/save-jobs-anywhere.png" alt="Quick add from link - save jobs from any website" class="w-full aspect-video lg:aspect-auto lg:h-full rounded-xl border border-gray-200 shadow-lg object-cover object-center" width="800" height="450" />
+                            <img src="/static/images/job-appplications/save-jobs-anywhere.png" alt="Job application tracker – quick add from link, save jobs from any website" class="w-full aspect-video lg:aspect-auto lg:h-full rounded-xl border border-gray-200 shadow-lg object-cover object-center" width="800" height="450" />
                         </button>
                     </div>
                 </div>

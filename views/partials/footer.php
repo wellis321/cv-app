@@ -15,7 +15,7 @@
                 <ul class="space-y-2 text-sm">
                     <li><a href="/" class="text-gray-600 hover:text-blue-600">Home</a></li>
                     <li><a href="/about.php" class="text-gray-600 hover:text-blue-600">About</a></li>
-                    <li><a href="/all-features.php" class="text-gray-600 hover:text-blue-600 font-medium">All Features</a></li>
+                    <li><a href="/all-features.php" class="text-gray-600 hover:text-blue-600 font-medium">All CV Builder Features</a></li>
                     <li><a href="/resources/jobs/" class="text-gray-600 hover:text-blue-600">Job Market Insights</a></li>
                     <li><a href="/resources/career/" class="text-gray-600 hover:text-blue-600">Career Advice Hub</a></li>
                     <li><a href="/resources/extra-income/" class="text-gray-600 hover:text-blue-600">Extra Income Ideas</a></li>
@@ -25,9 +25,9 @@
             <div>
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Info</h3>
                 <ul class="space-y-2 text-sm">
-                    <li><a href="/organisations.php" class="text-gray-600 hover:text-blue-600">For Organisations</a></li>
-                    <li><a href="/individual-users.php" class="text-gray-600 hover:text-blue-600">For Individuals</a></li>
-                    <li><a href="/faq.php" class="text-gray-600 hover:text-blue-600">FAQ</a></li>
+                    <li><a href="/organisations.php" class="text-gray-600 hover:text-blue-600">CV Builder for Organisations</a></li>
+                    <li><a href="/individual-users.php" class="text-gray-600 hover:text-blue-600">Free CV Builder for Individuals</a></li>
+                    <li><a href="/faq.php" class="text-gray-600 hover:text-blue-600">CV Builder FAQ</a></li>
                     <li><a href="/browser-ai-check.php" class="text-gray-600 hover:text-blue-600">Browser AI Check</a></li>
                     <li><a href="/job-applications-features.php" class="text-green-700 hover:text-green-800 font-medium">Job Application Tracker</a></li>
                     <li><a href="/privacy.php" class="text-gray-600 hover:text-blue-600">Privacy Policy</a></li>
@@ -48,7 +48,7 @@
                         Create Free Account
                     </a>
                     <a href="/#pricing" class="inline-flex items-center justify-center rounded-lg border-2 border-blue-600 px-5 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50 transition-colors">
-                        Compare Plans
+                        Compare CV Builder Plans
                     </a>
                 </div>
             </div>

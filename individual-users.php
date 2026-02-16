@@ -31,7 +31,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                     Free CV Builder UK – Create Professional CVs Online
                 </h1>
                 <p class="mt-6 text-xl text-gray-200 max-w-2xl mx-auto leading-relaxed">
-                    Create a professional CV that stands out, updates in real-time, and can be shared as a simple link. Track job applications and generate AI cover letters—all free.
+                    Free CV builder UK for job seekers. Create a professional CV that stands out, updates in real-time, and can be shared as a simple link. Track job applications and generate AI cover letters—all free.
                 </p>
             </div>
         </div>
@@ -79,7 +79,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                             </div>
                             <div class="min-h-0">
                                 <button type="button" class="w-full h-full block cursor-zoom-in hover:opacity-95 transition-opacity text-left rounded-lg overflow-hidden" data-image-lightbox="/static/images/individuals/getting-started.png" aria-label="View getting started image larger">
-                                    <img src="/static/images/individuals/getting-started.png" alt="Example CV profile showing completed professional profile" class="h-full w-full rounded-lg border border-gray-200 shadow-sm object-cover" width="600" height="340" />
+                                    <img src="/static/images/individuals/getting-started.png" alt="Free CV builder UK – example CV profile showing completed professional profile" class="h-full w-full rounded-lg border border-gray-200 shadow-sm object-cover" width="600" height="340" />
                                 </button>
                             </div>
                         </div>

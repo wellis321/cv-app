@@ -15,12 +15,18 @@ $user = getCurrentUser();
 $siteUrl = 'https://simple-cv-builder.com';
 $siteUrlEnc = urlencode($siteUrl);
 
-// Essential SEO tools (Lighthouse = PageSpeed Insights; GSC for rankings)
+// Essential SEO tools (Lighthouse = PageSpeed Insights; GSC for rankings; Bing for ChatGPT)
 $recommendedTools = [
     [
         'name' => 'Google Search Console',
-        'description' => 'Monitor rankings, impressions, clicks, indexing. Export data to find quick wins (position 4–10, low CTR).',
+        'description' => 'Monitor rankings, impressions, clicks, indexing. Submit sitemap, request indexing.',
         'url' => 'https://search.google.com/search-console',
+        'icon' => 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z',
+    ],
+    [
+        'name' => 'Bing Webmaster Tools',
+        'description' => 'Submit sitemap for Bing (powers ChatGPT web search). Import from GSC or add manually.',
+        'url' => 'https://www.bing.com/webmasters',
         'icon' => 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z',
     ],
     [
@@ -29,6 +35,29 @@ $recommendedTools = [
         'url' => 'https://pagespeed.web.dev/analysis?url=' . $siteUrlEnc,
         'icon' => 'M13 10V3L4 14h7v7l9-11h-7z',
     ],
+];
+
+// Phase 5: Sitemap and indexing URLs
+$sitemapUrl = $siteUrl . '/sitemap.xml';
+
+// Pages to submit for indexing (URL Inspection in Search Console)
+$pagesToSubmitForIndexing = [
+    ['label' => 'Homepage', 'url' => $siteUrl . '/'],
+    ['label' => 'Pricing', 'url' => $siteUrl . '/pricing'],
+    ['label' => 'Individual Users', 'url' => $siteUrl . '/individual-users.php'],
+    ['label' => 'Job Application Tracker', 'url' => $siteUrl . '/job-applications-features.php'],
+    ['label' => 'CV Building', 'url' => $siteUrl . '/cv-building-feature.php'],
+    ['label' => 'CV Templates', 'url' => $siteUrl . '/cv-templates-feature.php'],
+    ['label' => 'AI CV Generator', 'url' => $siteUrl . '/ai-cv-generation-feature.php'],
+    ['label' => 'AI Cover Letters', 'url' => $siteUrl . '/cover-letters-feature.php'],
+    ['label' => 'All Features', 'url' => $siteUrl . '/all-features.php'],
+    ['label' => 'FAQ', 'url' => $siteUrl . '/faq.php'],
+    ['label' => 'Resources Hub', 'url' => $siteUrl . '/resources/'],
+    ['label' => 'Job Market Insights', 'url' => $siteUrl . '/resources/jobs/'],
+    ['label' => 'For Organisations', 'url' => $siteUrl . '/organisations.php'],
+    ['label' => 'Remote Jobs for Beginners', 'url' => $siteUrl . '/resources/jobs/remote-jobs-begginers.php'],
+    ['label' => 'Legitimate Ways to Earn Online', 'url' => $siteUrl . '/resources/extra-income/legitimate-ways-to-earn-money-online.php'],
+    ['label' => 'Using AI in Job Applications', 'url' => $siteUrl . '/resources/jobs/using-ai-in-job-applications.php'],
 ];
 
 // GSC Quick Wins: pages ranking position 4–10 with low CTR (from export 2026-02-16)
@@ -65,7 +94,7 @@ $phases = [
     ['name' => 'Phase 1: Title & H1 Optimization', 'done' => true, 'items' => ['Feature page titles include primary keywords', 'H1 tags include primary keywords', 'Resource article titles optimised']],
     ['name' => 'Phase 2: Internal Linking', 'done' => true, 'items' => ['Homepage links to Free CV & Job Guides', 'FAQ links to key resource articles', 'Footer links to Job Market Insights, Career Advice Hub', 'CTAs at end of resource articles']],
     ['name' => 'Phase 3: Meta Descriptions', 'done' => true, 'items' => ['Resource articles have keyword-rich meta descriptions', 'Feature pages audited and meta descriptions improved']],
-    ['name' => 'Phase 4: Content & On-Page', 'done' => false, 'items' => ['Ensure keywords in first paragraph of key pages', 'Add keywords to image alt text', 'Optimise internal link anchor text']],
+    ['name' => 'Phase 4: Content & On-Page', 'done' => true, 'items' => ['Ensure keywords in first paragraph of key pages', 'Add keywords to image alt text', 'Optimise internal link anchor text']],
     ['name' => 'Phase 5: Technical & Monitoring', 'done' => false, 'items' => ['Submit sitemap to Google Search Console', 'Request indexing for key pages', 'Monitor rankings in GSC', 'Track organic traffic growth']],
 ];
 
@@ -108,14 +137,14 @@ $keyPages = [
 
             <div class="mb-8">
                 <h1 class="text-2xl font-bold text-gray-900">SEO Plan</h1>
-                <p class="mt-1 text-sm text-gray-500">Target keywords, implementation phases, and key pages. Last updated: 2026-02-16.</p>
+                <p class="mt-1 text-sm text-gray-500">Target keywords, implementation phases, and key pages. Last updated: 2025-02-10.</p>
             </div>
 
             <!-- Recommended Tools -->
             <section class="mb-10">
                 <h2 class="text-lg font-semibold text-gray-900 mb-4">Recommended Tools</h2>
                 <p class="text-sm text-gray-600 mb-4">Essential tools for monitoring performance and search performance.</p>
-                <div class="grid gap-4 sm:grid-cols-2">
+                <div class="grid gap-4 sm:grid-cols-3">
                     <?php foreach ($recommendedTools as $tool): ?>
                     <a href="<?php echo e($tool['url']); ?>" target="_blank" rel="noopener" class="flex items-start gap-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm hover:border-blue-300 hover:shadow-md transition-all group">
                         <div class="flex-shrink-0 rounded-lg bg-blue-50 p-2 group-hover:bg-blue-100 transition-colors">
@@ -227,6 +256,63 @@ $keyPages = [
                 </div>
             </section>
 
+            <!-- Phase 5: Technical & Monitoring – Action Steps -->
+            <section class="mb-10 rounded-xl border-2 border-cyan-200 bg-cyan-50/50 p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-2">Phase 5: Technical & Monitoring – Do These Now</h2>
+                <p class="text-sm text-gray-600 mb-4">Complete these steps in Google Search Console and Bing Webmaster Tools. Each takes 1–2 minutes.</p>
+                <div class="space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-3 rounded-lg bg-white p-4 border border-cyan-100">
+                        <div class="flex-shrink-0 font-medium text-gray-900">1. Submit sitemap to Google</div>
+                        <div class="flex-1 text-sm text-gray-600">
+                            <a href="https://search.google.com/search-console" target="_blank" rel="noopener" class="text-cyan-600 hover:underline font-medium">Open Search Console</a> → Sitemaps → Add sitemap: <code class="bg-gray-100 px-2 py-0.5 rounded text-sm">sitemap.xml</code>
+                        </div>
+                        <a href="<?php echo e($sitemapUrl); ?>" target="_blank" rel="noopener" class="text-xs text-gray-500 hover:text-cyan-600">Verify sitemap</a>
+                    </div>
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-3 rounded-lg bg-white p-4 border border-cyan-100">
+                        <div class="flex-shrink-0 font-medium text-gray-900">2. Submit sitemap to Bing</div>
+                        <div class="flex-1 text-sm text-gray-600">
+                            <a href="https://www.bing.com/webmasters" target="_blank" rel="noopener" class="text-cyan-600 hover:underline font-medium">Open Bing Webmaster Tools</a> → Sitemaps → Submit: <code class="bg-gray-100 px-2 py-0.5 rounded text-sm"><?php echo e($sitemapUrl); ?></code>
+                        </div>
+                    </div>
+                    <div class="rounded-lg bg-white p-4 border border-cyan-100">
+                        <div class="font-medium text-gray-900 mb-3">3. Request indexing for key pages</div>
+                        <p class="text-sm text-gray-600 mb-4">
+                            <a href="https://search.google.com/search-console" target="_blank" rel="noopener" class="text-cyan-600 hover:underline font-medium">Open URL Inspection</a> → paste each URL below → Request indexing.
+                        </p>
+                        <div class="overflow-x-auto rounded-lg border border-gray-200">
+                            <table class="min-w-full divide-y divide-gray-200 text-sm">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Page</th>
+                                        <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">URL (click to copy)</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200 bg-white">
+                                    <?php foreach ($pagesToSubmitForIndexing as $row): ?>
+                                    <tr>
+                                        <td class="px-3 py-2 font-medium text-gray-900"><?php echo e($row['label']); ?></td>
+                                        <td class="px-3 py-2">
+                                            <button type="button" data-copy-url="<?php echo e($row['url']); ?>" class="text-left text-cyan-600 hover:underline font-mono text-xs break-all group flex items-center gap-1">
+                                                <?php echo e($row['url']); ?>
+                                                <span class="text-gray-400 group-hover:text-cyan-600" title="Copy">⎘</span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-3 rounded-lg bg-white p-4 border border-cyan-100">
+                        <div class="flex-shrink-0 font-medium text-gray-900">4. Monitor rankings</div>
+                        <div class="flex-1 text-sm text-gray-600">
+                            <a href="https://search.google.com/search-console" target="_blank" rel="noopener" class="text-cyan-600 hover:underline font-medium">Search Console</a> → Performance. Check weekly for impressions, clicks, average position. Export to find quick wins.
+                        </div>
+                    </div>
+                </div>
+                <p class="mt-4 text-xs text-gray-500">After completing steps 1–3, mark Phase 5 as done in the plan below.</p>
+            </section>
+
             <!-- Implementation Phases -->
             <section class="mb-10">
                 <h2 class="text-lg font-semibold text-gray-900 mb-4">Implementation Phases</h2>
@@ -305,5 +391,18 @@ $keyPages = [
             </section>
         </div>
     </main>
+    <script>
+    (function() {
+        document.querySelectorAll('[data-copy-url]').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var url = this.getAttribute('data-copy-url');
+                navigator.clipboard.writeText(url).then(function() {
+                    var span = btn.querySelector('span');
+                    if (span) { span.textContent = '✓'; setTimeout(function() { span.textContent = '⎘'; }, 1500); }
+                });
+            });
+        });
+    })();
+    </script>
 </body>
 </html>

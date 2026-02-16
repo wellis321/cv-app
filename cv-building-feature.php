@@ -33,7 +33,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                     Free CV Builder - Build Professional CVs Online
                 </h1>
                 <p class="mt-6 text-xl text-purple-50 max-w-2xl mx-auto leading-relaxed">
-                    Build a comprehensive professional CV with all the sections you need. From personal details to work experience, education, projects, skills, and more—create a CV that showcases your full professional profile.
+                    Free CV builder UK. Build a comprehensive professional CV online with all the sections you need. From personal details to work experience, education, projects, skills, and more—create a CV that showcases your full professional profile.
                 </p>
                 <div class="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-center">
                     <?php if (isLoggedIn()): ?>

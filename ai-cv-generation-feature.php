@@ -33,7 +33,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                     AI-Powered CV Builder - Generate Job-Specific CVs
                 </h1>
                 <p class="mt-6 text-xl text-indigo-50 max-w-2xl mx-auto leading-relaxed">
-                    Generate job-specific CV variants automatically. <strong class="text-white">AI analyzes job descriptions</strong> and tailors your CV content to match each role—saving hours of manual work.
+                    AI CV generator UK. Generate job-specific CV variants automatically. <strong class="text-white">AI analyzes job descriptions</strong> and tailors your CV content to match each role—saving hours of manual work.
                 </p>
                 <div class="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-center">
                     <?php if (isLoggedIn()): ?>
@@ -196,7 +196,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">
                             <button type="button" class="w-full text-left cursor-zoom-in hover:opacity-95 transition-opacity rounded-xl overflow-hidden" data-image-lightbox="/static/images/cv-variants/manage-and-use.png" aria-label="View Generate AI CV variant image larger">
-                                <img src="/static/images/cv-variants/manage-and-use.png" alt="Generate AI CV variant - CV preview with Edit variant, Generate PDF and Print" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
+                                <img src="/static/images/cv-variants/manage-and-use.png" alt="AI CV generator – CV variant preview with Edit variant, Generate PDF and Print" class="w-full rounded-xl border border-gray-200 shadow-sm object-cover aspect-video" width="600" height="340" />
                             </button>
                         </div>
                     </div>

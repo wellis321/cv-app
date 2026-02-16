@@ -33,7 +33,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                     Free Professional CV Templates - Choose Your Style
                 </h1>
                 <p class="mt-6 text-xl text-pink-50 max-w-2xl mx-auto leading-relaxed">
-                    Choose from professional CV templates with <strong class="text-white">customisable colours</strong>. Create different versions for different opportunities while maintaining <strong class="text-white">one master CV online</strong>.
+                    Free CV templates UK. Choose from professional CV templates with <strong class="text-white">customisable colours</strong>. Create different versions for different opportunities while maintaining <strong class="text-white">one master CV online</strong>.
                 </p>
                 <div class="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-center">
                     <?php if (isLoggedIn()): ?>
@@ -71,7 +71,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                 <div class="grid gap-8 md:grid-cols-3">
                     <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-gray-200 p-6">
                         <button type="button" class="aspect-[400/520] w-full rounded-lg border border-gray-200 bg-white overflow-hidden mb-4 shadow-sm block cursor-zoom-in hover:opacity-95 transition-opacity text-left" data-template-lightbox="/static/images/templates/minimal.png" aria-label="View Minimal template larger">
-                            <img src="/static/images/templates/minimal.png" alt="Minimal template – PDF preview" class="w-full h-full object-cover object-top" onerror="this.onerror=null; this.src='/static/images/templates/placeholder-preview.svg'; this.alt='Minimal template preview placeholder';">
+                            <img src="/static/images/templates/minimal.png" alt="Minimal CV template – PDF preview" class="w-full h-full object-cover object-top" onerror="this.onerror=null; this.src='/static/images/templates/placeholder-preview.svg'; this.alt='Minimal template preview placeholder';">
                         </button>
                         <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-gray-500 text-white mb-3">
                             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
@@ -86,7 +86,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
 
                     <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200 p-6">
                         <button type="button" class="aspect-[400/520] w-full rounded-lg border border-blue-200 bg-white overflow-hidden mb-4 shadow-sm block cursor-zoom-in hover:opacity-95 transition-opacity text-left" data-template-lightbox="/static/images/templates/blue.png" aria-label="View Professional Blue template larger">
-                            <img src="/static/images/templates/blue.png" alt="Professional Blue template – PDF preview" class="w-full h-full object-cover object-top" onerror="this.onerror=null; this.src='/static/images/templates/placeholder-preview.svg'; this.alt='Professional Blue template preview placeholder';">
+                            <img src="/static/images/templates/blue.png" alt="Professional Blue CV template – PDF preview" class="w-full h-full object-cover object-top" onerror="this.onerror=null; this.src='/static/images/templates/placeholder-preview.svg'; this.alt='Professional Blue template preview placeholder';">
                         </button>
                         <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-500 text-white mb-3">
                             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>

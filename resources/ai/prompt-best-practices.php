@@ -242,6 +242,15 @@ $canonicalUrl = APP_URL . '/resources/ai/prompt-best-practices.php';
                         </p>
                     </div>
                 </section>
+
+                <!-- Related guides -->
+                <section class="mt-12 pt-8 border-t border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-3">Related guides</h2>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="/resources/ai/setup-ollama.php" class="text-blue-600 hover:text-blue-800 underline">Setup Ollama with Llama 3</a> — use local AI for CV rewriting</li>
+                        <li><a href="/resources/" class="text-blue-600 hover:text-blue-800 underline">All resources</a> — job tips, career advice, extra income</li>
+                    </ul>
+                </section>
             </div>
         </div>
     </main>
