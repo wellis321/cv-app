@@ -1,0 +1,132 @@
+# Simple CV Builder
+
+> Free CV builder UK with job application tracking and AI cover letters. Build your CV online, share a link, export PDFs. For job seekers and recruitment agencies.
+
+Simple CV Builder helps users create professional CVs, track job applications, and generate AI-powered cover letters. Users get a shareable CV link (e.g. simple-cv-builder.com/cv/username), PDF export, CV templates, and job tracking in one place. Free tier available; premium templates and features via subscription.
+
+## Overview
+
+- [Homepage](https://simple-cv-builder.com/): Main landing page, sign up, and product overview
+- [Pricing](https://simple-cv-builder.com/pricing): Plans, free trial, and subscription options
+- [FAQ](https://simple-cv-builder.com/faq.php): Frequently asked questions
+- [About](https://simple-cv-builder.com/about.php): About the product and team
+
+## For Users
+
+- [Individual Users](https://simple-cv-builder.com/individual-users.php): Features for job seekers
+- [Organisations](https://simple-cv-builder.com/organisations.php): Features for recruitment agencies and employers
+
+## Features
+
+- [All Features](https://simple-cv-builder.com/all-features.php): Complete feature list
+- [CV Building](https://simple-cv-builder.com/cv-building-feature.php): Create and edit CV sections (work experience, education, skills, etc.)
+- [AI CV Generation](https://simple-cv-builder.com/ai-cv-generation-feature.php): AI-assisted CV creation
+- [Cover Letters](https://simple-cv-builder.com/cover-letters-feature.php): AI cover letter generation
+- [Job Application Tracking](https://simple-cv-builder.com/job-applications-features.php): Track applications, status, follow-ups
+- [CV Templates](https://simple-cv-builder.com/cv-templates-feature.php): Professional templates
+- [PDF Export](https://simple-cv-builder.com/pdf-export-feature.php): Export CV to PDF
+- [Browser AI](https://simple-cv-builder.com/browser-ai-free.php): Free AI features in the browser (no API key needed)
+
+## Resources
+
+- [Resources Hub](https://simple-cv-builder.com/resources/): Career advice, CV tips, job search guides
+- [Keywords & ATS Guide](https://simple-cv-builder.com/resources/career/keywords-and-ats-guide.php): Optimising CVs for applicant tracking systems
+- [Using AI in Job Applications](https://simple-cv-builder.com/resources/jobs/using-ai-in-job-applications.php): AI tools for job seekers
+
+## Optional
+
+- [Terms of Service](https://simple-cv-builder.com/terms.php)
+- [Privacy Policy](https://simple-cv-builder.com/privacy.php)
+
+---
+
+# Full Content (llms-full.txt)
+
+The following sections contain expanded content from the linked pages above.
+
+---
+
+## Homepage Summary
+
+**Tagline:** Free CV Builder UK. Track Applications. Get Hired.
+
+**Value proposition:** Free CV builder UK with job application tracking and AI cover letters. For job seekers and recruitment agencies—create a shareable CV link, unlock PDF export, and manage your job search in one place. 7-day free trial on all paid plans.
+
+**Browser AI (featured):** AI runs in your browser. No API keys. No cloud signup. No setup. Tailor your CV, assess quality, and generate cover letters—all in your browser. Your data stays on your device. Cloud AI (OpenAI, Anthropic, Gemini) is also available.
+
+**AI CV Assistant features:**
+- AI CV Rewriting: Paste a job description; AI rewrites your CV to match. Automatic keyword optimisation, job-specific tailoring, maintains factual accuracy.
+- CV Quality Assessment: AI feedback on ATS compatibility, content quality, formatting, keyword matching. Actionable improvement suggestions.
+- AI Cover Letters: Generate tailored cover letters from job descriptions.
+
+---
+
+## Individual Users
+
+**For job seekers.** Create a professional CV that stands out, updates in real-time, and can be shared as a simple link. Track job applications and generate AI cover letters—all free.
+
+**Getting started:** Register with name, email, password. Email verification required. Start free or try any paid plan with a 7-day free trial (1 week, 1 month, or 3 months). Cancel anytime.
+
+**CV sections:** Personal profile (name required, email/phone/location/photo optional), work experience, education, projects, skills, certifications, professional memberships, interests. Work in any order; CV updates in real-time.
+
+---
+
+## Organisations
+
+**For recruitment agencies and employers.** Manage candidates' CVs efficiently. Streamline recruitment and give candidates professional CV management in one place. Pricing and limits set per organisation. Contact for a quote.
+
+**Getting started:** Organisation account required. Submit organisation details, expected candidates, team size. Invitation sent to join. Features: managing candidates, team management, settings, limits and upgrades.
+
+---
+
+## Pricing
+
+Free CV builder UK plans. Start free, or choose 1 week, 1 month, or 3 months—all with a 7-day free trial. Cancel anytime. Free plan: basic CV, limited entries per section, PDF export. Pro plans: unlimited sections, premium templates, selective PDF exports with QR codes, priority support.
+
+---
+
+## All Features (Summary)
+
+**Platform:** All in one place (CV + job tracking), free with account.
+
+**CV Building:** Work experience, education, projects, skills, certifications, memberships, interests. Templates (Minimal free; premium for Pro). Template customisation (Pro). CV variants for different job types (Pro).
+
+**Online CV:** Unique link at /cv/@username. PDF export (Pro: selective sections, QR codes).
+
+**Job Tracking:** Save jobs from anywhere (browser extension, quick-add). Track status (Interested, Applied, Interviewing, Offered, Accepted, Rejected, Withdrawn). Follow-up dates, browser notifications. Interview tracking, application notes. Search and filter. Progress dashboard.
+
+**AI:** Browser AI (free, no API key). AI CV rewriting, quality assessment, cover letters. Cloud AI (OpenAI, Anthropic, Gemini) for Pro/organisations.
+
+---
+
+## FAQ (Key Questions)
+
+**What is Simple CV Builder?** Online platform for creating professional CVs that update in real-time and can be shared as a link. For individuals and organisations. Includes job application tracking.
+
+**Is it free?** Yes. Free plan with basic CV, shareable link, PDF export. Pro for unlimited sections, premium templates.
+
+**How do I create my CV?** Register, fill profile and sections (work experience, education, skills, etc.). CV updates in real-time.
+
+**Can I share my CV online?** Yes. Unique URL (e.g. simple-cv-builder.com/cv/username). Updates automatically.
+
+**PDF export?** Available on all plans. Free: Minimal/Classic template. Pro: premium templates, custom colours, selective sections, QR code.
+
+**Job application tracker?** Built-in. Track applications, status, follow-ups, notes, files. Available on free plan.
+
+**Contact support?** noreply@simple-job-tracker.com. Priority support for Pro.
+
+---
+
+## Keywords & ATS Guide (Summary)
+
+**What is ATS?** Applicant Tracking System—software that filters job applications. Up to 75% of CVs rejected by ATS before human review.
+
+**How ATS works:** Parses CV into structured fields. Matches keywords against job description. Ranks and filters. Use standard headings (Work Experience, Education). Include relevant keywords naturally.
+
+**Finding keywords:** Analyse job description for required skills, qualifications, tools, terminology. Use employer's language. Integrate keywords into work experience and summary, not just skills list.
+
+---
+
+## Optional (Legal)
+
+Terms of Service and Privacy Policy available at the URLs listed in the index above.
