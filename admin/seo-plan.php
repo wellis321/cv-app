@@ -46,6 +46,12 @@ $recommendedTools = [
 // Phase 5: Sitemap and indexing URLs
 $sitemapUrl = $siteUrl . '/sitemap.xml';
 
+// LLM / AI discoverability (llms.txt for AI assistants and directories)
+$llmsUrls = [
+    ['label' => 'llms.txt', 'url' => $siteUrl . '/llms.txt', 'description' => 'Index with links and descriptions'],
+    ['label' => 'llms-full.txt', 'url' => $siteUrl . '/llms-full.txt', 'description' => 'Expanded content for full context'],
+];
+
 // Pages to submit for indexing (URL Inspection in Search Console)
 $pagesToSubmitForIndexing = [
     ['label' => 'Homepage', 'url' => $siteUrl . '/'],
@@ -101,7 +107,7 @@ $phases = [
     ['name' => 'Phase 2: Internal Linking', 'done' => true, 'items' => ['Homepage links to Free CV & Job Guides', 'FAQ links to key resource articles', 'Footer links to Job Market Insights, Career Advice Hub', 'CTAs at end of resource articles']],
     ['name' => 'Phase 3: Meta Descriptions', 'done' => true, 'items' => ['Resource articles have keyword-rich meta descriptions', 'Feature pages audited and meta descriptions improved', 'Meta descriptions 110–160 chars (Google/Ahrefs) ✓']],
     ['name' => 'Phase 4: Content & On-Page', 'done' => true, 'items' => ['Ensure keywords in first paragraph of key pages', 'Add keywords to image alt text', 'Optimise internal link anchor text']],
-    ['name' => 'Phase 5: Technical & Monitoring', 'done' => false, 'items' => ['Submit sitemap to Google Search Console ✓', 'Submit sitemap to Bing Webmaster Tools ✓', 'IndexNow bulk submit (Bing/Yandex) ✓', 'Remove 302 redirect from sitemap (subscription.php) ✓', 'Resize large images (hero + resource images) ✓', 'Request indexing for key pages in Google', 'Monitor rankings in GSC', 'Track organic traffic growth']],
+    ['name' => 'Phase 5: Technical & Monitoring', 'done' => false, 'items' => ['Submit sitemap to Google Search Console ✓', 'Submit sitemap to Bing Webmaster Tools ✓', 'IndexNow bulk submit (Bing/Yandex) ✓', 'Remove 302 redirect from sitemap (subscription.php) ✓', 'Resize large images (hero + resource images) ✓', 'llms.txt and llms-full.txt for AI discoverability ✓', 'Request indexing for key pages in Google', 'Monitor rankings in GSC', 'Track organic traffic growth']],
 ];
 
 $keyPages = [
@@ -161,6 +167,32 @@ $keyPages = [
                     </a>
                     <?php endforeach; ?>
                 </div>
+            </section>
+
+            <!-- LLM / AI Discoverability -->
+            <section class="mb-10">
+                <h2 class="text-lg font-semibold text-gray-900 mb-2">LLM / AI Discoverability</h2>
+                <p class="text-sm text-gray-600 mb-4">llms.txt and llms-full.txt help AI assistants and chatbots understand the site. Verify they're live and listed in directories.</p>
+                <div class="space-y-3 mb-4">
+                    <?php foreach ($llmsUrls as $row): ?>
+                    <div class="flex flex-wrap items-center gap-2 rounded-lg bg-white border border-gray-200 p-3">
+                        <a href="<?php echo e($row['url']); ?>" target="_blank" rel="noopener" class="font-medium text-blue-600 hover:underline"><?php echo e($row['label']); ?></a>
+                        <span class="text-xs text-gray-500"><?php echo e($row['description']); ?></span>
+                        <button type="button" data-copy-url="<?php echo e($row['url']); ?>" class="ml-auto text-xs text-gray-400 hover:text-blue-600" title="Copy URL"><span>⎘</span></button>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <a href="https://llmstxt.site/" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm text-gray-700 hover:border-blue-300 hover:bg-blue-50 transition-colors">
+                        llmstxt.site directory
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    </a>
+                    <a href="https://directory.llmstxt.cloud/" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm text-gray-700 hover:border-blue-300 hover:bg-blue-50 transition-colors">
+                        directory.llmstxt.cloud
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    </a>
+                </div>
+                <p class="mt-3 text-xs text-gray-500">Check directories periodically to confirm listing. One of few CV/resume builders in llms.txt directories.</p>
             </section>
 
             <!-- GSC Quick Wins -->
@@ -397,8 +429,9 @@ $keyPages = [
                     <li>• Internal links: Key resource articles linked from homepage, FAQ, footer</li>
                     <li>• CTAs: All resource articles have conversion CTA</li>
                     <li>• Images: Optimised file sizes for faster loading</li>
+                    <li>• llms.txt / llms-full.txt: Live and listed in AI directories</li>
                 </ul>
-                <p class="mt-4 text-sm text-gray-500">Track via Google Search Console and Ahrefs. Monitor organic traffic growth.</p>
+                <p class="mt-4 text-sm text-gray-500">Track via Google Search Console and Ahrefs. Monitor organic traffic growth. Verify llms.txt listing in directories above.</p>
             </section>
         </div>
     </main>
