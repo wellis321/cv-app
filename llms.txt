@@ -1,0 +1,39 @@
+# Simple CV Builder
+
+> Free CV builder UK with job application tracking and AI cover letters. Build your CV online, share a link, export PDFs. For job seekers and recruitment agencies.
+
+Simple CV Builder helps users create professional CVs, track job applications, and generate AI-powered cover letters. Users get a shareable CV link (e.g. simple-cv-builder.com/cv/username), PDF export, CV templates, and job tracking in one place. Free tier available; premium templates and features via subscription.
+
+## Overview
+
+- [Homepage](https://simple-cv-builder.com/): Main landing page, sign up, and product overview
+- [Pricing](https://simple-cv-builder.com/pricing): Plans, free trial, and subscription options
+- [FAQ](https://simple-cv-builder.com/faq.php): Frequently asked questions
+- [About](https://simple-cv-builder.com/about.php): About the product and team
+
+## For Users
+
+- [Individual Users](https://simple-cv-builder.com/individual-users.php): Features for job seekers
+- [Organisations](https://simple-cv-builder.com/organisations.php): Features for recruitment agencies and employers
+
+## Features
+
+- [All Features](https://simple-cv-builder.com/all-features.php): Complete feature list
+- [CV Building](https://simple-cv-builder.com/cv-building-feature.php): Create and edit CV sections (work experience, education, skills, etc.)
+- [AI CV Generation](https://simple-cv-builder.com/ai-cv-generation-feature.php): AI-assisted CV creation
+- [Cover Letters](https://simple-cv-builder.com/cover-letters-feature.php): AI cover letter generation
+- [Job Application Tracking](https://simple-cv-builder.com/job-applications-features.php): Track applications, status, follow-ups
+- [CV Templates](https://simple-cv-builder.com/cv-templates-feature.php): Professional templates
+- [PDF Export](https://simple-cv-builder.com/pdf-export-feature.php): Export CV to PDF
+- [Browser AI](https://simple-cv-builder.com/browser-ai-free.php): Free AI features in the browser (no API key needed)
+
+## Resources
+
+- [Resources Hub](https://simple-cv-builder.com/resources/): Career advice, CV tips, job search guides
+- [Keywords & ATS Guide](https://simple-cv-builder.com/resources/career/keywords-and-ats-guide.php): Optimising CVs for applicant tracking systems
+- [Using AI in Job Applications](https://simple-cv-builder.com/resources/jobs/using-ai-in-job-applications.php): AI tools for job seekers
+
+## Optional
+
+- [Terms of Service](https://simple-cv-builder.com/terms.php)
+- [Privacy Policy](https://simple-cv-builder.com/privacy.php)
