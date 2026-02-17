@@ -15,7 +15,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
 <head>
     <?php partial('head', [
         'pageTitle' => $pageTitle . ' | Simple CV Builder',
-        'metaDescription' => 'Free CV builder UK. Build professional CVs online with all sections: work experience, education, skills, certifications, memberships. Create shareable CV links and export PDFs.',
+        'metaDescription' => 'Free CV builder UK. Work experience, education, skills, certifications. Create shareable CV links and export PDFs.',
         'canonicalUrl' => $canonicalUrl,
     ]); ?>
 </head>

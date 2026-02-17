@@ -15,7 +15,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
 <head>
     <?php partial('head', [
         'pageTitle' => $pageTitle . ' | Simple CV Builder',
-        'metaDescription' => 'Upload job description files (PDF, Word, Excel) directly to each application. The AI automatically reads these files when generating CV variants, eliminating the need to copy and paste job descriptions.',
+        'metaDescription' => 'Upload job description files (PDF, Word, Excel) to each application. AI reads them when generating CV variants—no copy-paste.',
         'canonicalUrl' => $canonicalUrl,
     ]); ?>
 </head>

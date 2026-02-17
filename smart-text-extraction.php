@@ -15,7 +15,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
 <head>
     <?php partial('head', [
         'pageTitle' => $pageTitle . ' | Simple CV Builder',
-        'metaDescription' => 'Extract text from job description files (PDF, Word, Excel) with one click. Populate your job application field instantly—optional AI formatting for clearer sections and paragraphs.',
+        'metaDescription' => 'Extract text from job description files (PDF, Word, Excel) with one click. Populate application fields instantly.',
         'canonicalUrl' => $canonicalUrl,
     ]); ?>
 </head>

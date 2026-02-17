@@ -15,7 +15,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
 <head>
     <?php partial('head', [
         'pageTitle' => $pageTitle . ' | Simple CV Builder',
-        'metaDescription' => 'Powerful AI features powered by Browser AI—completely free, no API keys, no costs. AI runs directly in your browser for CV rewriting, quality assessment, keyword extraction, and more.',
+        'metaDescription' => 'Free Browser AI for CVs—no API keys. AI runs in your browser for rewriting, quality assessment, keyword extraction.',
         'canonicalUrl' => $canonicalUrl,
     ]); ?>
 </head>

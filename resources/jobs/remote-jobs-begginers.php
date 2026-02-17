@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../../php/helpers.php';
 
 $pageTitle = '11 Simple Work From Home Jobs for Beginners (UK 2026)';
-$metaDescription = 'Simple work from home jobs with no experience needed. 11 entry-level remote jobs for UK beginners—salaries, skills, where to apply. Virtual assistant, customer support, data entry & more.';
+$metaDescription = '11 work from home jobs for UK beginners—no experience needed. Salaries, skills, where to apply. Virtual assistant, customer support, data entry & more.';
 
 $jobs = [
     [

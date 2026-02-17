@@ -15,7 +15,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
 <head>
     <?php partial('head', [
         'pageTitle' => $pageTitle . ' | Simple CV Builder',
-        'metaDescription' => 'Track your job application status from initial interest through to offer. Monitor progress with statuses like Applied, Interviewing, Offered, Accepted, or Rejected—all in one place.',
+        'metaDescription' => 'Track job application status from Applied to Offer. Monitor progress: Interviewing, Offered, Accepted, Rejected.',
         'canonicalUrl' => $canonicalUrl,
     ]); ?>
 </head>

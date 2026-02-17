@@ -15,7 +15,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
 <head>
     <?php partial('head', [
         'pageTitle' => $pageTitle . ' | Simple CV Builder',
-        'metaDescription' => 'Optionally include a QR code in your PDF exports linking back to your online CV. Employers can scan to view the latest version instantly—perfect for printed CVs and networking.',
+        'metaDescription' => 'Add QR codes to PDF exports linking to your online CV. Employers scan to view the latest version—perfect for networking.',
         'canonicalUrl' => $canonicalUrl,
     ]); ?>
 </head>

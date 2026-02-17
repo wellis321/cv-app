@@ -15,7 +15,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
 <head>
     <?php partial('head', [
         'pageTitle' => $pageTitle . ' | Simple CV Builder',
-        'metaDescription' => 'Job application tracking is included with every Simple CV Builder account at no extra cost. Track applications, generate CV variants, and manage your job search—all free.',
+        'metaDescription' => 'Job tracking included free with every account. Track applications, generate CV variants, manage your job search.',
         'canonicalUrl' => $canonicalUrl,
     ]); ?>
 </head>

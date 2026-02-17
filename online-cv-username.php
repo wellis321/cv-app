@@ -15,7 +15,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
 <head>
     <?php partial('head', [
         'pageTitle' => $pageTitle . ' | Simple CV Builder',
-        'metaDescription' => 'Your CV is a dynamic webpage with a unique link (/cv/@username). Update once, and everyone sees the latest version instantly. Share via email, LinkedIn, or QR code.',
+        'metaDescription' => 'Your CV as a webpage with unique link /cv/@username. Update once, everyone sees the latest. Share via email, LinkedIn, QR.',
         'canonicalUrl' => $canonicalUrl,
     ]); ?>
 </head>

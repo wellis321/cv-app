@@ -15,7 +15,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
 <head>
     <?php partial('head', [
         'pageTitle' => $pageTitle . ' | Simple CV Builder',
-        'metaDescription' => 'AI cover letter generator UK. Create and manage tailored cover letters for each job application. Generate professional cover letters with AI and keep them linked to the right job.',
+        'metaDescription' => 'AI cover letter generator UK. Create tailored cover letters for each job. Generate with AI, link to applications.',
         'canonicalUrl' => $canonicalUrl,
     ]); ?>
 </head>

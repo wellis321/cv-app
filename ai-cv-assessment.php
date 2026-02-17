@@ -14,7 +14,7 @@ $canonicalUrl = APP_URL . '/ai-cv-assessment.php';
 <head>
     <?php partial('head', [
         'pageTitle' => $pageTitle . ' | Simple CV Builder',
-        'metaDescription' => 'Get AI-powered feedback on your CV quality. Detect date discrepancies, formatting issues, and receive actionable improvement suggestions with AI-generated content.',
+        'metaDescription' => 'AI CV quality feedback. Detect date issues, formatting problems. Get actionable improvement suggestions for your CV.',
         'canonicalUrl' => $canonicalUrl,
     ]); ?>
 </head>

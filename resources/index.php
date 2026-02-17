@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../php/helpers.php';
 
 $pageTitle = 'Free CV & Job Guides | Career Advice & Resources';
-$metaDescription = 'Free job search guides, CV tips, career advice, and extra income ideas for UK job seekers. Learn how to update your CV, use AI in applications, and land your next role.';
+$metaDescription = 'Free job guides, CV tips, career advice for UK job seekers. Update your CV, use AI in applications, land your next role.';
 $canonicalUrl = APP_URL . '/resources/';
 
 $sections = [
