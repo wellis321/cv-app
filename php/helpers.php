@@ -414,7 +414,7 @@ function generateStructuredData($type = 'default', $data = []) {
         '@type' => 'Organization',
         'name' => 'Simple CV Builder',
         'url' => APP_URL,
-        'logo' => APP_URL . '/static/favicon.png',
+        'logo' => APP_URL . '/static/images/favicon_io/favicon-32x32.png',
         'description' => 'Free CV builder UK with job application tracking and AI cover letters. Build, share, and export professional CVs online.',
         'foundingDate' => '2024',
         'areaServed' => ['@type' => 'Country', 'name' => 'United Kingdom'],
@@ -478,7 +478,7 @@ function generateStructuredData($type = 'default', $data = []) {
                 'name' => 'Simple CV Builder',
                 'logo' => [
                     '@type' => 'ImageObject',
-                    'url' => APP_URL . '/static/favicon.png'
+                    'url' => APP_URL . '/static/images/favicon_io/favicon-32x32.png'
                 ]
             ]
         ];

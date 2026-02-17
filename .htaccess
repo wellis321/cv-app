@@ -31,6 +31,9 @@ RewriteRule ^agency/([a-z0-9\-]+)$ agency-public.php?slug=$1 [L,QSA]
 # Sitemap for SEO (Google prefers sitemap.xml)
 RewriteRule ^sitemap\.xml$ sitemap.php [L]
 
+# Favicon at root - Bing/Google check this URL first for search snippet icons
+RewriteRule ^favicon\.ico$ static/images/favicon_io/favicon.ico [L]
+
 # Redirect to index.php if file doesn't exist (for routing)
 RewriteRule ^(.*)$ index.php [QSA,L]
 
