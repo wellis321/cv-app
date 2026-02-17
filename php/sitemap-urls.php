@@ -32,7 +32,6 @@ function getSitemapUrls() {
         ['loc' => APP_URL . '/search-filter.php', 'lastmod' => date('Y-m-d'), 'changefreq' => 'monthly', 'priority' => '0.6'],
         ['loc' => APP_URL . '/file-uploads-ai.php', 'lastmod' => date('Y-m-d'), 'changefreq' => 'monthly', 'priority' => '0.6'],
         ['loc' => APP_URL . '/track-all-applications.php', 'lastmod' => date('Y-m-d'), 'changefreq' => 'monthly', 'priority' => '0.6'],
-        ['loc' => APP_URL . '/subscription.php', 'lastmod' => date('Y-m-d'), 'changefreq' => 'monthly', 'priority' => '0.6'],
         ['loc' => APP_URL . '/browser-ai-free.php', 'lastmod' => date('Y-m-d'), 'changefreq' => 'monthly', 'priority' => '0.7'],
         ['loc' => APP_URL . '/cv-templates-feature.php', 'lastmod' => date('Y-m-d'), 'changefreq' => 'monthly', 'priority' => '0.6'],
         ['loc' => APP_URL . '/online-cv-username.php', 'lastmod' => date('Y-m-d'), 'changefreq' => 'monthly', 'priority' => '0.7'],

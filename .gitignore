@@ -57,6 +57,9 @@ views/partials/*Performance*
 *image-broken*.csv
 *orphan*.csv
 *meta-descriptio*.csv
+*pages-to-submit*.csv
+*3xx-redirect*.csv
+*image-file-size*.csv
 
 # Old SvelteKit/Node.js files (if not deleted yet)
 /node_modules

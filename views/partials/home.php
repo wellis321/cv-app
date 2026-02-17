@@ -72,7 +72,7 @@
     <div class="absolute inset-0 z-0">
         <picture>
             <source srcset="/static/images/home/AI-in-the-browseer.webp" type="image/webp">
-            <img src="/static/images/home/AI-in-the-browseer.png" alt="" class="w-full h-full object-cover object-center" width="1400" height="933" aria-hidden="true" fetchpriority="high">
+            <img src="/static/images/home/AI-in-the-browseer.png" alt="" class="w-full h-full object-cover object-center" width="800" height="533" aria-hidden="true" fetchpriority="high">
         </picture>
     </div>
     <div class="absolute inset-0 z-[1] bg-gradient-to-br from-transparent via-transparent to-indigo-900/80" style="background: linear-gradient(to bottom right, rgba(88, 28, 135, 0.0), rgba(67, 56, 202, 0.78));" aria-hidden="true"></div>
