@@ -4,30 +4,41 @@
  * POST to notify when content is added/updated. No daily quota like Google.
  */
 
-require_once __DIR__ . '/../php/helpers.php';
-require_once __DIR__ . '/../php/authorisation.php';
+ob_start();
 
-header('Content-Type: application/json; charset=UTF-8');
+try {
+    require_once __DIR__ . '/../php/helpers.php';
+    require_once __DIR__ . '/../php/authorisation.php';
+} catch (Throwable $e) {
+    if (ob_get_level()) ob_end_clean();
+    header('Content-Type: application/json; charset=UTF-8');
+    echo json_encode(['success' => false, 'error' => 'Setup error: ' . $e->getMessage()]);
+    exit;
+}
 
 if (!isLoggedIn() || !isSuperAdmin()) {
+    ob_end_clean();
     http_response_code(403);
     echo json_encode(['success' => false, 'error' => 'Super admin access required']);
     exit;
 }
 
 if (!isPost()) {
+    ob_end_clean();
     http_response_code(405);
     echo json_encode(['success' => false, 'error' => 'Method not allowed']);
     exit;
 }
 
-if (!verifyCsrfToken($_POST[CSRF_TOKEN_NAME] ?? '')) {
+$csrfName = defined('CSRF_TOKEN_NAME') ? CSRF_TOKEN_NAME : 'csrf_token';
+if (!verifyCsrfToken($_POST[$csrfName] ?? '')) {
+    ob_end_clean();
     http_response_code(403);
     echo json_encode(['success' => false, 'error' => 'Invalid CSRF token']);
     exit;
 }
 
-$key = INDEXNOW_KEY;
+$key = defined('INDEXNOW_KEY') ? INDEXNOW_KEY : '3c9dc093a70141689f13ee385002d0d1';
 $keyFile = dirname(__DIR__) . '/' . $key . '.txt';
 
 // Ensure key file exists
@@ -78,6 +89,7 @@ $curlError = curl_error($ch);
 curl_close($ch);
 
 if ($curlError) {
+    ob_end_clean();
     http_response_code(500);
     echo json_encode([
         'success' => false,
@@ -88,6 +100,7 @@ if ($curlError) {
 }
 
 if ($httpCode >= 200 && $httpCode < 300) {
+    ob_end_clean();
     echo json_encode([
         'success' => true,
         'message' => 'URLs submitted to IndexNow (Bing, Yandex, etc.)',
@@ -95,6 +108,7 @@ if ($httpCode >= 200 && $httpCode < 300) {
         'httpCode' => $httpCode,
     ]);
 } else {
+    ob_end_clean();
     http_response_code($httpCode >= 400 ? $httpCode : 500);
     echo json_encode([
         'success' => false,
