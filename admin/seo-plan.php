@@ -15,7 +15,7 @@ $user = getCurrentUser();
 $siteUrl = 'https://simple-cv-builder.com';
 $siteUrlEnc = urlencode($siteUrl);
 
-// Essential SEO tools (Lighthouse = PageSpeed Insights; GSC for rankings; Bing for ChatGPT)
+// Essential SEO tools (Lighthouse = PageSpeed Insights; GSC for rankings; Bing for ChatGPT; Ahrefs for audits)
 $recommendedTools = [
     [
         'name' => 'Google Search Console',
@@ -34,6 +34,12 @@ $recommendedTools = [
         'description' => 'Performance, accessibility, SEO, best practices. Run on mobile or desktop.',
         'url' => 'https://pagespeed.web.dev/analysis?url=' . $siteUrlEnc,
         'icon' => 'M13 10V3L4 14h7v7l9-11h-7z',
+    ],
+    [
+        'name' => 'Ahrefs Site Audit',
+        'description' => 'Meta descriptions, image sizes, redirects, orphan pages. Export issues as CSV.',
+        'url' => 'https://ahrefs.com',
+        'icon' => 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
     ],
 ];
 
@@ -62,7 +68,7 @@ $pagesToSubmitForIndexing = [
 
 // GSC Quick Wins: pages ranking position 4–10 with low CTR (from export 2026-02-16)
 $gscQuickWins = [
-    ['page' => '/resources/jobs/remote-jobs-begginers.php', 'position' => 8.7, 'impressions' => 205, 'ctr' => '0%', 'priority' => 'High', 'action' => 'Improve title & meta'],
+    ['page' => '/resources/jobs/remote-jobs-begginers.php', 'position' => 8.7, 'impressions' => 205, 'ctr' => '0%', 'priority' => 'High', 'action' => 'Done – meta 110–160 chars'],
     ['page' => '/resources/extra-income/legitimate-ways-to-earn-money-online.php', 'position' => 8.9, 'impressions' => 48, 'ctr' => '0%', 'priority' => 'High', 'action' => 'Done – title, meta, TOC, links'],
     ['page' => '/terms.php', 'position' => 4.5, 'impressions' => 4, 'ctr' => '0%', 'priority' => 'Medium', 'action' => 'Done – meta description added'],
     ['page' => '/resources/', 'position' => 6.0, 'impressions' => 2, 'ctr' => '0%', 'priority' => 'Low', 'action' => 'Done – index page added'],
@@ -93,9 +99,9 @@ $longTailKeywords = [
 $phases = [
     ['name' => 'Phase 1: Title & H1 Optimization', 'done' => true, 'items' => ['Feature page titles include primary keywords', 'H1 tags include primary keywords', 'Resource article titles optimised']],
     ['name' => 'Phase 2: Internal Linking', 'done' => true, 'items' => ['Homepage links to Free CV & Job Guides', 'FAQ links to key resource articles', 'Footer links to Job Market Insights, Career Advice Hub', 'CTAs at end of resource articles']],
-    ['name' => 'Phase 3: Meta Descriptions', 'done' => true, 'items' => ['Resource articles have keyword-rich meta descriptions', 'Feature pages audited and meta descriptions improved']],
+    ['name' => 'Phase 3: Meta Descriptions', 'done' => true, 'items' => ['Resource articles have keyword-rich meta descriptions', 'Feature pages audited and meta descriptions improved', 'Meta descriptions 110–160 chars (Google/Ahrefs) ✓']],
     ['name' => 'Phase 4: Content & On-Page', 'done' => true, 'items' => ['Ensure keywords in first paragraph of key pages', 'Add keywords to image alt text', 'Optimise internal link anchor text']],
-    ['name' => 'Phase 5: Technical & Monitoring', 'done' => false, 'items' => ['Submit sitemap to Google Search Console ✓', 'Submit sitemap to Bing Webmaster Tools ✓', 'Request indexing for key pages', 'Monitor rankings in GSC', 'Track organic traffic growth']],
+    ['name' => 'Phase 5: Technical & Monitoring', 'done' => false, 'items' => ['Submit sitemap to Google Search Console ✓', 'Submit sitemap to Bing Webmaster Tools ✓', 'IndexNow bulk submit (Bing/Yandex) ✓', 'Remove 302 redirect from sitemap (subscription.php) ✓', 'Resize large images (hero + resource images) ✓', 'Request indexing for key pages in Google', 'Monitor rankings in GSC', 'Track organic traffic growth']],
 ];
 
 $keyPages = [
@@ -130,14 +136,14 @@ $keyPages = [
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="mb-8">
                 <h1 class="text-2xl font-bold text-gray-900">SEO Plan</h1>
-                <p class="mt-1 text-sm text-gray-500">Target keywords, implementation phases, and key pages. Last updated: 2025-02-10.</p>
+                <p class="mt-1 text-sm text-gray-500">Target keywords, implementation phases, and key pages. Last updated: 2026-02-17.</p>
             </div>
 
             <!-- Recommended Tools -->
             <section class="mb-10">
                 <h2 class="text-lg font-semibold text-gray-900 mb-4">Recommended Tools</h2>
                 <p class="text-sm text-gray-600 mb-4">Essential tools for monitoring performance and search performance.</p>
-                <div class="grid gap-4 sm:grid-cols-3">
+                <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <?php foreach ($recommendedTools as $tool): ?>
                     <a href="<?php echo e($tool['url']); ?>" target="_blank" rel="noopener" class="flex items-start gap-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm hover:border-blue-300 hover:shadow-md transition-all group">
                         <div class="flex-shrink-0 rounded-lg bg-blue-50 p-2 group-hover:bg-blue-100 transition-colors">
@@ -387,11 +393,12 @@ $keyPages = [
                 <ul class="text-sm text-gray-600 space-y-2">
                     <li>• Title tags: 100% of pages include primary keyword</li>
                     <li>• H1 tags: 100% of pages include primary keyword</li>
-                    <li>• Meta descriptions: 2–3 relevant keywords per page</li>
+                    <li>• Meta descriptions: 110–160 chars, 2–3 relevant keywords per page</li>
                     <li>• Internal links: Key resource articles linked from homepage, FAQ, footer</li>
                     <li>• CTAs: All resource articles have conversion CTA</li>
+                    <li>• Images: Optimised file sizes for faster loading</li>
                 </ul>
-                <p class="mt-4 text-sm text-gray-500">Track via Google Search Console: keyword rankings, impressions, clicks. Monitor organic traffic growth.</p>
+                <p class="mt-4 text-sm text-gray-500">Track via Google Search Console and Ahrefs. Monitor organic traffic growth.</p>
             </section>
         </div>
     </main>
