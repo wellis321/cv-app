@@ -6,7 +6,7 @@
 /**
  * Render modern template preview
  */
-export function render(container, { cvData, profile, sections, includePhoto, includeQr, template }) {
+export function render(container, { cvData, profile, sections, includePhoto, includeQr, cvUrl, template }) {
     if (!container) {
         console.error('Preview container not found')
         return
@@ -30,10 +30,16 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
     // ===== SIDEBAR (Left 30%) =====
     html += '<div style="padding-right: 20px;">'
 
-    // Profile photo
+    // Profile photo or QR code (sidebar top slot)
     if (includePhoto && profile?.photo_url) {
         html += `<div style="text-align: center; margin-bottom: 24px;">
             <img src="${escapeHtml(profile.photo_url)}" alt="Profile" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid ${colors.accent};">
+        </div>`
+    } else if (includeQr && cvUrl) {
+        const qrImgUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=' + encodeURIComponent(cvUrl)
+        html += `<div style="text-align: center; margin-bottom: 24px;">
+            <img src="${escapeHtml(qrImgUrl)}" alt="QR Code" style="width: 120px; height: 120px; margin: 0 auto; display: block; border: 3px solid ${colors.accent};">
+            <a href="${escapeHtml(cvUrl)}" target="_blank" style="font-size: 11px; color: ${colors.link}; margin-top: 8px; display: block;">View Online</a>
         </div>`
     }
 

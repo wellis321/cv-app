@@ -6,7 +6,7 @@
 /**
  * Render classic template preview
  */
-export function render(container, { cvData, profile, sections, includePhoto, includeQr, template }) {
+export function render(container, { cvData, profile, sections, includePhoto, includeQr, cvUrl, template }) {
     if (!container) {
         console.error('Preview container not found')
         return
@@ -29,6 +29,10 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
         html += '<div style="text-align: center; margin-bottom: 30px;">'
         if (includePhoto && profile.photo_url) {
             html += `<img src="${escapeHtml(profile.photo_url)}" alt="Profile" style="width: 80px; height: 80px; object-fit: cover; border-radius: 50%; border: 2px solid ${colors.divider}; margin-bottom: 12px; display: block; margin-left: auto; margin-right: auto;">`
+        } else if (includeQr && cvUrl) {
+            const qrImgUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=70x70&data=' + encodeURIComponent(cvUrl)
+            html += `<img src="${escapeHtml(qrImgUrl)}" alt="QR Code" style="width: 70px; height: 70px; margin: 0 auto 8px auto; display: block; border: 1px solid ${colors.divider};">`
+            html += `<a href="${escapeHtml(cvUrl)}" target="_blank" style="font-size: 11px; color: ${colors.link}; margin-bottom: 8px; display: block;">View Online</a>`
         }
 
         // Name

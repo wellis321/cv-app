@@ -335,31 +335,20 @@ $masterVariantId = getOrCreateMasterVariant($userId);
             }
         }
 
-        // Debug: Check if data is loaded
-        console.log('CV Data loaded:', cvData);
-        console.log('Profile loaded:', profile);
-        console.log('Profile show_photo value:', profile.show_photo, 'Type:', typeof profile.show_photo);
-        console.log('Profile show_photo_pdf value:', profile.show_photo_pdf, 'Type:', typeof profile.show_photo_pdf);
-        console.log('Profile show_qr_code value:', profile.show_qr_code, 'Type:', typeof profile.show_qr_code);
-        console.log('Subscription context:', SubscriptionContext);
-
         function loadQRCodeLibrary() {
             return new Promise((resolve, reject) => {
                 if (typeof QRCode !== 'undefined' || typeof window.QRCode !== 'undefined') {
-                    console.log('QRCode library already loaded');
                     resolve();
                     return;
                 }
 
                 const existingScript = document.querySelector('script[src*="qrcode"]');
                 if (existingScript) {
-                    console.log('QRCode script tag found, waiting for load...');
                     let attempts = 0;
                     const checkInterval = setInterval(() => {
                         attempts++;
                         if (typeof QRCode !== 'undefined' || typeof window.QRCode !== 'undefined') {
                             clearInterval(checkInterval);
-                            console.log('QRCode library loaded after waiting');
                             resolve();
                         } else if (attempts > 20) {
                             clearInterval(checkInterval);
@@ -371,17 +360,13 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                 }
 
                 function loadScript() {
-                    console.log('Loading QRCode library dynamically...');
                     const script = document.createElement('script');
                     script.src = 'https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js';
                     script.onload = () => {
-                        console.log('QRCode library loaded dynamically');
                         setTimeout(() => {
                             if (typeof QRCode !== 'undefined' || typeof window.QRCode !== 'undefined') {
                                 resolve();
                             } else {
-                                console.warn('QRCode library script loaded but QRCode not available');
-                                console.log('Checking window object for QRCode:', Object.keys(window).filter((k) => k.toLowerCase().includes('qr')));
                                 reject(new Error('QRCode library loaded but not available'));
                             }
                         }, 100);
@@ -446,8 +431,6 @@ $masterVariantId = getOrCreateMasterVariant($userId);
 
         async function generatePDF() {
             try {
-                console.log('🎨 Using client-side PDF generation with pdfmake');
-
                 if (!SubscriptionContext?.pdfEnabled) {
                     const message = 'PDF export is available on Pro plans.';
                     if (SubscriptionContext?.upgradeUrl) {
@@ -556,27 +539,11 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                 const scrollX = window.scrollX;
                 const filename = `${(profile.full_name || 'CV').replace(/[^a-z0-9_\-]/gi, '_')}_CV.pdf`;
 
-                // DEBUG: Log image data before pdfmake
+                // Try clean copy (fix for React/proxy mutation issues per Stack Overflow)
                 const imgs = docDefinition?.images;
-                if (imgs?.profilePhoto) {
-                    const d = imgs.profilePhoto;
-                    console.log('[PDF DEBUG] images.profilePhoto:', {
-                        type: typeof d,
-                        length: d?.length,
-                        prefix: d?.substring?.(0, 50),
-                        startsWithData: d?.startsWith?.('data:'),
-                        base64Start: d?.includes?.('base64,') ? d.substring(d.indexOf('base64,') + 7, d.indexOf('base64,') + 50) + '...' : 'N/A'
-                    });
-                    // Try clean copy (fix for React/proxy mutation issues per Stack Overflow)
-                    if (typeof d === 'string') {
-                        docDefinition.images = { profilePhoto: String(d) };
-                    }
-                } else {
-                    console.log('[PDF DEBUG] No images.profilePhoto in docDefinition', { hasImages: !!imgs, keys: imgs ? Object.keys(imgs) : [] });
+                if (imgs?.profilePhoto && typeof imgs.profilePhoto === 'string') {
+                    docDefinition.images = { profilePhoto: String(imgs.profilePhoto) };
                 }
-
-                // DEBUG: pdfmake version
-                console.log('[PDF DEBUG] pdfMake version:', typeof pdfMake?.version !== 'undefined' ? pdfMake.version : 'unknown');
 
                 // Academic template uses serif font (Georgia/Times) to match preview - register Liberation Serif as 'Times'
                 if (selectedTemplate === 'academic' && typeof pdfMake !== 'undefined') {
@@ -590,15 +557,6 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                             bolditalics: fontBase + 'LiberationSerif-BoldItalic.ttf'
                         }};
                     }
-                }
-
-                // DEBUG: Test with minimal 1x1 PNG - set ?test=1 in URL to try (isolates pdfmake vs our image)
-                const TEST_MINIMAL = (new URLSearchParams(window.location.search)).get('test') === '1';
-                if (TEST_MINIMAL) {
-                    const minimalPng = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmiQQAAAABJRU5ErkJggg==';
-                    docDefinition.images = docDefinition.images || {};
-                    docDefinition.images.profilePhoto = minimalPng;
-                    console.log('[PDF DEBUG] Using minimal 1x1 PNG test image (URL ?test=1)');
                 }
 
                 try {
@@ -624,8 +582,6 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                         throw imgErr;
                     }
                 }
-
-                console.log('✅ PDF generated successfully using pdfmake');
 
                 // Restore scroll position (PDF download can scroll page)
                 requestAnimationFrame(() => {
@@ -781,7 +737,6 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                     let allTemplates;
                     try {
                         allTemplates = listTemplates();
-                        console.log('Templates loaded:', allTemplates);
                         if (!Array.isArray(allTemplates) || allTemplates.length === 0) {
                             console.warn('listTemplates() returned invalid data, using fallback');
                             allTemplates = [{ id: DEFAULT_TEMPLATE_ID || 'professional', name: 'Professional Blue', description: 'Clean layout with blue accent accents and structured typography.' }];

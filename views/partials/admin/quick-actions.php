@@ -165,6 +165,20 @@ $quickActionsExpanded = $isDashboard;
                 <p class="truncate text-sm text-gray-500">Target keywords & strategy</p>
             </div>
         </a>
+
+        <a href="/admin/competitive-analysis.php"
+           class="relative flex items-center space-x-3 rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm hover:border-gray-400 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2">
+            <div class="flex-shrink-0">
+                <svg class="h-6 w-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+            </div>
+            <div class="min-w-0 flex-1">
+                <span class="absolute inset-0" aria-hidden="true"></span>
+                <p class="text-sm font-medium text-gray-900">Competitive Analysis</p>
+                <p class="truncate text-sm text-gray-500">Competitors & improvements</p>
+            </div>
+        </a>
     </div>
     </div>
 </div>

@@ -33,9 +33,10 @@ function formatCvPreviewDate(dateStr) {
  * @param {object} context.sections
  * @param {boolean} context.includePhoto
  * @param {boolean} context.includeQr
+ * @param {string} [context.cvUrl]
  * @param {object} context.template
  */
-export function render(container, { cvData, profile, sections, includePhoto, includeQr, template }) {
+export function render(container, { cvData, profile, sections, includePhoto, includeQr, cvUrl, template }) {
     if (!container) {
         console.error('Preview container not provided');
         return;
@@ -82,6 +83,9 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
             html += `</div>`;
             if (includePhoto && profile.photo_url) {
                 html += `<img src="${escapeHtml(profile.photo_url)}" alt="Profile" class="w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 rounded-full object-cover border border-gray-200 mx-auto lg:mx-0">`;
+            } else if (includeQr && cvUrl) {
+                const qrImgUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=' + encodeURIComponent(cvUrl);
+                html += `<div class="flex flex-col items-center lg:items-start"><img src="${escapeHtml(qrImgUrl)}" alt="QR Code" class="w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 mx-auto lg:mx-0 border border-gray-200"><p class="text-xs mt-2" style="color:${mutedColor}">View Online</p></div>`;
             }
             html += `</div></div>`;
         } else {
@@ -105,6 +109,9 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
             html += `</div>`;
             if (includePhoto && profile.photo_url) {
                 html += `<img src="${escapeHtml(profile.photo_url)}" alt="Profile" class="w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 rounded-full object-cover border-4 border-white/20 mx-auto lg:mx-0">`;
+            } else if (includeQr && cvUrl) {
+                const qrImgUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=120x120&ecc=M&color=1f2937&bgcolor=ffffff&data=' + encodeURIComponent(cvUrl);
+                html += `<div class="flex flex-col items-center lg:items-start"><img src="${escapeHtml(qrImgUrl)}" alt="QR Code" class="w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 mx-auto lg:mx-0 border-4 border-white/20 rounded-lg bg-white"><p class="text-white/90 text-xs mt-2">View Online</p></div>`;
             }
             html += `</div></div>`;
         }
@@ -247,8 +254,10 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
     </div></div>`;
     }
 
-    if (includeQr) {
-        html += `<div class="p-6 pt-0 text-right"><p class="text-xs" style="color:${mutedColor};">QR code will be included in the PDF.</p></div>`;
+    // QR at bottom when photo is shown (PDF places it there); when photo hidden, QR is in header
+    if (includeQr && includePhoto && cvUrl) {
+        const qrImgUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=' + encodeURIComponent(cvUrl);
+        html += `<div class="p-6 pt-0 text-right"><img src="${escapeHtml(qrImgUrl)}" alt="QR Code" class="inline-block w-24 h-24 border border-gray-200"><p class="text-xs mt-1" style="color:${mutedColor};">View Online</p></div>`;
     }
 
     container.innerHTML = html || '<p class="text-gray-500">Select at least one section to preview.</p>';
