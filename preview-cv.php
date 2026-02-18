@@ -106,9 +106,27 @@ $masterVariantId = getOrCreateMasterVariant($userId);
             <!-- Section Selection Panel: sticky on wrapper (no overflow); card scrolls when taller than viewport -->
             <div id="generate-pdf" class="lg:col-span-1 lg:sticky lg:top-24 lg:self-start scroll-mt-4">
                 <div class="bg-white shadow rounded-lg p-6 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
-                    <h2 class="text-xl font-semibold mb-4">Select Sections</h2>
+                    <!-- Primary action: always visible -->
+                    <button id="generate-pdf-button" onclick="generatePDF()" class="w-full bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold text-sm mb-2">
+                        Generate PDF
+                    </button>
+                    <button type="button" id="update-preview-button" class="w-full bg-gray-100 text-gray-800 px-6 py-2 rounded-md border border-gray-300 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-medium mb-6">
+                        Update Preview
+                    </button>
+                    <?php if (!planPdfEnabled($subscriptionContext)): ?>
+                        <p class="mb-6 text-sm text-gray-500">
+                            PDF downloads are available on Pro plans.
+                            <a href="/subscription.php" class="text-blue-600 hover:text-blue-800 underline">Upgrade now</a>.
+                        </p>
+                    <?php endif; ?>
 
-                    <div class="space-y-3">
+                    <!-- Collapsible: Select Sections -->
+                    <details class="sidebar-section group border-b border-gray-200 pb-4 mb-4">
+                        <summary class="flex items-center justify-between cursor-pointer list-none py-1 text-sm font-medium text-gray-700 hover:text-gray-900 select-none">
+                            <span>Select Sections</span>
+                            <svg class="h-4 w-4 text-gray-500 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </summary>
+                    <div class="mt-3 space-y-3 pl-0">
                         <label class="flex items-center">
                             <input type="checkbox" id="section-profile" checked class="mr-2">
                             <span>Personal Profile</span>
@@ -150,8 +168,15 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                             <span>Professional Qualification Equivalence</span>
                         </label>
                     </div>
+                    </details>
 
-                    <div class="mt-6 pt-6 border-t">
+                    <!-- Collapsible: Photo & QR -->
+                    <details class="sidebar-section group border-b border-gray-200 pb-4 mb-4">
+                        <summary class="flex items-center justify-between cursor-pointer list-none py-1 text-sm font-medium text-gray-700 hover:text-gray-900 select-none">
+                            <span>Photo & QR Code</span>
+                            <svg class="h-4 w-4 text-gray-500 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </summary>
+                    <div class="mt-3 space-y-4">
                         <label class="flex items-center">
                             <input type="checkbox"
                                    id="include-photo"
@@ -176,12 +201,41 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                             The QR code will appear in the header if the photo is hidden; otherwise it is placed at the bottom of the PDF.
                         </p>
                     </div>
+                    </details>
 
-                    <div class="mt-6 pt-6 border-t">
+                    <?php if (planPdfEnabled($subscriptionContext)): ?>
+                    <!-- Collapsible: PDF Footer -->
+                    <details class="sidebar-section group border-b border-gray-200 pb-4 mb-4">
+                        <summary class="flex items-center justify-between cursor-pointer list-none py-1 text-sm font-medium text-gray-700 hover:text-gray-900 select-none">
+                            <span>PDF Footer</span>
+                            <svg class="h-4 w-4 text-gray-500 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </summary>
+                    <div class="mt-3">
+                        <?php if (!subscriptionIsPaid($subscriptionContext)): ?>
+                        <p class="text-xs text-gray-600 mb-2">
+                            Your PDF includes our branding at the bottom (Simple CV Builder, credit line, and link). Upgrade to a Pro or Lifetime plan to remove the extended message—paid plans show only a simple copyright line and web address.
+                        </p>
+                        <a href="/subscription.php" class="inline-block mt-2 px-3 py-1.5 text-xs font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1">Upgrade to remove branding →</a>
+                        <?php else: ?>
+                        <p class="text-xs text-gray-500">
+                            Paid plans include a minimal footer (© <?php echo date('Y'); ?>, simple-cv-builder.com).
+                        </p>
+                        <?php endif; ?>
+                    </div>
+                    </details>
+                    <?php endif; ?>
+
+                    <!-- Collapsible: PDF Style -->
+                    <details class="sidebar-section group border-b border-gray-200 pb-4 mb-4">
+                        <summary class="flex items-center justify-between cursor-pointer list-none py-1 text-sm font-medium text-gray-700 hover:text-gray-900 select-none">
+                            <span>PDF Style</span>
+                            <svg class="h-4 w-4 text-gray-500 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </summary>
+                    <div class="mt-3">
                         <label for="template-select" class="block text-sm font-medium text-gray-700 mb-2">
-                            PDF Style
+                            Template
                         </label>
-                        <select id="template-select" class="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm py-2 px-3">
+                        <select id="template-select" class="w-full bg-white border-2 border-gray-300 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 cursor-pointer hover:border-blue-400 hover:bg-blue-50/50 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-offset-0 transition-colors">
                             <option value="">Loading templates...</option>
                         </select>
                         <p class="mt-2 text-xs text-gray-500" id="template-description">
@@ -193,10 +247,16 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                             </p>
                         <?php endif; ?>
                     </div>
+                    </details>
 
                     <?php if (!empty($subscriptionFrontendContext['templateCustomizationEnabled'])): ?>
-                    <div id="colour-customization-container" class="mt-6 pt-6 border-t">
-                        <label class="block text-sm font-medium text-gray-700 mb-3">Customise Colours</label>
+                    <!-- Collapsible: Customise Colours -->
+                    <details class="sidebar-section group border-b border-gray-200 pb-4 mb-4">
+                        <summary class="flex items-center justify-between cursor-pointer list-none py-1 text-sm font-medium text-gray-700 hover:text-gray-900 select-none">
+                            <span>Customise Colours</span>
+                            <svg class="h-4 w-4 text-gray-500 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </summary>
+                    <div class="mt-3" id="colour-customization-container">
                         <p class="text-xs text-gray-500 mb-3">Choose a preset or pick a custom accent colour.</p>
                         <div class="space-y-2 mb-3">
                             <label class="flex items-center gap-2 cursor-pointer">
@@ -240,10 +300,16 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                             </div>
                         </div>
                     </div>
+                    </details>
                     <?php endif; ?>
 
                     <!-- Skill Selection UI (shown when skills section is enabled) -->
-                    <div id="skill-selection-container" class="mt-6 pt-6 border-t hidden">
+                    <details id="skill-selection-container" class="sidebar-section group border-b border-gray-200 pb-4 mb-4 hidden">
+                        <summary class="flex items-center justify-between cursor-pointer list-none py-1 text-sm font-medium text-gray-700 hover:text-gray-900 select-none">
+                            <span>Select Skills</span>
+                            <svg class="h-4 w-4 text-gray-500 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </summary>
+                    <div class="mt-3">
                         <label class="block text-sm font-medium text-gray-700 mb-2">
                             <span id="skill-section-title">Select Skills</span>
                             <span id="skill-limit-badge" class="ml-2 text-xs text-gray-500 hidden"></span>
@@ -265,23 +331,9 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                             </div>
                         </div>
                     </div>
+                    </details>
 
-                    <button type="button" id="update-preview-button" class="mt-6 w-full bg-gray-100 text-gray-800 px-6 py-2.5 rounded-md border border-gray-300 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-medium">
-                        Update Preview
-                    </button>
-                    <p class="mt-2 text-xs text-gray-500">Refresh the preview to see your latest changes.</p>
-
-                    <button id="generate-pdf-button" onclick="generatePDF()" class="mt-6 w-full bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        Generate PDF
-                    </button>
-                    <?php if (!planPdfEnabled($subscriptionContext)): ?>
-                        <p class="mt-3 text-sm text-gray-500">
-                            PDF downloads are available on Pro plans.
-                            <a href="/subscription.php" class="text-blue-600 hover:text-blue-800 underline">Upgrade now</a>.
-                        </p>
-                    <?php endif; ?>
-
-                    <a href="/cv.php" class="mt-4 block text-center text-blue-600 hover:text-blue-800">
+                    <a href="/cv.php" class="mt-4 block w-full text-center px-4 py-2.5 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 hover:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-colors">
                         View Online CV →
                     </a>
                 </div>

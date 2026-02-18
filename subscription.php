@@ -80,6 +80,7 @@ function renderPlanFeatures(string $planId, array $planConfig): array {
 
     if (!empty($planConfig['pdf_enabled'])) {
         $features[] = 'Download print-ready PDFs';
+        $features[] = $planId === 'free' ? 'Extended branding on PDF exports' : 'Minimal PDF footer (no extended branding)';
     } else {
         $features[] = 'PDF export available after upgrading';
     }
@@ -283,6 +284,12 @@ function renderPlanFeatures(string $planId, array $planConfig): array {
                         <svg class="h-5 w-5 text-green-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                         </svg>
+                        Minimal PDF footer—remove the extended branding; paid plans show only a simple copyright line and web address.
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <svg class="h-5 w-5 text-green-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
                         Access to curated job-hunting guides, side-income ideas, and monetisation resources updated monthly.
                     </li>
                     <li class="flex items-start gap-2">
@@ -297,7 +304,7 @@ function renderPlanFeatures(string $planId, array $planConfig): array {
             <div class="rounded-xl bg-white p-6 shadow-sm border border-gray-200">
                 <h3 class="text-lg font-semibold text-gray-900">Need help deciding?</h3>
                 <div class="mt-4 space-y-3 text-sm text-gray-600">
-                    <p>Stay on the Free plan to build a simple, public CV with a QR code to share.</p>
+                    <p>Stay on the Free plan to build a simple, public CV with a QR code to share. Free plan PDFs include our extended branding at the bottom; upgrade for a minimal footer (copyright + link only).</p>
                     <p>All paid plans include a 7-day free trial. Choose 1 week, 1 month, or 3 months. Cancel anytime.</p>
                     <p class="font-medium text-gray-900">Have questions? <a href="mailto:noreply@simple-job-tracker.com" class="text-blue-600 hover:text-blue-800 underline">Email support</a> and we'll be happy to help.</p>
                 </div>

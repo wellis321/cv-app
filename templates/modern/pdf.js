@@ -483,9 +483,10 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
         const mutedColor = template.colors.muted || '#64748b'
         const year = new Date().getFullYear()
         const items = [{ text: `Page ${currentPage} of ${pageCount}`, alignment: 'right', fontSize: 8, color: mutedColor }]
-        const brandingParts = [
-            { text: `Simple CV Builder Designed, Developed and Delivered by William Ellis. © ${year}` }
-        ]
+        const showFreeBranding = config?.showFreePlanBranding !== false
+        const brandingParts = showFreeBranding
+            ? [{ text: `Simple CV Builder Designed, Developed and Delivered by William Ellis. © ${year}` }]
+            : [{ text: `© ${year}` }]
         if (config?.siteUrl) {
             brandingParts.push({ text: ' ', fontSize: 7 }, { text: 'simple-cv-builder.com', link: config.siteUrl, fontSize: 7 })
         }

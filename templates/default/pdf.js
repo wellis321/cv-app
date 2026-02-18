@@ -392,9 +392,10 @@ function buildProfessionalDocDefinition({ cvData = {}, profile = {}, config = {}
             const c = (typeof currentPage === 'number' && !Number.isNaN(currentPage)) ? currentPage : 1
             const year = new Date().getFullYear()
             const items = [{ text: `${c} / ${p}`, alignment: 'center', style: 'footer' }]
-            const brandingParts = [
-                { text: `Simple CV Builder Designed, Developed and Delivered by William Ellis. © ${year}` }
-            ]
+            const showFreeBranding = config?.showFreePlanBranding !== false
+            const brandingParts = showFreeBranding
+                ? [{ text: `Simple CV Builder Designed, Developed and Delivered by William Ellis. © ${year}` }]
+                : [{ text: `© ${year}` }]
             if (config?.siteUrl) {
                 brandingParts.push({ text: ' ', fontSize: 7 }, { text: 'simple-cv-builder.com', link: config.siteUrl, fontSize: 7 })
             }
