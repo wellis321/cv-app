@@ -120,6 +120,63 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                         </p>
                     <?php endif; ?>
 
+                    <!-- Collapsible: PDF Style (template selector) -->
+                    <details class="sidebar-section group border-b border-gray-200 pb-4 mb-4">
+                        <summary class="flex items-center justify-between cursor-pointer list-none py-1 text-sm font-medium text-gray-700 hover:text-gray-900 select-none">
+                            <span>PDF Style</span>
+                            <svg class="h-4 w-4 text-gray-500 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </summary>
+                    <div class="mt-3">
+                        <label for="template-select" class="block text-sm font-medium text-gray-700 mb-2">
+                            Template
+                        </label>
+                        <select id="template-select" class="w-full bg-white border-2 border-gray-300 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 cursor-pointer hover:border-blue-400 hover:bg-blue-50/50 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-offset-0 transition-colors">
+                            <option value="">Loading templates...</option>
+                        </select>
+                        <p class="mt-2 text-xs text-gray-500" id="template-description">
+                            Clean layout with blue accent lines and structured typography.
+                        </p>
+                        <?php if (!empty($subscriptionFrontendContext['allowedTemplateIds']) && count($subscriptionFrontendContext['allowedTemplateIds']) === 1): ?>
+                            <p class="mt-2 text-xs text-gray-500">
+                                Upgrade to unlock additional template designs and colour themes.
+                            </p>
+                        <?php endif; ?>
+                    </div>
+                    </details>
+
+                    <!-- Collapsible: Photo & QR -->
+                    <details class="sidebar-section group border-b border-gray-200 pb-4 mb-4">
+                        <summary class="flex items-center justify-between cursor-pointer list-none py-1 text-sm font-medium text-gray-700 hover:text-gray-900 select-none">
+                            <span>Photo & QR Code</span>
+                            <svg class="h-4 w-4 text-gray-500 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </summary>
+                    <div class="mt-3 space-y-4">
+                        <label class="flex items-center">
+                            <input type="checkbox"
+                                   id="include-photo"
+                                   class="mr-2"
+                                   <?php echo $profileShowPhotoPdf ? 'checked' : ''; ?>>
+                            <span>Include Profile Photo</span>
+                        </label>
+                        <p class="mt-2 text-xs text-gray-500">
+                            This sets the default when you first open the preview. You can still toggle the photo before generating the PDF.
+                        </p>
+                    </div>
+
+                    <div class="mt-6">
+                        <label class="flex items-center">
+                            <input type="checkbox"
+                                   id="include-qr"
+                                   class="mr-2"
+                                   <?php echo $profileShowQrCodePdfDefault ? 'checked' : ''; ?>>
+                            <span>Include QR Code</span>
+                        </label>
+                        <p class="mt-2 text-xs text-gray-500">
+                            The QR code will appear in the header if the photo is hidden; otherwise it is placed at the bottom of the PDF.
+                        </p>
+                    </div>
+                    </details>
+
                     <!-- Collapsible: Select Sections -->
                     <details class="sidebar-section group border-b border-gray-200 pb-4 mb-4">
                         <summary class="flex items-center justify-between cursor-pointer list-none py-1 text-sm font-medium text-gray-700 hover:text-gray-900 select-none">
@@ -170,39 +227,6 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                     </div>
                     </details>
 
-                    <!-- Collapsible: Photo & QR -->
-                    <details class="sidebar-section group border-b border-gray-200 pb-4 mb-4">
-                        <summary class="flex items-center justify-between cursor-pointer list-none py-1 text-sm font-medium text-gray-700 hover:text-gray-900 select-none">
-                            <span>Photo & QR Code</span>
-                            <svg class="h-4 w-4 text-gray-500 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                        </summary>
-                    <div class="mt-3 space-y-4">
-                        <label class="flex items-center">
-                            <input type="checkbox"
-                                   id="include-photo"
-                                   class="mr-2"
-                                   <?php echo $profileShowPhotoPdf ? 'checked' : ''; ?>>
-                            <span>Include Profile Photo</span>
-                        </label>
-                        <p class="mt-2 text-xs text-gray-500">
-                            This sets the default when you first open the preview. You can still toggle the photo before generating the PDF.
-                        </p>
-                    </div>
-
-                    <div class="mt-6">
-                        <label class="flex items-center">
-                            <input type="checkbox"
-                                   id="include-qr"
-                                   class="mr-2"
-                                   <?php echo $profileShowQrCodePdfDefault ? 'checked' : ''; ?>>
-                            <span>Include QR Code</span>
-                        </label>
-                        <p class="mt-2 text-xs text-gray-500">
-                            The QR code will appear in the header if the photo is hidden; otherwise it is placed at the bottom of the PDF.
-                        </p>
-                    </div>
-                    </details>
-
                     <?php if (planPdfEnabled($subscriptionContext)): ?>
                     <!-- Collapsible: PDF Footer -->
                     <details class="sidebar-section group border-b border-gray-200 pb-4 mb-4">
@@ -224,30 +248,6 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                     </div>
                     </details>
                     <?php endif; ?>
-
-                    <!-- Collapsible: PDF Style -->
-                    <details class="sidebar-section group border-b border-gray-200 pb-4 mb-4">
-                        <summary class="flex items-center justify-between cursor-pointer list-none py-1 text-sm font-medium text-gray-700 hover:text-gray-900 select-none">
-                            <span>PDF Style</span>
-                            <svg class="h-4 w-4 text-gray-500 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                        </summary>
-                    <div class="mt-3">
-                        <label for="template-select" class="block text-sm font-medium text-gray-700 mb-2">
-                            Template
-                        </label>
-                        <select id="template-select" class="w-full bg-white border-2 border-gray-300 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 cursor-pointer hover:border-blue-400 hover:bg-blue-50/50 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-offset-0 transition-colors">
-                            <option value="">Loading templates...</option>
-                        </select>
-                        <p class="mt-2 text-xs text-gray-500" id="template-description">
-                            Clean layout with blue accent lines and structured typography.
-                        </p>
-                        <?php if (!empty($subscriptionFrontendContext['allowedTemplateIds']) && count($subscriptionFrontendContext['allowedTemplateIds']) === 1): ?>
-                            <p class="mt-2 text-xs text-gray-500">
-                                Upgrade to unlock additional template designs and colour themes.
-                            </p>
-                        <?php endif; ?>
-                    </div>
-                    </details>
 
                     <?php if (!empty($subscriptionFrontendContext['templateCustomizationEnabled'])): ?>
                     <!-- Collapsible: Customise Colours -->
