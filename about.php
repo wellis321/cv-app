@@ -92,7 +92,7 @@ $projects = [
                         <p class="text-xl text-indigo-100 drop-shadow-md space-y-2" style="text-shadow: 0 1px 3px rgba(0,0,0,0.5);">
                             <span class="block">Hello. I'm William.</span>
                             <span class="block">I created this site as I want to help you build your professional CV to get the job you want.</span>
-                            <span class="block mt-3 text-lg">If you're a charity, non-profit, or can't afford a subscription, get in touch — I'd like to help make Simple CV Builder accessible to everyone.</span>
+                            <span class="block mt-3 text-lg">If you're a charity, non-profit social housing provider or anyone providing a social service, get in touch — I'd like to help make Simple CV Builder accessible to everyone.</span>
                         </p>
                     </div>
                     <div class="flex-shrink-0">
@@ -161,22 +161,6 @@ $projects = [
                             </div>
                         </a>
                     <?php endforeach; ?>
-                </div>
-            </section>
-
-            <!-- Access for charities and those who can't afford subscriptions -->
-            <section class="mb-16 pt-12">
-                <div class="rounded-xl border-2 border-green-200 bg-green-50 p-8">
-                    <h2 class="text-xl font-bold text-gray-900 mb-4">Access for charities and those who need support</h2>
-                    <p class="text-gray-700 leading-relaxed mb-4">
-                        If you're a charity, non-profit organisation, or someone who can't afford a subscription, I'd like to help. Get in touch and we can discuss how to make Simple CV Builder accessible to everyone.
-                    </p>
-                    <a href="#contact-form" class="inline-flex items-center rounded-lg bg-green-600 px-6 py-3 text-base font-semibold text-white shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
-                        Contact me to discuss
-                        <svg class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
-                        </svg>
-                    </a>
                 </div>
             </section>
 
