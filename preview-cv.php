@@ -699,9 +699,20 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                 const filteredSkills = (cvData.skills || []).filter(s => currentSkillSelection.includes(s.id));
                 const cvDataForPreview = { ...cvData, skills: filteredSkills };
 
+                // Normalize photo_url to use current origin (fixes port mismatch when stored URL points to different port)
+                let profileForPreview = profile;
+                if (profile?.photo_url) {
+                    const m = String(profile.photo_url).match(/(\/storage\/.+)$/);
+                    if (m) {
+                        profileForPreview = { ...profile, photo_url: window.location.origin + m[1] };
+                    } else if (profile.photo_url.startsWith('/')) {
+                        profileForPreview = { ...profile, photo_url: window.location.origin + profile.photo_url };
+                    }
+                }
+
                 renderFunction(previewDiv, {
                     cvData: cvDataForPreview,
-                    profile,
+                    profile: profileForPreview,
                     sections,
                     includePhoto,
                     includeQr,
