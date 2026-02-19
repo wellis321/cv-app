@@ -900,26 +900,14 @@ $preselectJobId = isset($_GET['job']) ? $_GET['job'] : null;
                 // Pattern: "prop": "value": "prop2": -> "prop": "value", "prop2":
                 // This must happen early to catch issues before other cleaning interferes
                 // Use a more direct approach: find ": "prop": where prop is a property name and insert comma before it
-                // #region agent log
-                const beforeEarlyFix = jsonStr;
-                // #endregion
                 
                 // CRITICAL FIX: Match the exact error pattern and fix it directly
                 // Error pattern: "position": "Systems Development Manager": "company_name":
                 // Fix: "position": "Systems Development Manager", "company_name":
                 const commonProps = ['id', 'position', 'company_name', 'description', 'name', 'title', 'start_date', 'end_date', 'location', 'degree', 'field_of_study', 'institution', 'items', 'content'];
-                // #region agent log
-                // Check if the problematic pattern exists in the JSON
-                const hasProblemPattern = jsonStr.includes('"position": "Systems Development Manager": "company_name":');
-                const jsonSample = jsonStr.substring(0, 2000);
-                // #endregion
                 // FIRST: Try simple string replacement for the most common case
                 // This is more reliable than regex for the exact error pattern
                 // Apply multiple times to catch all instances
-                const beforeSimpleFix = jsonStr;
-                // #region agent log
-                const testPatternMatch = jsonStr.match(/"position":\s*"Systems Development Manager":\s*"company_name":/gi);
-                // #endregion
                 // Use a more aggressive approach: find ANY ": "prop": pattern and fix it
                 // This catches the error pattern regardless of whitespace
                 for (let i = 0; i < 20; i++) {
@@ -933,10 +921,6 @@ $preselectJobId = isset($_GET['job']) ? $_GET['job'] : null;
                     // Use [\s\S] to match any character including newlines
                     for (const prop of commonProps) {
                         jsonStr = jsonStr.replace(new RegExp('"([^"]{5,500})"\\s*:\\s*"' + prop + '"\\s*:', 'gi'), function(match, value) {
-                            // #region agent log
-                            if (prop === 'company_name' && (value.includes('Systems Development Manager') || value.includes('Development Manager'))) {
-                            }
-                            // #endregion
                             // More permissive: any value that's not a property name
                             if (value.length >= 5 && value.length <= 500 && !commonProps.includes(value.toLowerCase())) {
                                 return '"' + value + '", "' + prop + '":';
@@ -946,30 +930,17 @@ $preselectJobId = isset($_GET['job']) ? $_GET['job'] : null;
                     }
                     if (jsonStr === beforeIteration) break; // No more changes
                 }
-                // #region agent log
-                if (jsonStr !== beforeSimpleFix) {
-                } else {
-                }
-                // #endregion
                 
                 let changed = true;
                 let iterations = 0;
                 while (changed && iterations < 50) {
                     const before = jsonStr;
-                    // #region agent log
-                    if (iterations === 0) {
-                    }
-                    // #endregion
                     // SIMPLEST PATTERN: Find ": "prop": where prop is a known property, and insert comma before it
                     // This catches: "value": "prop": -> "value", "prop":
                     for (const prop of commonProps) {
                         // Match: any quoted string ending with ", then ": "prop":
                         const pattern = new RegExp('"([^"]+)":\\s*"' + prop + '":', 'gi');
                         jsonStr = jsonStr.replace(pattern, function(match, value) {
-                            // #region agent log
-                            if (prop === 'company_name' && value.includes('Systems Development Manager')) {
-                            }
-                            // #endregion
                             // Only fix if value is long enough (not a property name) and prop is a known property
                             if (value.length >= 5 && value.length <= 500 && !commonProps.includes(value.toLowerCase())) {
                                 return '"' + value + '", "' + prop + '":';
@@ -983,10 +954,6 @@ $preselectJobId = isset($_GET['job']) ? $_GET['job'] : null;
                             if (prop1 !== prop2) {
                                 const pattern = new RegExp('"' + prop1 + '":\\s*"([^"]+)":\\s*"' + prop2 + '":', 'gi');
                                 jsonStr = jsonStr.replace(pattern, function(match, value) {
-                                    // #region agent log
-                                    if (prop1 === 'position' && prop2 === 'company_name') {
-                                    }
-                                    // #endregion
                                     if (value.length >= 5 && value.length <= 500) {
                                         return '"' + prop1 + '": "' + value + '", "' + prop2 + '":';
                                     }
@@ -998,14 +965,6 @@ $preselectJobId = isset($_GET['job']) ? $_GET['job'] : null;
                     changed = (jsonStr !== before);
                     iterations++;
                 }
-                // #region agent log
-                if (jsonStr !== beforeEarlyFix) {
-                }
-                // #endregion
-                // #region agent log
-                if (jsonStr !== beforeEarlyFix) {
-                }
-                // #endregion
                 
                 // Only remove ": ": { if it's not part of a nested structure we want to keep
                 jsonStr = jsonStr.replace(/,\s*":\s*":\s*\{/g, ', ');
@@ -1210,14 +1169,6 @@ $preselectJobId = isset($_GET['job']) ? $_GET['job'] : null;
                     return result;
                 });
                 
-                // #region agent log
-                // Log problematic patterns before parsing
-                const emptyPropMatch = jsonStr.match(/":\s*":\s*\[/);
-                const missingCommaMatch = jsonStr.match(/"([a-z_]+)":\s*"([^"]{10,})":\s*"([a-z_]+)":/i);
-                if (emptyPropMatch || missingCommaMatch) {
-                }
-                // #endregion
-                
                 // FINAL FIX: Right before parsing, re-apply the two critical fixes (empty key + } {) in a loop.
                 // Other cleaning can sometimes leave these malformations; this ensures they are fixed.
                 for (let i = 0; i < 10; i++) {
@@ -1300,10 +1251,6 @@ $preselectJobId = isset($_GET['job']) ? $_GET['job'] : null;
                     // Extract error position if available
                     const errorMatch = e.message.match(/position (\d+)/);
                     const errorPos = errorMatch ? parseInt(errorMatch[1]) : -1;
-                    
-                    // #region agent log
-                    // Log error details
-                    // #endregion
                     
                     // Log detailed error info
                     console.error('parseCvRewriteJsonFromAI: Parse error at position', errorPos);

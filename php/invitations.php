@@ -63,27 +63,6 @@ function createCandidateInvitation($organisationId, $email, $invitedBy, $fullNam
         $inviter = db()->fetchOne("SELECT full_name FROM profiles WHERE id = ?", [$invitedBy]);
 
         // Send invitation email
-        // #region agent log
-        debugLog([
-            'id' => 'log_' . time() . '_' . uniqid(),
-            'timestamp' => time() * 1000,
-            'location' => 'invitations.php:66',
-            'message' => 'About to call sendCandidateInvitationEmail',
-            'data' => [
-                'email' => $email,
-                'fullName' => $fullName,
-                'organisationName' => $org['name'],
-                'inviterName' => $inviter['full_name'] ?? 'A recruiter',
-                'tokenLength' => strlen($token),
-                'hasMessage' => !empty($message),
-                'orgEmail' => $org['organisation_email'] ?? null
-            ],
-            'sessionId' => 'email-debug',
-            'runId' => 'run1',
-            'hypothesisId' => 'E1,E2'
-        ]);
-        // #endregion
-        
         // Use organisation email if configured, otherwise use default
         $emailSent = sendCandidateInvitationEmail(
             $email,
@@ -95,24 +74,6 @@ function createCandidateInvitation($organisationId, $email, $invitedBy, $fullNam
             $org['organisation_email'] ?? null,
             $org['organisation_email_name'] ?? null
         );
-
-        // #region agent log
-        debugLog([
-            'id' => 'log_' . time() . '_' . uniqid(),
-            'timestamp' => time() * 1000,
-            'location' => 'invitations.php:74',
-            'message' => 'sendCandidateInvitationEmail returned',
-            'data' => [
-                'emailSent' => $emailSent,
-                'emailSentType' => gettype($emailSent),
-                'email' => $email,
-                'invitationId' => $invitationId
-            ],
-            'sessionId' => 'email-debug',
-            'runId' => 'run1',
-            'hypothesisId' => 'E1,E2,E3'
-        ]);
-        // #endregion
 
         logActivity('candidate.invited', null, [
             'email' => $email,

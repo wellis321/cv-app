@@ -819,19 +819,9 @@ if ($activeTemplate) {
                                         
                                         // Get responsive image attributes (context: 'cv' for CV page)
                                         $responsiveData = isset($project['image_responsive']) ? $project['image_responsive'] : null;
-                                        // #region agent log
-                                        debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'cv.php:497','message'=>'Project image data check','data'=>['projectId'=>$project['id']??'unknown','projectTitle'=>$project['title']??'unknown','hasImageUrl'=>!empty($projectImageUrl),'imageUrl'=>$projectImageUrl,'hasImagePath'=>!empty($projectImagePath),'imagePath'=>$projectImagePath,'hasResponsiveData'=>!empty($responsiveData),'responsiveDataType'=>gettype($responsiveData),'responsiveDataPreview'=>is_string($responsiveData)?substr($responsiveData,0,200):'not string'],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C1']);
-                                        // #endregion
                                         $imgAttrs = getResponsiveImageAttributes($responsiveData, $projectImageUrl, 'cv');
-                                        // #region agent log
-                                        debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'cv.php:500','message'=>'Image attributes generated','data'=>['hasSrcset'=>!empty($imgAttrs['srcset']),'srcsetLength'=>strlen($imgAttrs['srcset']??''),'srcsetPreview'=>substr($imgAttrs['srcset']??'',0,200),'sizes'=>$imgAttrs['sizes']??'','src'=>$imgAttrs['src']??''],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C1']);
-                                        // #endregion
                                         ?>
-                                        <?php 
-                                        // #region agent log
-                                        debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'cv.php:506','message'=>'About to render image','data'=>['hasSrc'=>!empty($imgAttrs['src']),'hasSrcset'=>!empty($imgAttrs['srcset']),'srcsetLength'=>strlen($imgAttrs['srcset']??''),'srcsetValue'=>$imgAttrs['srcset']??'EMPTY','projectTitle'=>$project['title']??'unknown'],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C7']);
-                                        // #endregion
-                                        if (!empty($imgAttrs['src'])): ?>
+                                        <?php if (!empty($imgAttrs['src'])): ?>
                                             <div class="mt-3">
                                                 <?php if (!empty($projectUrl)): ?>
                                                     <a href="<?php echo e($projectUrl); ?>" target="_blank" aria-label="View <?php echo e($project['title']); ?> project">
@@ -840,17 +830,6 @@ if ($activeTemplate) {
                                                             <?php if (!empty($imgAttrs['srcset'])): ?>
                                                                 srcset="<?php echo e($imgAttrs['srcset']); ?>"
                                                                 sizes="<?php echo e($imgAttrs['sizes']); ?>"
-                                                                <?php 
-                                                                // #region agent log
-                                                                debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'cv.php:515','message'=>'Rendering srcset in HTML','data'=>['srcsetValue'=>$imgAttrs['srcset'],'sizesValue'=>$imgAttrs['sizes']],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C7']);
-                                                                // #endregion
-                                                                ?>
-                                                            <?php else: ?>
-                                                                <?php 
-                                                                // #region agent log
-                                                                debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'cv.php:520','message'=>'srcset is empty - not rendering','data'=>['imgAttrsKeys'=>array_keys($imgAttrs),'srcsetValue'=>$imgAttrs['srcset']??'NULL'],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C7']);
-                                                                // #endregion
-                                                                ?>
                                                             <?php endif; ?>
                                                             alt="<?php echo e($project['title']); ?> - Project image"
                                                             class="w-full rounded-md border border-gray-200"
@@ -865,17 +844,6 @@ if ($activeTemplate) {
                                                         <?php if (!empty($imgAttrs['srcset'])): ?>
                                                             srcset="<?php echo e($imgAttrs['srcset']); ?>"
                                                             sizes="<?php echo e($imgAttrs['sizes']); ?>"
-                                                            <?php 
-                                                            // #region agent log
-                                                            debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'cv.php:531','message'=>'Rendering srcset in HTML (no link)','data'=>['srcsetValue'=>$imgAttrs['srcset'],'sizesValue'=>$imgAttrs['sizes']],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C7']);
-                                                            // #endregion
-                                                            ?>
-                                                        <?php else: ?>
-                                                            <?php 
-                                                            // #region agent log
-                                                            debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'cv.php:536','message'=>'srcset is empty - not rendering (no link)','data'=>['imgAttrsKeys'=>array_keys($imgAttrs),'srcsetValue'=>$imgAttrs['srcset']??'NULL'],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C7']);
-                                                            // #endregion
-                                                            ?>
                                                         <?php endif; ?>
                                                         alt="<?php echo e($project['title']); ?> - Project image"
                                                         class="w-full rounded-md border border-gray-200"

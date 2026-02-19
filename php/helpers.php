@@ -64,25 +64,6 @@ if (!headers_sent()) {
 }
 
 /**
- * Safely write debug log (only in development and if directory exists)
- */
-if (!function_exists('debugLog')) {
-function debugLog($data) {
-    if (!defined('DEBUG') || !DEBUG) {
-        return; // Skip in production
-    }
-    
-    $debugLogPath = __DIR__ . '/../.cursor/debug.log';
-    $debugLogDir = dirname($debugLogPath);
-    
-    // Only write if directory exists (development environment)
-    if (is_dir($debugLogDir)) {
-        @file_put_contents($debugLogPath, json_encode($data) . "\n", FILE_APPEND);
-    }
-}
-} // End function_exists check
-
-/**
  * Convert American spelling to British spelling in text (for UK documents).
  */
 if (!function_exists('convertToBritishSpelling')) {
@@ -619,15 +600,9 @@ function getResponsiveImageAttributes($imageData, $fallbackUrl = '', $context = 
         $decoded = json_decode($imageData, true);
         // Check if JSON decode failed or returned null/empty/invalid
         if (json_last_error() !== JSON_ERROR_NONE || empty($decoded) || !is_array($decoded)) {
-            // #region agent log
-            debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:317','message'=>'JSON decode failed or empty','data'=>['jsonLength'=>strlen($imageData),'jsonError'=>json_last_error_msg(),'preview'=>substr($imageData,0,100),'decodedIsArray'=>is_array($decoded),'decodedCount'=>is_array($decoded)?count($decoded):0],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C5']);
-            // #endregion
             $responsive = []; // Treat as empty, will trigger on-the-fly generation
         } else {
             $responsive = $decoded;
-            // #region agent log
-            debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:325','message'=>'Parsed responsive JSON','data'=>['jsonLength'=>strlen($imageData),'parsedCount'=>count($responsive),'keys'=>array_keys($responsive)],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C4']);
-            // #endregion
         }
     } elseif (is_array($imageData)) {
         $responsive = $imageData;
@@ -654,10 +629,6 @@ function getResponsiveImageAttributes($imageData, $fallbackUrl = '', $context = 
             
             // Check if URL is production (different domain) or local
             $isProductionUrl = (strpos($fallbackUrl, 'https://') === 0 || strpos($fallbackUrl, 'http://') === 0) && strpos($fallbackUrl, APP_URL) === false;
-            
-            // #region agent log
-            debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:333','message'=>'Checking for existing responsive images','data'=>['fallbackUrl'=>$fallbackUrl,'relativePath'=>$relativePath,'fullPath'=>$fullPath,'fileExists'=>file_exists($fullPath),'isProductionUrl'=>$isProductionUrl,'storagePath'=>STORAGE_PATH],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C4']);
-            // #endregion
             
             // If original file exists locally, check for responsive versions
             if (file_exists($fullPath)) {
@@ -698,9 +669,6 @@ function getResponsiveImageAttributes($imageData, $fallbackUrl = '', $context = 
                 }
                 
                 if (!empty($foundResponsive)) {
-                    // #region agent log
-                    debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:380','message'=>'Found/generated responsive images locally','data'=>['foundCount'=>count($foundResponsive),'sizes'=>array_keys($foundResponsive)],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C4']);
-                    // #endregion
                     $responsive = $foundResponsive;
                 }
             } elseif ($isProductionUrl) {
@@ -731,9 +699,6 @@ function getResponsiveImageAttributes($imageData, $fallbackUrl = '', $context = 
                 }
                 
                 if (!empty($foundResponsive)) {
-                    // #region agent log
-                    debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:410','message'=>'Generated responsive URLs for production','data'=>['foundCount'=>count($foundResponsive),'sizes'=>array_keys($foundResponsive),'baseUrl'=>$baseUrl],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C6']);
-                    // #endregion
                     $responsive = $foundResponsive;
                 }
             }
@@ -741,9 +706,6 @@ function getResponsiveImageAttributes($imageData, $fallbackUrl = '', $context = 
         
         // If still no responsive data, return fallback
         if (empty($responsive)) {
-            // #region agent log
-            debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:417','message'=>'No responsive data - using fallback','data'=>['fallbackUrl'=>$fallbackUrl],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C4']);
-            // #endregion
             return [
                 'srcset' => '',
                 'sizes' => '',
@@ -751,9 +713,6 @@ function getResponsiveImageAttributes($imageData, $fallbackUrl = '', $context = 
             ];
         }
     } elseif (empty($responsive)) {
-        // #region agent log
-        debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:390','message'=>'No responsive data and no fallback - returning empty','data'=>['fallbackUrl'=>$fallbackUrl],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C4']);
-        // #endregion
         return [
             'srcset' => '',
             'sizes' => '',
@@ -769,11 +728,7 @@ function getResponsiveImageAttributes($imageData, $fallbackUrl = '', $context = 
     $normalizeUrl = function($url, $path = null) {
         if ($path) {
             // New format: Build URL from path using current APP_URL
-            $normalized = STORAGE_URL . '/' . $path;
-            // #region agent log
-            debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:468','message'=>'Normalizing URL from path','data'=>['path'=>$path,'normalized'=>$normalized,'storageUrl'=>STORAGE_URL],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C2']);
-            // #endregion
-            return $normalized;
+            return STORAGE_URL . '/' . $path;
         }
         if (empty($url)) {
             return null;
@@ -782,24 +737,14 @@ function getResponsiveImageAttributes($imageData, $fallbackUrl = '', $context = 
         $isProductionUrl = (strpos($url, 'https://') === 0 || strpos($url, 'http://') === 0) && strpos($url, APP_URL) === false;
         if ($isProductionUrl) {
             // Preserve production URLs as-is
-            // #region agent log
-            debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:478','message'=>'Preserving production URL','data'=>['url'=>$url,'appUrl'=>APP_URL],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C2']);
-            // #endregion
             return $url;
         }
         // Old format: If URL contains localhost or different domain, extract path and rebuild
         if (preg_match('#https?://[^/]+(/storage/.+)#', $url, $matches)) {
             // Extract the path part and rebuild with current STORAGE_URL
-            $normalized = STORAGE_URL . $matches[1];
-            // #region agent log
-            debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:486','message'=>'Normalizing URL from old format','data'=>['originalUrl'=>$url,'extractedPath'=>$matches[1],'normalized'=>$normalized,'storageUrl'=>STORAGE_URL],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C2']);
-            // #endregion
-            return $normalized;
+            return STORAGE_URL . $matches[1];
         }
         // Already correct domain
-        // #region agent log
-        debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:492','message'=>'URL already normalized','data'=>['url'=>$url],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C2']);
-        // #endregion
         return $url;
     };
     
@@ -807,9 +752,6 @@ function getResponsiveImageAttributes($imageData, $fallbackUrl = '', $context = 
     $order = ['thumb', 'small', 'medium', 'large'];
     foreach ($order as $size) {
         if (isset($responsive[$size])) {
-            // #region agent log
-            debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:369','message'=>'Processing responsive size','data'=>['size'=>$size,'hasUrl'=>isset($responsive[$size]['url']),'hasPath'=>isset($responsive[$size]['path']),'url'=>$responsive[$size]['url']??null,'path'=>$responsive[$size]['path']??null,'width'=>$responsive[$size]['width']??0],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C3']);
-            // #endregion
             // Support both old format (with 'url') and new format (with 'path' only)
             $imageUrl = $normalizeUrl(
                 $responsive[$size]['url'] ?? null,
@@ -820,23 +762,8 @@ function getResponsiveImageAttributes($imageData, $fallbackUrl = '', $context = 
                 $width = $responsive[$size]['width'] ?? 0;
                 if ($width > 0) {
                     $srcsetParts[] = $imageUrl . ' ' . $width . 'w';
-                    // #region agent log
-                    debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:382','message'=>'Added to srcset','data'=>['size'=>$size,'imageUrl'=>$imageUrl,'width'=>$width],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C3']);
-                    // #endregion
-                } else {
-                    // #region agent log
-                    debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:387','message'=>'Skipped - no width','data'=>['size'=>$size],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C3']);
-                    // #endregion
                 }
-            } else {
-                // #region agent log
-                debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:391','message'=>'Skipped - no URL','data'=>['size'=>$size],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C3']);
-                // #endregion
             }
-        } else {
-            // #region agent log
-            debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:395','message'=>'Size not found in responsive data','data'=>['size'=>$size,'availableKeys'=>array_keys($responsive)],'sessionId'=>'debug-session','runId'=>'run2','hypothesisId'=>'C3']);
-            // #endregion
         }
     }
     
@@ -890,10 +817,6 @@ function getResponsiveImageAttributes($imageData, $fallbackUrl = '', $context = 
             // Default: Full width with reasonable max
             $sizesAttr = '(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 800px';
     }
-    
-    // #region agent log
-    debugLog(['id'=>'log_'.time().'_'.uniqid(),'timestamp'=>time()*1000,'location'=>'helpers.php:365','message'=>'getResponsiveImageAttributes result','data'=>['srcset'=>$srcset,'sizes'=>$sizesAttr,'context'=>$context,'fallback'=>$fallback,'responsiveKeys'=>array_keys($responsive)],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'A5']);
-    // #endregion
     
     return [
         'srcset' => $srcset,

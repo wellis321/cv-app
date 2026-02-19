@@ -123,10 +123,6 @@ try {
     $originalPreference = null;
     $selectedCloudService = null;
     
-    // #region agent log
-    error_log(json_encode(['id'=>'log_'.time().'_force_check','timestamp'=>time()*1000,'location'=>'api/ai-generate-cover-letter.php:123','message'=>'Force server AI check','data'=>['forceServerAI'=>$forceServerAI,'userId'=>$user['id']],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'B']));
-    // #endregion
-    
     if ($forceServerAI) {
         $tempUser = db()->fetchOne(
             "SELECT ai_service_preference, openai_api_key, anthropic_api_key, gemini_api_key, grok_api_key FROM profiles WHERE id = ?",
@@ -152,9 +148,6 @@ try {
                 if ($cloudService) {
                     // Temporarily override to use cloud service
                     $selectedCloudService = $cloudService;
-                    // #region agent log
-                    error_log(json_encode(['id'=>'log_'.time().'_user_cloud','timestamp'=>time()*1000,'location'=>'api/ai-generate-cover-letter.php:145','message'=>'Found user cloud service','data'=>['cloudService'=>$cloudService,'userId'=>$user['id']],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'B']));
-                    // #endregion
                     db()->update('profiles', ['ai_service_preference' => $cloudService], 'id = ?', [$user['id']]);
                     $tempOverrideApplied = true;
                 } else {
@@ -185,9 +178,6 @@ try {
                             if ($cloudService) {
                                 // Temporarily override to use cloud service
                                 $selectedCloudService = $cloudService;
-                                // #region agent log
-                                error_log(json_encode(['id'=>'log_'.time().'_org_cloud','timestamp'=>time()*1000,'location'=>'api/ai-generate-cover-letter.php:170','message'=>'Found org cloud service','data'=>['cloudService'=>$cloudService,'userId'=>$user['id']],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'B']));
-                                // #endregion
                                 db()->update('profiles', ['ai_service_preference' => $cloudService], 'id = ?', [$user['id']]);
                                 $tempOverrideApplied = true;
                             }
@@ -196,9 +186,6 @@ try {
                     
                     // If still no cloud service found, we'll let it fail with a clear error
                     if (!$cloudService) {
-                        // #region agent log
-                        error_log(json_encode(['id'=>'log_'.time().'_no_cloud','timestamp'=>time()*1000,'location'=>'api/ai-generate-cover-letter.php:180','message'=>'No cloud service found','data'=>['userId'=>$user['id']],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'B']));
-                        // #endregion
                         throw new Exception('No cloud AI service configured. Please configure a cloud AI service (OpenAI, Anthropic, Gemini, or Grok) with API keys in Settings → AI Settings.');
                     }
                 }
@@ -206,15 +193,7 @@ try {
         }
     }
     
-    // #region agent log
-    error_log(json_encode(['id'=>'log_'.time().'_service_selected','timestamp'=>time()*1000,'location'=>'api/ai-generate-cover-letter.php:188','message'=>'Service selection complete','data'=>['tempOverrideApplied'=>$tempOverrideApplied,'selectedCloudService'=>$selectedCloudService,'originalPreference'=>$originalPreference],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'B']));
-    // #endregion
-    
     $aiService = new AIService($user['id']);
-    
-    // #region agent log
-    error_log(json_encode(['id'=>'log_'.time().'_entry','timestamp'=>time()*1000,'location'=>'api/ai-generate-cover-letter.php:120','message'=>'Before generateCoverLetter call','data'=>['userId'=>$user['id'],'hasCvData'=>!empty($cvData),'hasJobApp'=>!empty($jobApplication),'forceServerAI'=>$forceServerAI,'tempOverrideApplied'=>$tempOverrideApplied],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'B']));
-    // #endregion
     
     // Generate cover letter
     $result = $aiService->generateCoverLetter($cvData, $jobApplication, [
@@ -226,19 +205,12 @@ try {
         db()->update('profiles', ['ai_service_preference' => $originalPreference], 'id = ?', [$user['id']]);
     }
     
-    // #region agent log
-    error_log(json_encode(['id'=>'log_'.time().'_result','timestamp'=>time()*1000,'location'=>'api/ai-generate-cover-letter.php:127','message'=>'After generateCoverLetter call','data'=>['success'=>$result['success']??false,'browser_execution'=>$result['browser_execution']??false,'hasPrompt'=>isset($result['prompt']),'hasCoverLetterText'=>isset($result['cover_letter_text']),'error'=>$result['error']??null],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'B']));
-    // #endregion
-    
     if (!$result['success']) {
         throw new Exception($result['error'] ?? 'Failed to generate cover letter');
     }
 
     // Check if this is browser execution mode
     if (isset($result['browser_execution']) && $result['browser_execution']) {
-        // #region agent log
-        error_log(json_encode(['id'=>'log_'.time().'_browser','timestamp'=>time()*1000,'location'=>'api/ai-generate-cover-letter.php:132','message'=>'Browser execution path','data'=>['promptLength'=>strlen($result['prompt']??''),'model'=>$result['model']??null],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'B']));
-        // #endregion
         // Browser AI - return prompt and instructions for frontend execution
         ob_end_clean();
         echo json_encode([

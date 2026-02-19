@@ -13,17 +13,8 @@ error_reporting(E_ALL);
 set_time_limit(120);
 
 $extractResponseSent = false;
-$debugLogPath = dirname(__DIR__) . '/.cursor/debug.log';
-$extractLog = function ($step) use ($debugLogPath) {
-    if (!(defined('DEBUG') && DEBUG)) return;
-    if (!is_dir(dirname($debugLogPath))) return;
-    @file_put_contents($debugLogPath, date('c') . ' extract: ' . $step . "\n", FILE_APPEND);
-};
-register_shutdown_function(function () use (&$extractResponseSent, $debugLogPath) {
+register_shutdown_function(function () use (&$extractResponseSent) {
     if ($extractResponseSent) return;
-    if (defined('DEBUG') && DEBUG && is_dir(dirname($debugLogPath))) {
-        @file_put_contents($debugLogPath, date('c') . ' extract: shutdown (no response sent)' . "\n", FILE_APPEND);
-    }
     @ob_end_clean();
     if (!headers_sent()) {
         header('Content-Type: application/json');
@@ -97,8 +88,6 @@ function unwrapApiTextResponse($text) {
     return $inner;
 }
 
-$extractLog('loaded');
-
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -118,7 +107,6 @@ if (!isLoggedIn()) {
 }
 
 $userId = getUserId();
-$extractLog('auth_ok');
 
 $token = $_POST['csrf_token'] ?? '';
 if (!verifyCsrfToken($token)) {
@@ -166,13 +154,9 @@ try {
         throw new Exception('File not found on disk');
     }
     
-    $extractLog('file_ok');
-    
     // Extract text (use file extension as fallback if MIME is generic)
     $mimeType = $file['mime_type'] ?? '';
     $extractionResult = extractDocumentText($filePath, $mimeType, $file['original_name'] ?? '');
-    
-    $extractLog('extract_done');
     
     if (!$extractionResult['success']) {
         $extractResponseSent = true;
@@ -188,11 +172,7 @@ try {
     
     // Optionally format with AI for clearer sections and paragraphs (cap length to avoid timeout).
     // Skip AI formatting when extraction already contains HTML tables so we don't strip them.
-    if (strpos($text, '<table') !== false && !empty($_POST['format_with_ai'])) {
-        $extractLog('ai_format_skipped_has_tables');
-    }
     if (!empty($_POST['format_with_ai']) && function_exists('getAIService') && strpos($text, '<table') === false) {
-        $extractLog('ai_format_start');
         try {
             $aiService = getAIService($userId);
             if ($aiService && method_exists($aiService, 'formatJobDescriptionText')) {
@@ -207,7 +187,6 @@ try {
             // Keep raw text on any error
             error_log("Format job description with AI: " . $e->getMessage());
         }
-        $extractLog('ai_format_done');
         // If the AI returned JSON (section keys -> content), flatten to plain text for the description field
         $text = flattenJsonJobDescriptionToPlainText($text);
     }

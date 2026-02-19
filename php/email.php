@@ -13,26 +13,6 @@ function sendEmail($to, $subject, $message, $fromEmail = null, $fromName = null)
     $fromEmail = $fromEmail ?: env('MAIL_FROM_EMAIL', 'noreply@' . parse_url(APP_URL, PHP_URL_HOST));
     $fromName = $fromName ?: env('MAIL_FROM_NAME', 'CV App');
 
-    // #region agent log
-    debugLog([
-        'id' => 'log_' . time() . '_' . uniqid(),
-        'timestamp' => time() * 1000,
-        'location' => 'email.php:12',
-        'message' => 'sendEmail called',
-        'data' => [
-            'to' => $to,
-            'subject' => $subject,
-            'fromEmail' => $fromEmail,
-            'fromName' => $fromName,
-            'messageLength' => strlen($message),
-            'appUrl' => APP_URL ?? 'not set'
-        ],
-        'sessionId' => 'email-debug',
-        'runId' => 'run1',
-        'hypothesisId' => 'E1,E2,E3'
-    ]);
-    // #endregion
-
     $headers = [
         'MIME-Version: 1.0',
         'Content-type: text/html; charset=UTF-8',
@@ -43,48 +23,8 @@ function sendEmail($to, $subject, $message, $fromEmail = null, $fromName = null)
 
     $headersString = implode("\r\n", $headers);
 
-    // #region agent log
-    debugLog([
-        'id' => 'log_' . time() . '_' . uniqid(),
-        'timestamp' => time() * 1000,
-        'location' => 'email.php:25',
-        'message' => 'About to call mail()',
-        'data' => [
-            'to' => $to,
-            'subject' => $subject,
-            'headersPreview' => substr($headersString, 0, 200),
-            'headersLength' => strlen($headersString)
-        ],
-        'sessionId' => 'email-debug',
-        'runId' => 'run1',
-        'hypothesisId' => 'E1,E2'
-    ]);
-    // #endregion
-
     $result = @mail($to, $subject, $message, $headersString);
     
-    // Get last error if mail() failed
-    $lastError = error_get_last();
-    
-    // #region agent log
-    debugLog([
-        'id' => 'log_' . time() . '_' . uniqid(),
-        'timestamp' => time() * 1000,
-        'location' => 'email.php:26',
-        'message' => 'mail() result',
-        'data' => [
-            'result' => $result,
-            'resultType' => gettype($result),
-            'lastError' => $lastError,
-            'phpMailEnabled' => function_exists('mail'),
-            'to' => $to
-        ],
-        'sessionId' => 'email-debug',
-        'runId' => 'run1',
-        'hypothesisId' => 'E1,E2,E3'
-    ]);
-    // #endregion
-
     return $result;
 }
 
@@ -220,27 +160,6 @@ function sendUsernameReminderEmail($email, $fullName, $username) {
  * @param string|null $organisationEmailName Optional organisation email display name
  */
 function sendCandidateInvitationEmail($email, $fullName, $organisationName, $inviterName, $token, $personalMessage = null, $organisationEmail = null, $organisationEmailName = null) {
-    // #region agent log
-    debugLog([
-        'id' => 'log_' . time() . '_' . uniqid(),
-        'timestamp' => time() * 1000,
-        'location' => 'email.php:148',
-        'message' => 'sendCandidateInvitationEmail called',
-        'data' => [
-            'email' => $email,
-            'fullName' => $fullName,
-            'organisationName' => $organisationName,
-            'inviterName' => $inviterName,
-            'tokenLength' => strlen($token),
-            'hasPersonalMessage' => !empty($personalMessage),
-            'appUrl' => APP_URL ?? 'not set'
-        ],
-        'sessionId' => 'email-debug',
-        'runId' => 'run1',
-        'hypothesisId' => 'E1,E2,E3,E4'
-    ]);
-    // #endregion
-    
     // Use current request URL when available (more reliable for production), fallback to APP_URL
     $baseUrl = currentBaseUrl();
     $acceptUrl = $baseUrl . '/accept-invitation.php?token=' . urlencode($token) . '&type=candidate';
@@ -285,48 +204,11 @@ function sendCandidateInvitationEmail($email, $fullName, $organisationName, $inv
     </body>
     </html>';
 
-    // #region agent log
-    debugLog([
-        'id' => 'log_' . time() . '_' . uniqid(),
-        'timestamp' => time() * 1000,
-        'location' => 'email.php:274',
-        'message' => 'About to call sendEmail for candidate invitation',
-        'data' => [
-            'email' => $email,
-            'subject' => $subject,
-            'messageLength' => strlen($message),
-            'acceptUrl' => $acceptUrl
-        ],
-        'sessionId' => 'email-debug',
-        'runId' => 'run1',
-        'hypothesisId' => 'E1,E2'
-    ]);
-    // #endregion
-
     // Use organisation email if provided, otherwise fall back to default
     $fromEmail = $organisationEmail;
     $fromName = $organisationEmailName ?: ($organisationName . ' Team');
     
-    $emailResult = sendEmail($email, $subject, $message, $fromEmail, $fromName);
-    
-    // #region agent log
-    debugLog([
-        'id' => 'log_' . time() . '_' . uniqid(),
-        'timestamp' => time() * 1000,
-        'location' => 'email.php:292',
-        'message' => 'sendEmail returned for candidate invitation',
-        'data' => [
-            'emailResult' => $emailResult,
-            'emailResultType' => gettype($emailResult),
-            'email' => $email
-        ],
-        'sessionId' => 'email-debug',
-        'runId' => 'run1',
-        'hypothesisId' => 'E1,E2,E3'
-    ]);
-    // #endregion
-
-    return $emailResult;
+    return sendEmail($email, $subject, $message, $fromEmail, $fromName);
 }
 
 /**

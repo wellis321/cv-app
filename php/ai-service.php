@@ -786,10 +786,6 @@ class AIService {
      * @param array $options Additional options (layout preferences, image path, URL, etc.)
      */
     public function generateCvTemplate($cvData, $userDescription, $options = []) {
-        // #region agent log
-        debugLog(['id'=>'log_'.time().'_entry','timestamp'=>time()*1000,'location'=>'ai-service.php:137','message'=>'generateCvTemplate entry','data'=>['hasDescription'=>!empty($userDescription),'hasUrl'=>!empty($options['reference_url']),'hasImage'=>!empty($options['reference_image_path']),'service'=>$this->service],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'A,B,C,D']);
-        // #endregion
-        
         $prompt = $this->buildTemplateGenerationPrompt($cvData, $userDescription, $options);
         
         // Prepare image data if provided
@@ -807,10 +803,6 @@ class AIService {
             'max_tokens' => 8000, // HTML/CSS can be long
             'image_data' => $imageData
         ]);
-        
-        // #region agent log
-        debugLog(['id'=>'log_'.time().'_ai_response','timestamp'=>time()*1000,'location'=>'ai-service.php:156','message'=>'AI service response','data'=>['success'=>$response['success']??false,'hasContent'=>!empty($response['content']??''),'contentLength'=>strlen($response['content']??''),'contentPreview'=>substr($response['content']??'',0,200),'error'=>$response['error']??null],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'A,B,C,D']);
-        // #endregion
         
         if (!$response['success']) {
             return $response;
@@ -835,10 +827,6 @@ class AIService {
         
         // Parse JSON response
         $template = $this->parseJsonResponse($response['content']);
-        
-        // #region agent log
-        debugLog(['id'=>'log_'.time().'_parse_result','timestamp'=>time()*1000,'location'=>'ai-service.php:163','message'=>'JSON parse result','data'=>['parsed'=>!empty($template),'isArray'=>is_array($template),'hasHtml'=>!empty($template['html']??''),'hasCss'=>!empty($template['css']??''),'jsonError'=>json_last_error_msg()],'sessionId'=>'debug-session','runId'=>'run1','hypothesisId'=>'A,B,E,F']);
-        // #endregion
         
         if (!$template) {
             // Log the raw response for debugging

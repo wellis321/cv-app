@@ -19,11 +19,6 @@ $profile = db()->fetchOne(
     [$userId]
 );
 
-// Debug: Log photo_url if it exists (remove in production)
-if (DEBUG && !empty($profile['photo_url'])) {
-    error_log("Profile photo_url: " . $profile['photo_url']);
-}
-
 // Ensure default visibility settings exist to avoid undefined indexes
 if ($profile) {
     if (!isset($profile['show_photo'])) {
