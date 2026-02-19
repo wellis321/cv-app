@@ -81,12 +81,18 @@ $projects = [
 <body class="bg-gray-50">
     <?php partial('header'); ?>
 
+    <style>
+        @media (min-width: 1024px) {
+            .about-hero-photo { margin-top: 3rem; }
+        }
+    </style>
+
     <main id="main-content" role="main">
         <!-- Hero section -->
-        <div class="relative h-[344px] flex flex-col justify-center bg-cover bg-center bg-no-repeat overflow-hidden" style="background-image: url('/static/images/about/projects/neilston.png');">
+        <div class="relative min-h-[400px] flex flex-col justify-center bg-cover bg-center bg-no-repeat overflow-hidden" style="background-image: url('/static/images/about/projects/neilston.png');">
             <div class="absolute inset-0 bg-black/40" aria-hidden="true"></div>
-            <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 w-full">
-                <div class="flex flex-col lg:flex-row items-center gap-8">
+            <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-24 w-full">
+                <div class="flex flex-col lg:flex-row items-center gap-12">
                     <div class="flex-1 text-white">
                         <h1 class="text-4xl font-bold mb-4 drop-shadow-lg" style="text-shadow: 0 2px 4px rgba(0,0,0,0.5);">About</h1>
                         <p class="text-xl text-indigo-100 drop-shadow-md space-y-2" style="text-shadow: 0 1px 3px rgba(0,0,0,0.5);">
@@ -95,7 +101,7 @@ $projects = [
                             <span class="block mt-3 text-lg">If you're a charity, non-profit social housing provider or anyone providing a social service, get in touch — I'd like to help make Simple CV Builder accessible to everyone.</span>
                         </p>
                     </div>
-                    <div class="flex-shrink-0">
+                    <div class="flex-shrink-0 about-hero-photo">
                         <img src="/static/images/about/profile-image.png" alt="William Ellis" class="w-48 h-48 lg:w-56 lg:h-56 rounded-full object-cover border-4 border-white/30 shadow-xl" />
                     </div>
                 </div>
