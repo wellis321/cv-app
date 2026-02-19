@@ -8,7 +8,9 @@ function getSitemapUrls() {
     $urls = [
         ['loc' => APP_URL . '/', 'lastmod' => date('Y-m-d'), 'changefreq' => 'weekly', 'priority' => '1.0'],
         ['loc' => APP_URL . '/pricing', 'lastmod' => date('Y-m-d'), 'changefreq' => 'monthly', 'priority' => '0.9'],
-        ['loc' => APP_URL . '/faq.php', 'lastmod' => date('Y-m-d'), 'changefreq' => 'monthly', 'priority' => '0.8'],
+        ['loc' => APP_URL . '/help/faq.php', 'lastmod' => date('Y-m-d'), 'changefreq' => 'monthly', 'priority' => '0.8'],
+        ['loc' => APP_URL . '/blog/', 'lastmod' => date('Y-m-d'), 'changefreq' => 'weekly', 'priority' => '0.8'],
+        ['loc' => APP_URL . '/help/', 'lastmod' => date('Y-m-d'), 'changefreq' => 'monthly', 'priority' => '0.8'],
         ['loc' => APP_URL . '/about.php', 'lastmod' => date('Y-m-d'), 'changefreq' => 'monthly', 'priority' => '0.8'],
         ['loc' => APP_URL . '/terms.php', 'lastmod' => date('Y-m-d'), 'changefreq' => 'monthly', 'priority' => '0.5'],
         ['loc' => APP_URL . '/privacy.php', 'lastmod' => date('Y-m-d'), 'changefreq' => 'monthly', 'priority' => '0.5'],
@@ -45,10 +47,15 @@ function getSitemapUrls() {
         ['loc' => APP_URL . '/free-with-account.php', 'lastmod' => date('Y-m-d'), 'changefreq' => 'monthly', 'priority' => '0.6'],
     ];
 
-    $resourcesPath = dirname(__DIR__) . '/resources';
-    if (is_dir($resourcesPath)) {
+    // Blog and Help sections (replaces old resources/)
+    $blogPath = dirname(__DIR__) . '/blog';
+    $helpPath = dirname(__DIR__) . '/help';
+    foreach ([$blogPath => 'blog', $helpPath => 'help'] as $basePath => $prefix) {
+        if (!is_dir($basePath)) {
+            continue;
+        }
         $iterator = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($resourcesPath, FilesystemIterator::SKIP_DOTS),
+            new RecursiveDirectoryIterator($basePath, FilesystemIterator::SKIP_DOTS),
             RecursiveIteratorIterator::SELF_FIRST
         );
 

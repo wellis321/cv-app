@@ -16,10 +16,10 @@
                     <li><a href="/" class="text-gray-600 hover:text-blue-600">Home</a></li>
                     <li><a href="/about.php" class="text-gray-600 hover:text-blue-600">About</a></li>
                     <li><a href="/all-features.php" class="text-gray-600 hover:text-blue-600 font-medium">All CV Builder Features</a></li>
-                    <li><a href="/resources/jobs/" class="text-gray-600 hover:text-blue-600">Job Market Insights</a></li>
-                    <li><a href="/resources/career/" class="text-gray-600 hover:text-blue-600">Career Advice Hub</a></li>
-                    <li><a href="/resources/extra-income/" class="text-gray-600 hover:text-blue-600">Extra Income Ideas</a></li>
-                    <li><a href="/resources/jobs/remote-jobs-begginers.php#remote-work-story-form" class="text-gray-600 hover:text-blue-600">Share Your Remote Work Story</a></li>
+                    <li><a href="/blog/job-search/" class="text-gray-600 hover:text-blue-600">Job Market Insights</a></li>
+                    <li><a href="/blog/cv-tips/" class="text-gray-600 hover:text-blue-600">Career Advice Hub</a></li>
+                    <li><a href="/blog/career/" class="text-gray-600 hover:text-blue-600">Extra Income Ideas</a></li>
+                    <li><a href="/blog/job-search/remote-jobs-begginers.php#remote-work-story-form" class="text-gray-600 hover:text-blue-600">Share Your Remote Work Story</a></li>
                 </ul>
             </div>
             <div>
@@ -27,7 +27,7 @@
                 <ul class="space-y-2 text-sm">
                     <li><a href="/organisations.php" class="text-gray-600 hover:text-blue-600">CV Builder for Organisations</a></li>
                     <li><a href="/individual-users.php" class="text-gray-600 hover:text-blue-600">Free CV Builder for Individuals</a></li>
-                    <li><a href="/faq.php" class="text-gray-600 hover:text-blue-600">CV Builder FAQ</a></li>
+                    <li><a href="/help/faq.php" class="text-gray-600 hover:text-blue-600">CV Builder FAQ</a></li>
                     <li><a href="/browser-ai-check.php" class="text-gray-600 hover:text-blue-600">Browser AI Check</a></li>
                     <li><a href="/job-applications-features.php" class="text-green-700 hover:text-green-800 font-medium">Job Application Tracker</a></li>
                     <li><a href="/privacy.php" class="text-gray-600 hover:text-blue-600">Privacy Policy</a></li>

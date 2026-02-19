@@ -7,6 +7,17 @@ RewriteCond %{HTTP_HOST} !^localhost [NC]
 RewriteCond %{HTTP_HOST} !^127\.0\.0\.1
 RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
+# Resources → Blog + Help restructure (301 redirects for SEO)
+RewriteRule ^resources/?$ /blog/ [R=301,L]
+RewriteRule ^resources/index\.php$ /blog/ [R=301,L]
+RewriteRule ^resources/jobs/?(.*)$ /blog/job-search/$1 [R=301,L]
+RewriteRule ^resources/career/?(.*)$ /blog/cv-tips/$1 [R=301,L]
+RewriteRule ^resources/extra-income/?(.*)$ /blog/career/$1 [R=301,L]
+RewriteRule ^resources/ai/setup-ollama\.php$ /help/setup/ollama.php [R=301,L]
+RewriteRule ^resources/ai/prompt-best-practices\.php$ /help/guides/ai-prompts.php [R=301,L]
+RewriteRule ^faq\.php$ /help/faq.php [R=301,L]
+RewriteRule ^extension-setup-guide\.php$ /help/setup/extension.php [R=301,L]
+
 # Don't rewrite if the file exists
 RewriteCond %{REQUEST_FILENAME} -f
 RewriteRule ^ - [L]

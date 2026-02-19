@@ -5,6 +5,7 @@ $description = $metaDescription ?? 'Build a standout CV online, share it instant
 $canonicalUrl = $canonicalUrl ?? (APP_URL . $_SERVER['REQUEST_URI']);
 $metaImage = $metaImage ?? (APP_URL . '/static/images/default-profile.svg');
 $metaNoindex = $metaNoindex ?? false;
+$metaKeywords = $metaKeywords ?? null;
 $structuredDataType = $structuredDataType ?? 'default';
 $structuredData = $structuredData ?? [];
 $breadcrumbs = $breadcrumbs ?? null;
@@ -14,6 +15,9 @@ $breadcrumbs = $breadcrumbs ?? null;
 <title><?php echo e($title); ?></title>
 <meta name="description" content="<?php echo e($description); ?>">
 <link rel="canonical" href="<?php echo e($canonicalUrl); ?>">
+<?php if ($metaKeywords): ?>
+<meta name="keywords" content="<?php echo e($metaKeywords); ?>">
+<?php endif; ?>
 <?php if ($metaNoindex): ?>
     <meta name="robots" content="noindex, nofollow">
 <?php endif; ?>

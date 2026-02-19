@@ -28,10 +28,15 @@
             
             <!-- Desktop navigation -->
             <nav role="navigation" aria-label="Main navigation" class="hidden md:flex items-center space-x-0.5 md:space-x-1 lg:space-x-2 text-xs md:text-sm flex-shrink-0">
+                <?php
+                $currentPage = basename($_SERVER['PHP_SELF']);
+                $reqUri = $_SERVER['REQUEST_URI'] ?? '';
+                $isBlog = (strpos($reqUri, '/blog/') !== false);
+                $isHelp = (strpos($reqUri, '/help/') !== false);
+                ?>
                 <?php if (isLoggedIn()): ?>
                     <?php
-                    $currentPage = basename($_SERVER['PHP_SELF']);
-                    $isProfile = ($currentPage === 'profile.php');
+                    $isProfile = $currentPage === 'profile.php';
                     $isDashboard = ($currentPage === 'dashboard.php');
                     $isPreview = ($currentPage === 'preview-cv.php');
                     $isSubscription = ($currentPage === 'subscription.php');
@@ -169,31 +174,29 @@
                     <a href="/all-features.php" class="px-1.5 py-1.5 md:px-2 md:py-2 rounded-md text-xs md:text-sm font-medium transition-colors whitespace-nowrap <?php echo $isFeatures ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?>">Features</a>
                     <!-- Subscription link - available to all logged-in users -->
                     <a href="/subscription.php" class="px-1.5 py-1.5 md:px-2 md:py-2 rounded-md text-xs md:text-sm font-medium transition-colors whitespace-nowrap <?php echo $isSubscription ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?>">Plan</a>
+                    <a href="/blog/" class="px-1.5 py-1.5 md:px-2 md:py-2 rounded-md text-xs md:text-sm font-medium transition-colors whitespace-nowrap <?php echo $isBlog ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?>">Blog</a>
                     <div class="relative group">
                         <button type="button"
                                 aria-expanded="false"
                                 aria-haspopup="true"
-                                class="inline-flex items-center px-1.5 py-1.5 md:px-2 md:py-2 rounded-md text-xs md:text-sm font-medium transition-colors whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 <?php echo strpos($currentPage, 'resources/') !== false || $currentPage === 'faq.php' || $currentPage === 'ai-cv-assessment.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?>">
-                            Resources
+                                class="inline-flex items-center px-1.5 py-1.5 md:px-2 md:py-2 rounded-md text-xs md:text-sm font-medium transition-colors whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 <?php echo $isHelp ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?>">
+                            Help
                             <svg class="ml-0.5 md:ml-1 h-3 w-3 md:h-4 md:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                             </svg>
                         </button>
                         <div role="menu" class="absolute right-0 top-full hidden min-w-[10rem] rounded-lg border border-gray-200 bg-white py-2 shadow-lg group-hover:block z-50">
-                            <a href="/resources/jobs/" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo strpos($currentPage, 'resources/jobs/') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
-                                Job Resources
-                            </a>
-                            <a href="/resources/ai/setup-ollama.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo strpos($currentPage, 'setup-ollama.php') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
-                                AI Setup Guide
-                            </a>
-                            <a href="/ai-settings.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo $currentPage === 'ai-settings.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
-                                AI Settings
-                            </a>
-                            <a href="/ai-cv-assessment.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo $currentPage === 'ai-cv-assessment.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
-                                AI CV Assessment
-                            </a>
-                            <a href="/faq.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo $currentPage === 'faq.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
+                            <a href="/help/faq.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo strpos($reqUri, '/help/faq') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
                                 FAQ
+                            </a>
+                            <a href="/help/setup/ollama.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo strpos($reqUri, '/help/setup/ollama') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
+                                Ollama Setup
+                            </a>
+                            <a href="/help/setup/extension.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo strpos($reqUri, '/help/setup/extension') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
+                                Extension Setup
+                            </a>
+                            <a href="/help/guides/ai-prompts.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo strpos($reqUri, '/help/guides/ai-prompts') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
+                                AI Prompt Best Practices
                             </a>
                         </div>
                     </div>
@@ -381,28 +384,29 @@
                         </div>
                     </div>
                     <a href="/index.php#pricing" class="px-2 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap text-gray-700 hover:bg-blue-50 hover:text-blue-700">Pricing</a>
+                    <a href="/blog/" class="px-2 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap <?php echo $isBlog ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?>">Blog</a>
                     <div class="relative group">
                         <button type="button"
                                 aria-expanded="false"
                                 aria-haspopup="true"
-                                class="inline-flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 <?php echo strpos($currentPage, 'resources/') !== false || $currentPage === 'faq.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?>">
-                            Resources
+                                class="inline-flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 <?php echo $isHelp ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?>">
+                            Help
                             <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                             </svg>
                         </button>
                         <div role="menu" class="absolute right-0 top-full hidden min-w-[10rem] rounded-lg border border-gray-200 bg-white py-2 shadow-lg group-hover:block z-50">
-                            <a href="/resources/jobs/" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo strpos($currentPage, 'resources/jobs/') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
-                                Job Resources
-                            </a>
-                            <a href="/resources/ai/setup-ollama.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo strpos($currentPage, 'setup-ollama.php') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
-                                AI Setup Guide
-                            </a>
-                            <a href="/ai-cv-assessment.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo $currentPage === 'ai-cv-assessment.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
-                                AI CV Assessment
-                            </a>
-                            <a href="/faq.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo $currentPage === 'faq.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
+                            <a href="/help/faq.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo strpos($reqUri, '/help/faq') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
                                 FAQ
+                            </a>
+                            <a href="/help/setup/ollama.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo strpos($reqUri, '/help/setup/ollama') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
+                                Ollama Setup
+                            </a>
+                            <a href="/help/setup/extension.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo strpos($reqUri, '/help/setup/extension') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
+                                Extension Setup
+                            </a>
+                            <a href="/help/guides/ai-prompts.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo strpos($reqUri, '/help/guides/ai-prompts') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
+                                AI Prompt Best Practices
                             </a>
                         </div>
                     </div>
@@ -565,24 +569,28 @@
                        class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'all-features.php' ? 'text-blue-700 bg-blue-100' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
                         Features
                     </a>
+                    <a href="/blog/" 
+                       class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $isBlog ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        Blog
+                    </a>
                     <div class="px-4 py-2 text-base font-semibold text-gray-900 border-t border-gray-200 mt-2 pt-4">
-                        Resources
+                        Help
                     </div>
-                    <a href="/resources/jobs/" 
-                       class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo strpos($currentPage, 'resources/jobs/') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        Job Resources
-                    </a>
-                    <a href="/resources/ai/setup-ollama.php" 
-                       class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo strpos($currentPage, 'setup-ollama.php') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        AI Setup Guide
-                    </a>
-                    <a href="/ai-cv-assessment.php" 
-                       class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'ai-cv-assessment.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        AI CV Assessment
-                    </a>
-                    <a href="/faq.php" 
-                       class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'faq.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <a href="/help/faq.php" 
+                       class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo strpos($reqUri, '/help/faq') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
                         FAQ
+                    </a>
+                    <a href="/help/setup/ollama.php" 
+                       class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo strpos($reqUri, '/help/setup/ollama') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        Ollama Setup
+                    </a>
+                    <a href="/help/setup/extension.php" 
+                       class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo strpos($reqUri, '/help/setup/extension') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        Extension Setup
+                    </a>
+                    <a href="/help/guides/ai-prompts.php" 
+                       class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo strpos($reqUri, '/help/guides/ai-prompts') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        AI Prompt Best Practices
                     </a>
                     <a href="/about.php" 
                        class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'about.php' ? 'text-blue-700 bg-blue-100' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500 border-t border-gray-200 mt-2 pt-4">
@@ -652,28 +660,28 @@
                        class="block px-4 py-2 rounded-md text-base font-medium transition-colors text-gray-700 hover:bg-blue-50 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
                         Pricing
                     </a>
+                    <a href="/blog/" 
+                       class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $isBlog ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        Blog
+                    </a>
                     <div class="px-4 py-2 text-base font-semibold text-gray-900 border-t border-gray-200 mt-2 pt-4">
-                        Resources
+                        Help
                     </div>
-                    <a href="/resources/jobs/" 
-                       class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo strpos($currentPage, 'resources/jobs/') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        Job Resources
-                    </a>
-                    <a href="/resources/ai/setup-ollama.php" 
-                       class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo strpos($currentPage, 'setup-ollama.php') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        AI Setup Guide
-                    </a>
-                    <a href="/ai-settings.php" 
-                       class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'ai-settings.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        AI Settings
-                    </a>
-                    <a href="/ai-cv-assessment.php" 
-                       class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'ai-cv-assessment.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        AI CV Assessment
-                    </a>
-                    <a href="/faq.php" 
-                       class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'faq.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <a href="/help/faq.php" 
+                       class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo strpos($reqUri, '/help/faq') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
                         FAQ
+                    </a>
+                    <a href="/help/setup/ollama.php" 
+                       class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo strpos($reqUri, '/help/setup/ollama') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        Ollama Setup
+                    </a>
+                    <a href="/help/setup/extension.php" 
+                       class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo strpos($reqUri, '/help/setup/extension') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        Extension Setup
+                    </a>
+                    <a href="/help/guides/ai-prompts.php" 
+                       class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo strpos($reqUri, '/help/guides/ai-prompts') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        AI Prompt Best Practices
                     </a>
                     <a href="/about.php" 
                        class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'about.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500 border-t border-gray-200 mt-2 pt-4">

@@ -7,11 +7,12 @@
  * - CORS restricted to same origin
  * - Public files (profile photos, project images) accessible without auth
  * - Private files require authentication and ownership verification
+ *
+ * For public paths, always returns 404 (not 500) when file is missing - avoids
+ * Ahrefs/crawlers reporting broken images as server errors.
  */
 
 require_once __DIR__ . '/../php/config.php';
-require_once __DIR__ . '/../php/database.php';
-require_once __DIR__ . '/../php/auth.php';
 
 // Get the file path from URL parameter
 $path = $_GET['path'] ?? '';
@@ -27,6 +28,13 @@ $isPublicPath = (
     strpos($path, 'uploads/projects/') === 0 ||
     strpos($path, 'projects/') === 0
 );
+
+// Defer loading database/auth - only needed for private file ownership checks
+// This avoids DB connection errors causing 500 for public broken image URLs
+if (!$isPublicPath) {
+    require_once __DIR__ . '/../php/database.php';
+    require_once __DIR__ . '/../php/auth.php';
+}
 
 try {
     // Build full file path

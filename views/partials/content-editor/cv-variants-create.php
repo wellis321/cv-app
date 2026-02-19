@@ -176,7 +176,7 @@ $preselectJobId = isset($_GET['job']) ? $_GET['job'] : null;
                 </div>
                 <p class="mt-2 text-sm text-gray-500">
                     <a href="/cv-prompt-settings.php" target="_blank" class="text-blue-600 hover:text-blue-800">Manage saved instructions</a> or 
-                    <a href="/resources/ai/prompt-best-practices.php" target="_blank" class="text-blue-600 hover:text-blue-800">learn best practices</a>
+                    <a href="/help/guides/ai-prompts.php" target="_blank" class="text-blue-600 hover:text-blue-800">learn best practices</a>
                 </p>
             </div>
 

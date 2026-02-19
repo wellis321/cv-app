@@ -80,7 +80,7 @@ $csrf = csrfToken();
     <div class="bg-white rounded-lg border border-gray-200 p-4 mb-6">
         <div class="flex justify-between items-center mb-2">
             <label class="block text-sm font-medium text-gray-700">Select CV to Assess</label>
-            <a href="/resources/ai/setup-ollama.php" class="text-xs text-purple-600 hover:text-purple-700 underline">
+            <a href="/help/setup/ollama.php" class="text-xs text-purple-600 hover:text-purple-700 underline">
                 Setup Local AI
             </a>
         </div>
