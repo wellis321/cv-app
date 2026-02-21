@@ -6,7 +6,7 @@
 
 require_once __DIR__ . '/php/helpers.php';
 
-$pageTitle = 'Free Job Application Tracker UK | Track Applications Online';
+$pageTitle = 'Job Application Tracker';
 $canonicalUrl = APP_URL . '/job-applications-features.php';
 $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $id . '?w=' . $w . '&q=80'; };
 ?>

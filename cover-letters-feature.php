@@ -6,7 +6,7 @@
 
 require_once __DIR__ . '/php/helpers.php';
 
-$pageTitle = 'AI Cover Letter Generator | Free Cover Letter Builder UK';
+$pageTitle = 'AI Cover Letter Generator';
 $canonicalUrl = APP_URL . '/cover-letters-feature.php';
 $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $id . '?w=' . $w . '&q=80'; };
 ?>

@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../php/helpers.php';
 
-$pageTitle = 'Healthcare Careers Without a Degree UK | Entry-Level Jobs';
+$pageTitle = 'Entry-Level Healthcare Careers (UK)';
 $metaDescription = 'Healthcare careers you can start without a degree. Entry-level roles, training, salaries. UK guide for healthcare support jobs.';
 $canonicalUrl = APP_URL . '/blog/job-search/entry-level-healthcare-careers.php';
 $breadcrumbs = [

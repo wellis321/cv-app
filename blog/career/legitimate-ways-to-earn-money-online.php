@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../php/helpers.php';
 
-$pageTitle = '20+ Legitimate Ways to Earn Money Online From Home (UK 2025)';
+$pageTitle = 'Legit Ways to Earn Money Online (UK)';
 $metaDescription = 'Make money online from home—20+ legitimate ways: surveys, side hustles, work from home UK, passive income. No scams. Quick wins £50–£300/month.';
 $canonicalUrl = APP_URL . '/blog/career/legitimate-ways-to-earn-money-online.php';
 $breadcrumbs = [

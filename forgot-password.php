@@ -36,7 +36,8 @@ if (isPost()) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forgot Password - CV App</title>
+    <title>Forgot Password | Simple CV Builder</title>
+    <meta name="description" content="Reset your Simple CV Builder password. Enter your email to receive a secure password reset link.">
     <link rel="stylesheet" href="/static/css/tailwind.css">
 </head>
 <body class="bg-gray-50">

@@ -13,7 +13,7 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
 <html lang="en-GB">
 <head>
     <?php partial('head', [
-        'pageTitle' => 'Free CV Builder UK | Create Professional CVs Online | Simple CV Builder',
+        'pageTitle' => 'Free CV Builder UK',
         'metaDescription' => 'Free CV builder UK for job seekers. Create professional CVs online, share a link, track job applications, and generate AI cover letters. Start free.',
         'canonicalUrl' => APP_URL . '/individual-users.php',
     ]); ?>

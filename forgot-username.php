@@ -36,7 +36,8 @@ if (isPost()) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>Forgot Username - CV App</title>
+    <title>Forgot Username | Simple CV Builder</title>
+    <meta name="description" content="Recover your Simple CV Builder username. Enter your email and we will send your username to you.">
     <link rel="stylesheet" href="/static/css/tailwind.css">
 </head>
 <body class="bg-gray-50">

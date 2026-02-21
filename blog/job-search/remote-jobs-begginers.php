@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../php/helpers.php';
 
-$pageTitle = '11 Simple Work From Home Jobs for Beginners (UK 2026)';
+$pageTitle = 'Work From Home Jobs (UK)';
 $metaDescription = '11 work from home jobs for UK beginners—no experience needed. Salaries, skills, where to apply. Virtual assistant, customer support, data entry & more.';
 $canonicalUrl = APP_URL . '/blog/job-search/remote-jobs-begginers.php';
 $breadcrumbs = [

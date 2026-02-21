@@ -70,7 +70,8 @@ if (isPost()) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    <title>Resend Verification Email - CV App</title>
+    <title>Resend Verification Email | Simple CV Builder</title>
+    <meta name="description" content="Resend your Simple CV Builder verification email. Enter your email to receive a new verification link.">
     <link rel="stylesheet" href="/static/css/tailwind.css">
 </head>
 <body class="bg-gray-50">

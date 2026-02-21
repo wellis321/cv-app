@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../php/helpers.php';
 
-$pageTitle = 'Using AI in Job Applications: CV, Cover Letters & Interviews';
+$pageTitle = 'AI for Job Applications';
 $metaDescription = 'Free guide: Use AI for CVs, cover letters, and interview prep. ChatGPT and Claude tips for UK job seekers. Stay authentic while saving time.';
 $canonicalUrl = APP_URL . '/blog/job-search/using-ai-in-job-applications.php';
 $breadcrumbs = [

@@ -183,6 +183,11 @@ if (!$activeTemplate && !empty($profile['custom_cv_template_active']) && !empty(
     ];
 }
 
+$cvName = trim($profile['full_name'] ?? '');
+$cvMetaDescription = $cvName !== ''
+    ? "View {$cvName}'s CV on Simple CV Builder. Experience, skills, education and projects."
+    : "View this CV on Simple CV Builder. Experience, skills, education and projects.";
+
 if ($activeTemplate) {
     // Render custom template using Twig (secure)
     $customHtml = $activeTemplate['template_html'];
@@ -205,6 +210,7 @@ if ($activeTemplate) {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title><?php echo e($profile['full_name'] ?? 'CV'); ?> - CV</title>
+        <meta name="description" content="<?php echo e($cvMetaDescription); ?>">
         <link rel="stylesheet" href="/static/css/tailwind.css">
         <?php if (!empty($customCss)): ?>
             <style><?php echo $customCss; ?></style>
@@ -385,6 +391,7 @@ if ($activeTemplate) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo e($profile['full_name'] ?? 'CV'); ?> - CV</title>
+    <meta name="description" content="<?php echo e($cvMetaDescription); ?>">
     <link rel="stylesheet" href="/static/css/tailwind.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked@12.0.0/marked.min.js"></script>

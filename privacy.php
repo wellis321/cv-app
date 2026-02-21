@@ -12,6 +12,7 @@ require_once __DIR__ . '/php/helpers.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Privacy Policy - Simple CV Builder</title>
+    <meta name="description" content="Read the Simple CV Builder privacy policy, including how we collect, use, and protect your personal information.">
     <link rel="stylesheet" href="/static/css/tailwind.css">
 </head>
 <body class="bg-gray-50">
