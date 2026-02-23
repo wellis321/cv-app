@@ -969,7 +969,7 @@ $canonicalUrl = APP_URL . '/cv-template-customizer.php';
         }
     </script>
     <script src="/js/model-cache-manager.js"></script>
-    <script src="/js/browser-ai-service.js"></script>
+    <script src="/js/browser-ai-service.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>
 

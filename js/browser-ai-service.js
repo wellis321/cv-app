@@ -3,6 +3,7 @@
  * Handles AI execution in the browser using WebLLM and TensorFlow.js
  */
 
+
 const BrowserAIService = {
     webllmEngine: null,
     webllmModule: null, // Store the imported WebLLM module
@@ -308,6 +309,160 @@ const BrowserAIService = {
             console.error('Error generating text:', error);
             throw error;
         }
+    },
+
+    /**
+     * Humanize AI-generated text by removing common artifacts and hype.
+     * This is intentionally conservative to avoid changing meaning.
+     * @param {string} text
+     * @returns {string}
+     */
+    humanizeText(text) {
+        if (typeof text !== 'string' || text.trim() === '') {
+            return text;
+        }
+
+        let output = text;
+        var originalLength = output.length;
+        var replaceHitCount = 0;
+        var emojiRemoved = 0;
+        var quoteNormalized = 0;
+
+        // Remove common AI preambles and closers
+        output = output.replace(/^\s*(Sure|Of course|Certainly|Great question)[^.\n]*[.\n]+/i, '');
+        output = output.replace(/\bI hope this helps\.?\b/gi, '');
+        output = output.replace(/\bLet me know if you have any questions\.?\b/gi, '');
+        output = output.replace(/\bAs an AI[^.\n]*[.\n]*/gi, '');
+
+        // Replace common AI-sounding words
+        const replacements = [
+            [/\butili[sz]e\b/gi, 'use'],
+            [/\bleverage\b/gi, 'use'],
+            [/\badditionally\b/gi, 'also'],
+            [/\bfurthermore\b/gi, 'also'],
+            [/\bmoreover\b/gi, 'also'],
+            [/\bimpactful\b/gi, 'useful'],
+            [/\brobust\b/gi, 'solid'],
+            [/\bcomprehensive\b/gi, 'clear'],
+            [/\bdelve into\b/gi, 'look into'],
+            [/\bunderscore\b/gi, 'show'],
+            [/\bseamless\b/gi, 'smooth'],
+            [/\bcutting[- ]edge\b/gi, 'modern'],
+            [/\binnovative\b/gi, 'new'],
+            [/\bstrategic\b/gi, 'planned'],
+            [/\bresults[- ]driven\b/gi, 'results focused'],
+            [/\bdetail[- ]oriented\b/gi, 'detail focused'],
+            [/\bfast[- ]paced\b/gi, 'busy'],
+            [/\bpassionate\b/gi, 'keen'],
+            [/\bexcited to\b/gi, 'keen to'],
+            [/\bthrilled\b/gi, 'pleased'],
+            [/\bdelighted\b/gi, 'pleased'],
+            [/\bproactive\b/gi, 'active'],
+            [/\bsynerg(y|ies)\b/gi, 'fit'],
+            [/\bhighly\b/gi, 'very'],
+            [/\bexceptional\b/gi, 'strong'],
+            [/\boutstanding\b/gi, 'strong'],
+            [/\bdynamic\b/gi, 'focused'],
+            [/\bresults[- ]oriented\b/gi, 'results focused'],
+            [/\bproven track record\b/gi, 'track record'],
+            [/\bstrong background\b/gi, 'background'],
+            [/\binnovative solutions\b/gi, 'solutions'],
+            [/\bkey stakeholders\b/gi, 'stakeholders'],
+            [/\bstrategic initiatives\b/gi, 'initiatives'],
+            [/\bdrive(ing)? impact\b/gi, 'improve'],
+            [/\bmission[- ]driven\b/gi, 'purpose led'],
+            [/\bend[- ]to[- ]end\b/gi, 'full'],
+            [/\bworld[- ]class\b/gi, 'strong'],
+            [/\bresults[- ]based\b/gi, 'results focused'],
+            [/\bthought leadership\b/gi, 'leadership'],
+            [/\bvalue[- ]add(ed)?\b/gi, 'value'],
+        ];
+        replacements.forEach(([pattern, replacement]) => {
+            var before = output;
+            output = output.replace(pattern, replacement);
+            if (before !== output) replaceHitCount += 1;
+        });
+
+        // Remove generic filler phrases
+        output = output.replace(/\bIn order to\b/gi, 'To');
+        output = output.replace(/\bDue to the fact that\b/gi, 'Because');
+        output = output.replace(/\bAt the end of the day\b/gi, '');
+        output = output.replace(/\bIn conclusion\b/gi, '');
+        output = output.replace(/\bOverall,\b/gi, '');
+        output = output.replace(/\bIt is important to note that\b/gi, '');
+        output = output.replace(/\bIt is worth noting that\b/gi, '');
+        output = output.replace(/\bIn summary\b/gi, '');
+        output = output.replace(/\bTo summarize\b/gi, '');
+        output = output.replace(/\bIn this regard\b/gi, '');
+        output = output.replace(/\bIn today['’]s (?:fast[- ]paced|dynamic) environment\b/gi, 'In this role');
+        output = output.replace(/\bI am confident that I\b/gi, 'I');
+        output = output.replace(/\bI am confident\b/gi, 'I am sure');
+        output = output.replace(/\bI believe\b/gi, 'I think');
+        output = output.replace(/\bI would be thrilled\b/gi, 'I would be pleased');
+
+        // Remove emojis
+        var beforeEmoji = output;
+        output = output.replace(/[\u{1F300}-\u{1FAFF}]/gu, '');
+        if (beforeEmoji !== output) emojiRemoved = 1;
+
+        // Normalize quotes to ASCII
+        var beforeQuotes = output;
+        output = output.replace(/[“”]/g, '"').replace(/[‘’]/g, "'");
+        if (beforeQuotes !== output) quoteNormalized = 1;
+
+        // Normalize whitespace
+        output = output.replace(/[ \t]{2,}/g, ' ');
+        output = output.replace(/\n{3,}/g, '\n\n');
+
+        var finalOutput = output.trim();
+        return finalOutput;
+    },
+
+    /**
+     * Recursively humanize all string values in an object/array.
+     * @param {*} data
+     * @returns {*}
+     */
+    shouldHumanizeKey(key) {
+        const allowed = [
+            'description',
+            'content',
+            'summary',
+            'professional_summary',
+            'recommendations',
+            'strengths',
+            'weaknesses',
+            'enhanced_recommendations',
+            'answer_text',
+            'cover_letter_text',
+            'responsibilities',
+            'responsibility_categories',
+            'items',
+            'notes',
+            'details'
+        ];
+        return allowed.includes(String(key || '').toLowerCase());
+    },
+
+    humanizeObjectStrings(data, keyPath = []) {
+        if (typeof data === 'string') {
+            const key = keyPath.length ? keyPath[keyPath.length - 1] : '';
+            if (!key || this.shouldHumanizeKey(key)) {
+                return this.humanizeText(data);
+            }
+            return data;
+        }
+        if (Array.isArray(data)) {
+            return data.map((item) => this.humanizeObjectStrings(item, keyPath));
+        }
+        if (data && typeof data === 'object') {
+            const result = {};
+            Object.keys(data).forEach((key) => {
+                result[key] = this.humanizeObjectStrings(data[key], keyPath.concat([key]));
+            });
+            return result;
+        }
+        return data;
     },
     
     /**

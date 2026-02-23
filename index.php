@@ -54,9 +54,16 @@ if ($requestPath === '/sitemap.xml') {
 if ($requestPath !== '/' && $requestPath !== '/index.php' && $requestPath !== '') {
     // Check if the requested file exists
     $filePath = __DIR__ . $requestPath;
+    $phpFilePath = __DIR__ . $requestPath . '.php';
     if (file_exists($filePath) && is_file($filePath) && pathinfo($filePath, PATHINFO_EXTENSION) === 'php') {
         // Serve the file directly
         require $filePath;
+        exit;
+    }
+
+    // Serve extensionless route when matching .php file exists (e.g. /terms -> terms.php)
+    if (file_exists($phpFilePath) && is_file($phpFilePath)) {
+        require $phpFilePath;
         exit;
     }
 }

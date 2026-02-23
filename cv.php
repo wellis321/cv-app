@@ -335,6 +335,12 @@ if ($activeTemplate) {
     if (typeof marked !== 'undefined') {
         document.querySelectorAll('.markdown-content').forEach(function(el) {
             const originalHtml = el.innerHTML;
+            // Server-side renderMarkdown() already outputs safe HTML (<br>, <strong>, etc.).
+            // Re-parsing that HTML with marked can wrap lines into <p> blocks and inflate spacing.
+            const alreadyRenderedHtml = /<\s*(br|strong|em|h1|h2|h3|a|ul|ol|li|p)\b/i.test(originalHtml);
+            if (alreadyRenderedHtml) {
+                return;
+            }
             try {
                 const rendered = marked.parse(originalHtml, { breaks: true, gfm: true });
                 el.innerHTML = rendered;
@@ -732,7 +738,13 @@ if ($activeTemplate) {
                                             <?php endif; ?>
                                         </div>
                                         <?php if (!empty($work['description'])): ?>
-                                            <div class="text-gray-700 mb-3 text-sm leading-relaxed markdown-content"><?php echo renderMarkdown($work['description'] ?? ''); ?></div>
+                                            <?php
+                                            $workDescriptionRaw = (string)($work['description'] ?? '');
+                                            // Collapse paragraph separators so one editor blank line renders as a tighter single line break on CV display.
+                                            $workDescriptionForDisplay = preg_replace('/\R{2,}/u', "\n", $workDescriptionRaw);
+                                            $renderedWorkDescription = renderMarkdown($workDescriptionForDisplay);
+                                            ?>
+                                            <div class="text-gray-700 mb-3 text-sm leading-relaxed markdown-content"><?php echo $renderedWorkDescription; ?></div>
                                         <?php endif; ?>
 
                                         <!-- Responsibilities -->

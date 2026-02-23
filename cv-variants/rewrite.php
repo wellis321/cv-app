@@ -364,7 +364,7 @@ $suggestedVariantName = suggestUniqueVariantName($user['id'], 'AI-Generated CV')
 
     <!-- Browser AI Service Scripts -->
     <script src="/js/model-cache-manager.js"></script>
-    <script src="/js/browser-ai-service.js"></script>
+    <script src="/js/browser-ai-service.js?v=<?php echo time(); ?>"></script>
     <script src="/js/markdown-editor.js"></script>
 
     <script>
@@ -1056,6 +1056,10 @@ $suggestedVariantName = suggestUniqueVariantName($user['id'], 'AI-Generated CV')
                         }
                     }
                     }
+                }
+
+                if (typeof BrowserAIService !== 'undefined' && BrowserAIService.humanizeObjectStrings) {
+                    rewrittenData = BrowserAIService.humanizeObjectStrings(rewrittenData);
                 }
 
                 // Send rewritten CV to server to save as variant

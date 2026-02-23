@@ -1341,7 +1341,10 @@
             });
             
             // Parse assessment JSON with defensive extraction and repair
-            const assessment = parseAssessmentJsonFromAI(assessmentText);
+            let assessment = parseAssessmentJsonFromAI(assessmentText);
+            if (typeof BrowserAIService !== 'undefined' && BrowserAIService.humanizeObjectStrings) {
+                assessment = BrowserAIService.humanizeObjectStrings(assessment);
+            }
             
             // Cleanup
             await BrowserAIService.cleanup();

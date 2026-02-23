@@ -9,6 +9,7 @@ define('SKIP_CANONICAL_REDIRECT', true);
 
 // Start output buffering to prevent any output before JSON
 ob_start();
+ini_set('display_errors', '0');
 
 // Increase timeout for AI processing (Ollama CV rewrite can take 2-5+ minutes on Mac)
 set_time_limit(300); // 5 minutes
@@ -17,6 +18,32 @@ ini_set('max_execution_time', 300);
 require_once __DIR__ . '/../php/helpers.php';
 
 header('Content-Type: application/json');
+
+set_error_handler(function ($severity, $message, $file, $line) {
+    return true; // Prevent warnings/notices from leaking into response body.
+});
+
+register_shutdown_function(function () {
+    $error = error_get_last();
+    if (!$error) {
+        return;
+    }
+    $fatalTypes = [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR];
+    if (!in_array($error['type'], $fatalTypes, true)) {
+        return;
+    }
+    if (ob_get_level() > 0) {
+        @ob_end_clean();
+    }
+    if (!headers_sent()) {
+        header('Content-Type: application/json');
+        http_response_code(500);
+    }
+    echo json_encode([
+        'success' => false,
+        'error' => 'The server hit an internal error while generating this CV. Please try again, or tailor one section at a time.'
+    ]);
+});
 
 // Only allow POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -167,6 +194,10 @@ try {
     // Single-item scope for work experience or projects (used when AI is local/browser)
     $singleWorkExperienceId = trim($_POST['single_work_experience_id'] ?? '');
     $singleProjectId = trim($_POST['single_project_id'] ?? '');
+    $allowFullCv = isset($_POST['allow_full_cv']) && $_POST['allow_full_cv'] === '1';
+    // Full-merge = Whole CV OR section-level "all" (work/projects without single ID)
+    $isFullWorkMerge = $allowFullCv || (in_array('work_experience', $sectionsToRewrite) && $singleWorkExperienceId === '');
+    $isFullProjectsMerge = $allowFullCv || (in_array('projects', $sectionsToRewrite) && $singleProjectId === '');
     
     // Get prompt instructions mode and custom instructions
     $promptMode = $_POST['prompt_instructions_mode'] ?? 'default';
@@ -262,14 +293,20 @@ try {
             $aiService = getAIService($user['id']);
         }
         
-        // Enforce limited scope for local/browser AI: work experience and projects must be one-at-a-time
-        $aiScopeLimited = in_array($aiService->getService(), ['ollama', 'browser']);
-        if ($aiScopeLimited) {
+        // Enforce limited scope for browser AI only: work experience and projects must be one-at-a-time.
+        // Ollama allows "all" (checkboxes = whole section); Whole CV and section-level "all" both bypass.
+        $serviceName = $aiService->getService();
+        $aiScopeLimited = in_array($serviceName, ['ollama', 'browser']);
+        $allowFullCvBypass = ($serviceName === 'ollama' && $allowFullCv);
+        $allowSectionLevelBypass = ($serviceName === 'ollama' && in_array('work_experience', $sectionsToRewrite) && $singleWorkExperienceId === '')
+            || ($serviceName === 'ollama' && in_array('projects', $sectionsToRewrite) && $singleProjectId === '');
+        $bypassSingleItemRequirement = $allowFullCvBypass || $allowSectionLevelBypass;
+        if ($aiScopeLimited && !$bypassSingleItemRequirement) {
             if (in_array('work_experience', $sectionsToRewrite) && $singleWorkExperienceId === '') {
                 ob_end_clean();
                 echo json_encode([
                     'success' => false,
-                    'error' => 'With local or browser AI, tailor one role at a time. Use "Tailor section" and select a specific role, or switch to a cloud AI (OpenAI, Anthropic, etc.) in Settings > AI Settings to tailor all work experience at once.'
+                    'error' => 'With browser AI, tailor one role at a time. Use a specific role below, or switch to Ollama/cloud AI in Settings > AI Settings to tailor all work experience at once.'
                 ]);
                 exit;
             }
@@ -277,7 +314,7 @@ try {
                 ob_end_clean();
                 echo json_encode([
                     'success' => false,
-                    'error' => 'With local or browser AI, tailor one project at a time. Use "Tailor section" and select a specific project, or switch to a cloud AI in Settings > AI Settings to tailor all projects at once.'
+                    'error' => 'With browser AI, tailor one project at a time. Use a specific project below, or switch to Ollama/cloud AI in Settings > AI Settings to tailor all projects at once.'
                 ]);
                 exit;
             }
@@ -376,7 +413,7 @@ try {
     // We must preserve all other sections from the original CV data
     
     // Update professional summary if rewritten (AI may return string or array with description key)
-    if (isset($rewrittenData['professional_summary'])) {
+    if (in_array('professional_summary', $sectionsToRewrite) && isset($rewrittenData['professional_summary'])) {
         $summary = $rewrittenData['professional_summary'];
         $base = $cvData['professional_summary'] ?? ['description' => ''];
         if (is_array($summary)) {
@@ -388,12 +425,81 @@ try {
     
     $successMessage = 'CV successfully rewritten for this job';
     $singleRoleOutputUnchanged = false;
+    $workUpdatesApplied = 0;
+    $projectsUpdatesApplied = 0;
     // Update work experience if rewritten
-    if (isset($rewrittenData['work_experience']) && is_array($rewrittenData['work_experience'])) {
+    if (in_array('work_experience', $sectionsToRewrite) && isset($rewrittenData['work_experience']) && is_array($rewrittenData['work_experience'])) {
         $rewrittenWorkCount = count($rewrittenData['work_experience']);
         $originalWorkCount = count($cvData['work_experience'] ?? []);
         if ($originalWorkCount > 0 && $rewrittenWorkCount < $originalWorkCount) {
             $successMessage = $rewrittenWorkCount . ' of ' . $originalWorkCount . ' work experience entries were tailored; the rest were left unchanged. Try tailoring again for more entries, or check that your AI model can handle long output.';
+        }
+        // When whole-CV mode is requested, reject partial output only if IDs are unsafe.
+        // If IDs are present, unique, and map to existing entries, we can safely merge matched entries
+        // and keep unmatched originals unchanged (no bleed, because we avoid unsafe index remaps).
+        if ($isFullWorkMerge && $originalWorkCount > 0 && $rewrittenWorkCount < $originalWorkCount) {
+            $existingWorkIds = [];
+            $existingRolePairs = [];
+            foreach (($cvData['work_experience'] ?? []) as $w) {
+                if (!empty($w['id'])) {
+                    $existingWorkIds[(string)$w['id']] = true;
+                }
+                $p = strtolower(trim((string)($w['position'] ?? '')));
+                $c = strtolower(trim((string)($w['company_name'] ?? '')));
+                if ($p !== '' && $c !== '') {
+                    $pairKey = $p . '||' . $c;
+                    if (!isset($existingRolePairs[$pairKey])) {
+                        $existingRolePairs[$pairKey] = 0;
+                    }
+                    $existingRolePairs[$pairKey]++;
+                }
+            }
+            $seenRewrittenIds = [];
+            $allRewrittenHaveIds = true;
+            $allRewrittenIdsExistInVariant = true;
+            $duplicateRewrittenIds = false;
+            $rewrittenRolePairs = [];
+            $duplicateRewrittenRolePairs = false;
+            $allRewrittenRolePairsExistInVariant = true;
+            foreach ($rewrittenData['work_experience'] as $rw) {
+                $rid = isset($rw['id']) ? trim((string)$rw['id']) : '';
+                if ($rid === '') {
+                    $allRewrittenHaveIds = false;
+                    continue;
+                }
+                if (isset($seenRewrittenIds[$rid])) {
+                    $duplicateRewrittenIds = true;
+                }
+                $seenRewrittenIds[$rid] = true;
+                if (!isset($existingWorkIds[$rid])) {
+                    $allRewrittenIdsExistInVariant = false;
+                }
+                $rp = strtolower(trim((string)($rw['position'] ?? '')));
+                $rc = strtolower(trim((string)($rw['company_name'] ?? '')));
+                if ($rp !== '' && $rc !== '') {
+                    $pairKey = $rp . '||' . $rc;
+                    if (isset($rewrittenRolePairs[$pairKey])) {
+                        $duplicateRewrittenRolePairs = true;
+                    }
+                    $rewrittenRolePairs[$pairKey] = true;
+                    if (!isset($existingRolePairs[$pairKey])) {
+                        $allRewrittenRolePairsExistInVariant = false;
+                    }
+                } else {
+                    $allRewrittenRolePairsExistInVariant = false;
+                }
+            }
+            $safePartialMerge = $allRewrittenHaveIds && !$duplicateRewrittenIds && $allRewrittenIdsExistInVariant;
+            if (!$safePartialMerge) {
+                ob_end_clean();
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'Your CV is currently too large/complex for this local AI whole-CV run (' . $rewrittenWorkCount . ' of ' . $originalWorkCount . ' roles returned, with missing/mismatched role IDs). To prevent mixed content between jobs, we did not save this result. What to do next: (1) Tailor one role/section at a time, (2) shorten older role descriptions or archive less-relevant roles, (3) use a larger local model/context, or (4) switch to a cloud AI model for full-CV rewriting.'
+                ]);
+                exit;
+            }
+            // Safe partial: keep going and merge only matched IDs; unchanged entries remain untouched.
+            $successMessage = $rewrittenWorkCount . ' of ' . $originalWorkCount . ' work experience entries were tailored and saved safely by ID; unmatched roles were left unchanged.';
         }
         foreach ($rewrittenData['work_experience'] as $idx => $rewrittenWork) {
             $found = false;
@@ -449,6 +555,7 @@ try {
                             }
                         }
                         $work['description'] = $newDesc;
+                        $workUpdatesApplied++;
                         
                                             }
                     
@@ -461,7 +568,12 @@ try {
             }
             
             // Index-based fallback: AI often returns "1"/"2" or changed titles; match by array position
-            if (!$found && isset($cvData['work_experience'][$idx])) {
+            if (
+                !$found
+                && isset($cvData['work_experience'][$idx])
+                && !$isFullWorkMerge
+                && (!isset($rewrittenWork['id']) || trim((string)$rewrittenWork['id']) === '')
+            ) {
                 $work = &$cvData['work_experience'][$idx];
                 $matchType = 'index';
                 if (isset($rewrittenWork['description'])) {
@@ -474,9 +586,16 @@ try {
                         $newDesc = (string) $newDesc;
                     }
                     $work['description'] = $newDesc;
+                    $workUpdatesApplied++;
                 }
                 // Work experience is description-only: do not overwrite responsibility_categories
                 $found = true;
+            }
+            if (
+                !$found
+                && isset($rewrittenWork['id'])
+                && trim((string)$rewrittenWork['id']) !== ''
+            ) {
             }
             
             if (!$found) {
@@ -492,10 +611,18 @@ try {
             ]);
             exit;
         }
+        if ($isFullWorkMerge && $rewrittenWorkCount > 0 && $workUpdatesApplied === 0) {
+            ob_end_clean();
+            echo json_encode([
+                'success' => false,
+                'error' => 'Whole CV generation completed, but none of the rewritten work experience entries could be safely mapped back to your existing roles. To avoid misleading output, this result was not saved. Try tailoring one role at a time or use a larger/cloud model.'
+            ]);
+            exit;
+        }
     }
     
     // Update skills if rewritten
-    if (isset($rewrittenData['skills']) && is_array($rewrittenData['skills'])) {
+    if (in_array('skills', $sectionsToRewrite) && isset($rewrittenData['skills']) && is_array($rewrittenData['skills'])) {
         // Merge with existing skills, prioritising rewritten ones
         $existingSkillNames = array_map(function($s) { return strtolower($s['name']); }, $cvData['skills'] ?? []);
         $newSkills = [];
@@ -512,7 +639,7 @@ try {
     }
     
     // Update education if rewritten (only update description by id; do not add or replace list; deduplicate AI response by id)
-    if (isset($rewrittenData['education']) && is_array($rewrittenData['education'])) {
+    if (in_array('education', $sectionsToRewrite) && isset($rewrittenData['education']) && is_array($rewrittenData['education'])) {
         $seenEduIds = [];
         foreach ($rewrittenData['education'] as $rewrittenEdu) {
             $rid = $rewrittenEdu['id'] ?? null;
@@ -546,6 +673,7 @@ try {
                 if ($idMatch || $titleMatch) {
                     if (isset($rewrittenProj['description'])) {
                         $proj['description'] = $rewrittenProj['description'];
+                        $projectsUpdatesApplied++;
                     }
                     $projectMapping[$projIdx] = $k;
                     $found = true;
@@ -556,6 +684,7 @@ try {
             if (!$found && isset($cvData['projects'][$projIdx])) {
                 if (isset($rewrittenProj['description'])) {
                     $cvData['projects'][$projIdx]['description'] = $rewrittenProj['description'];
+                    $projectsUpdatesApplied++;
                 }
                 $projectMapping[$projIdx] = $projIdx;
             }
@@ -582,10 +711,18 @@ try {
         if (!empty($ordered)) {
             $cvData['projects'] = $ordered;
         }
+        if ($isFullProjectsMerge && count($rewrittenData['projects']) > 0 && $projectsUpdatesApplied === 0) {
+            ob_end_clean();
+            echo json_encode([
+                'success' => false,
+                'error' => 'Whole CV generation completed, but none of the rewritten projects could be safely applied. To avoid a misleading partial save, this result was not saved. Try tailoring projects separately or use a larger/cloud model.'
+            ]);
+            exit;
+        }
     }
     
     // Update certifications if rewritten (only update description by id; do not add or replace list; deduplicate AI response by id)
-    if (isset($rewrittenData['certifications']) && is_array($rewrittenData['certifications'])) {
+    if (in_array('certifications', $sectionsToRewrite) && isset($rewrittenData['certifications']) && is_array($rewrittenData['certifications'])) {
         $seenCertIds = [];
         foreach ($rewrittenData['certifications'] as $rewrittenCert) {
             $rid = $rewrittenCert['id'] ?? null;
@@ -608,7 +745,7 @@ try {
     
     // Update memberships if rewritten (cvData uses 'memberships'; AI may return 'professional_memberships')
     $rewrittenMemberships = $rewrittenData['professional_memberships'] ?? $rewrittenData['memberships'] ?? null;
-    if (isset($rewrittenMemberships) && is_array($rewrittenMemberships) && !empty($cvData['memberships'])) {
+    if ((in_array('professional_memberships', $sectionsToRewrite) || in_array('memberships', $sectionsToRewrite)) && isset($rewrittenMemberships) && is_array($rewrittenMemberships) && !empty($cvData['memberships'])) {
         foreach ($rewrittenMemberships as $idx => $rewrittenMembership) {
             if (isset($cvData['memberships'][$idx])) {
                 if (isset($rewrittenMembership['description'])) {
@@ -629,7 +766,7 @@ try {
     }
     
     // Update interests if rewritten
-    if (isset($rewrittenData['interests']) && is_array($rewrittenData['interests']) && !empty($cvData['interests'])) {
+    if (in_array('interests', $sectionsToRewrite) && isset($rewrittenData['interests']) && is_array($rewrittenData['interests']) && !empty($cvData['interests'])) {
         foreach ($rewrittenData['interests'] as $idx => $rewrittenInterest) {
             if (isset($cvData['interests'][$idx])) {
                 if (isset($rewrittenInterest['description'])) {

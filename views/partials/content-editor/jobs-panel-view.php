@@ -657,6 +657,15 @@ $savedDate = !empty($job['created_at']) ? date('j M Y, g:i a', strtotime($job['c
                             return BrowserAIService.initBrowserAI(result.model_type || 'webllm', result.model).then(function() {
                                 return BrowserAIService.generateText(result.prompt, { temperature: 0.6, maxTokens: 600 });
                             }).then(function(text) {
+                                var rawText = text || '';
+                                // Strip common chat artifacts that can appear in browser models
+                                rawText = rawText.replace(/^\s*(assistant|user|system)\b[^\n]*\n?/gmi, '');
+                                rawText = rawText.replace(/\n\s*(assistant|user|system)\b[^\n]*\n?/gmi, '\n');
+                                rawText = rawText.replace(/\b(user|assistant|system)\b\s*[:.-]\s*/gi, '');
+                                rawText = rawText.replace(/^\s*(user|assistant|system)\s*$/gmi, '');
+                                if (typeof BrowserAIService !== 'undefined' && BrowserAIService.humanizeText) {
+                                    text = BrowserAIService.humanizeText(rawText);
+                                }
                                 if (ta) ta.value = text || '';
                                 var saveFd = new FormData();
                                 saveFd.append('<?php echo CSRF_TOKEN_NAME; ?>', csrf);

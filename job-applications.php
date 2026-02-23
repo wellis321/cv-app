@@ -44,7 +44,7 @@ $stats = getJobApplicationStats();
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.min.js"></script>
     <!-- Browser AI Service Dependencies -->
     <script src="/js/model-cache-manager.js"></script>
-    <script src="/js/browser-ai-service.js"></script>
+    <script src="/js/browser-ai-service.js?v=<?php echo time(); ?>"></script>
     <script src="/js/markdown-editor.js"></script>
     <style>
         .status-badge {
@@ -1561,6 +1561,9 @@ $stats = getJobApplicationStats();
                     
                     // Final trim
                     cleanedText = cleanedText.trim();
+                    if (typeof BrowserAIService !== 'undefined' && BrowserAIService.humanizeText) {
+                        cleanedText = BrowserAIService.humanizeText(cleanedText);
+                    }
                     
                     console.log('Cleaned cover letter text:', cleanedText.substring(0, 200));
                     

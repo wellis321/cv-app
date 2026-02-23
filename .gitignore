@@ -53,7 +53,9 @@ docs/SEO_PLAN.md
 # GSC export data (temporary – do not commit)
 views/partials/*Performance*
 
-# Ahrefs exports (temporary – do not commit)
+# SEO/audit report exports (temporary – do not commit)
+*FailingUrls*.csv
+*IssueDetailsBySeverity*.csv
 *image-broken*.csv
 *orphan*.csv
 *meta-descriptio*.csv

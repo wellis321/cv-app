@@ -117,6 +117,14 @@ class AIService {
             $service = trim(substr($service, 0, $commentPos));
         }
         $this->service = strtolower($service);
+
+        // Non-superadmins should never run Ollama (local only).
+        if ($this->service === 'ollama' && $userId && !isSuperAdmin($userId)) {
+            $this->service = 'browser';
+        }
+        if ($this->service === 'ollama' && !$userId && !isSuperAdmin()) {
+            $this->service = 'browser';
+        }
         
         // Decrypt user API keys if present (only decrypt when needed, not stored in memory)
         $decryptedOpenAiKey = null;
@@ -329,7 +337,12 @@ class AIService {
         }
         
         // Ensure British English spelling in all text (AI often returns American)
+        $humanizeEnabled = $this->shouldHumanizeServerOutput();
         $rewritten = $this->applyBritishSpellingToCvData($rewritten);
+
+        if ($humanizeEnabled) {
+            $rewritten = $this->humanizeData($rewritten);
+        }
         
         return [
             'success' => true,
@@ -444,6 +457,150 @@ class AIService {
         }
         return $text;
     }
+
+    /**
+     * Only allow server-side humanizer in local development for super admins.
+     */
+    private function shouldHumanizeServerOutput() {
+        if (!defined('APP_ENV') || APP_ENV !== 'development') {
+            return false;
+        }
+        return function_exists('isSuperAdmin') && isSuperAdmin();
+    }
+
+    /**
+     * Humanize AI-generated text (conservative post-processing).
+     */
+    private function humanizeText($text) {
+        if (!is_string($text) || trim($text) === '') {
+            return $text;
+        }
+
+        $output = $text;
+
+        // Remove common AI preambles and closers
+        $output = preg_replace('/^\s*(Sure|Of course|Certainly|Great question)[^.\n]*[.\n]+/i', '', $output);
+        $output = preg_replace('/\bI hope this helps\.?\b/i', '', $output);
+        $output = preg_replace('/\bLet me know if you have any questions\.?\b/i', '', $output);
+        $output = preg_replace('/\bAs an AI[^.\n]*[.\n]*/i', '', $output);
+
+        // Replace common AI-sounding words
+        $replacements = [
+            '/\butili[sz]e\b/i' => 'use',
+            '/\bleverage\b/i' => 'use',
+            '/\badditionally\b/i' => 'also',
+            '/\bfurthermore\b/i' => 'also',
+            '/\bmoreover\b/i' => 'also',
+            '/\bimpactful\b/i' => 'useful',
+            '/\brobust\b/i' => 'solid',
+            '/\bcomprehensive\b/i' => 'clear',
+            '/\bdelve into\b/i' => 'look into',
+            '/\bunderscore\b/i' => 'show',
+            '/\bseamless\b/i' => 'smooth',
+            '/\bcutting[- ]edge\b/i' => 'modern',
+            '/\binnovative\b/i' => 'new',
+            '/\bresults[- ]driven\b/i' => 'results focused',
+            '/\bdetail[- ]oriented\b/i' => 'detail focused',
+            '/\bfast[- ]paced\b/i' => 'busy',
+            '/\bpassionate\b/i' => 'keen',
+            '/\bexcited to\b/i' => 'keen to',
+            '/\bthrilled\b/i' => 'pleased',
+            '/\bdelighted\b/i' => 'pleased',
+            '/\bproactive\b/i' => 'active',
+            '/\bsynerg(y|ies)\b/i' => 'fit',
+            '/\bhighly\b/i' => 'very',
+            '/\bexceptional\b/i' => 'strong',
+            '/\boutstanding\b/i' => 'strong',
+            '/\bdynamic\b/i' => 'focused',
+            '/\bresults[- ]oriented\b/i' => 'results focused',
+            '/\bproven track record\b/i' => 'track record',
+            '/\bstrong background\b/i' => 'background',
+            '/\binnovative solutions\b/i' => 'solutions',
+            '/\bkey stakeholders\b/i' => 'stakeholders',
+            '/\bstrategic initiatives\b/i' => 'initiatives',
+            '/\bdrive(ing)? impact\b/i' => 'improve',
+            '/\bmission[- ]driven\b/i' => 'purpose led',
+            '/\bend[- ]to[- ]end\b/i' => 'full',
+            '/\bworld[- ]class\b/i' => 'strong',
+            '/\bresults[- ]based\b/i' => 'results focused',
+            '/\bthought leadership\b/i' => 'leadership',
+            '/\bvalue[- ]add(ed)?\b/i' => 'value',
+        ];
+        foreach ($replacements as $pattern => $replacement) {
+            $output = preg_replace($pattern, $replacement, $output);
+        }
+
+        // Remove generic filler phrases
+        $output = preg_replace('/\bIn order to\b/i', 'To', $output);
+        $output = preg_replace('/\bDue to the fact that\b/i', 'Because', $output);
+        $output = preg_replace('/\bAt the end of the day\b/i', '', $output);
+        $output = preg_replace('/\bIn conclusion\b/i', '', $output);
+        $output = preg_replace('/\bOverall,\b/i', '', $output);
+        $output = preg_replace('/\bIt is important to note that\b/i', '', $output);
+        $output = preg_replace('/\bIt is worth noting that\b/i', '', $output);
+        $output = preg_replace('/\bIn summary\b/i', '', $output);
+        $output = preg_replace('/\bTo summarize\b/i', '', $output);
+        $output = preg_replace('/\bIn this regard\b/i', '', $output);
+        $output = preg_replace('/\bIn today[\'’]s (?:fast[- ]paced|dynamic) environment\b/i', 'In this role', $output);
+        $output = preg_replace('/\bI am confident that I\b/i', 'I', $output);
+        $output = preg_replace('/\bI am confident\b/i', 'I am sure', $output);
+        $output = preg_replace('/\bI believe\b/i', 'I think', $output);
+        $output = preg_replace('/\bI would be thrilled\b/i', 'I would be pleased', $output);
+
+        // Remove emojis
+        $output = preg_replace('/[\x{1F300}-\x{1FAFF}]/u', '', $output);
+
+        // Normalize quotes to ASCII
+        $output = str_replace(['“', '”', '‘', '’'], ['"', '"', "'", "'"], $output);
+
+        // Normalize whitespace
+        $output = preg_replace('/[ \t]{2,}/', ' ', $output);
+        $output = preg_replace('/\n{3,}/', "\n\n", $output);
+
+        return trim($output);
+    }
+
+    /**
+     * Recursively humanize all string values in an array/object.
+     */
+    private function shouldHumanizeKey($key) {
+        $allowed = [
+            'description',
+            'content',
+            'summary',
+            'professional_summary',
+            'recommendations',
+            'strengths',
+            'weaknesses',
+            'enhanced_recommendations',
+            'answer_text',
+            'cover_letter_text',
+            'responsibilities',
+            'responsibility_categories',
+            'items',
+            'notes',
+            'details',
+        ];
+        return in_array(strtolower((string) $key), $allowed, true);
+    }
+
+    private function humanizeData($data, $keyPath = []) {
+        if (is_string($data)) {
+            $key = !empty($keyPath) ? end($keyPath) : '';
+            if ($key === '' || $this->shouldHumanizeKey($key)) {
+                return $this->humanizeText($data);
+            }
+            return $data;
+        }
+        if (is_array($data)) {
+            $result = [];
+            foreach ($data as $key => $value) {
+                $result[$key] = $this->humanizeData($value, array_merge($keyPath, [$key]));
+            }
+            return $result;
+        }
+        return $data;
+    }
     
     /**
      * Generate a cover letter based on CV data and job application details
@@ -484,6 +641,10 @@ class AIService {
 
         // Clean the response - remove markdown formatting, extra whitespace
         $coverLetterText = $this->cleanCoverLetterText($response['content']);
+
+        if ($this->shouldHumanizeServerOutput()) {
+            $coverLetterText = $this->humanizeText($coverLetterText);
+        }
 
         return [
             'success' => true,
@@ -901,6 +1062,10 @@ class AIService {
         
         // Validate assessment structure
         $assessment = $this->validateAssessment($assessment);
+
+        if ($this->shouldHumanizeServerOutput()) {
+            $assessment = $this->humanizeData($assessment);
+        }
         
         return [
             'success' => true,
@@ -947,6 +1112,10 @@ class AIService {
                 'error' => 'Failed to parse AI response. The AI may not have returned valid JSON.',
                 'raw_response' => $response['content']
             ];
+        }
+
+        if ($this->shouldHumanizeServerOutput()) {
+            $assessment = $this->humanizeData($assessment);
         }
         
         return [
@@ -1083,7 +1252,10 @@ class AIService {
      * @return array { success, answer_text } or { success, browser_execution, prompt, model, model_type } or error
      */
     public function generateApplicationAnswer($cvData, $jobApplication, $questionText, $options = []) {
-        $prompt = $this->buildApplicationAnswerPrompt($cvData, $jobApplication, $questionText, $options);
+        $isBrowserAI = ($this->service === 'browser');
+        $prompt = $isBrowserAI
+            ? $this->buildApplicationAnswerPromptCondensed($cvData, $jobApplication, $questionText, $options)
+            : $this->buildApplicationAnswerPrompt($cvData, $jobApplication, $questionText, $options);
         
         $response = $this->callAI($prompt, [
             'temperature' => 0.6,
@@ -1112,6 +1284,10 @@ class AIService {
         }
         
         $answerText = $this->cleanCoverLetterText($response['content']);
+
+        if ($this->shouldHumanizeServerOutput()) {
+            $answerText = $this->humanizeText($answerText);
+        }
         
         return [
             'success' => true,
@@ -1205,6 +1381,80 @@ class AIService {
         }
         $prompt .= "\nAnswer:\n";
         
+        return $prompt;
+    }
+
+    /**
+     * Build condensed prompt for application answers (Browser AI).
+     */
+    private function buildApplicationAnswerPromptCondensed($cvData, $jobApplication, $questionText, $options = []) {
+        $maxJobDescChars = 1200;
+        $maxSummaryChars = 220;
+        $maxWorkDescChars = 120;
+        $maxWorkEntries = 3;
+        $maxSkills = 10;
+
+        $prompt = "Write a short, tailored answer to this application question using the candidate details.\n\n";
+
+        $prompt .= "Job: " . ($jobApplication['job_title'] ?? 'Position') . " at " . ($jobApplication['company_name'] ?? 'Unknown Company') . "\n";
+        if (!empty($jobApplication['job_description'])) {
+            $jobDesc = $jobApplication['job_description'];
+            if (function_exists('stripMarkdown')) {
+                $jobDesc = stripMarkdown($jobDesc);
+            }
+            $prompt .= "Job Description (summary):\n" . substr($jobDesc, 0, $maxJobDescChars) . (strlen($jobDesc) > $maxJobDescChars ? "\n..." : "") . "\n\n";
+        }
+
+        $prompt .= "Candidate: " . ($cvData['profile']['full_name'] ?? 'Candidate') . "\n";
+        if (!empty($cvData['professional_summary']['description'])) {
+            $sum = $cvData['professional_summary']['description'];
+            if (function_exists('stripMarkdown')) {
+                $sum = stripMarkdown($sum);
+            }
+            $prompt .= "Summary: " . substr($sum, 0, $maxSummaryChars) . (strlen($sum) > $maxSummaryChars ? "..." : "") . "\n";
+        }
+
+        if (!empty($cvData['work_experience'])) {
+            $prompt .= "Experience:\n";
+            foreach (array_slice($cvData['work_experience'], 0, $maxWorkEntries) as $w) {
+                $prompt .= "- " . ($w['position'] ?? '') . " at " . ($w['company_name'] ?? '') . "\n";
+                if (!empty($w['description'])) {
+                    $d = function_exists('stripMarkdown') ? stripMarkdown($w['description']) : $w['description'];
+                    $prompt .= "  " . substr($d, 0, $maxWorkDescChars) . (strlen($d) > $maxWorkDescChars ? "..." : "") . "\n";
+                }
+            }
+        }
+
+        if (!empty($cvData['skills'])) {
+            $skills = array_map(function($s) { return $s['name']; }, array_slice($cvData['skills'], 0, $maxSkills));
+            $prompt .= "\nSkills: " . implode(', ', $skills) . "\n";
+        }
+
+        $selectedKeywords = [];
+        if (!empty($jobApplication['selected_keywords'])) {
+            $decoded = is_string($jobApplication['selected_keywords'])
+                ? json_decode($jobApplication['selected_keywords'], true) : $jobApplication['selected_keywords'];
+            if (is_array($decoded)) {
+                $selectedKeywords = $decoded;
+            }
+        }
+        if (!empty($selectedKeywords)) {
+            $prompt .= "Use these keywords where natural: " . implode(', ', array_slice($selectedKeywords, 0, 10)) . "\n";
+        }
+
+        $prompt .= "\nQuestion:\n" . trim($questionText) . "\n\n";
+
+        $answerInstructions = $options['answer_instructions'] ?? null;
+        if ($answerInstructions !== null && trim($answerInstructions) !== '') {
+            $prompt .= "Follow these instructions:\n" . trim($answerInstructions) . "\n\n";
+        }
+
+        $prompt .= "Instructions:\n";
+        $prompt .= "- Write 2–3 short paragraphs.\n";
+        $prompt .= "- Use British English.\n";
+        $prompt .= "- Plain text only. No bullet points.\n";
+        $prompt .= "- Start directly with the answer.\n";
+
         return $prompt;
     }
     

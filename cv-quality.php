@@ -558,7 +558,7 @@ if (isPost() && isset($_POST['action']) && $_POST['action'] === 'assess') {
     
     <!-- Browser AI Service Scripts -->
     <script src="/js/model-cache-manager.js"></script>
-    <script src="/js/browser-ai-service.js"></script>
+    <script src="/js/browser-ai-service.js?v=<?php echo time(); ?>"></script>
     
     <script>
         // Store enhanced recommendations data for apply functionality
@@ -820,6 +820,9 @@ if (isPost() && isset($_POST['action']) && $_POST['action'] === 'assess') {
                     } else {
                         throw new Error('Failed to parse AI response as JSON');
                     }
+                }
+                if (typeof BrowserAIService !== 'undefined' && BrowserAIService.humanizeObjectStrings) {
+                    assessment = BrowserAIService.humanizeObjectStrings(assessment);
                 }
 
                 // Send assessment to server to save

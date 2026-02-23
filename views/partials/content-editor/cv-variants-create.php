@@ -14,6 +14,7 @@ $user = getCurrentUser();
 // Limited scope for local/browser AI: only one role or one project at a time (no full sections)
 $pref = db()->fetchOne("SELECT ai_service_preference FROM profiles WHERE id = ?", [$userId]);
 $ai_scope_limited = in_array($pref['ai_service_preference'] ?? '', ['ollama', 'browser']);
+$is_ollama_preferred = ($pref['ai_service_preference'] ?? '') === 'ollama';
 $cvDataForScope = $ai_scope_limited ? loadCvData($userId) : null;
 
 // Get user's job applications
@@ -187,12 +188,49 @@ $preselectJobId = isset($_GET['job']) ? $_GET['job'] : null;
                 </label>
                 <div class="space-y-2 border border-gray-300 rounded-lg p-4 bg-gray-50">
                     <?php if ($ai_scope_limited): ?>
-                        <p class="text-sm text-gray-600 mb-3">With <strong>local or browser AI</strong>, tailor <strong>one item at a time</strong> for best results. Choose one below. After creating the variant, use &quot;Tailor section&quot; to tailor more roles or projects.</p>
-                        <div class="space-y-2">
+                        <p class="text-sm text-gray-600 mb-3">Check the sections you want to tailor; each checked section includes <strong>everything</strong> in that section (e.g. Work experience = all roles, Projects = all projects).</p>
+                        <div class="space-y-2 mb-4">
                             <div class="flex items-center">
-                                <input type="radio" id="section_single_professional_summary" name="section_single" value="professional_summary" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
-                                <label for="section_single_professional_summary" class="ml-2 text-sm text-gray-700">Professional summary</label>
+                                <input type="checkbox" id="section_limited_professional_summary" name="sections_limited[]" value="professional_summary" checked class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                <label for="section_limited_professional_summary" class="ml-2 text-sm text-gray-700">Professional summary</label>
                             </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="section_limited_work_experience" name="sections_limited[]" value="work_experience" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                <label for="section_limited_work_experience" class="ml-2 text-sm text-gray-700">Work experience</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="section_limited_skills" name="sections_limited[]" value="skills" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                <label for="section_limited_skills" class="ml-2 text-sm text-gray-700">Skills</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="section_limited_education" name="sections_limited[]" value="education" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                <label for="section_limited_education" class="ml-2 text-sm text-gray-700">Education</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="section_limited_projects" name="sections_limited[]" value="projects" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                <label for="section_limited_projects" class="ml-2 text-sm text-gray-700">Projects</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="section_limited_certifications" name="sections_limited[]" value="certifications" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                <label for="section_limited_certifications" class="ml-2 text-sm text-gray-700">Certifications</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="section_limited_professional_memberships" name="sections_limited[]" value="professional_memberships" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                <label for="section_limited_professional_memberships" class="ml-2 text-sm text-gray-700">Professional memberships</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="section_limited_interests" name="sections_limited[]" value="interests" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                <label for="section_limited_interests" class="ml-2 text-sm text-gray-700">Interests</label>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 mb-2">Optional: select one role or project below to tailor <strong>only that item</strong> (quicker for local AI). Or use Whole CV on Ollama to tailor all sections at once.</p>
+                        <div class="space-y-2">
+                            <?php if ($is_ollama_preferred): ?>
+                            <div class="flex items-center">
+                                <input type="radio" id="section_single_whole_cv" name="section_single" value="whole_cv" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+                                <label for="section_single_whole_cv" class="ml-2 text-sm text-gray-700">Whole CV (all sections)</label>
+                            </div>
+                            <?php endif; ?>
                             <?php if (!empty($cvDataForScope['work_experience'])): ?>
                                 <?php foreach ($cvDataForScope['work_experience'] as $we): ?>
                                     <?php $weId = $we['id'] ?? $we['original_work_experience_id'] ?? ''; $weLabel = e(($we['position'] ?? '') . ' at ' . ($we['company_name'] ?? '')); ?>
@@ -211,10 +249,6 @@ $preselectJobId = isset($_GET['job']) ? $_GET['job'] : null;
                                     </div>
                                 <?php endforeach; ?>
                             <?php endif; ?>
-                            <div class="flex items-center">
-                                <input type="radio" id="section_single_skills" name="section_single" value="skills" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300">
-                                <label for="section_single_skills" class="ml-2 text-sm text-gray-700">Skills</label>
-                            </div>
                         </div>
                     <?php else: ?>
                         <p class="text-sm text-gray-600 mb-3">Tailor <strong>one section at a time</strong> for best results. After creating the variant, open it and use &quot;Tailor section&quot; to tailor more sections.</p>
@@ -333,7 +367,7 @@ $preselectJobId = isset($_GET['job']) ? $_GET['job'] : null;
 </div>
 
 <script src="/js/model-cache-manager.js"></script>
-<script src="/js/browser-ai-service.js"></script>
+<script src="/js/browser-ai-service.js?v=<?php echo time(); ?>"></script>
 <script>
 (function() {
     // Handle prompt instructions mode selection
@@ -443,34 +477,54 @@ $preselectJobId = isset($_GET['job']) ? $_GET['job'] : null;
             document.body.appendChild(loadingOverlay);
             
             const formData = new FormData(this);
-            // When using local/browser AI, section is chosen via a single radio; build sections_to_rewrite and single ids
+            // When using local/browser AI, allow multiple selected sections and optional specific role/project.
             if (this.dataset.aiScopeLimited) {
                 const radio = this.querySelector('input[name="section_single"]:checked');
-                if (!radio) {
+                formData.delete('sections_to_rewrite[]');
+                formData.delete('allow_full_cv');
+                formData.delete('single_work_experience_id');
+                formData.delete('single_project_id');
+                const selectedLimitedSections = Array.from(this.querySelectorAll('input[name="sections_limited[]"]:checked')).map(el => el.value);
+                const val = radio ? radio.value : '';
+                if (val === 'whole_cv') {
+                    ['professional_summary', 'work_experience', 'skills', 'education', 'projects', 'certifications', 'professional_memberships', 'interests'].forEach(section => {
+                        formData.append('sections_to_rewrite[]', section);
+                    });
+                    formData.set('allow_full_cv', '1');
+                } else {
+                    // Checkboxes = everything in section. Radios = optional narrow scope (one role/project).
+                    selectedLimitedSections.forEach(section => formData.append('sections_to_rewrite[]', section));
+                    if (val.startsWith('work_experience:')) {
+                        formData.set('single_work_experience_id', val.slice('work_experience:'.length));
+                        if (!selectedLimitedSections.includes('work_experience')) {
+                            formData.append('sections_to_rewrite[]', 'work_experience');
+                        }
+                    } else if (val.startsWith('project:')) {
+                        formData.set('single_project_id', val.slice('project:'.length));
+                        if (!selectedLimitedSections.includes('projects')) {
+                            formData.append('sections_to_rewrite[]', 'projects');
+                        }
+                    }
+                }
+                const selectedSections = formData.getAll('sections_to_rewrite[]');
+                if (!selectedSections.length) {
                     loadingOverlay.remove();
-                    alert('Please choose one section or role to tailor.');
+                    alert('Please choose at least one section, role, or project to tailor.');
                     submitBtn.disabled = false;
                     submitText.classList.remove('hidden');
                     submitLoading.classList.add('hidden');
                     return;
-                }
-                const val = radio.value;
-                formData.delete('sections_to_rewrite[]');
-                if (val.startsWith('work_experience:')) {
-                    formData.append('sections_to_rewrite[]', 'work_experience');
-                    formData.set('single_work_experience_id', val.slice('work_experience:'.length));
-                } else if (val.startsWith('project:')) {
-                    formData.append('sections_to_rewrite[]', 'projects');
-                    formData.set('single_project_id', val.slice('project:'.length));
-                } else {
-                    formData.append('sections_to_rewrite[]', val);
                 }
             }
             
             try {
                 // Create AbortController for timeout
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minute timeout (Ollama CV rewrite can be slow)
+                const isWholeCvRequest = (formData.get('allow_full_cv') === '1');
+                const timeoutMs = isWholeCvRequest ? 900000 : 300000; // 15 min for whole-CV local runs, 5 min otherwise
+                const timeoutId = setTimeout(() => {
+                    controller.abort();
+                }, timeoutMs);
                 
                 const response = await fetch('/api/ai-rewrite-cv.php', {
                     method: 'POST',
@@ -494,7 +548,14 @@ $preselectJobId = isset($_GET['job']) ? $_GET['job'] : null;
                     throw new Error(errorData.error || 'Generation failed');
                 }
                 
-                const result = await response.json();
+                const responseText = await response.text();
+                const contentType = response.headers.get('content-type') || '';
+                let result;
+                try {
+                    result = responseText ? JSON.parse(responseText) : {};
+                } catch (parseErr) {
+                    throw new Error('The server returned an invalid response format. Please try again.');
+                }
                 
                 // Check if this is browser AI execution
                 if (result.success && result.browser_execution) {
@@ -534,7 +595,7 @@ $preselectJobId = isset($_GET['job']) ? $_GET['job'] : null;
                 
                 let errorMessage = 'An error occurred. Please try again.';
                 if (error.name === 'AbortError') {
-                    errorMessage = 'Request timed out. The generation is taking longer than expected. Please try again or check if Ollama is running properly.';
+                    errorMessage = 'This Whole CV generation timed out in the browser before Ollama finished. Try again, or tailor one section/role at a time for faster runs.';
                 } else if (error.message) {
                     errorMessage = error.message;
                 }
@@ -544,6 +605,11 @@ $preselectJobId = isset($_GET['job']) ? $_GET['job'] : null;
                 submitBtn.disabled = false;
                 submitText.classList.remove('hidden');
                 submitLoading.classList.add('hidden');
+            } finally {
+                // Ensure timeout is always cleared when request settles.
+                if (typeof timeoutId !== 'undefined') {
+                    clearTimeout(timeoutId);
+                }
             }
         });
     }
@@ -1695,6 +1761,9 @@ $preselectJobId = isset($_GET['job']) ? $_GET['job'] : null;
                 rewrittenData = parseCvRewriteJsonFromAI(rewrittenText);
             } catch (e) {
                 throw new Error('Failed to parse AI response as JSON: ' + e.message);
+            }
+            if (typeof BrowserAIService !== 'undefined' && BrowserAIService.humanizeObjectStrings) {
+                rewrittenData = BrowserAIService.humanizeObjectStrings(rewrittenData);
             }
 
             // Send rewritten CV to server to save as variant

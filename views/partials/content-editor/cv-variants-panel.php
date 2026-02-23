@@ -218,6 +218,9 @@ if ($ai_scope_limited) {
             }
         }
         if (!rewrittenData || typeof rewrittenData !== 'object') throw new Error('Invalid AI response.');
+        if (typeof BrowserAIService !== 'undefined' && BrowserAIService.humanizeObjectStrings) {
+            rewrittenData = BrowserAIService.humanizeObjectStrings(rewrittenData);
+        }
         var formData = new FormData();
         formData.append('update_variant_id', variantId);
         formData.append('job_application_id', jobApplicationId);

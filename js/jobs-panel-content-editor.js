@@ -699,6 +699,9 @@
                     cleanedText = cleanedText.replace(/^"([^"]+)"$/gm, '$1');
                     cleanedText = cleanedText.replace(/^["']?\w+["']?\s*:\s*/, '');
                     cleanedText = cleanedText.trim();
+                    if (typeof BrowserAIService !== 'undefined' && BrowserAIService.humanizeText) {
+                        cleanedText = BrowserAIService.humanizeText(cleanedText);
+                    }
                     if (!cleanedText) throw new Error('Cover letter text is empty after cleaning.');
                     var saveFd = new FormData();
                     saveFd.append('job_application_id', applicationId);

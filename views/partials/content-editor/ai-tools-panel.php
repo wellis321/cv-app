@@ -335,6 +335,9 @@ $csrf = csrfToken();
                     throw new Error('Failed to parse AI response as JSON');
                 }
             }
+            if (typeof BrowserAIService !== 'undefined' && BrowserAIService.humanizeObjectStrings) {
+                assessment = BrowserAIService.humanizeObjectStrings(assessment);
+            }
 
             const saveFormData = new FormData();
             saveFormData.append('<?php echo CSRF_TOKEN_NAME; ?>', '<?php echo $csrf; ?>');
