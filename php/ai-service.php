@@ -843,9 +843,10 @@ class AIService {
             $prompt .= "Job Description (summary):\n" . substr($jobDesc, 0, $maxJobDescChars) . (strlen($jobDesc) > $maxJobDescChars ? "\n..." : "") . "\n\n";
         }
 
-        $candidateName = preg_replace('/\[control_\d+\]/i', '', trim($cvData['profile']['full_name'] ?? ''));
+        $profile = $cvData['profile'] ?? null;
+        $candidateName = $profile ? preg_replace('/\[control_\d+\]/i', '', trim($profile['full_name'] ?? '')) : '';
         $prompt .= "Candidate: " . ($candidateName ?: 'Candidate') . "\n";
-        if (!empty($cvData['professional_summary']['description'])) {
+        if (!empty(($cvData['professional_summary'] ?? [])['description'])) {
             $s = $cvData['professional_summary']['description'];
             if (function_exists('stripMarkdown')) {
                 $s = stripMarkdown($s);
@@ -1503,9 +1504,10 @@ class AIService {
             $prompt .= "Job Description (summary):\n" . substr($jobDesc, 0, $maxJobDescChars) . (strlen($jobDesc) > $maxJobDescChars ? "\n..." : "") . "\n\n";
         }
 
-        $candidateName = preg_replace('/\[control_\d+\]/i', '', trim($cvData['profile']['full_name'] ?? ''));
+        $profile = $cvData['profile'] ?? null;
+        $candidateName = $profile ? preg_replace('/\[control_\d+\]/i', '', trim($profile['full_name'] ?? '')) : '';
         $prompt .= "Candidate: " . ($candidateName ?: 'Candidate') . "\n";
-        if (!empty($cvData['professional_summary']['description'])) {
+        if (!empty(($cvData['professional_summary'] ?? [])['description'])) {
             $sum = $cvData['professional_summary']['description'];
             if (function_exists('stripMarkdown')) {
                 $sum = stripMarkdown($sum);

@@ -254,7 +254,7 @@ try {
 } catch (Exception $e) {
     ob_end_clean();
     http_response_code(500);
-    error_log("AI Generate Cover Letter Error: " . $e->getMessage());
+    error_log("AI Generate Cover Letter Error: " . $e->getMessage() . "\n" . $e->getTraceAsString());
     echo json_encode([
         'success' => false,
         'error' => $e->getMessage()

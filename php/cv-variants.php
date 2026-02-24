@@ -188,6 +188,21 @@ function getOrCreateMasterVariant($userId) {
 }
 
 /**
+ * Get the CV variant linked to a job application (if any)
+ * @return array|null Variant with id and variant_name, or null
+ */
+function getCvVariantByJobApplication($jobApplicationId, $userId) {
+    if (!$jobApplicationId || !$userId) {
+        return null;
+    }
+    $variant = db()->fetchOne(
+        "SELECT id, variant_name FROM cv_variants WHERE job_application_id = ? AND user_id = ?",
+        [$jobApplicationId, $userId]
+    );
+    return $variant ?: null;
+}
+
+/**
  * Get a CV variant by ID
  */
 function getCvVariant($variantId, $userId = null) {
@@ -351,22 +366,31 @@ function loadCvVariantData($variantId) {
     }
     unset($work, $category);
     
-    // Load education (decode text fields)
-    $cvData['education'] = db()->fetchAll(
+    // Load education (decode text fields, deduplicate by original_education_id or degree+institution+start_date)
+    $eduRaw = db()->fetchAll(
         "SELECT * FROM cv_variant_education
          WHERE cv_variant_id = ?
          ORDER BY start_date DESC",
         [$variantId]
     );
-    foreach ($cvData['education'] as &$edu) {
+    $eduSeen = [];
+    $cvData['education'] = [];
+    foreach ($eduRaw as $edu) {
         $edu['institution'] = decodeHtmlEntities($edu['institution'] ?? '');
         $edu['degree'] = decodeHtmlEntities($edu['degree'] ?? '');
         $edu['field_of_study'] = decodeHtmlEntities($edu['field_of_study'] ?? '');
         if (isset($edu['description']) && $edu['description'] !== '') {
             $edu['description'] = decodeHtmlEntities($edu['description']);
         }
+        $key = !empty($edu['original_education_id'])
+            ? 'oid:' . $edu['original_education_id']
+            : 'n:' . ($edu['degree'] ?? '') . '|' . ($edu['institution'] ?? '') . '|' . ($edu['start_date'] ?? '');
+        if (isset($eduSeen[$key])) {
+            continue;
+        }
+        $eduSeen[$key] = true;
+        $cvData['education'][] = $edu;
     }
-    unset($edu);
 
     // Load skills (decode name/level/category)
     $cvData['skills'] = db()->fetchAll(
@@ -400,21 +424,30 @@ function loadCvVariantData($variantId) {
     }
     unset($proj);
 
-    // Load certifications (decode text fields)
-    $cvData['certifications'] = db()->fetchAll(
+    // Load certifications (decode text fields, deduplicate by original_certification_id or name+issuer+date)
+    $certsRaw = db()->fetchAll(
         "SELECT * FROM cv_variant_certifications
          WHERE cv_variant_id = ?
          ORDER BY date_obtained DESC",
         [$variantId]
     );
-    foreach ($cvData['certifications'] as &$cert) {
+    $seen = [];
+    $cvData['certifications'] = [];
+    foreach ($certsRaw as $cert) {
         $cert['name'] = decodeHtmlEntities($cert['name'] ?? '');
         $cert['issuer'] = decodeHtmlEntities($cert['issuer'] ?? '');
         if (isset($cert['description']) && $cert['description'] !== '') {
             $cert['description'] = decodeHtmlEntities($cert['description']);
         }
+        $key = !empty($cert['original_certification_id'])
+            ? 'oid:' . $cert['original_certification_id']
+            : 'n:' . ($cert['name'] ?? '') . '|' . ($cert['issuer'] ?? '') . '|' . ($cert['date_obtained'] ?? '');
+        if (isset($seen[$key])) {
+            continue;
+        }
+        $seen[$key] = true;
+        $cvData['certifications'][] = $cert;
     }
-    unset($cert);
 
     // Load memberships (decode text fields)
     $cvData['memberships'] = db()->fetchAll(
@@ -709,7 +742,7 @@ function saveCvVariantData($variantId, $cvData) {
                     $eduId = generateUuid();
                     $eduData['id'] = $eduId;
                     $eduData['cv_variant_id'] = $variantId;
-                    $eduData['original_education_id'] = $edu['original_education_id'] ?? null;
+                    $eduData['original_education_id'] = $edu['original_education_id'] ?? $edu['id'] ?? null;
                     $eduData['created_at'] = date('Y-m-d H:i:s');
                     db()->insert('cv_variant_education', $eduData);
                 }
@@ -833,7 +866,7 @@ function saveCvVariantData($variantId, $cvData) {
                     $certId = generateUuid();
                     $certData['id'] = $certId;
                     $certData['cv_variant_id'] = $variantId;
-                    $certData['original_certification_id'] = $cert['original_certification_id'] ?? null;
+                    $certData['original_certification_id'] = $cert['original_certification_id'] ?? $cert['id'] ?? null;
                     $certData['created_at'] = date('Y-m-d H:i:s');
                     db()->insert('cv_variant_certifications', $certData);
                 }

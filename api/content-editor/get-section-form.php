@@ -85,6 +85,9 @@ if ($sectionId === 'cv-variants') {
         if ($job) {
             $job['questions'] = getJobApplicationQuestions($viewId, $userId);
             $job['files'] = getJobApplicationFiles($viewId, $userId);
+            require_once __DIR__ . '/../../php/cv-variants.php';
+            $linkedVariant = getCvVariantByJobApplication($viewId, $userId);
+            $job['linked_cv_variant'] = $linkedVariant;
         }
         $partialPath = __DIR__ . '/../../views/partials/content-editor/jobs-panel-view.php';
         if ($job && file_exists($partialPath)) {

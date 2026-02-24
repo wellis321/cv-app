@@ -952,10 +952,9 @@
                                 setTimeout(function() { window.contentEditor.loadSection('cv-variants'); }, 300);
                             }
                         } else if (result.error && result.error.indexOf('already exists') !== -1 && result.variant_id) {
-                            alert('A CV variant already exists for this job. Opening it in CV Variants.');
-                            window.location.hash = '#cv-variants';
+                            window.location.hash = '#jobs&view=' + applicationId;
                             if (typeof window.contentEditor !== 'undefined' && typeof window.contentEditor.loadSection === 'function') {
-                                setTimeout(function() { window.contentEditor.loadSection('cv-variants'); }, 300);
+                                setTimeout(function() { window.contentEditor.loadSection('jobs'); }, 300);
                             }
                         } else {
                             alert('Error: ' + (result.error || 'Failed to generate CV'));
