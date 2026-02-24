@@ -149,11 +149,84 @@ function convertToBritishSpelling($text) {
         '/\bskillful\b/i' => 'skilful',
         '/\bmaneuver\b/i' => 'manoeuvre',
         '/\bmaneuvers\b/i' => 'manoeuvres',
+        '/\bmaximize\b/i' => 'maximise',
+        '/\bmaximized\b/i' => 'maximised',
+        '/\bmaximizing\b/i' => 'maximising',
+        '/\bminimize\b/i' => 'minimise',
+        '/\bminimized\b/i' => 'minimised',
+        '/\bminimizing\b/i' => 'minimising',
+        '/\bfinalize\b/i' => 'finalise',
+        '/\bfinalized\b/i' => 'finalised',
+        '/\bfinalizing\b/i' => 'finalising',
+        '/\bstandardize\b/i' => 'standardise',
+        '/\bstandardized\b/i' => 'standardised',
+        '/\bcharacterize\b/i' => 'characterise',
+        '/\bcharacterized\b/i' => 'characterised',
+        '/\bsummarize\b/i' => 'summarise',
+        '/\bsummarized\b/i' => 'summarised',
+        '/\bprofessionalize\b/i' => 'professionalise',
+        '/\bprofessionalized\b/i' => 'professionalised',
+        '/\bfervor\b/i' => 'fervour',
+        '/\bfervors\b/i' => 'fervours',
+        '/\bvigor\b/i' => 'vigour',
+        '/\bvigors\b/i' => 'vigours',
+        '/\bharbor\b/i' => 'harbour',
+        '/\bharbors\b/i' => 'harbours',
+        '/\bharbored\b/i' => 'harboured',
+        '/\brumor\b/i' => 'rumour',
+        '/\brumors\b/i' => 'rumours',
+        '/\bflavor\b/i' => 'flavour',
+        '/\bflavors\b/i' => 'flavours',
+        '/\bflavored\b/i' => 'flavoured',
+        '/\bendeavor\b/i' => 'endeavour',
+        '/\bendeavors\b/i' => 'endeavours',
+        '/\bendeavored\b/i' => 'endeavoured',
+        '/\bfavorable\b/i' => 'favourable',
+        '/\bunfavorable\b/i' => 'unfavourable',
+        '/\bhonorable\b/i' => 'honourable',
+        '/\barmor\b/i' => 'armour',
+        '/\barmors\b/i' => 'armours',
+        '/\bhumor\b/i' => 'humour',
+        '/\bhumors\b/i' => 'humours',
+        '/\bhumored\b/i' => 'humoured',
+        '/\brevolutionizing\b/i' => 'revolutionising',
+        '/\brevolutionized\b/i' => 'revolutionised',
+        '/\brevolutionize\b/i' => 'revolutionise',
+        '/\brevolutionizes\b/i' => 'revolutionises',
+        '/\bmodernizing\b/i' => 'modernising',
+        '/\bmodernized\b/i' => 'modernised',
+        '/\bmodernize\b/i' => 'modernise',
+        '/\bfamiliarizing\b/i' => 'familiarising',
+        '/\bfamiliarized\b/i' => 'familiarised',
+        '/\bfamiliarize\b/i' => 'familiarise',
+        '/\bparalyzing\b/i' => 'paralysing',
+        '/\bparalyzed\b/i' => 'paralysed',
+        '/\bparalyze\b/i' => 'paralyse',
     ];
     foreach ($replacements as $pattern => $replacement) {
         $text = preg_replace($pattern, $replacement, $text);
     }
     return $text;
+}
+} // End function_exists check
+
+/**
+ * Sanitize cover letter text: strip control artifacts (e.g. [control_187]) and remove duplicate letters.
+ * Use before saving or displaying cover letter content from browser AI or pasted sources.
+ */
+if (!function_exists('sanitizeCoverLetterText')) {
+function sanitizeCoverLetterText($text) {
+    if (!is_string($text) || $text === '') {
+        return $text;
+    }
+    $text = trim($text);
+    $text = preg_replace('/\[control_\d+\]/i', '', $text);
+    $pattern = '/\bDear\s+(?:Hiring\s+Manager|Recruitment\s+Team|[A-Z][a-z]+)\s*[,:]?\s*\n/i';
+    if (preg_match_all($pattern, $text, $matches, PREG_OFFSET_CAPTURE) >= 2) {
+        $last = end($matches[0]);
+        $text = substr($text, $last[1]);
+    }
+    return trim($text);
 }
 } // End function_exists check
 
@@ -253,11 +326,53 @@ function renderMarkdown($markdown) {
     // Convert underline tags (if they were in original)
     $text = preg_replace('/&lt;u&gt;(.*?)&lt;\/u&gt;/', '<u>$1</u>', $text);
     
+    // Convert markdown tables | a | b | to HTML
+    $lines = explode("\n", $text);
+    $output = [];
+    $i = 0;
+    while ($i < count($lines)) {
+        $line = $lines[$i];
+        if (preg_match('/^\|.+\|$/', trim($line))) {
+            $tableRows = [];
+            while ($i < count($lines) && preg_match('/^\|.+\|$/', trim($lines[$i]))) {
+                $row = $lines[$i];
+                if (preg_match('/^\|[\s\-:]+\|/', trim($row))) {
+                    $i++;
+                    continue;
+                }
+                $cells = array_map('trim', explode('|', trim($row, '|')));
+                $cells = array_values(array_filter($cells));
+                if (!empty($cells)) {
+                    $tableRows[] = $cells;
+                }
+                $i++;
+            }
+            if (count($tableRows) >= 1) {
+                $html = '<table class="border border-gray-300 border-collapse w-full my-3 text-sm"><tbody>';
+                foreach ($tableRows as $ri => $row) {
+                    $tag = $ri === 0 ? 'th' : 'td';
+                    $html .= '<tr>';
+                    foreach ($row as $cell) {
+                        $cellEsc = htmlspecialchars($cell, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                        $html .= "<$tag class=\"border border-gray-300 px-2 py-1.5\">$cellEsc</$tag>";
+                    }
+                    $html .= '</tr>';
+                }
+                $html .= '</tbody></table>';
+                $output[] = $html;
+            }
+            continue;
+        }
+        $output[] = $line;
+        $i++;
+    }
+    $text = implode("\n", $output);
+    
     // Convert line breaks (preserve formatting)
     $text = nl2br($text);
     
     // Allow safe HTML tags only
-    $allowed = '<h1><h2><h3><strong><em><u><a><ul><ol><li><br><p>';
+    $allowed = '<h1><h2><h3><strong><em><u><a><ul><ol><li><br><p><table><tbody><thead><tr><td><th>';
     $text = strip_tags($text, $allowed);
     
     return $text;

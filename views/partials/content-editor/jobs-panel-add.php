@@ -140,7 +140,7 @@ $csrf = csrfToken();
                 <div class="mt-4 flex items-center">
                     <input type="checkbox" id="format-extract-with-ai" name="format_extract_with_ai" value="1" checked
                            class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                    <label for="format-extract-with-ai" class="ml-2 text-sm text-gray-700">Format with AI when extracting (clearer sections and paragraphs)</label>
+                    <label for="format-extract-with-ai" class="ml-2 text-sm text-gray-700">Format with AI when extracting (PDFs: uses vision model e.g. Qwen; else formats text)</label>
                 </div>
                 <div id="file-list" class="mt-4 space-y-2"></div>
             </div>

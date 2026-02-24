@@ -10,7 +10,7 @@ define('SKIP_CANONICAL_REDIRECT', true);
 ob_start();
 ini_set('display_errors', 0);
 error_reporting(E_ALL);
-set_time_limit(120);
+set_time_limit(300);
 
 $extractResponseSent = false;
 register_shutdown_function(function () use (&$extractResponseSent) {
@@ -108,6 +108,13 @@ if (!isLoggedIn()) {
 
 $userId = getUserId();
 
+// #region agent log
+$extractLogPath = __DIR__ . '/../.cursor/debug-902fb4.log';
+$extractLog = function ($msg, $data = []) use ($extractLogPath) {
+    $payload = array_merge(['sessionId' => '902fb4', 'location' => 'extract-job-file-text.php', 'message' => $msg, 'timestamp' => (int)(microtime(true) * 1000)], $data);
+    @file_put_contents($extractLogPath, json_encode($payload) . "\n", FILE_APPEND | LOCK_EX);
+};
+// #endregion
 $token = $_POST['csrf_token'] ?? '';
 if (!verifyCsrfToken($token)) {
     $extractResponseSent = true;
@@ -154,25 +161,52 @@ try {
         throw new Exception('File not found on disk');
     }
     
-    // Extract text (use file extension as fallback if MIME is generic)
     $mimeType = $file['mime_type'] ?? '';
-    $extractionResult = extractDocumentText($filePath, $mimeType, $file['original_name'] ?? '');
-    
-    if (!$extractionResult['success']) {
-        $extractResponseSent = true;
-        ob_end_clean();
-        echo json_encode([
-            'success' => false,
-            'error' => $extractionResult['error'] ?? 'Failed to extract text'
-        ]);
-        exit;
+    $ext = $file['original_name'] ? strtolower(pathinfo($file['original_name'], PATHINFO_EXTENSION)) : '';
+    $isPdf = ($mimeType === 'application/pdf' || $ext === 'pdf');
+    $isDocx = ($mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || $ext === 'docx');
+    // #region agent log
+    $extractLog('extract_entry', ['hypothesisId' => 'DOCX1', 'mime' => $mimeType, 'ext' => $ext, 'isPdf' => $isPdf, 'isDocx' => $isDocx, 'format_with_ai' => !empty($_POST['format_with_ai'])]);
+    // #endregion
+    $text = '';
+    $usedVision = false;
+    if (!empty($_POST['format_with_ai']) && $isPdf && function_exists('getAIService')) {
+        try {
+            $aiService = getAIService($userId);
+            if ($aiService && method_exists($aiService, 'extractDocumentWithVision')) {
+                $visionResult = $aiService->extractDocumentWithVision($filePath);
+                if ($visionResult['success'] && !empty(trim($visionResult['text'] ?? ''))) {
+                    $text = $visionResult['text'];
+                    if (function_exists('renderMarkdown')) {
+                        $text = renderMarkdown($text);
+                    }
+                    $usedVision = true;
+                }
+            }
+        } catch (Exception $e) {
+            error_log("AI vision PDF extract: " . $e->getMessage());
+        }
     }
     
-    $text = $extractionResult['text'];
+    if ($text === '') {
+        $extractionResult = extractDocumentText($filePath, $mimeType, $file['original_name'] ?? '');
+        // #region agent log
+        $extractLog('extract_result', ['hypothesisId' => 'DOCX2', 'success' => $extractionResult['success'], 'text_len' => strlen($extractionResult['text'] ?? ''), 'error' => $extractionResult['error'] ?? null]);
+        // #endregion
+        if (!$extractionResult['success']) {
+            $extractResponseSent = true;
+            ob_end_clean();
+            echo json_encode([
+                'success' => false,
+                'error' => $extractionResult['error'] ?? 'Failed to extract text'
+            ]);
+            exit;
+        }
+        $text = $extractionResult['text'];
+    }
     
-    // Optionally format with AI for clearer sections and paragraphs (cap length to avoid timeout).
-    // Skip AI formatting when extraction already contains HTML tables so we don't strip them.
-    if (!empty($_POST['format_with_ai']) && function_exists('getAIService') && strpos($text, '<table') === false) {
+    // Format with AI only if we used standard extraction (vision output is already formatted)
+    if (!empty($_POST['format_with_ai']) && !$usedVision && function_exists('getAIService') && strpos($text, '<table') === false) {
         try {
             $aiService = getAIService($userId);
             if ($aiService && method_exists($aiService, 'formatJobDescriptionText')) {

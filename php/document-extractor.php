@@ -6,6 +6,40 @@
 
 require_once __DIR__ . '/config.php';
 
+/**
+ * Convert PDF to base64-encoded PNG images for vision AI.
+ * Uses pdftoppm (poppler-utils). Returns [] if unavailable.
+ * @param string $filePath Path to PDF
+ * @param int $maxPages Max pages to convert (default 12)
+ * @return array Array of base64-encoded PNG strings
+ */
+function convertPdfToImages($filePath, $maxPages = 12) {
+    if (!file_exists($filePath) || !function_exists('shell_exec')) {
+        return [];
+    }
+    $which = trim((string) @shell_exec('which pdftoppm 2>/dev/null'));
+    if (empty($which)) {
+        return [];
+    }
+    $tmpDir = sys_get_temp_dir() . '/pdf_vision_' . uniqid();
+    if (!@mkdir($tmpDir, 0700, true)) {
+        return [];
+    }
+    $prefix = $tmpDir . '/page';
+    $cmd = 'pdftoppm -png -r 150 -f 1 -l ' . (int) $maxPages . ' ' . escapeshellarg($filePath) . ' ' . escapeshellarg($prefix) . ' 2>/dev/null';
+    @shell_exec($cmd);
+    $images = [];
+    foreach (glob($tmpDir . '/page-*.png') ?: [] as $f) {
+        $img = file_get_contents($f);
+        if ($img !== false) {
+            $images[] = base64_encode($img);
+        }
+    }
+    array_map('unlink', glob($tmpDir . '/*.png') ?: []);
+    @rmdir($tmpDir);
+    return $images;
+}
+
 // Load Composer autoloader so smalot/pdfparser, phpoffice/phpword, phpoffice/phpspreadsheet are available
 $autoload = __DIR__ . '/../vendor/autoload.php';
 if (file_exists($autoload)) {
@@ -75,34 +109,263 @@ function extractDocumentText($filePath, $mimeType, $originalName = '') {
 }
 
 /**
- * Extract text from PDF file
+ * Extract text from PDF file.
+ * Uses plain text extraction (reliable). For tables/structure, use "Format with AI" which uses vision models.
  */
 function extractPdfText($filePath) {
-    // Try using smalot/pdfparser if available
+    // Plain text with tab-separated columns
     if (class_exists('Smalot\PdfParser\Parser')) {
         try {
-            $parser = new \Smalot\PdfParser\Parser();
+            $config = new \Smalot\PdfParser\Config();
+            $config->setHorizontalOffset("\t");
+            $parser = new \Smalot\PdfParser\Parser([], $config);
             $pdf = $parser->parseFile($filePath);
             $text = $pdf->getText();
-            return ['success' => true, 'text' => trim($text)];
-        } catch (Exception $e) {
-            // Fall through to basic extraction
+            $text = $text !== null ? trim((string) $text) : '';
+            if ($text !== '') {
+                return ['success' => true, 'text' => $text];
+            }
+        } catch (\Throwable $e) {
+            // Fall through
         }
     }
-    
-    // Basic PDF text extraction using pdftotext command (if available)
-    if (function_exists('shell_exec') && !empty(shell_exec('which pdftotext'))) {
-        $output = shell_exec('pdftotext "' . escapeshellarg($filePath) . '" - 2>&1');
-        if ($output !== null) {
+
+    // pdftotext with -layout preserves column alignment
+    if (function_exists('shell_exec') && !empty(trim((string) @shell_exec('which pdftotext 2>/dev/null')))) {
+        $output = shell_exec('pdftotext -layout ' . escapeshellarg($filePath) . ' - 2>&1');
+        if ($output !== null && trim($output) !== '') {
             return ['success' => true, 'text' => trim($output)];
         }
     }
-    
-    // Fallback: Return error suggesting library installation
+
+    $hasParser = class_exists('Smalot\PdfParser\Parser');
+    $hasPdftotext = function_exists('shell_exec') && !empty(trim((string) @shell_exec('which pdftotext 2>/dev/null')));
+    if ($hasParser || $hasPdftotext) {
+        return [
+            'success' => false,
+            'error' => 'Could not extract text from this PDF. It may be image-based (scanned document) or use unsupported features. Try copying text manually or use a PDF with selectable text.'
+        ];
+    }
     return [
         'success' => false,
-        'error' => 'PDF extraction requires smalot/pdfparser library or pdftotext command. Install via: composer require smalot/pdfparser'
+        'error' => 'PDF extraction requires smalot/pdfparser (composer require smalot/pdfparser) or pdftotext (poppler-utils).'
     ];
+}
+
+/**
+ * Extract PDF text with table structure using position data (getDataTm).
+ * Groups text by x,y coordinates to reconstruct rows and columns.
+ */
+function extractPdfTextWithTables($filePath) {
+    $parser = new \Smalot\PdfParser\Parser();
+    $pdf = $parser->parseFile($filePath);
+    $pages = $pdf->getPages();
+    if (empty($pages)) {
+        return ['success' => false, 'text' => '', 'error' => 'No pages'];
+    }
+
+    $Y_TOLERANCE = 4;   // Points – same row if Y within this
+    $X_COL_GAP = 28;    // Points – gap larger than this = new column (higher = fewer spurious splits)
+    $allRows = [];
+
+    foreach ($pages as $page) {
+        $data = $page->getDataTm();
+        if (empty($data)) continue;
+
+        $items = [];
+        foreach ($data as $item) {
+            if (!isset($item[0], $item[1]) || !is_array($item[0])) continue;
+            $tm = $item[0];
+            $x = isset($tm[4]) ? (float) $tm[4] : 0;
+            $y = isset($tm[5]) ? (float) $tm[5] : 0;
+            $text = trim((string) $item[1]);
+            if ($text === '') continue;
+            $items[] = ['x' => $x, 'y' => $y, 'text' => $text];
+        }
+        if (empty($items)) continue;
+
+        // Group by row (similar Y)
+        usort($items, function ($a, $b) {
+            if (abs($a['y'] - $b['y']) <= 4) return $a['x'] <=> $b['x'];
+            return $b['y'] <=> $a['y']; // PDF Y: larger = higher on page
+        });
+
+        $currentY = null;
+        $currentRow = [];
+        foreach ($items as $it) {
+            if ($currentY === null || abs($it['y'] - $currentY) <= $Y_TOLERANCE) {
+                $currentRow[] = $it;
+                if ($currentY === null) $currentY = $it['y'];
+            } else {
+                if (!empty($currentRow)) {
+                    $allRows[] = mergeRowIntoColumns($currentRow, $X_COL_GAP);
+                }
+                $currentRow = [$it];
+                $currentY = $it['y'];
+            }
+        }
+        if (!empty($currentRow)) {
+            $allRows[] = mergeRowIntoColumns($currentRow, $X_COL_GAP);
+        }
+    }
+
+    if (empty($allRows)) {
+        return ['success' => false, 'text' => ''];
+    }
+
+    $output = partitionRowsIntoTablesAndParagraphs($allRows);
+    if ($output === '') {
+        return ['success' => false, 'text' => ''];
+    }
+    return ['success' => true, 'text' => $output];
+}
+
+function partitionRowsIntoTablesAndParagraphs(array $allRows) {
+    $MIN_COLS = 2;
+    $MAX_COLS = 6;
+    $MIN_BLOCK_ROWS = 3;
+    $MIN_BLOCK_DENSITY = 0.35;
+    $MAX_COL_SPREAD = 2;
+
+    $segments = [];
+    $i = 0;
+    $n = count($allRows);
+
+    while ($i < $n) {
+        $row = $allRows[$i];
+        $numCols = count($row);
+        $filled = count(array_filter($row, fn($c) => trim($c) !== ''));
+
+        $isTableLike = $numCols >= $MIN_COLS && $numCols <= $MAX_COLS && $filled >= 1;
+
+        if ($isTableLike) {
+            $block = [$row];
+            $j = $i + 1;
+            while ($j < $n) {
+                $next = $allRows[$j];
+                $nc = count($next);
+                if ($nc >= $MIN_COLS && $nc <= $MAX_COLS) {
+                    $block[] = $next;
+                    $j++;
+                } else {
+                    break;
+                }
+            }
+            $totalCells = 0;
+            $filledCells = 0;
+            foreach ($block as $r) {
+                foreach ($r as $c) {
+                    $totalCells++;
+                    if (trim($c) !== '') $filledCells++;
+                }
+            }
+            $density = $totalCells > 0 ? $filledCells / $totalCells : 0;
+            $colCounts = array_map('count', $block);
+            $colSpread = max($colCounts) - min($colCounts);
+            if (count($block) >= $MIN_BLOCK_ROWS && $density >= $MIN_BLOCK_DENSITY && $colSpread <= $MAX_COL_SPREAD) {
+                $segments[] = ['type' => 'table', 'rows' => $block];
+                $i = $j;
+                continue;
+            }
+        }
+
+        $paraRows = [];
+        while ($i < $n) {
+            $r = $allRows[$i];
+            $nc = count($r);
+            $filled = count(array_filter($r, fn($c) => trim($c) !== ''));
+            $isTableLike = $nc >= $MIN_COLS && $nc <= $MAX_COLS && $filled >= 1;
+
+            if ($isTableLike) {
+                $block = [$r];
+                $j = $i + 1;
+                while ($j < $n) {
+                    $next = $allRows[$j];
+                    $nn = count($next);
+                    if ($nn >= $MIN_COLS && $nn <= $MAX_COLS) {
+                        $block[] = $next;
+                        $j++;
+                    } else {
+                        break;
+                    }
+                }
+                $totalCells = 0;
+                $filledCells = 0;
+                foreach ($block as $bRow) {
+                    foreach ($bRow as $cell) {
+                        $totalCells++;
+                        if (trim($cell) !== '') $filledCells++;
+                    }
+                }
+                $density = $totalCells > 0 ? $filledCells / $totalCells : 0;
+                $colCounts = array_map('count', $block);
+                $colSpread = max($colCounts) - min($colCounts);
+                if (count($block) >= $MIN_BLOCK_ROWS && $density >= $MIN_BLOCK_DENSITY && $colSpread <= $MAX_COL_SPREAD) {
+                    break;
+                }
+            }
+            $cellTexts = array_map('trim', array_filter($r, fn($c) => trim($c) !== ''));
+            $lineText = preg_replace('/\s+/', ' ', implode(' ', $cellTexts));
+            if ($lineText !== '') $paraRows[] = $lineText;
+            $i++;
+        }
+        if (!empty($paraRows)) {
+            $text = implode("\n", $paraRows);
+            if ($text !== '') {
+                $segments[] = ['type' => 'para', 'text' => $text];
+            }
+        }
+    }
+
+    $html = '';
+    foreach ($segments as $seg) {
+        if ($seg['type'] === 'table') {
+            $rows = $seg['rows'];
+            $maxCols = max(array_map('count', $rows));
+            $html .= '<table class="border border-gray-300 border-collapse w-full my-3 text-sm"><tbody>';
+            foreach ($rows as $row) {
+                $html .= '<tr>';
+                foreach ($row as $cell) {
+                    $escaped = htmlspecialchars(trim($cell), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                    $html .= '<td class="border border-gray-300 px-2 py-1.5 align-top">' . $escaped . '</td>';
+                }
+                $missing = $maxCols - count($row);
+                for ($k = 0; $k < $missing; $k++) {
+                    $html .= '<td class="border border-gray-300 px-2 py-1.5"></td>';
+                }
+                $html .= '</tr>';
+            }
+            $html .= '</tbody></table>';
+        } else {
+            $lines = explode("\n", $seg['text']);
+            $lines = array_map(fn($l) => preg_replace('/[ \t]+/', ' ', trim($l)), $lines);
+            $text = implode("\n", array_filter($lines));
+            if ($text !== '') {
+                $escaped = htmlspecialchars($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                $html .= '<p class="my-2">' . nl2br($escaped) . '</p>';
+            }
+        }
+    }
+
+    return $html;
+}
+
+function mergeRowIntoColumns(array $row, $xGap) {
+    if (empty($row)) return [];
+    usort($row, fn($a, $b) => $a['x'] <=> $b['x']);
+    $cells = [];
+    $lastX = -9999;
+    $current = '';
+    foreach ($row as $it) {
+        if ($it['x'] - $lastX > $xGap && $current !== '') {
+            $cells[] = trim($current);
+            $current = '';
+        }
+        $current .= ($current !== '' ? ' ' : '') . $it['text'];
+        $lastX = $it['x'];
+    }
+    if ($current !== '') $cells[] = trim($current);
+    return $cells;
 }
 
 /**
@@ -172,9 +435,20 @@ function extractWordElementText($element) {
     if ($element instanceof \PhpOffice\PhpWord\Element\TextBreak) {
         return "\n";
     }
-    // Elements with getText() – use it and don't recurse (avoids duplicating TextRun content)
+    // TextRun and ListItemRun are containers; getText() can return object. Recurse instead.
+    if ($element instanceof \PhpOffice\PhpWord\Element\TextRun || $element instanceof \PhpOffice\PhpWord\Element\ListItemRun) {
+        $text = '';
+        if (method_exists($element, 'getElements')) {
+            foreach ($element->getElements() as $child) {
+                $text .= extractWordElementText($child);
+            }
+        }
+        return $text;
+    }
+    // Elements with getText() – use it (Text, etc.)
     if (method_exists($element, 'getText')) {
-        return $element->getText();
+        $t = $element->getText();
+        return is_string($t) ? $t : '';
     }
     // Other containers (Section, Cell, etc.) – recurse into getElements()
     $text = '';
@@ -187,13 +461,148 @@ function extractWordElementText($element) {
 }
 
 /**
- * Extract element as text or HTML: tables as HTML, everything else as plain text.
+ * Extract a single Text element with inline formatting (bold, italic, underline).
+ */
+function extractWordTextAsHtml($element) {
+    $t = $element->getText();
+    $text = is_string($t) ? $t : '';
+    if ($text === '') {
+        return '';
+    }
+    $text = htmlspecialchars($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    $font = $element->getFontStyle();
+    if ($font instanceof \PhpOffice\PhpWord\Style\Font) {
+        $wrap = [];
+        if ($font->isBold()) {
+            $wrap[] = ['<strong>', '</strong>'];
+        }
+        if ($font->isItalic()) {
+            $wrap[] = ['<em>', '</em>'];
+        }
+        if ($font->getUnderline() && $font->getUnderline() !== \PhpOffice\PhpWord\Style\Font::UNDERLINE_NONE) {
+            $wrap[] = ['<u>', '</u>'];
+        }
+        if ($font->isStrikethrough()) {
+            $wrap[] = ['<s>', '</s>'];
+        }
+        foreach (array_reverse($wrap) as $pair) {
+            $text = $pair[0] . $text . $pair[1];
+        }
+    }
+    return $text;
+}
+
+/**
+ * Extract inline content (TextRun/ListItemRun children) as HTML with formatting.
+ */
+function extractWordInlineAsHtml($element) {
+    if ($element instanceof \PhpOffice\PhpWord\Element\Text) {
+        return extractWordTextAsHtml($element);
+    }
+    if ($element instanceof \PhpOffice\PhpWord\Element\TextBreak) {
+        return '<br>';
+    }
+    if ($element instanceof \PhpOffice\PhpWord\Element\TextRun || $element instanceof \PhpOffice\PhpWord\Element\ListItemRun) {
+        $html = '';
+        if (method_exists($element, 'getElements')) {
+            foreach ($element->getElements() as $child) {
+                $html .= extractWordInlineAsHtml($child);
+            }
+        }
+        return $html;
+    }
+    if ($element instanceof \PhpOffice\PhpWord\Element\Table) {
+        return extractWordTableAsHtml($element);
+    }
+    if ($element instanceof \PhpOffice\PhpWord\Element\Link) {
+        $href = htmlspecialchars($element->getSource(), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $text = htmlspecialchars($element->getText(), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        return '<a href="' . $href . '" class="text-blue-600 hover:underline" target="_blank" rel="noopener">' . $text . '</a>';
+    }
+    if (method_exists($element, 'getText')) {
+        $t = $element->getText();
+        if (is_string($t)) {
+            return htmlspecialchars($t, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        }
+        if (is_array($t)) {
+            return htmlspecialchars(implode('', $t), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        }
+    }
+    $html = '';
+    if (method_exists($element, 'getElements')) {
+        foreach ($element->getElements() as $child) {
+            $html .= extractWordInlineAsHtml($child);
+        }
+    }
+    return $html;
+}
+
+/**
+ * Extract element as HTML: tables as HTML tables, paragraphs/headings/lists as formatted HTML.
+ */
+function extractWordElementAsHtml($element) {
+    if ($element instanceof \PhpOffice\PhpWord\Element\Table) {
+        return extractWordTableAsHtml($element);
+    }
+    if ($element instanceof \PhpOffice\PhpWord\Element\TextBreak) {
+        return '<br>';
+    }
+    if ($element instanceof \PhpOffice\PhpWord\Element\Title) {
+        $depth = $element->getDepth();
+        $tag = $depth >= 1 && $depth <= 6 ? 'h' . min($depth, 6) : 'h2';
+        $content = $element->getText();
+        if ($content instanceof \PhpOffice\PhpWord\Element\TextRun) {
+            $inner = extractWordInlineAsHtml($content);
+        } else {
+            $inner = htmlspecialchars(is_string($content) ? $content : '', ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        }
+        return $inner !== '' ? "<{$tag} class=\"font-semibold text-gray-900 mt-3 mb-1\">{$inner}</{$tag}>" : '';
+    }
+    if ($element instanceof \PhpOffice\PhpWord\Element\ListItem) {
+        $text = $element->getText();
+        $inner = htmlspecialchars(is_string($text) ? $text : '', ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        return '<li class="ml-4 my-0.5">' . $inner . '</li>';
+    }
+    if ($element instanceof \PhpOffice\PhpWord\Element\ListItemRun) {
+        $inner = extractWordInlineAsHtml($element);
+        return '<li class="ml-4 my-0.5">' . $inner . '</li>';
+    }
+    if ($element instanceof \PhpOffice\PhpWord\Element\TextRun) {
+        $inner = extractWordInlineAsHtml($element);
+        return trim($inner) !== '' ? '<p class="my-1">' . $inner . '</p>' : '';
+    }
+    if ($element instanceof \PhpOffice\PhpWord\Element\Text) {
+        $inner = extractWordTextAsHtml($element);
+        return $inner !== '' ? '<p class="my-1">' . $inner . '</p>' : '';
+    }
+    if ($element instanceof \PhpOffice\PhpWord\Element\Link) {
+        $href = htmlspecialchars($element->getSource(), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $text = htmlspecialchars($element->getText(), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        return '<p class="my-1"><a href="' . $href . '" class="text-blue-600 hover:underline" target="_blank" rel="noopener">' . $text . '</a></p>';
+    }
+    if ($element instanceof \PhpOffice\PhpWord\Element\PreserveText) {
+        $t = $element->getText();
+        $str = is_array($t) ? implode('', $t) : (is_string($t) ? $t : '');
+        $inner = htmlspecialchars($str, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        return $inner !== '' ? '<p class="my-1">' . $inner . '</p>' : '';
+    }
+    $html = '';
+    if (method_exists($element, 'getElements')) {
+        foreach ($element->getElements() as $child) {
+            $html .= extractWordElementAsHtml($child);
+        }
+    }
+    return $html;
+}
+
+/**
+ * Extract element as text or HTML: tables as HTML, everything else as formatted HTML.
  */
 function extractWordElementTextOrHtml($element) {
     if ($element instanceof \PhpOffice\PhpWord\Element\Table) {
         return extractWordTableAsHtml($element);
     }
-    return extractWordElementText($element);
+    return extractWordElementAsHtml($element);
 }
 
 /**
@@ -201,28 +610,70 @@ function extractWordElementTextOrHtml($element) {
  * Tables are output as HTML so they can be displayed as tables in the job description.
  */
 function extractWordText($filePath) {
+    // #region agent log
+    $docLogPath = dirname(__DIR__) . '/.cursor/debug-902fb4.log';
+    $docLog = function ($msg, $data = []) use ($docLogPath) {
+        $payload = array_merge(['sessionId' => '902fb4', 'location' => 'document-extractor.php:extractWordText', 'message' => $msg, 'timestamp' => (int)(microtime(true) * 1000)], $data);
+        @file_put_contents($docLogPath, json_encode($payload) . "\n", FILE_APPEND | LOCK_EX);
+    };
+    $docLog('extractWord_entry', ['hypothesisId' => 'DOCX3', 'hasPhpWord' => class_exists('PhpOffice\PhpWord\IOFactory')]);
+    // #endregion
     // Try using phpoffice/phpword if available
     if (class_exists('PhpOffice\PhpWord\IOFactory')) {
         try {
             $phpWord = \PhpOffice\PhpWord\IOFactory::load($filePath);
+            // #region agent log
+            $docLog('extractWord_loaded', ['hypothesisId' => 'DOCX3b']);
+            // #endregion
             $output = '';
             foreach ($phpWord->getSections() as $section) {
+                $sectionHtml = '';
+                $listBuffer = '';
                 foreach ($section->getElements() as $element) {
-                    $output .= extractWordElementTextOrHtml($element);
-                    $output .= "\n";
+                    $chunk = extractWordElementTextOrHtml($element);
+                    if (preg_match('/^<li\s/i', $chunk)) {
+                        $listBuffer .= $chunk;
+                    } else {
+                        if ($listBuffer !== '') {
+                            $sectionHtml .= '<ul class="list-disc list-inside my-1 space-y-0.5">' . $listBuffer . '</ul>';
+                            $listBuffer = '';
+                        }
+                        if ($chunk !== '') {
+                            $sectionHtml .= $chunk . "\n";
+                        }
+                    }
                 }
+                if ($listBuffer !== '') {
+                    $sectionHtml .= '<ul class="list-disc list-inside my-1 space-y-0.5">' . $listBuffer . '</ul>';
+                }
+                $output .= $sectionHtml;
             }
-            // Normalise whitespace in plain-text parts only (avoid breaking HTML)
+            // Collapse excessive line breaks and empty blocks (Word often uses empty paragraphs for spacing)
+            $output = preg_replace('/(<br\s*\/?>)\s*\1+/', '<br>', $output);
+            $output = preg_replace('/<p class="[^"]*">\s*<\/p>\s*/', '', $output);
             $output = preg_replace("/\n{3,}/", "\n\n", $output);
             // Decode HTML entities in plain text (e.g. &lt; from Word); tables are already HTML
             $output = html_entity_decode($output, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-            return ['success' => true, 'text' => trim($output)];
-        } catch (Exception $e) {
-            // Fall through to basic extraction
+            $result = ['success' => true, 'text' => trim($output)];
+            // #region agent log
+            $docLog('extractWord_success', ['hypothesisId' => 'DOCX4', 'text_len' => strlen($result['text'])]);
+            // #endregion
+            return $result;
+        } catch (\Throwable $e) {
+            // #region agent log
+            $docLog('extractWord_exception', ['hypothesisId' => 'DOCX5', 'error' => $e->getMessage()]);
+            // #endregion
+            return [
+                'success' => false,
+                'error' => 'Word extraction failed: ' . $e->getMessage()
+            ];
         }
     }
     
-    // Fallback: Return error suggesting library installation
+    // Fallback: PhpWord not available
+    // #region agent log
+    $docLog('extractWord_fallback', ['hypothesisId' => 'DOCX6', 'reason' => 'PhpWord missing']);
+    // #endregion
     return [
         'success' => false,
         'error' => 'Word document extraction requires phpoffice/phpword library. Install via: composer require phpoffice/phpword'

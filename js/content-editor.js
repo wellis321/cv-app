@@ -272,6 +272,28 @@
             contentArea.innerHTML = html;
             const scrollTopBefore = mainElement ? mainElement.scrollTop : null;
 
+            // Jobs view: use gray background on main and remove section padding
+            var hasJobsView = contentArea.querySelector('[data-jobs-view-container]');
+            if (mainElement) mainElement.classList.toggle('jobs-view-active', !!hasJobsView);
+            contentArea.classList.toggle('jobs-view-active', !!hasJobsView);
+
+            // Jobs view: move Quick Nav into grid slot (between left sidebar and main) so it moves with layout when sidebar collapses
+            var quickNavSlot = document.getElementById('jobs-quick-nav-slot');
+            if (quickNavSlot) {
+                if (hasJobsView) {
+                    var quickNav = contentArea.querySelector('[data-jobs-quick-nav]');
+                    if (quickNav) {
+                        quickNavSlot.appendChild(quickNav);
+                        quickNavSlot.classList.remove('hidden');
+                        quickNavSlot.setAttribute('aria-hidden', 'false');
+                    }
+                } else {
+                    quickNavSlot.innerHTML = '';
+                    quickNavSlot.classList.add('hidden');
+                    quickNavSlot.setAttribute('aria-hidden', 'true');
+                }
+            }
+
             // When NOT editing, scroll middle pane and window to top so user sees section from the start
             if (!editParam && !addParam) {
                 if (mainElement) mainElement.scrollTop = 0;

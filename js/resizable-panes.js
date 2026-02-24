@@ -64,6 +64,10 @@
     var chevronLeftSvg = '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>';
 
     function applyCollapsedState(leftSidebar, rightSidebar, resizeHandle1, resizeHandle2, leftToggleBtn, rightToggleBtn) {
+        var grid = document.getElementById('content-editor-grid');
+        if (grid) {
+            grid.classList.toggle('right-sidebar-collapsed', rightCollapsed);
+        }
         if (leftCollapsed) {
             leftSidebar.classList.add('collapsed');
             resizeHandle1.classList.add('collapsed-tab');
@@ -172,6 +176,7 @@
             leftCollapsed = true;
             saveCollapsed(leftCollapsed, rightCollapsed);
             applyCollapsedState(leftSidebar, rightSidebar, resizeHandle1, resizeHandle2, leftToggleBtn, rightToggleBtn);
+            requestAnimationFrame(function() { void mainContent.offsetWidth; window.dispatchEvent(new Event('resize')); });
         }
         function expandLeft() {
             if (!leftCollapsed) return;
@@ -181,6 +186,7 @@
             var w = (latest && latest.left) ? latest.left : DEFAULT_LEFT;
             leftSidebar.style.width = w + 'px';
             applyCollapsedState(leftSidebar, rightSidebar, resizeHandle1, resizeHandle2, leftToggleBtn, rightToggleBtn);
+            requestAnimationFrame(function() { void mainContent.offsetWidth; window.dispatchEvent(new Event('resize')); });
         }
         function collapseRight() {
             if (rightCollapsed) return;
@@ -188,6 +194,7 @@
             rightCollapsed = true;
             saveCollapsed(leftCollapsed, rightCollapsed);
             applyCollapsedState(leftSidebar, rightSidebar, resizeHandle1, resizeHandle2, leftToggleBtn, rightToggleBtn);
+            requestAnimationFrame(function() { void mainContent.offsetWidth; window.dispatchEvent(new Event('resize')); });
         }
         function expandRight() {
             if (!rightCollapsed) return;
@@ -197,6 +204,7 @@
             var w = (latest && latest.right) ? latest.right : DEFAULT_RIGHT;
             rightSidebar.style.width = w + 'px';
             applyCollapsedState(leftSidebar, rightSidebar, resizeHandle1, resizeHandle2, leftToggleBtn, rightToggleBtn);
+            requestAnimationFrame(function() { void mainContent.offsetWidth; window.dispatchEvent(new Event('resize')); });
         }
 
         resizeHandle1.addEventListener('dblclick', function(e) {

@@ -68,11 +68,12 @@ $subscriptionContext = getUserSubscriptionContext($userId);
         body {
             overflow-x: hidden;
         }
-        /* Three-column layout */
+        /* Three-column layout – constrain height so main scrolls instead of expanding layout */
         .content-editor-wrapper {
             display: flex;
             flex-direction: column;
             min-height: calc(100vh - 64px);
+            max-height: calc(100vh - 64px);
         }
         .content-editor-grid {
             display: flex;
@@ -209,6 +210,47 @@ $subscriptionContext = getUserSubscriptionContext($userId);
                 display: none;
             }
         }
+        /* Jobs view: gray background fills main to remove white gaps around sides */
+        #main-content.jobs-view-active {
+            background-color: #f3f4f6;
+        }
+        /* Jobs view: remove section-content padding so content extends to edges and Quick Nav moves with main when sidebar collapses */
+        #section-content.jobs-view-active {
+            padding: 0;
+            width: 100%;
+            min-width: 0;
+        }
+        /* Jobs view: ensure container and main fill available width so Quick Nav shifts left when left sidebar collapses */
+        #main-content.jobs-view-active {
+            min-width: 0;
+        }
+        [data-jobs-view-container] {
+            width: 100%;
+            min-width: 0;
+        }
+        /* Jobs Quick Nav slot – fixed width when visible, part of grid so moves with sidebar; hidden on small screens like original */
+        .jobs-quick-nav-slot:not(.hidden) {
+            width: 256px;
+            min-width: 256px;
+            padding: 1.5rem 1rem 1.5rem 1.5rem;
+            overflow-y: hidden;
+            overflow-x: hidden;
+        }
+        /* Constrain Quick Nav aside to slot height so sticky minHeight doesn't cause overflow/scrollbar */
+        .jobs-quick-nav-slot:not(.hidden) [data-jobs-quick-nav] {
+            max-height: 100%;
+        }
+        @media (max-width: 1023px) {
+            .jobs-quick-nav-slot:not(.hidden) { display: none !important; }
+        }
+        /* When right sidebar is collapsed, main content expands to use full space */
+        .content-editor-grid.right-sidebar-collapsed #section-content .max-w-3xl,
+        .content-editor-grid.right-sidebar-collapsed #section-content .max-w-4xl,
+        .content-editor-grid.right-sidebar-collapsed #section-content .max-w-5xl,
+        .content-editor-grid.right-sidebar-collapsed #section-content .max-w-6xl,
+        .content-editor-grid.right-sidebar-collapsed #section-content .max-w-7xl {
+            max-width: none;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -254,6 +296,9 @@ $subscriptionContext = getUserSubscriptionContext($userId);
 
             <!-- Resize Handle 1 – drag to resize; use toggle button to open/close left sidebar -->
             <div class="resize-handle" id="resize-handle-1" data-handle-for="left" title="Drag to resize. Use the toggle to open or close section nav."></div>
+
+            <!-- Jobs Quick Nav slot – lives in grid so it moves with layout when left sidebar collapses -->
+            <div id="jobs-quick-nav-slot" class="jobs-quick-nav-slot hidden flex-shrink-0 overflow-y-auto bg-gray-100" aria-hidden="true"></div>
 
             <!-- Center Content Area -->
             <main class="bg-white" id="main-content">

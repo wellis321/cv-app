@@ -127,17 +127,15 @@ if (!$canView) {
 
 // Load CV data - either from variant or master CV
 $cvData = null;
-if ($variantId && isLoggedIn() && $currentUserId === $profileUserId) {
-    // Load variant data
+// Load variant when: variant_id in URL and (owner logged in, OR CV is public and variant belongs to this profile)
+if ($variantId && $profileUserId) {
     $cvVariant = getCvVariant($variantId, $profileUserId);
-    if ($cvVariant) {
+    if ($cvVariant && (($currentUserId && $currentUserId === $profileUserId) || $canView)) {
         $cvData = loadCvVariantData($variantId);
-        // Variant data includes 'variant' key, but we still need profile for display
-        // Add profile data to variant data structure
         if ($cvData && isset($cvData['variant'])) {
-            $cvData['profile'] = $profile; // Use existing profile data
+            $cvData['profile'] = $profile;
         } else {
-            $cvData = null; // Fallback to master if variant data invalid
+            $cvData = null;
         }
     }
 }

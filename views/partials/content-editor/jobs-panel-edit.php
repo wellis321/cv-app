@@ -153,7 +153,7 @@ $jobJson = htmlspecialchars(json_encode($job), ENT_QUOTES, 'UTF-8');
                 <div class="mt-4 flex items-center">
                     <input type="checkbox" id="format-extract-with-ai" name="format_extract_with_ai" value="1" checked
                            class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
-                    <label for="format-extract-with-ai" class="ml-2 text-sm text-gray-700">Format with AI when extracting (clearer sections and paragraphs)</label>
+                    <label for="format-extract-with-ai" class="ml-2 text-sm text-gray-700">Format with AI when extracting (PDFs: uses vision model e.g. Qwen; else formats text)</label>
                 </div>
                 <div class="mt-6 border border-gray-200 rounded-lg p-4 bg-gray-50/50">
                     <h4 class="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">

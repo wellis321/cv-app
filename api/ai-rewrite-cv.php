@@ -293,20 +293,21 @@ try {
             $aiService = getAIService($user['id']);
         }
         
-        // Enforce limited scope for browser AI only: work experience and projects must be one-at-a-time.
-        // Ollama allows "all" (checkboxes = whole section); Whole CV and section-level "all" both bypass.
+        // Allow section-level "all" for both Ollama and browser AI (checkboxes = whole section).
+        // Whole CV (allowFullCv) is Ollama-only; section-level work/projects can be attempted by both.
         $serviceName = $aiService->getService();
         $aiScopeLimited = in_array($serviceName, ['ollama', 'browser']);
         $allowFullCvBypass = ($serviceName === 'ollama' && $allowFullCv);
-        $allowSectionLevelBypass = ($serviceName === 'ollama' && in_array('work_experience', $sectionsToRewrite) && $singleWorkExperienceId === '')
-            || ($serviceName === 'ollama' && in_array('projects', $sectionsToRewrite) && $singleProjectId === '');
+        $allowSectionLevelBypass = in_array($serviceName, ['ollama', 'browser'])
+            && ((in_array('work_experience', $sectionsToRewrite) && $singleWorkExperienceId === '')
+                || (in_array('projects', $sectionsToRewrite) && $singleProjectId === ''));
         $bypassSingleItemRequirement = $allowFullCvBypass || $allowSectionLevelBypass;
         if ($aiScopeLimited && !$bypassSingleItemRequirement) {
             if (in_array('work_experience', $sectionsToRewrite) && $singleWorkExperienceId === '') {
                 ob_end_clean();
                 echo json_encode([
                     'success' => false,
-                    'error' => 'With browser AI, tailor one role at a time. Use a specific role below, or switch to Ollama/cloud AI in Settings > AI Settings to tailor all work experience at once.'
+                    'error' => 'Please select a specific role below, or ensure Work experience is checked to tailor all roles.'
                 ]);
                 exit;
             }
@@ -314,7 +315,7 @@ try {
                 ob_end_clean();
                 echo json_encode([
                     'success' => false,
-                    'error' => 'With browser AI, tailor one project at a time. Use a specific project below, or switch to Ollama/cloud AI in Settings > AI Settings to tailor all projects at once.'
+                    'error' => 'Please select a specific project below, or ensure Projects is checked to tailor all projects.'
                 ]);
                 exit;
             }

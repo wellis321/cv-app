@@ -59,6 +59,9 @@ function formatCvDate($date, $format = 'dd/mm/yyyy') {
 
 $dateFormat = $profile['date_format_preference'] ?? 'dd/mm/yyyy';
 $cvUrl = APP_URL . '/cv/@' . $profile['username'];
+if ($variantId) {
+    $cvUrl .= '?variant_id=' . rawurlencode($variantId);
+}
 $profileShowPhotoCv = $profile['show_photo'] ?? 1;
 $profileShowPhotoPdf = $profile['show_photo_pdf'] ?? 1;
 $profileShowQrCode = $profile['show_qr_code'] ?? ($profileShowPhotoCv ? 0 : 1);

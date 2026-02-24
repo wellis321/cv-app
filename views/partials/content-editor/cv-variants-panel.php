@@ -125,7 +125,8 @@ if ($ai_scope_limited) {
                                             $tailorProjects = ($tailorScopeLimited && !empty($variant['_data']['projects'])) ? $variant['_data']['projects'] : [];
                                             ?>
                                             <span class="inline-flex items-center gap-1">
-                                                <select class="tailor-section-select text-xs border border-gray-300 rounded px-2 py-1 text-gray-700 bg-white" 
+                                                <span style="width: 160px; flex-shrink: 0; display: inline-block;">
+                                                <select class="tailor-section-select text-xs border border-gray-300 rounded px-2 py-1 text-gray-700 bg-white w-full" 
                                                         data-scope-limited="<?php echo $tailorScopeLimited ? '1' : '0'; ?>"
                                                         onchange="tailorSection(this, '<?php echo e($variant['id']); ?>', '<?php echo e($variant['job_application_id']); ?>')"
                                                         title="<?php echo $tailorScopeLimited ? 'Tailor one role or project' : 'Tailor one section to the job'; ?>">
@@ -148,6 +149,7 @@ if ($ai_scope_limited) {
                                                         <option value="projects">Projects</option>
                                                     <?php endif; ?>
                                                 </select>
+                                                </span>
                                                 <span class="tailor-status text-xs text-gray-500 hidden" aria-live="polite"></span>
                                             </span>
                                         <?php endif; ?>
