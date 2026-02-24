@@ -50,6 +50,7 @@ try {
     $jobApplicationId = $_POST['job_application_id'] ?? null;
     $cvVariantId = $_POST['cv_variant_id'] ?? null;
     $customInstructions = $_POST['custom_instructions'] ?? null;
+    $humanizeFurther = isset($_POST['humanize_further']) && $_POST['humanize_further'] === '1'; // Extra paraphrase pass to reduce AI detection
     $browserAiResult = $_POST['cover_letter_text'] ?? null; // Browser AI result (already generated text)
     $forceServerAI = isset($_POST['force_server_ai']) && $_POST['force_server_ai'] === '1'; // Force server-side AI
     
@@ -65,7 +66,8 @@ try {
     
     // If browser AI result is provided, just save it (browser AI already executed client-side)
     if ($browserAiResult) {
-        $coverLetterText = convertToBritishSpelling(trim($browserAiResult));
+        $coverLetterText = sanitizeCoverLetterText($browserAiResult);
+        $coverLetterText = convertToBritishSpelling($coverLetterText);
         error_log("Browser AI cover letter text received. Length: " . strlen($coverLetterText) . " First 200 chars: " . substr($coverLetterText, 0, 200));
         
         if (empty($coverLetterText)) {
@@ -197,7 +199,8 @@ try {
     
     // Generate cover letter
     $result = $aiService->generateCoverLetter($cvData, $jobApplication, [
-        'custom_instructions' => $customInstructions
+        'custom_instructions' => $customInstructions,
+        'humanize_further' => $humanizeFurther
     ]);
     
     // Restore original preference if we overrode it
@@ -228,7 +231,7 @@ try {
         exit;
     }
     
-    $coverLetterText = $result['cover_letter_text'];
+    $coverLetterText = convertToBritishSpelling($result['cover_letter_text']);
     
     // Save or update cover letter in database
     $coverLetterResult = createCoverLetter($user['id'], $jobApplicationId, $coverLetterText);

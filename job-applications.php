@@ -1352,7 +1352,11 @@ $stats = getJobApplicationStats();
                             <div class="text-base text-gray-700 whitespace-pre-wrap" id="cover-letter-text-${applicationId}">${this.escapeHtml(coverLetter.cover_letter_text)}</div>
                         </div>
                     </div>
-                    <div class="flex flex-wrap gap-2">
+                    <div class="flex flex-wrap gap-2 items-center">
+                        <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer mr-2">
+                            <input type="checkbox" id="cover-letter-humanize-${applicationId}" class="rounded border-gray-300">
+                            <span>Reduce AI detection</span>
+                        </label>
                         <button onclick="JobApplications.editCoverLetter('${applicationId}', '${coverLetter.id}')" 
                                 class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1395,6 +1399,10 @@ $stats = getJobApplicationStats();
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                         <p class="text-gray-600 mb-4">No cover letter generated yet</p>
+                        <label class="flex items-center justify-center gap-2 mb-4 text-sm text-gray-600 cursor-pointer">
+                            <input type="checkbox" id="cover-letter-humanize-${applicationId}" class="rounded border-gray-300">
+                            <span>Reduce AI detection (extra pass, takes longer)</span>
+                        </label>
                         <button onclick="JobApplications.generateCoverLetter('${applicationId}')" 
                                 class="inline-flex items-center px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1431,7 +1439,11 @@ $stats = getJobApplicationStats();
                     const formData = new FormData();
                     formData.append('job_application_id', applicationId);
                     formData.append('csrf_token', this.csrfToken);
-                    
+                    const humanizeCheckbox = document.getElementById('cover-letter-humanize-' + applicationId);
+                    if (humanizeCheckbox && humanizeCheckbox.checked) {
+                        formData.append('humanize_further', '1');
+                    }
+
                     const response = await fetch('/api/ai-generate-cover-letter.php', {
                         method: 'POST',
                         body: formData,
@@ -1561,6 +1573,34 @@ $stats = getJobApplicationStats();
                     
                     // Final trim
                     cleanedText = cleanedText.trim();
+
+                    // Optional second AI pass: paraphrase to reduce AI detection
+                    if (result.humanize_further && cleanedText && typeof BrowserAIService !== 'undefined' && BrowserAIService.generateText && BrowserAIService.getParaphrasePrompt) {
+                        if (loadingOverlay) {
+                            loadingOverlay.querySelector('p').textContent = 'Humanising text to reduce AI detection...';
+                        }
+                        try {
+                            const paraphrasePrompt = BrowserAIService.getParaphrasePrompt(cleanedText);
+                            let paraphrased = await BrowserAIService.generateText(paraphrasePrompt, {
+                                temperature: 0.7,
+                                maxTokens: 2000
+                            });
+                            if (paraphrased && paraphrased.trim()) {
+                                paraphrased = paraphrased.trim();
+                                if (paraphrased.startsWith('{')) {
+                                    try {
+                                        const p = JSON.parse(paraphrased);
+                                        paraphrased = p.letter || p.cover_letter || p.text || p.content || paraphrased;
+                                    } catch (e) {}
+                                }
+                                paraphrased = paraphrased.replace(/\\n/g, '\n').replace(/\\"/g, '"').replace(/^"([^"]+)"$/gm, '$1').trim();
+                                if (paraphrased) cleanedText = paraphrased;
+                            }
+                        } catch (paraphraseErr) {
+                            console.warn('Paraphrase pass failed, using original:', paraphraseErr);
+                        }
+                    }
+
                     if (typeof BrowserAIService !== 'undefined' && BrowserAIService.humanizeText) {
                         cleanedText = BrowserAIService.humanizeText(cleanedText);
                     }
@@ -1605,21 +1645,24 @@ $stats = getJobApplicationStats();
                 } catch (error) {
                     console.error('Error executing browser AI:', error);
                     
-                    // Check if error is about WebLLM failing to load
-                    const isWebLLMLoadError = error.message && (
-                        error.message.includes('Failed to load WebLLM') || 
-                        error.message.includes('WebLLM library') ||
-                        error.message.includes('Failed to initialize WebLLM')
-                    );
+                    // Check if error is about WebLLM/Browser AI failing (load, init, or cache)
+                    const msg = error.message || '';
+                    const isWebLLMLoadError = msg.includes('Failed to load WebLLM') || 
+                        msg.includes('WebLLM library') ||
+                        msg.includes('Failed to initialize WebLLM') ||
+                        msg.includes('Cache.add()') ||
+                        (msg.includes('Cache') && msg.includes('network error'));
                     
                     if (isWebLLMLoadError) {
                         // Browser AI failed - offer to retry with server-side AI
                         if (document.body.contains(loadingOverlay)) {
                             document.body.removeChild(loadingOverlay);
                         }
-                        
+                        const cacheError = msg.includes('Cache.add()') || (msg.includes('Cache') && msg.includes('network'));
                         const retryWithServerAI = confirm(
-                            'Browser AI is not available (WebLLM library failed to load).\n\n' +
+                            (cacheError
+                                ? 'Browser AI failed (cache storage error while downloading the model). This often happens when browser storage is restricted, a firewall blocks downloads, or in some production environments.\n\n'
+                                : 'Browser AI is not available (WebLLM failed to load).\n\n') +
                             'Would you like to generate the cover letter using server-side AI instead?\n\n' +
                             'Note: Server-side AI requires a configured cloud AI service (OpenAI, Anthropic, Gemini, or Grok).\n' +
                             'If you don\'t have one configured, please set it up in Settings → AI Settings.'
@@ -1631,6 +1674,10 @@ $stats = getJobApplicationStats();
                             formData.append('job_application_id', applicationId);
                             formData.append('csrf_token', this.csrfToken);
                             formData.append('force_server_ai', '1'); // Flag to force server-side
+                            const humanizeCheckbox = document.getElementById('cover-letter-humanize-' + applicationId);
+                            if (humanizeCheckbox && humanizeCheckbox.checked) {
+                                formData.append('humanize_further', '1');
+                            }
                             
                             // Show loading again
                             const retryOverlay = document.createElement('div');

@@ -83,6 +83,27 @@
         return inner.replace(/\\n/g, '\n').replace(/\\r/g, '\r').replace(/\\t/g, '\t').replace(/\\"/g, '"').replace(/\\\\/g, '\\');
     }
 
+    /** Convert HTML table element to markdown table string (for textarea display). */
+    function htmlTableToMarkdown(tableEl) {
+        if (!tableEl || tableEl.tagName !== 'TABLE') return '';
+        var rows = tableEl.querySelectorAll('tr');
+        if (rows.length === 0) return '';
+        var out = [];
+        for (var i = 0; i < rows.length; i++) {
+            var cells = rows[i].querySelectorAll('td, th');
+            var rowText = [];
+            for (var j = 0; j < cells.length; j++) {
+                var cellText = (cells[j].textContent || '').trim().replace(/\|/g, '\\|').replace(/\n/g, ' ');
+                rowText.push(cellText);
+            }
+            out.push('| ' + rowText.join(' | ') + ' |');
+            if (i === 0 && rows.length > 1) {
+                out.push('| ' + rowText.map(function() { return '---'; }).join(' | ') + ' |');
+            }
+        }
+        return out.join('\n');
+    }
+
     var loadJobsData;
     var applicationsCache = [];
     var csrfTokenCache = '';
@@ -466,6 +487,7 @@
             el.innerHTML = '<div class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">' +
                 '<svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>' +
                 '<p class="text-gray-600 mb-4">No cover letter generated yet</p>' +
+                '<label class="flex items-center justify-center gap-2 mb-4 text-sm text-gray-600 cursor-pointer"><input type="checkbox" id="cover-letter-humanize-' + applicationId + '" class="rounded border-gray-300"><span>Reduce AI detection (extra pass, takes longer)</span></label>' +
                 '<button type="button" data-cover-letter-generate class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-1 focus:ring-green-500 transition-colors">' +
                 '<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Generate Cover Letter with AI</button></div>';
             var btn = el.querySelector('[data-cover-letter-generate]');
@@ -601,14 +623,19 @@
                 '</div></div>' +
                 '<div id="cover-letter-actions" class="mt-3 pt-3 border-t border-gray-200 scroll-mt-6" role="group" aria-labelledby="cover-letter-actions-heading">' +
                 '<p id="cover-letter-actions-heading" class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Cover letter actions</p>' +
+                '<label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer mb-2"><input type="checkbox" id="cover-letter-humanize-' + applicationId + '" class="rounded border-gray-300"><span>Reduce AI detection</span></label>' +
                 '<div class="flex flex-wrap gap-2">' +
-                '<button type="button" data-cover-letter-edit data-cover-letter-id="' + esc(id) + '" class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-green-700 bg-green-50 rounded-md border border-green-200 hover:bg-green-100 hover:border-green-300 focus:outline-none focus:ring-1 focus:ring-green-500 transition-colors">' +
+                /* Edit – primary action */
+                '<button type="button" data-cover-letter-edit data-cover-letter-id="' + esc(id) + '" class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-md border border-blue-600 hover:bg-blue-700 hover:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-colors">' +
                 '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>Edit</button>' +
-                '<button type="button" data-cover-letter-regenerate class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-1 focus:ring-green-500 transition-colors">' +
-                '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Regenerate with AI</button>' +
-                '<button type="button" data-cover-letter-export-pdf data-cover-letter-id="' + esc(id) + '" class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-50 rounded-md border border-gray-300 hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-gray-400 transition-colors">' +
+                /* Export PDF – utility, before regenerate so you can export what you have */
+                '<button type="button" data-cover-letter-export-pdf data-cover-letter-id="' + esc(id) + '" class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white rounded-md border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-1 transition-colors">' +
                 '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Export PDF</button>' +
-                '<button type="button" data-cover-letter-delete data-cover-letter-id="' + esc(id) + '" class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 rounded-md border border-red-200 hover:bg-red-100 focus:outline-none focus:ring-1 focus:ring-red-500 transition-colors">' +
+                /* Regenerate – secondary */
+                '<button type="button" data-cover-letter-regenerate class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white rounded-md border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-1 transition-colors">' +
+                '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>Regenerate with AI</button>' +
+                /* Delete – destructive, last */
+                '<button type="button" data-cover-letter-delete data-cover-letter-id="' + esc(id) + '" class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-600 bg-white rounded-md border border-gray-300 hover:text-red-700 hover:border-red-300 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-colors">' +
                 '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>Delete cover letter</button>' +
                 '</div></div>';
             var editBtn = el.querySelector('[data-cover-letter-edit]');
@@ -678,7 +705,7 @@
                 }).then(function() {
                     if (msgEl) msgEl.textContent = 'Generating cover letter... This may take 30-60 seconds.';
                     return BrowserAIService.generateText(result.prompt, { temperature: (result.options && result.options.temperature) || 0.5, maxTokens: 2000 });
-                }).then(function(coverLetterText) {
+                }).then(async function(coverLetterText) {
                     if (!coverLetterText || !coverLetterText.trim()) {
                         throw new Error('Browser AI returned empty response. Please try again.');
                     }
@@ -699,6 +726,26 @@
                     cleanedText = cleanedText.replace(/^"([^"]+)"$/gm, '$1');
                     cleanedText = cleanedText.replace(/^["']?\w+["']?\s*:\s*/, '');
                     cleanedText = cleanedText.trim();
+                    if (result.humanize_further && cleanedText && typeof BrowserAIService !== 'undefined' && BrowserAIService.generateText && BrowserAIService.getParaphrasePrompt) {
+                        if (msgEl) msgEl.textContent = 'Humanising text to reduce AI detection...';
+                        try {
+                            var paraphrasePrompt = BrowserAIService.getParaphrasePrompt(cleanedText);
+                            var paraphrased = await BrowserAIService.generateText(paraphrasePrompt, { temperature: 0.7, maxTokens: 2000 });
+                            if (paraphrased && paraphrased.trim()) {
+                                paraphrased = paraphrased.trim();
+                                if (paraphrased.charAt(0) === '{') {
+                                    try {
+                                        var p = JSON.parse(paraphrased);
+                                        paraphrased = p.letter || p.cover_letter || p.text || p.content || paraphrased;
+                                    } catch (e) {}
+                                }
+                                paraphrased = paraphrased.replace(/\\n/g, '\n').replace(/\\"/g, '"').replace(/^"([^"]+)"$/gm, '$1').trim();
+                                if (paraphrased) cleanedText = paraphrased;
+                            }
+                        } catch (paraphraseErr) {
+                            console.warn('Paraphrase pass failed, using original:', paraphraseErr);
+                        }
+                    }
                     if (typeof BrowserAIService !== 'undefined' && BrowserAIService.humanizeText) {
                         cleanedText = BrowserAIService.humanizeText(cleanedText);
                     }
@@ -719,8 +766,45 @@
                     }
                 }).catch(function(err) {
                     if (overlay.parentNode) document.body.removeChild(overlay);
-                    alert('Error generating cover letter: ' + (err.message || String(err)));
-                    loadCoverLetter();
+                    var help = (typeof BrowserAIService !== 'undefined' && BrowserAIService.getWebLLMErrorHelp)
+                        ? BrowserAIService.getWebLLMErrorHelp(err) : { message: 'Error generating cover letter: ' + (err.message || String(err)), offerServerFallback: false };
+                    if (help.offerServerFallback) {
+                        var retry = confirm(help.message + '\n\nWould you like to try with server-side AI instead? (Requires OpenAI, Anthropic, Gemini, or Grok configured in Settings → AI Settings.)');
+                        if (retry) {
+                            var retryFd = new FormData();
+                            retryFd.append('job_application_id', applicationId);
+                            retryFd.append('csrf_token', csrfToken || '');
+                            retryFd.append('force_server_ai', '1');
+                            var humanizeCb = document.getElementById('cover-letter-humanize-' + applicationId);
+                            if (humanizeCb && humanizeCb.checked) retryFd.append('humanize_further', '1');
+                            var retryOverlay = document.createElement('div');
+                            retryOverlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                            retryOverlay.innerHTML = '<div class="bg-white rounded-lg p-8 max-w-md text-center"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div><p class="text-gray-800 font-medium">Generating with server AI...</p></div>';
+                            document.body.appendChild(retryOverlay);
+                            fetch('/api/ai-generate-cover-letter.php', { method: 'POST', body: retryFd, credentials: 'include' })
+                                .then(function(r) { return r.json(); })
+                                .then(function(res) {
+                                    if (retryOverlay.parentNode) document.body.removeChild(retryOverlay);
+                                    if (res.success && res.cover_letter_id) {
+                                        loadCoverLetter();
+                                        alert('Cover letter generated successfully!');
+                                    } else {
+                                        alert(res.error || 'Server AI failed. Configure a cloud AI in Settings → AI Settings.');
+                                        loadCoverLetter();
+                                    }
+                                })
+                                .catch(function() {
+                                    if (retryOverlay.parentNode) document.body.removeChild(retryOverlay);
+                                    alert('Could not connect. Please try again.');
+                                    loadCoverLetter();
+                                });
+                        } else {
+                            loadCoverLetter();
+                        }
+                    } else {
+                        alert(help.message);
+                        loadCoverLetter();
+                    }
                 });
             })();
         }
@@ -733,6 +817,8 @@
             var formData = new FormData();
             formData.append('job_application_id', applicationId);
             formData.append('csrf_token', csrfToken || '');
+            var humanizeCb = document.getElementById('cover-letter-humanize-' + applicationId);
+            if (humanizeCb && humanizeCb.checked) formData.append('humanize_further', '1');
             var timeoutMs = 150000; // 2.5 minutes
             var timeoutId = setTimeout(function() {
                 timeoutId = null;
@@ -847,9 +933,12 @@
 
         var aiCvBtn = container.querySelector('[data-ai-cv-generate]');
         if (aiCvBtn) {
+            var aiCvBtnOriginalHtml = aiCvBtn.innerHTML;
             aiCvBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 if (!confirm('This will generate a new AI-rewritten CV variant for this job application. Continue?')) return;
+                aiCvBtn.disabled = true;
+                aiCvBtn.innerHTML = '<svg class="animate-spin h-4 w-4 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Generating...';
                 var fd = new FormData();
                 fd.append('csrf_token', csrfToken || '');
                 fd.append('job_application_id', applicationId);
@@ -862,11 +951,23 @@
                             if (typeof window.contentEditor !== 'undefined' && typeof window.contentEditor.loadSection === 'function') {
                                 setTimeout(function() { window.contentEditor.loadSection('cv-variants'); }, 300);
                             }
+                        } else if (result.error && result.error.indexOf('already exists') !== -1 && result.variant_id) {
+                            alert('A CV variant already exists for this job. Opening it in CV Variants.');
+                            window.location.hash = '#cv-variants';
+                            if (typeof window.contentEditor !== 'undefined' && typeof window.contentEditor.loadSection === 'function') {
+                                setTimeout(function() { window.contentEditor.loadSection('cv-variants'); }, 300);
+                            }
                         } else {
                             alert('Error: ' + (result.error || 'Failed to generate CV'));
                         }
+                        aiCvBtn.disabled = false;
+                        aiCvBtn.innerHTML = aiCvBtnOriginalHtml;
                     })
-                    .catch(function() { alert('An error occurred. Please try again.'); });
+                    .catch(function() {
+                        alert('An error occurred. Please try again.');
+                        aiCvBtn.disabled = false;
+                        aiCvBtn.innerHTML = aiCvBtnOriginalHtml;
+                    });
             });
         }
     };
@@ -969,16 +1070,32 @@
                 if (deleteBtn) {
                     var id = deleteBtn.getAttribute('data-file-id');
                     if (!confirm('Delete this file?')) return;
+                    // #region agent log
+                    fetch('http://127.0.0.1:7250/ingest/02ed2acd-ae27-46f6-8e5d-0a67a71118e5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'902fb4'},body:JSON.stringify({sessionId:'902fb4',location:'jobs-panel-content-editor.js:delete',message:'delete_click',data:{file_id:id,csrf_present:!!csrfToken},hypothesisId:'F',timestamp:Date.now()})}).catch(function(){});
+                    // #endregion
                     var fd = new FormData();
                     fd.append('file_id', id);
                     fd.append('csrf_token', csrfToken);
                     fetch('/api/delete-job-application-file.php', { method: 'POST', body: fd, credentials: 'include' })
-                        .then(function(r) { return r.json(); })
+                        .then(function(r) {
+                            // #region agent log
+                            fetch('http://127.0.0.1:7250/ingest/02ed2acd-ae27-46f6-8e5d-0a67a71118e5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'902fb4'},body:JSON.stringify({sessionId:'902fb4',location:'jobs-panel-content-editor.js:delete',message:'delete_response',data:{ok:r.ok,status:r.status},hypothesisId:'G',timestamp:Date.now()})}).catch(function(){});
+                            // #endregion
+                            return r.json();
+                        })
                         .then(function(d) {
+                            // #region agent log
+                            fetch('http://127.0.0.1:7250/ingest/02ed2acd-ae27-46f6-8e5d-0a67a71118e5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'902fb4'},body:JSON.stringify({sessionId:'902fb4',location:'jobs-panel-content-editor.js:delete',message:'delete_result',data:{success:!!d&&d.success,error:(d&&d.error)||null},hypothesisId:'H',timestamp:Date.now()})}).catch(function(){});
+                            // #endregion
                             if (d.success) { currentFiles = currentFiles.filter(function(f) { return f.id !== id; }); renderFiles(); }
                             else alert(d.error || 'Could not delete');
                         })
-                        .catch(function() { alert('Could not delete file.'); });
+                        .catch(function(err) {
+                            // #region agent log
+                            fetch('http://127.0.0.1:7250/ingest/02ed2acd-ae27-46f6-8e5d-0a67a71118e5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'902fb4'},body:JSON.stringify({sessionId:'902fb4',location:'jobs-panel-content-editor.js:delete',message:'delete_catch',data:{err:String(err)},hypothesisId:'I',timestamp:Date.now()})}).catch(function(){});
+                            // #endregion
+                            alert('Could not delete file.');
+                        });
                     return;
                 }
                 if (extractBtn) {
@@ -1004,16 +1121,23 @@
                                         text = stripJsonTextWrapper(text);
                                     }
                                 }
-                                if (r.ok && text) {
-                                    text = decodeHtmlEntitiesInText(text);
-                                    var el = g('form-description');
-                                    if (el) {
-                                        el.value = text;
-                                        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                                if (r.ok && text && text.trim()) {
+                                    var isHtml = /<\s*table[\s>]|<\s*tr\s|<\s*td\s|<\s*th\s/i.test(text);
+                                    if (!isHtml) text = decodeHtmlEntitiesInText(text);
+                                    var editableEl = g('job-description-editable');
+                                    var textareaEl = g('form-description');
+                                    if (editableEl) {
+                                        if (isHtml) editableEl.innerHTML = text; else editableEl.textContent = text;
+                                        editableEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                                    } else if (textareaEl) {
+                                        textareaEl.value = text;
+                                        textareaEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                                    } else {
+                                        alert('Text extracted but the description field was not found. Please try again.');
                                     }
-                                    showExtractSuccessMessage();
+                                    if (editableEl || textareaEl) showExtractSuccessMessage();
                                 } else {
-                                    alert(d && d.error ? d.error : 'Could not extract text.');
+                                    alert(d && d.error ? d.error : (text && !text.trim() ? 'No text could be extracted from this file. It may be image-based or empty.' : 'Could not extract text.'));
                                 }
                             });
                         })
@@ -1026,7 +1150,6 @@
             });
         }
         function showExtractSuccessMessage() {
-            var label = document.querySelector('label[for="form-description"]');
             var existing = document.getElementById('extract-success-msg');
             if (existing) existing.remove();
             var msg = document.createElement('p');
@@ -1034,11 +1157,14 @@
             msg.setAttribute('role', 'status');
             msg.className = 'mt-2 text-sm font-medium text-green-600';
             msg.textContent = 'Text extracted and added to job description.';
+            var label = document.querySelector('label[for="form-description"], label[for="job-description-editable"]');
+            var desc = g('job-description-editable') || g('form-description');
             if (label && label.parentNode) {
                 label.parentNode.insertBefore(msg, label.nextSibling);
+            } else if (desc && desc.parentNode) {
+                desc.parentNode.insertBefore(msg, desc.nextSibling);
             } else {
-                var desc = g('form-description');
-                if (desc && desc.parentNode) desc.parentNode.insertBefore(msg, desc);
+                document.body.appendChild(msg);
             }
             setTimeout(function() {
                 if (msg.parentNode) msg.parentNode.removeChild(msg);
@@ -1204,16 +1330,32 @@
                 if (deleteBtn) {
                     var id = deleteBtn.getAttribute('data-file-id');
                     if (!confirm('Delete this file?')) return;
+                    // #region agent log
+                    fetch('http://127.0.0.1:7250/ingest/02ed2acd-ae27-46f6-8e5d-0a67a71118e5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'902fb4'},body:JSON.stringify({sessionId:'902fb4',location:'jobs-panel-content-editor.js:delete',message:'delete_click',data:{file_id:id,csrf_present:!!csrfToken},hypothesisId:'F',timestamp:Date.now()})}).catch(function(){});
+                    // #endregion
                     var fd = new FormData();
                     fd.append('file_id', id);
                     fd.append('csrf_token', csrfToken);
                     fetch('/api/delete-job-application-file.php', { method: 'POST', body: fd, credentials: 'include' })
-                        .then(function(r) { return r.json(); })
+                        .then(function(r) {
+                            // #region agent log
+                            fetch('http://127.0.0.1:7250/ingest/02ed2acd-ae27-46f6-8e5d-0a67a71118e5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'902fb4'},body:JSON.stringify({sessionId:'902fb4',location:'jobs-panel-content-editor.js:delete',message:'delete_response',data:{ok:r.ok,status:r.status},hypothesisId:'G',timestamp:Date.now()})}).catch(function(){});
+                            // #endregion
+                            return r.json();
+                        })
                         .then(function(d) {
+                            // #region agent log
+                            fetch('http://127.0.0.1:7250/ingest/02ed2acd-ae27-46f6-8e5d-0a67a71118e5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'902fb4'},body:JSON.stringify({sessionId:'902fb4',location:'jobs-panel-content-editor.js:delete',message:'delete_result',data:{success:!!d&&d.success,error:(d&&d.error)||null},hypothesisId:'H',timestamp:Date.now()})}).catch(function(){});
+                            // #endregion
                             if (d.success) { currentFiles = currentFiles.filter(function(f) { return f.id !== id; }); renderFiles(); }
                             else alert(d.error || 'Could not delete');
                         })
-                        .catch(function() { alert('Could not delete file.'); });
+                        .catch(function(err) {
+                            // #region agent log
+                            fetch('http://127.0.0.1:7250/ingest/02ed2acd-ae27-46f6-8e5d-0a67a71118e5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'902fb4'},body:JSON.stringify({sessionId:'902fb4',location:'jobs-panel-content-editor.js:delete',message:'delete_catch',data:{err:String(err)},hypothesisId:'I',timestamp:Date.now()})}).catch(function(){});
+                            // #endregion
+                            alert('Could not delete file.');
+                        });
                     return;
                 }
                 if (extractBtn) {
@@ -1239,16 +1381,25 @@
                                         text = stripJsonTextWrapper(text);
                                     }
                                 }
-                                if (r.ok && text) {
-                                    text = decodeHtmlEntitiesInText(text);
+                                if (r.ok && text && text.trim()) {
+                                    var isHtml = /<\s*table[\s>]|<\s*tr\s|<\s*td\s|<\s*th\s/i.test(text);
                                     var descEl = document.getElementById('form-description');
                                     if (descEl) {
-                                        descEl.value = text;
+                                        if (isHtml) {
+                                            var div = document.createElement('div');
+                                            div.innerHTML = text;
+                                            var tbl = div.querySelector('table');
+                                            descEl.value = tbl ? htmlTableToMarkdown(tbl) : text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+                                        } else {
+                                            descEl.value = decodeHtmlEntitiesInText(text);
+                                        }
                                         descEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                                    } else {
+                                        alert('Text extracted but the description field was not found. Please try again.');
                                     }
-                                    showExtractSuccessMessageAdd();
+                                    if (descEl) showExtractSuccessMessageAdd();
                                 } else {
-                                    alert(d && d.error ? d.error : 'Could not extract text.');
+                                    alert(d && d.error ? d.error : (text && !text.trim() ? 'No text could be extracted from this file. It may be image-based or empty.' : 'Could not extract text.'));
                                 }
                             });
                         })

@@ -459,13 +459,11 @@ class AIService {
     }
 
     /**
-     * Only allow server-side humanizer in local development for super admins.
+     * Whether to apply server-side humanizer to AI output (removes AI-sounding phrases, replaces buzzwords).
+     * Enabled for all users to improve CV, cover letter, and assessment quality.
      */
     private function shouldHumanizeServerOutput() {
-        if (!defined('APP_ENV') || APP_ENV !== 'development') {
-            return false;
-        }
-        return function_exists('isSuperAdmin') && isSuperAdmin();
+        return true;
     }
 
     /**
@@ -609,6 +607,8 @@ class AIService {
      * @param array $options Additional options (custom_instructions, etc.)
      */
     public function generateCoverLetter($cvData, $jobApplication, $options = []) {
+        $humanizeFurther = !empty($options['humanize_further']);
+
         // Use condensed prompt for Browser AI to avoid context overflow and model degeneration
         $isBrowserAI = ($this->service === 'browser');
         $prompt = $isBrowserAI
@@ -627,7 +627,8 @@ class AIService {
 
         // Check if this is browser execution mode
         if (isset($response['browser_execution']) && $response['browser_execution']) {
-            // Browser AI - return prompt for client-side execution
+            // Browser AI - return prompt for client-side execution, include humanize_further for optional paraphrase pass
+            $response['humanize_further'] = $humanizeFurther;
             return $response;
         }
 
@@ -642,6 +643,14 @@ class AIService {
         // Clean the response - remove markdown formatting, extra whitespace
         $coverLetterText = $this->cleanCoverLetterText($response['content']);
 
+        // Optional second AI pass: paraphrase to reduce AI detection
+        if ($humanizeFurther) {
+            $paraphrased = $this->paraphraseForHumanization($coverLetterText);
+            if ($paraphrased !== null) {
+                $coverLetterText = $paraphrased;
+            }
+        }
+
         if ($this->shouldHumanizeServerOutput()) {
             $coverLetterText = $this->humanizeText($coverLetterText);
         }
@@ -651,6 +660,31 @@ class AIService {
             'cover_letter_text' => $coverLetterText,
             'raw_response' => $response['content']
         ];
+    }
+
+    /**
+     * Paraphrase cover letter text to reduce AI detection (sentence variation, contractions, natural flow).
+     * @param string $text
+     * @return string|null Paraphrased text, or null on failure
+     */
+    private function paraphraseForHumanization($text) {
+        if (empty(trim($text))) {
+            return null;
+        }
+        $prompt = "Paraphrase the following cover letter so it sounds more natural and human-written.\n\n";
+        $prompt .= "Requirements: Vary sentence length (mix short and long). Use occasional contractions (I'm, I've, that's). Keep the meaning, tone, structure, and all key information exactly the same. Use British English.\n\n";
+        $prompt .= "Output ONLY the paraphrased cover letter as plain text. No JSON, no markdown, no explanation before or after.\n\n";
+        $prompt .= "---\n\n" . $text;
+
+        $response = $this->callAI($prompt, [
+            'temperature' => 0.7,
+            'max_tokens' => 2000,
+        ]);
+
+        if (!$response['success'] || empty($response['content'])) {
+            return null;
+        }
+        return $this->cleanCoverLetterText($response['content']);
     }
     
     /**
@@ -683,7 +717,8 @@ class AIService {
         // Profile information
         if (!empty($cvData['profile'])) {
             $profile = $cvData['profile'];
-            $prompt .= "- Name: " . ($profile['full_name'] ?? 'Candidate') . "\n";
+            $candidateName = preg_replace('/\[control_\d+\]/i', '', trim($profile['full_name'] ?? ''));
+            $prompt .= "- Name: " . ($candidateName ?: 'Candidate') . "\n";
             if (!empty($profile['email'])) {
                 $prompt .= "- Email: " . $profile['email'] . "\n";
             }
@@ -758,8 +793,10 @@ class AIService {
         $defaultInstructions .= "   - Why Me? (your qualifications, relevant experience, and what you bring)\n";
         $defaultInstructions .= "3. End with a professional closing (e.g., 'Sincerely,' followed by the candidate's name)\n";
         $defaultInstructions .= "4. Use British English spelling (e.g., 'organised' not 'organized', 'colour' not 'color', 'centre' not 'center')\n";
-        $defaultInstructions .= "5. Does NOT include placeholders, brackets, or generic text\n";
-        $defaultInstructions .= "6. Each section heading must appear on its own line, exactly as: 'About Me', 'Why " . $companyName . "?', 'Why Me?'\n\n";
+        $defaultInstructions .= "5. Write naturally: vary sentence length (mix short and long), use occasional contractions (I'm, I've, that's), avoid buzzwords (leverage, utilize, passionate, cutting-edge, synergise)\n";
+        $defaultInstructions .= "6. Does NOT include placeholders, brackets, or generic text\n";
+        $defaultInstructions .= "7. Each section heading must appear on its own line, exactly as: 'About Me', 'Why " . $companyName . "?', 'Why Me?'\n";
+        $defaultInstructions .= "8. Output ONE cover letter only. Do NOT repeat or duplicate the letter.\n\n";
         $defaultInstructions .= "CRITICAL FORMATTING RULES:\n";
         $defaultInstructions .= "- Return ONLY plain text - NO JSON, NO markdown, NO code blocks\n";
         $defaultInstructions .= "- Do NOT wrap the text in curly braces { } or quotation marks\n";
@@ -806,7 +843,8 @@ class AIService {
             $prompt .= "Job Description (summary):\n" . substr($jobDesc, 0, $maxJobDescChars) . (strlen($jobDesc) > $maxJobDescChars ? "\n..." : "") . "\n\n";
         }
 
-        $prompt .= "Candidate: " . ($cvData['profile']['full_name'] ?? 'Candidate') . "\n";
+        $candidateName = preg_replace('/\[control_\d+\]/i', '', trim($cvData['profile']['full_name'] ?? ''));
+        $prompt .= "Candidate: " . ($candidateName ?: 'Candidate') . "\n";
         if (!empty($cvData['professional_summary']['description'])) {
             $s = $cvData['professional_summary']['description'];
             if (function_exists('stripMarkdown')) {
@@ -828,7 +866,8 @@ class AIService {
         }
 
         $companyName = $jobApplication['company_name'] ?? 'the company';
-        $prompt .= "\nWrite a cover letter with these sections: About Me, Why " . $companyName . "?, Why Me? Use British English. Plain text only, no JSON or markdown. Start with 'Dear Hiring Manager,'.\n\n";
+        $prompt .= "\nWrite a cover letter with these sections: About Me, Why " . $companyName . "?, Why Me? Use British English. Plain text only, no JSON or markdown. Start with 'Dear Hiring Manager,'. Output ONE cover letter only.\n";
+        $prompt .= "Write naturally: vary sentence length (short and long), use occasional contractions (I'm, I've), avoid buzzwords (leverage, utilize, passionate, cutting-edge).\n\n";
         $prompt .= "Now write the cover letter:\n";
 
         return $prompt;
@@ -929,6 +968,16 @@ class AIService {
         // Remove common AI prefixes/suffixes
         $text = preg_replace('/^(Here is|Here\'s|This is|I\'ve written|I\'ll write)[\s\S]*?(?=Dear|To|Dear Hiring)/i', '', $text);
         $text = preg_replace('/^(Cover Letter|Letter)[\s\S]*?(?=Dear|To|Dear Hiring)/i', '', $text);
+
+        // Strip control artifacts (e.g. [control_187] from paste/copy)
+        $text = preg_replace('/\[control_\d+\]/i', '', $text);
+
+        // If model output two letters concatenated, keep only the last complete one
+        $pattern = '/\bDear\s+(?:Hiring\s+Manager|Recruitment\s+Team|[A-Z][a-z]+)\s*[,:]?\s*\n/i';
+        if (preg_match_all($pattern, $text, $matches, PREG_OFFSET_CAPTURE) >= 2) {
+            $last = end($matches[0]);
+            $text = substr($text, $last[1]);
+        }
 
         // Convert American to British spelling (UK documents)
         $text = convertToBritishSpelling($text);
@@ -1125,6 +1174,54 @@ class AIService {
         ];
     }
     
+    /**
+     * Extract text from a PDF using a vision model (e.g. Qwen2.5-VL via Ollama).
+     * Converts PDF to images and sends to the model. Requires Ollama with a vision model.
+     * @param string $filePath Path to PDF file
+     * @return array ['success' => bool, 'text' => string, 'error' => string]
+     */
+    public function extractDocumentWithVision($filePath) {
+        if (!function_exists('convertPdfToImages')) {
+            require_once __DIR__ . '/document-extractor.php';
+        }
+        $images = convertPdfToImages($filePath, 12);
+        if (empty($images)) {
+            return ['success' => false, 'error' => 'Could not convert PDF to images. Install poppler-utils (pdftoppm).'];
+        }
+        if ($this->service !== 'ollama') {
+            return ['success' => false, 'error' => 'AI vision extraction requires Ollama with a vision model (e.g. qwen2.5-vl).'];
+        }
+        $model = $this->config['ollama']['model'] ?? '';
+        $visionModels = ['qwen2.5vl', 'qwen2.5-vl', 'llava', 'llama3.2:11b-vision', 'llama3.2-vision', 'gemma3', 'minicpm-v'];
+        $isVision = false;
+        foreach ($visionModels as $vm) {
+            if (stripos($model, $vm) !== false) {
+                $isVision = true;
+                break;
+            }
+        }
+        if (!$isVision) {
+            return ['success' => false, 'error' => 'Use a vision model (e.g. qwen2.5-vl) in Settings > AI Settings. Run: ollama pull qwen2.5-vl'];
+        }
+        $prompt = "Extract ALL text from these document pages. This is a job description or recruitment pack.\n\n";
+        $prompt .= "Preserve structure:\n";
+        $prompt .= "- Use markdown headings (##) for section titles (e.g. Job Description, Person Specification)\n";
+        $prompt .= "- Use markdown tables for any tabular data (e.g. person spec criteria)\n";
+        $prompt .= "- Use proper paragraphs for body text\n";
+        $prompt .= "- Include all content: job title, company, requirements, criteria, tables\n";
+        $prompt .= "- Output clean markdown. No JSON, no code blocks, no \"Here is the extracted text\" - just the document content.";
+        $result = $this->callOllamaChatWithImages($prompt, $images);
+        if (!$result['success']) {
+            return $result;
+        }
+        $text = trim($result['content'] ?? '');
+        $text = preg_replace('/^Here (?:is|are) .*?:\s*\n*/i', '', $text);
+        $text = preg_replace('/^```\w*\s*\n?/', '', $text);
+        $text = preg_replace('/\n?```\s*$/', '', $text);
+        $text = trim($text);
+        return ['success' => true, 'text' => $text ?: ''];
+    }
+
     /**
      * Format raw extracted job description text into clear sections, paragraphs and headings.
      * Returns plain formatted text (or raw text if AI fails).
@@ -1329,7 +1426,8 @@ class AIService {
         $prompt .= "\nCandidate information (from CV):\n";
         if (!empty($cvData['profile'])) {
             $p = $cvData['profile'];
-            $prompt .= "- Name: " . ($p['full_name'] ?? 'Candidate') . "\n";
+            $candidateName = preg_replace('/\[control_\d+\]/i', '', trim($p['full_name'] ?? ''));
+            $prompt .= "- Name: " . ($candidateName ?: 'Candidate') . "\n";
         }
         if (!empty($cvData['professional_summary']['description'])) {
             $sum = $cvData['professional_summary']['description'];
@@ -1405,7 +1503,8 @@ class AIService {
             $prompt .= "Job Description (summary):\n" . substr($jobDesc, 0, $maxJobDescChars) . (strlen($jobDesc) > $maxJobDescChars ? "\n..." : "") . "\n\n";
         }
 
-        $prompt .= "Candidate: " . ($cvData['profile']['full_name'] ?? 'Candidate') . "\n";
+        $candidateName = preg_replace('/\[control_\d+\]/i', '', trim($cvData['profile']['full_name'] ?? ''));
+        $prompt .= "Candidate: " . ($candidateName ?: 'Candidate') . "\n";
         if (!empty($cvData['professional_summary']['description'])) {
             $sum = $cvData['professional_summary']['description'];
             if (function_exists('stripMarkdown')) {
@@ -2116,6 +2215,50 @@ class AIService {
         ];
     }
     
+    /**
+     * Call Ollama /api/chat with images (for vision models like Qwen2.5-VL)
+     */
+    private function callOllamaChatWithImages($prompt, array $base64Images) {
+        @set_time_limit(600);
+        $url = $this->config['ollama']['base_url'] . '/api/chat';
+        $model = $this->config['ollama']['model'];
+        $data = [
+            'model' => $model,
+            'messages' => [
+                [
+                    'role' => 'user',
+                    'content' => $prompt,
+                    'images' => $base64Images,
+                ],
+            ],
+            'stream' => false,
+            'options' => [
+                'temperature' => 0.2,
+                'num_predict' => 16000,
+            ],
+        ];
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 600);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        if ($error) {
+            return ['success' => false, 'error' => 'Ollama error: ' . $error];
+        }
+        if ($httpCode !== 200) {
+            $errData = json_decode($response, true);
+            return ['success' => false, 'error' => $errData['error'] ?? 'Ollama HTTP ' . $httpCode];
+        }
+        $result = json_decode($response, true);
+        $content = $result['message']['content'] ?? '';
+        return ['success' => true, 'content' => $content];
+    }
+
     /**
      * Call Ollama API (local, free)
      * Note: Ollama doesn't support vision yet, so images are ignored
