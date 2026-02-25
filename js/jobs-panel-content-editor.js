@@ -186,6 +186,34 @@
             });
     };
 
+    function isJobAvailable(app) {
+        if (['rejected', 'withdrawn', 'accepted'].indexOf(app.status || '') !== -1) return false;
+        var closing = app.next_follow_up;
+        if (!closing) return true;
+        var parts = String(closing).split(/[T\-]/);
+        if (parts.length < 3) return true;
+        var closeDate = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+        var today = new Date();
+        today.setHours(0, 0, 0, 0);
+        closeDate.setHours(0, 0, 0, 0);
+        return closeDate >= today;
+    }
+
+    function getClosingDateForSort(app) {
+        var closing = app.next_follow_up;
+        if (!closing) return '9999-12-31';
+        var parts = String(closing).split(/[T\-]/);
+        if (parts.length < 3) return '9999-12-31';
+        return parts[0] + '-' + parts[1] + '-' + (parts[2] || '01');
+    }
+
+    function getCvLinkForJob(app) {
+        if (app.linked_cv_variant_id) {
+            return '/cv.php?variant_id=' + encodeURIComponent(app.linked_cv_variant_id);
+        }
+        return '/cv.php';
+    }
+
     function renderJobsList(applications, csrfToken) {
         var cardsContainer = document.getElementById('jobs-applications-cards');
         var tableBody = document.getElementById('jobs-table-body');
@@ -193,20 +221,40 @@
 
         var statusFilterEl = document.getElementById('jobs-status-filter');
         var searchInputEl = document.getElementById('jobs-search-input');
-        var statusFilter = statusFilterEl ? statusFilterEl.value : 'all';
+        var statusFilter = statusFilterEl ? statusFilterEl.value : 'available';
         var searchTerm = (searchInputEl ? searchInputEl.value : '').toLowerCase();
 
         var filtered = applications.filter(function(app) {
-            var matchesStatus = statusFilter === 'all' || app.status === statusFilter;
+            var matchesStatus = statusFilter === 'all'
+                ? true
+                : statusFilter === 'available'
+                    ? isJobAvailable(app)
+                    : app.status === statusFilter;
             var matchesSearch = !searchTerm ||
                 (app.company_name || '').toLowerCase().indexOf(searchTerm) !== -1 ||
                 (app.job_title || '').toLowerCase().indexOf(searchTerm) !== -1;
             return matchesStatus && matchesSearch;
         });
 
+        if (statusFilter === 'available') {
+            filtered.sort(function(a, b) {
+                var closeA = getClosingDateForSort(a);
+                var closeB = getClosingDateForSort(b);
+                if (closeA !== closeB) return closeA.localeCompare(closeB);
+                var nameA = (a.company_name || '').toLowerCase();
+                var nameB = (b.company_name || '').toLowerCase();
+                if (nameA !== nameB) return nameA.localeCompare(nameB);
+                return (a.job_title || '').toLowerCase().localeCompare((b.job_title || '').toLowerCase());
+            });
+        }
+
+        var emptyMsg = statusFilter === 'available'
+            ? 'No jobs available to apply for. Try "All statuses" to see closed or rejected jobs.'
+            : 'No applications found.';
+
         if (cardsContainer) {
             if (filtered.length === 0) {
-                cardsContainer.innerHTML = '<div class="text-center py-12 text-gray-500 col-span-full">No applications found.</div>';
+                cardsContainer.innerHTML = '<div class="text-center py-12 text-gray-500 col-span-full">' + escapeHtml(emptyMsg) + '</div>';
             } else {
                 cardsContainer.innerHTML = filtered.map(function(app) {
                     var dateLabel = app.application_date ? ('Applied: ' + new Date(app.application_date).toLocaleDateString()) : (app.created_at ? ('Added: ' + new Date(app.created_at).toLocaleDateString()) : '');
@@ -218,7 +266,8 @@
                     var roundedClass = hasLeftBorder ? 'rounded-tr-lg rounded-br-lg' : 'rounded-lg';
                     // Hover border - only apply if no left border, or use specific hover that preserves left border
                     var hoverBorderClass = hasLeftBorder ? '' : 'hover:border-green-300';
-                    return '<div onclick="window.location.hash=\'#jobs&view=' + (app.id || '') + '\'" ' +
+                    var cvLink = getCvLinkForJob(app);
+                    return '<div onclick="window.location.href=\'' + cvLink.replace(/'/g, "\\'") + '\'" ' +
                         'class="border border-gray-200 ' + roundedClass + ' p-4 hover:shadow-lg ' + hoverBorderClass + ' transition-all bg-white cursor-pointer ' + borderClass + '"' + borderStyle + '>' +
                         '<div class="mb-3">' +
                         '<h3 class="text-lg font-semibold text-gray-900 mb-1">' + escapeHtml(app.job_title || '') + '</h3>' +
@@ -236,17 +285,18 @@
 
         if (tableBody) {
             if (filtered.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="9" class="px-6 py-12 text-center text-gray-500">No applications found.</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="9" class="px-6 py-12 text-center text-gray-500">' + escapeHtml(emptyMsg) + '</td></tr>';
             } else {
                 tableBody.innerHTML = filtered.map(function(app) {
                     var dateLabel = app.application_date ? ('Applied: ' + new Date(app.application_date).toLocaleDateString()) : (app.created_at ? new Date(app.created_at).toLocaleDateString() : '—');
+                    var cvLink = getCvLinkForJob(app);
                     var viewHash = '#jobs&view=' + (app.id || '');
                     var editHash = '#jobs&edit=' + (app.id || '');
-                    var safeViewHash = viewHash.replace(/'/g, "\\'");
+                    var safeCvLink = cvLink.replace(/'/g, "\\'");
                     var dueSoon = getDueSoon(app.next_follow_up);
                     var priorityCell = app.priority ? '<span class="inline-flex px-2 py-0.5 rounded text-xs font-medium ' + (app.priority === 'high' ? 'bg-red-100 text-red-800' : (app.priority === 'medium' ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-600')) + '">' + escapeHtml(app.priority) + '</span>' : '—';
                     var dueCell = dueSoon.label ? '<span class="text-xs font-medium ' + (dueSoon.urgent ? 'text-red-600' : (dueSoon.soon ? 'text-amber-700' : 'text-gray-600')) + '">' + escapeHtml(dueSoon.label) + '</span>' : '—';
-                    return '<tr class="hover:bg-gray-50 cursor-pointer" role="button" tabindex="0" onclick="window.location.hash=\'' + safeViewHash + '\'" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();window.location.hash=\'' + safeViewHash + '\'}">' +
+                    return '<tr class="hover:bg-gray-50 cursor-pointer" role="button" tabindex="0" onclick="window.location.href=\'' + safeCvLink + '\'" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();window.location.href=\'' + safeCvLink + '\'}">' +
                         '<td data-column="company" class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">' + escapeHtml(app.company_name || '') + '</td>' +
                         '<td data-column="job_title" class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">' + escapeHtml(app.job_title || '') + '</td>' +
                         '<td data-column="status" class="px-6 py-4 whitespace-nowrap"><span class="status-badge status-' + (app.status || 'applied') + '">' + formatStatus(app.status) + '</span></td>' +
@@ -336,8 +386,9 @@
 
     var JOBS_COLUMNS = ['company', 'job_title', 'status', 'priority', 'closing_date', 'location', 'salary', 'date_added', 'actions'];
     var JOBS_COL_VISIBILITY_KEY = 'jobApplicationsTableColumns';
+    var jobsColumnPrefsCsrf = '';
 
-    function getJobsColumnVisibility() {
+    function getJobsColumnVisibilityFromLocal() {
         try {
             var saved = localStorage.getItem(JOBS_COL_VISIBILITY_KEY);
             if (saved) {
@@ -352,8 +403,21 @@
         return def;
     }
 
-    function setJobsColumnVisibility(vis) {
+    function getJobsColumnVisibility() {
+        return getJobsColumnVisibilityFromLocal();
+    }
+
+    function setJobsColumnVisibility(vis, csrf) {
         try { localStorage.setItem(JOBS_COL_VISIBILITY_KEY, JSON.stringify(vis)); } catch (e) {}
+        var token = csrf || jobsColumnPrefsCsrf || (document.getElementById('jobs-applications-container') && document.getElementById('jobs-applications-container').getAttribute('data-csrf')) || '';
+        if (token) {
+            var body = { columns: vis, csrf_token: token };
+            fetch('/api/job-column-preferences.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            }).catch(function() {});
+        }
     }
 
     function applyJobsColumnVisibility() {
@@ -378,17 +442,36 @@
         document.addEventListener('click', function() { dropdown.classList.add('hidden'); });
         dropdown.addEventListener('click', function(e) { e.stopPropagation(); });
         var checks = dropdown.querySelectorAll('.jobs-col-check');
-        var vis = getJobsColumnVisibility();
+        var vis = getJobsColumnVisibilityFromLocal();
+        var userHasChanged = false;
         checks.forEach(function(ch) {
             var col = ch.getAttribute('data-column');
             ch.checked = vis[col] !== false;
             ch.addEventListener('change', function() {
+                userHasChanged = true;
                 vis[col] = ch.checked;
                 setJobsColumnVisibility(vis);
                 applyJobsColumnVisibility();
             });
         });
         applyJobsColumnVisibility();
+        fetch('/api/job-column-preferences.php')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                jobsColumnPrefsCsrf = data.csrf_token || '';
+                if (data.columns && !userHasChanged) {
+                    vis = data.columns;
+                    try { localStorage.setItem(JOBS_COL_VISIBILITY_KEY, JSON.stringify(vis)); } catch (e) {}
+                    checks.forEach(function(ch) {
+                        var col = ch.getAttribute('data-column');
+                        ch.checked = vis[col] !== false;
+                    });
+                } else if (userHasChanged && jobsColumnPrefsCsrf) {
+                    setJobsColumnVisibility(vis);
+                }
+                applyJobsColumnVisibility();
+            })
+            .catch(function() {});
     }
 
     function initJobsPanel() {

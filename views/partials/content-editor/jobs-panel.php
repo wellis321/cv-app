@@ -22,6 +22,12 @@ $stats = getJobApplicationStats($userId);
         <!-- Statistics: single row, compact, no wrap -->
         <div class="flex flex-nowrap gap-2 overflow-x-auto pb-1 mb-6 scrollbar-thin">
             <button type="button" 
+                    onclick="filterJobsByStatus('available')"
+                    class="stat-card flex-shrink-0 bg-white rounded-lg shadow px-3 py-2 hover:shadow-lg transition-shadow cursor-pointer text-left border-2 border-green-300 whitespace-nowrap"
+                    data-status="available">
+                <span class="text-xs text-gray-500">Available to apply</span> <span class="text-lg font-bold text-green-600"><?php echo $stats['available'] ?? 0; ?></span>
+            </button>
+            <button type="button" 
                     onclick="filterJobsByStatus('all')"
                     class="stat-card flex-shrink-0 bg-white rounded-lg shadow px-3 py-2 hover:shadow-lg transition-shadow cursor-pointer text-left border-2 border-transparent hover:border-blue-300 whitespace-nowrap"
                     data-status="all">
@@ -69,14 +75,16 @@ $stats = getJobApplicationStats($userId);
         <div class="mb-6 flex flex-wrap justify-between items-center gap-3">
             <div class="flex flex-wrap gap-3 flex-1 items-center min-w-0">
                 <select id="jobs-status-filter" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
-                    <option value="all">All Status</option>
+                    <option value="available" selected>Available to apply</option>
+                    <option value="all">All statuses</option>
+                    <option value="interested">Interested</option>
+                    <option value="in_progress">In Progress</option>
                     <option value="applied">Applied</option>
                     <option value="interviewing">Interviewing</option>
                     <option value="offered">Offered</option>
                     <option value="accepted">Accepted</option>
                     <option value="rejected">Rejected</option>
                     <option value="withdrawn">Withdrawn</option>
-                    <option value="in_progress">In Progress</option>
                 </select>
                 <input type="text" 
                        id="jobs-search-input" 
@@ -282,17 +290,20 @@ $stats = getJobApplicationStats($userId);
         loadJobsData();
     }
     
+    var cachedApplications = [];
+    var cachedCsrfToken = '';
+
     async function loadJobsData() {
         try {
             const response = await fetch('/api/job-applications.php');
             const data = await response.json();
-            const applications = data.applications || data;
-            const csrfToken = data.csrf_token || '';
+            cachedApplications = data.applications || data;
+            cachedCsrfToken = data.csrf_token || '';
             
             var container = document.getElementById('jobs-applications-container');
-            if (container && csrfToken) container.setAttribute('data-csrf', csrfToken);
-            renderJobsList(applications, csrfToken);
-            setupJobsEventListeners(applications, csrfToken);
+            if (container && cachedCsrfToken) container.setAttribute('data-csrf', cachedCsrfToken);
+            renderJobsList(cachedApplications, cachedCsrfToken);
+            setupJobsEventListeners(cachedApplications, cachedCsrfToken);
         } catch (error) {
             console.error('Error loading jobs:', error);
             var cardsEl = document.getElementById('jobs-applications-cards');
@@ -302,24 +313,65 @@ $stats = getJobApplicationStats($userId);
         }
     }
     
+    function isJobAvailable(app) {
+        if (['rejected', 'withdrawn', 'accepted'].indexOf(app.status || '') !== -1) return false;
+        const closing = app.next_follow_up;
+        if (!closing) return true;
+        const parts = String(closing).split(/[T\-]/);
+        if (parts.length < 3) return true;
+        const closeDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        closeDate.setHours(0, 0, 0, 0);
+        return closeDate >= today;
+    }
+
+    function getClosingDateForSort(app) {
+        const closing = app.next_follow_up;
+        if (!closing) return '9999-12-31';
+        const parts = String(closing).split(/[T\-]/);
+        if (parts.length < 3) return '9999-12-31';
+        return parts[0] + '-' + parts[1] + '-' + (parts[2] || '01');
+    }
+
     function renderJobsList(applications, csrfToken) {
         const cardsEl = document.getElementById('jobs-applications-cards');
         const tableBody = document.getElementById('jobs-table-body');
         if (!cardsEl && !tableBody) return;
         
-        const statusFilter = document.getElementById('jobs-status-filter')?.value || 'all';
+        const statusFilter = document.getElementById('jobs-status-filter')?.value || 'available';
         const searchTerm = (document.getElementById('jobs-search-input')?.value || '').toLowerCase();
         
-        const filtered = applications.filter(app => {
-            const matchesStatus = statusFilter === 'all' || app.status === statusFilter;
+        let filtered = applications.filter(app => {
+            const matchesStatus = statusFilter === 'all'
+                ? true
+                : statusFilter === 'available'
+                    ? isJobAvailable(app)
+                    : app.status === statusFilter;
             const matchesSearch = !searchTerm || 
                 (app.company_name || '').toLowerCase().includes(searchTerm) ||
                 (app.job_title || '').toLowerCase().includes(searchTerm);
             return matchesStatus && matchesSearch;
         });
+
+        if (statusFilter === 'available') {
+            filtered.sort((a, b) => {
+                const closeA = getClosingDateForSort(a);
+                const closeB = getClosingDateForSort(b);
+                if (closeA !== closeB) return closeA.localeCompare(closeB);
+                const nameA = (a.company_name || '').toLowerCase();
+                const nameB = (b.company_name || '').toLowerCase();
+                if (nameA !== nameB) return nameA.localeCompare(nameB);
+                return (a.job_title || '').toLowerCase().localeCompare((b.job_title || '').toLowerCase());
+            });
+        }
         
+        const emptyMsg = statusFilter === 'available'
+            ? 'No jobs available to apply for. Try "All statuses" to see closed or rejected jobs.'
+            : 'No applications found.';
+        const getCvLinkForJob = (app) => app.linked_cv_variant_id ? '/cv.php?variant_id=' + encodeURIComponent(app.linked_cv_variant_id) : '/cv.php';
         const cardsHtml = filtered.length === 0
-            ? '<div class="text-center py-12 text-gray-500 col-span-full">No applications found.</div>'
+            ? '<div class="text-center py-12 text-gray-500 col-span-full">' + emptyMsg + '</div>'
             : filtered.map(app => {
                 var dueSoon = getDueSoon(app.next_follow_up);
                 var hasLeftBorder = dueSoon.urgent || dueSoon.soon;
@@ -331,19 +383,20 @@ $stats = getJobApplicationStats($userId);
                 var hoverBorderClass = hasLeftBorder ? '' : 'hover:border-green-300';
                 var priorityBadge = app.priority ? '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ' + (app.priority === 'high' ? 'bg-red-100 text-red-800' : (app.priority === 'medium' ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-600')) + '">' + escapeHtml(app.priority) + '</span>' : '';
                 var dueBadge = dueSoon.label ? '<span class="text-xs font-medium ' + (dueSoon.urgent ? 'text-red-600' : (dueSoon.soon ? 'text-amber-700' : 'text-gray-600')) + '">' + dueSoon.label + '</span>' : '';
+                const cvLink = getCvLinkForJob(app);
                 const viewHash = '#jobs&view=' + app.id;
                 const editHash = '#jobs&edit=' + app.id;
                 const deleteCall = "event.stopPropagation(); deleteJob('" + (app.id || '').replace(/'/g, "\\'") + "', '" + (csrfToken || '').replace(/'/g, "\\'") + "'); return false;";
                 return `
                 <div class="border border-gray-200 ${roundedClass} p-4 hover:shadow-lg ${hoverBorderClass} transition-all bg-white ${borderClass}"${borderStyle}>
-                    <div class="mb-3 flex flex-wrap items-start justify-between gap-2" onclick="window.location.hash='${viewHash}'" style="cursor:pointer">
+                    <div class="mb-3 flex flex-wrap items-start justify-between gap-2" onclick="window.location.href='${cvLink.replace(/'/g, "\\'")}'" style="cursor:pointer">
                         <div>
                             <h3 class="text-lg font-semibold text-gray-900 mb-1">${escapeHtml(app.job_title || '')}</h3>
                             <p class="text-sm text-gray-600 font-medium">${escapeHtml(app.company_name || '')}</p>
                         </div>
                         <div class="flex flex-wrap gap-1.5 items-center">${priorityBadge} ${dueBadge}</div>
                     </div>
-                    <div class="space-y-2 mb-4" onclick="window.location.hash='${viewHash}'" style="cursor:pointer">
+                    <div class="space-y-2 mb-4" onclick="window.location.href='${cvLink.replace(/'/g, "\\'")}'" style="cursor:pointer">
                         ${app.job_location ? '<p class="text-sm text-gray-500 flex items-center gap-1.5"><svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>' + escapeHtml(app.job_location) + '</p>' : ''}
                         ${app.salary_range ? '<p class="text-sm text-gray-500 flex items-center gap-1.5"><svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0-7v1m0-1c-1.11 0-2.08.402-2.599 1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>' + escapeHtml(app.salary_range) + '</p>' : ''}
                         <p class="text-xs text-gray-400">${app.application_date ? 'Applied: ' + new Date(app.application_date).toLocaleDateString() : (app.created_at ? 'Added: ' + new Date(app.created_at).toLocaleDateString() + ', ' + new Date(app.created_at).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}) : '—')}</p>
@@ -360,15 +413,17 @@ $stats = getJobApplicationStats($userId);
             `;
             }).join('');
         const tableRowsHtml = filtered.length === 0
-            ? '<tr><td colspan="9" class="px-6 py-12 text-center text-gray-500">No applications found.</td></tr>'
+            ? '<tr><td colspan="9" class="px-6 py-12 text-center text-gray-500">' + emptyMsg + '</td></tr>'
             : filtered.map(app => {
                 const dateLabel = app.application_date ? ('Applied: ' + new Date(app.application_date).toLocaleDateString()) : (app.created_at ? new Date(app.created_at).toLocaleDateString() : '—');
+                const cvLink = getCvLinkForJob(app);
                 const viewHash = '#jobs&view=' + app.id;
                 const editHash = '#jobs&edit=' + app.id;
+                const safeCvLink = cvLink.replace(/'/g, "\\'");
                 const dueSoon = getDueSoon(app.next_follow_up);
                 const priorityCell = app.priority ? '<span class="inline-flex px-2 py-0.5 rounded text-xs font-medium ' + (app.priority === 'high' ? 'bg-red-100 text-red-800' : (app.priority === 'medium' ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-600')) + '">' + escapeHtml(app.priority) + '</span>' : '—';
                 const dueCell = dueSoon.label ? '<span class="text-xs font-medium ' + (dueSoon.urgent ? 'text-red-600' : (dueSoon.soon ? 'text-amber-700' : 'text-gray-600')) + '">' + escapeHtml(dueSoon.label) + '</span>' : '—';
-                return '<tr class="hover:bg-gray-50 cursor-pointer" role="button" tabindex="0" onclick="window.location.hash=\'' + viewHash.replace(/'/g, "\\'") + '\'" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();window.location.hash=\'' + viewHash.replace(/'/g, "\\'") + '\'}">' +
+                return '<tr class="hover:bg-gray-50 cursor-pointer" role="button" tabindex="0" onclick="window.location.href=\'' + safeCvLink + '\'" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();window.location.href=\'' + safeCvLink + '\'}">' +
                     '<td data-column="company" class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">' + escapeHtml(app.company_name || '') + '</td>' +
                     '<td data-column="job_title" class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">' + escapeHtml(app.job_title || '') + '</td>' +
                     '<td data-column="status" class="px-6 py-4 whitespace-nowrap"><span class="status-badge status-' + (app.status || 'applied') + '">' + formatStatus(app.status) + '</span></td>' +
@@ -389,6 +444,19 @@ $stats = getJobApplicationStats($userId);
             }).join('');
         if (cardsEl) cardsEl.innerHTML = cardsHtml;
         if (tableBody) tableBody.innerHTML = tableRowsHtml;
+
+        document.querySelectorAll('.stat-card[data-status]').forEach(function(card) {
+            const status = card.getAttribute('data-status');
+            card.classList.remove('border-green-300', 'border-blue-300', 'border-yellow-300', 'border-purple-300', 'border-red-300');
+            card.classList.add('border-2');
+            if (status === statusFilter) {
+                if (status === 'available') card.classList.add('border-green-300');
+                else if (status === 'all') card.classList.add('border-blue-300');
+                else card.classList.add('border-gray-300');
+            } else {
+                card.classList.add('border-transparent');
+            }
+        });
     }
     
     const JOBS_COLUMNS = ['company', 'job_title', 'status', 'priority', 'closing_date', 'location', 'salary', 'date_added', 'actions'];
@@ -453,13 +521,13 @@ $stats = getJobApplicationStats($userId);
         
         if (statusFilter) {
             statusFilter.addEventListener('change', () => {
-                loadJobsData();
+                renderJobsList(cachedApplications, cachedCsrfToken);
             });
         }
         
         if (searchInput) {
             searchInput.addEventListener('input', () => {
-                loadJobsData();
+                renderJobsList(cachedApplications, cachedCsrfToken);
             });
         }
         
@@ -598,13 +666,14 @@ $stats = getJobApplicationStats($userId);
     
     function formatStatus(status) {
         const statusMap = {
+            'interested': 'Interested',
+            'in_progress': 'In Progress',
             'applied': 'Applied',
             'interviewing': 'Interviewing',
             'offered': 'Offered',
             'accepted': 'Accepted',
             'rejected': 'Rejected',
-            'withdrawn': 'Withdrawn',
-            'in_progress': 'In Progress'
+            'withdrawn': 'Withdrawn'
         };
         return statusMap[status] || status;
     }

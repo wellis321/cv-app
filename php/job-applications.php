@@ -21,6 +21,7 @@ function getUserJobApplications($userId = null, $filters = []) {
     $params = [$userId];
     $sql = "SELECT 
                 ja.*,
+                (SELECT cv.id FROM cv_variants cv WHERE cv.job_application_id = ja.id AND cv.user_id = ja.user_id LIMIT 1) as linked_cv_variant_id,
                 COALESCE(
                     JSON_ARRAYAGG(
                         CASE WHEN jaf.id IS NOT NULL THEN
@@ -84,7 +85,8 @@ function getUserJobApplications($userId = null, $filters = []) {
             'extracted_keywords' => $row['extracted_keywords'] ?? null,
             'selected_keywords' => $row['selected_keywords'] ?? null,
             'created_at' => $row['created_at'],
-            'updated_at' => $row['updated_at']
+            'updated_at' => $row['updated_at'],
+            'linked_cv_variant_id' => !empty($row['linked_cv_variant_id']) ? $row['linked_cv_variant_id'] : null
         ];
         
         // Parse files JSON
@@ -659,8 +661,11 @@ function getJobApplicationStats($userId = null) {
     }
     
     $stats = db()->fetchOne(
-        "SELECT 
+        "SELECT
             COUNT(*) as total,
+            SUM(CASE WHEN status NOT IN ('rejected', 'withdrawn', 'accepted')
+                AND (next_follow_up IS NULL OR DATE(next_follow_up) >= CURDATE())
+                THEN 1 ELSE 0 END) as available,
             SUM(CASE WHEN status = 'applied' THEN 1 ELSE 0 END) as applied,
             SUM(CASE WHEN status = 'interviewing' THEN 1 ELSE 0 END) as interviewing,
             SUM(CASE WHEN status = 'offered' THEN 1 ELSE 0 END) as offered,
@@ -672,9 +677,10 @@ function getJobApplicationStats($userId = null) {
          WHERE user_id = ?",
         [$userId]
     );
-    
+
     return $stats ?: [
         'total' => 0,
+        'available' => 0,
         'applied' => 0,
         'interviewing' => 0,
         'offered' => 0,
