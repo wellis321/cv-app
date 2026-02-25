@@ -100,9 +100,13 @@ $masterVariantId = getOrCreateMasterVariant($userId);
         'cvVariants' => $cvVariants,
         'masterVariantId' => $masterVariantId,
         'isPreviewPage' => true,
+        'variantId' => $variantId ?? null,
     ]); ?>
 
     <div class="max-w-6xl mx-auto px-4 py-8">
+        <?php if (!empty($cvData['variant']['variant_name'])): ?>
+        <p class="text-sm text-gray-500 mb-1">Viewing: <?php echo e($cvData['variant']['variant_name']); ?></p>
+        <?php endif; ?>
         <h1 class="text-3xl font-bold text-gray-900 mb-6">Preview & Generate PDF</h1>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -375,6 +379,7 @@ $masterVariantId = getOrCreateMasterVariant($userId);
         const siteUrl = <?php echo json_encode(APP_URL, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
         const allowedTemplateIds = new Set(SubscriptionContext?.allowedTemplateIds || []);
         const previewVariantId = <?php echo json_encode($variantId ?? null, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
+        const previewCsrfToken = <?php echo json_encode(csrfToken(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
         let cvData = <?php echo json_encode($cvDataDecoded, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
         let profile = <?php echo json_encode($profileDecoded, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
         const dateFormat = <?php echo json_encode($dateFormat, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
@@ -736,6 +741,18 @@ $masterVariantId = getOrCreateMasterVariant($userId);
         }
 
         const PREVIEW_STORAGE_KEY = 'preview-cv-prefs';
+        const SECTION_ID_MAP = {
+            'section-profile': 'profile',
+            'section-summary': 'summary',
+            'section-work': 'work',
+            'section-education': 'education',
+            'section-skills': 'skills',
+            'section-projects': 'projects',
+            'section-certifications': 'certifications',
+            'section-memberships': 'memberships',
+            'section-interests': 'interests',
+            'section-qualifications': 'qualificationEquivalence'
+        };
 
         function loadPreviewPrefs() {
             try {
@@ -753,8 +770,60 @@ $masterVariantId = getOrCreateMasterVariant($userId);
             } catch (e) { /* ignore */ }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const prefs = loadPreviewPrefs();
+        async function fetchVariantPdfPrefs() {
+            if (!previewVariantId) return null;
+            try {
+                const res = await fetch('/api/variant-pdf-preferences.php?variant_id=' + encodeURIComponent(previewVariantId), { credentials: 'include' });
+                const data = await res.json();
+                return data.preferences || null;
+            } catch (e) {
+                console.warn('Could not load variant PDF preferences:', e);
+                return null;
+            }
+        }
+
+        let saveVariantPrefsTimeout = null;
+        function saveVariantPdfPrefs(partial) {
+            if (!previewVariantId) return;
+            if (saveVariantPrefsTimeout) clearTimeout(saveVariantPrefsTimeout);
+            saveVariantPrefsTimeout = setTimeout(async () => {
+                saveVariantPrefsTimeout = null;
+                const payload = {
+                    variant_id: previewVariantId,
+                    csrf_token: previewCsrfToken
+                };
+                if (partial.preferred_template_id !== undefined) payload.preferred_template_id = partial.preferred_template_id;
+                if (partial.sections !== undefined) payload.sections = partial.sections;
+                if (partial.colour_preset !== undefined) payload.colour_preset = partial.colour_preset;
+                if (partial.custom_accent_hex !== undefined) payload.custom_accent_hex = partial.custom_accent_hex;
+                if (partial.include_photo !== undefined) payload.include_photo = partial.include_photo;
+                if (partial.include_qr !== undefined) payload.include_qr = partial.include_qr;
+                try {
+                    await fetch('/api/variant-pdf-preferences.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload),
+                        credentials: 'include'
+                    });
+                } catch (e) {
+                    console.warn('Could not save variant PDF preferences:', e);
+                }
+            }, 300);
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            let prefs = loadPreviewPrefs();
+            let variantPrefs = null;
+            if (previewVariantId) {
+                variantPrefs = await fetchVariantPdfPrefs();
+                if (variantPrefs) {
+                    if (variantPrefs.preferred_template_id) selectedTemplate = variantPrefs.preferred_template_id;
+                    if (variantPrefs.include_photo !== null) prefs = { ...prefs, includePhoto: variantPrefs.include_photo };
+                    if (variantPrefs.include_qr !== null) prefs = { ...prefs, includeQr: variantPrefs.include_qr };
+                    if (variantPrefs.colour_preset) prefs = { ...prefs, colourPreset: variantPrefs.colour_preset };
+                    if (variantPrefs.custom_accent_hex) prefs = { ...prefs, customAccentHex: variantPrefs.custom_accent_hex };
+                }
+            }
             const includePhotoEl = document.getElementById('include-photo');
             const includeQrEl = document.getElementById('include-qr');
             if (includePhotoEl && prefs.includePhoto !== undefined) {
@@ -778,14 +847,34 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                     if (customHex) customHex.value = prefs.customAccentHex;
                 }
             }
+            if (variantPrefs?.sections) {
+                for (const [domId, apiKey] of Object.entries(SECTION_ID_MAP)) {
+                    const el = document.getElementById(domId);
+                    if (el && variantPrefs.sections[apiKey] !== undefined) {
+                        el.checked = !!variantPrefs.sections[apiKey];
+                    }
+                }
+            }
 
             const checkboxes = document.querySelectorAll('input[type="checkbox"]');
             checkboxes.forEach((checkbox) => {
                 checkbox.addEventListener('change', () => {
                     if (checkbox.id === 'include-photo') {
                         savePreviewPrefs({ includePhoto: checkbox.checked });
+                        if (previewVariantId) saveVariantPdfPrefs({ include_photo: checkbox.checked });
                     } else if (checkbox.id === 'include-qr') {
                         savePreviewPrefs({ includeQr: checkbox.checked });
+                        if (previewVariantId) saveVariantPdfPrefs({ include_qr: checkbox.checked });
+                    } else if (SECTION_ID_MAP[checkbox.id]) {
+                        if (previewVariantId) {
+                            const sections = getSections();
+                            const apiSections = {};
+                            for (const [domId, apiKey] of Object.entries(SECTION_ID_MAP)) {
+                                const el = document.getElementById(domId);
+                                apiSections[apiKey] = el?.checked ?? true;
+                            }
+                            saveVariantPdfPrefs({ sections: apiSections });
+                        }
                     }
                     renderPreview();
                 });
@@ -857,6 +946,7 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                     }
                     selectedTemplate = event.target.value || DEFAULT_TEMPLATE_ID;
                     updateTemplateDescription(selectedTemplate);
+                    if (previewVariantId) saveVariantPdfPrefs({ preferred_template_id: selectedTemplate });
                     renderPreview();
                 });
                 } // Close the else block for listTemplates check
@@ -873,6 +963,7 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                         if (customRow) customRow.classList.toggle('hidden', radio.value !== 'custom');
                         if (radio.value === 'custom' && customColor) customHex.value = customColor.value;
                         savePreviewPrefs({ colourPreset: radio.value });
+                        if (previewVariantId) saveVariantPdfPrefs({ colour_preset: radio.value });
                         renderPreview();
                     });
                 });
@@ -880,6 +971,7 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                     customColor.addEventListener('input', () => {
                         customHex.value = customColor.value;
                         savePreviewPrefs({ customAccentHex: customColor.value });
+                        if (previewVariantId) saveVariantPdfPrefs({ custom_accent_hex: customColor.value });
                         if (document.querySelector('input[name="colour-preset"]:checked')?.value === 'custom') renderPreview();
                     });
                 }
@@ -889,6 +981,7 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                         if (/^#[0-9A-Fa-f]{6}$/.test(hex) && customColor) {
                             customColor.value = hex;
                             savePreviewPrefs({ customAccentHex: hex });
+                            if (previewVariantId) saveVariantPdfPrefs({ custom_accent_hex: hex });
                         }
                         if (document.querySelector('input[name="colour-preset"]:checked')?.value === 'custom') renderPreview();
                     });

@@ -2,10 +2,12 @@
 /**
  * Export Cover Letter as PDF
  * Returns cover letter data formatted for PDF generation
+ * Includes template_colors so cover letter matches the user's CV design
  */
 
 define('SKIP_CANONICAL_REDIRECT', true);
 require_once __DIR__ . '/../php/helpers.php';
+require_once __DIR__ . '/../php/cover-letter-styles.php';
 require_once __DIR__ . '/../php/cover-letters.php';
 require_once __DIR__ . '/../php/job-applications.php';
 
@@ -55,6 +57,11 @@ $date = date('F j, Y');
 $includePhoto = (!isset($profile['show_photo_pdf']) || $profile['show_photo_pdf']) && !empty($profile['photo_url']);
 $photoUrl = $includePhoto ? $profile['photo_url'] : null;
 
+// Get template colors so cover letter matches user's CV design
+// Use linked variant's preferred template when job has a CV variant (cover letter matches that variant's PDF)
+$linkedVariantId = $jobApplication['linked_cv_variant_id'] ?? null;
+$templateColors = getCoverLetterTemplateColors($user['id'], $linkedVariantId);
+
 // Return data for client-side PDF generation
 echo json_encode([
     'success' => true,
@@ -69,7 +76,8 @@ echo json_encode([
         'applicant_location' => $profile['location'] ?? '',
         'professional_title' => $professionalTitle,
         'photo_url' => $photoUrl,
-        'app_url' => defined('APP_URL') ? APP_URL : ''
+        'app_url' => defined('APP_URL') ? APP_URL : '',
+        'template_colors' => $templateColors
     ]
 ]);
 

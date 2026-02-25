@@ -126,6 +126,7 @@ function getJobApplication($applicationId, $userId = null) {
     $row = db()->fetchOne(
         "SELECT 
             ja.*,
+            (SELECT cv.id FROM cv_variants cv WHERE cv.job_application_id = ja.id AND cv.user_id = ja.user_id LIMIT 1) as linked_cv_variant_id,
             COALESCE(
                 JSON_ARRAYAGG(
                     CASE WHEN jaf.id IS NOT NULL THEN
@@ -172,7 +173,8 @@ function getJobApplication($applicationId, $userId = null) {
         'extracted_keywords' => $row['extracted_keywords'] ?? null,
         'selected_keywords' => $row['selected_keywords'] ?? null,
         'created_at' => $row['created_at'],
-        'updated_at' => $row['updated_at']
+        'updated_at' => $row['updated_at'],
+        'linked_cv_variant_id' => !empty($row['linked_cv_variant_id']) ? $row['linked_cv_variant_id'] : null
     ];
     
     // Parse files JSON
