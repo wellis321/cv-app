@@ -369,7 +369,6 @@ $stats = getJobApplicationStats($userId);
         const emptyMsg = statusFilter === 'available'
             ? 'No jobs available to apply for. Try "All statuses" to see closed or rejected jobs.'
             : 'No applications found.';
-        const getCvLinkForJob = (app) => app.linked_cv_variant_id ? '/cv.php?variant_id=' + encodeURIComponent(app.linked_cv_variant_id) : '/cv.php';
         const cardsHtml = filtered.length === 0
             ? '<div class="text-center py-12 text-gray-500 col-span-full">' + emptyMsg + '</div>'
             : filtered.map(app => {
@@ -383,20 +382,19 @@ $stats = getJobApplicationStats($userId);
                 var hoverBorderClass = hasLeftBorder ? '' : 'hover:border-green-300';
                 var priorityBadge = app.priority ? '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ' + (app.priority === 'high' ? 'bg-red-100 text-red-800' : (app.priority === 'medium' ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-600')) + '">' + escapeHtml(app.priority) + '</span>' : '';
                 var dueBadge = dueSoon.label ? '<span class="text-xs font-medium ' + (dueSoon.urgent ? 'text-red-600' : (dueSoon.soon ? 'text-amber-700' : 'text-gray-600')) + '">' + dueSoon.label + '</span>' : '';
-                const cvLink = getCvLinkForJob(app);
                 const viewHash = '#jobs&view=' + app.id;
                 const editHash = '#jobs&edit=' + app.id;
                 const deleteCall = "event.stopPropagation(); deleteJob('" + (app.id || '').replace(/'/g, "\\'") + "', '" + (csrfToken || '').replace(/'/g, "\\'") + "'); return false;";
                 return `
                 <div class="border border-gray-200 ${roundedClass} p-4 hover:shadow-lg ${hoverBorderClass} transition-all bg-white ${borderClass}"${borderStyle}>
-                    <div class="mb-3 flex flex-wrap items-start justify-between gap-2" onclick="window.location.href='${cvLink.replace(/'/g, "\\'")}'" style="cursor:pointer">
+                    <div class="mb-3 flex flex-wrap items-start justify-between gap-2" onclick="window.location.hash='${viewHash}'" style="cursor:pointer">
                         <div>
                             <h3 class="text-lg font-semibold text-gray-900 mb-1">${escapeHtml(app.job_title || '')}</h3>
                             <p class="text-sm text-gray-600 font-medium">${escapeHtml(app.company_name || '')}</p>
                         </div>
                         <div class="flex flex-wrap gap-1.5 items-center">${priorityBadge} ${dueBadge}</div>
                     </div>
-                    <div class="space-y-2 mb-4" onclick="window.location.href='${cvLink.replace(/'/g, "\\'")}'" style="cursor:pointer">
+                    <div class="space-y-2 mb-4" onclick="window.location.hash='${viewHash}'" style="cursor:pointer">
                         ${app.job_location ? '<p class="text-sm text-gray-500 flex items-center gap-1.5"><svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>' + escapeHtml(app.job_location) + '</p>' : ''}
                         ${app.salary_range ? '<p class="text-sm text-gray-500 flex items-center gap-1.5"><svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0-7v1m0-1c-1.11 0-2.08.402-2.599 1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>' + escapeHtml(app.salary_range) + '</p>' : ''}
                         <p class="text-xs text-gray-400">${app.application_date ? 'Applied: ' + new Date(app.application_date).toLocaleDateString() : (app.created_at ? 'Added: ' + new Date(app.created_at).toLocaleDateString() + ', ' + new Date(app.created_at).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}) : '—')}</p>
@@ -416,14 +414,12 @@ $stats = getJobApplicationStats($userId);
             ? '<tr><td colspan="9" class="px-6 py-12 text-center text-gray-500">' + emptyMsg + '</td></tr>'
             : filtered.map(app => {
                 const dateLabel = app.application_date ? ('Applied: ' + new Date(app.application_date).toLocaleDateString()) : (app.created_at ? new Date(app.created_at).toLocaleDateString() : '—');
-                const cvLink = getCvLinkForJob(app);
                 const viewHash = '#jobs&view=' + app.id;
                 const editHash = '#jobs&edit=' + app.id;
-                const safeCvLink = cvLink.replace(/'/g, "\\'");
                 const dueSoon = getDueSoon(app.next_follow_up);
                 const priorityCell = app.priority ? '<span class="inline-flex px-2 py-0.5 rounded text-xs font-medium ' + (app.priority === 'high' ? 'bg-red-100 text-red-800' : (app.priority === 'medium' ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-600')) + '">' + escapeHtml(app.priority) + '</span>' : '—';
                 const dueCell = dueSoon.label ? '<span class="text-xs font-medium ' + (dueSoon.urgent ? 'text-red-600' : (dueSoon.soon ? 'text-amber-700' : 'text-gray-600')) + '">' + escapeHtml(dueSoon.label) + '</span>' : '—';
-                return '<tr class="hover:bg-gray-50 cursor-pointer" role="button" tabindex="0" onclick="window.location.href=\'' + safeCvLink + '\'" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();window.location.href=\'' + safeCvLink + '\'}">' +
+                return '<tr class="hover:bg-gray-50 cursor-pointer" role="button" tabindex="0" onclick="window.location.hash=\'' + viewHash.replace(/'/g, "\\'") + '\'" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();window.location.hash=\'' + viewHash.replace(/'/g, "\\'") + '\'}">' +
                     '<td data-column="company" class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">' + escapeHtml(app.company_name || '') + '</td>' +
                     '<td data-column="job_title" class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">' + escapeHtml(app.job_title || '') + '</td>' +
                     '<td data-column="status" class="px-6 py-4 whitespace-nowrap"><span class="status-badge status-' + (app.status || 'applied') + '">' + formatStatus(app.status) + '</span></td>' +

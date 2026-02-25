@@ -207,13 +207,6 @@
         return parts[0] + '-' + parts[1] + '-' + (parts[2] || '01');
     }
 
-    function getCvLinkForJob(app) {
-        if (app.linked_cv_variant_id) {
-            return '/cv.php?variant_id=' + encodeURIComponent(app.linked_cv_variant_id);
-        }
-        return '/cv.php';
-    }
-
     function renderJobsList(applications, csrfToken) {
         var cardsContainer = document.getElementById('jobs-applications-cards');
         var tableBody = document.getElementById('jobs-table-body');
@@ -266,8 +259,8 @@
                     var roundedClass = hasLeftBorder ? 'rounded-tr-lg rounded-br-lg' : 'rounded-lg';
                     // Hover border - only apply if no left border, or use specific hover that preserves left border
                     var hoverBorderClass = hasLeftBorder ? '' : 'hover:border-green-300';
-                    var cvLink = getCvLinkForJob(app);
-                    return '<div onclick="window.location.href=\'' + cvLink.replace(/'/g, "\\'") + '\'" ' +
+                    var viewHash = '#jobs&view=' + (app.id || '');
+                    return '<div onclick="window.location.hash=\'' + viewHash.replace(/'/g, "\\'") + '\'" ' +
                         'class="border border-gray-200 ' + roundedClass + ' p-4 hover:shadow-lg ' + hoverBorderClass + ' transition-all bg-white cursor-pointer ' + borderClass + '"' + borderStyle + '>' +
                         '<div class="mb-3">' +
                         '<h3 class="text-lg font-semibold text-gray-900 mb-1">' + escapeHtml(app.job_title || '') + '</h3>' +
@@ -289,14 +282,13 @@
             } else {
                 tableBody.innerHTML = filtered.map(function(app) {
                     var dateLabel = app.application_date ? ('Applied: ' + new Date(app.application_date).toLocaleDateString()) : (app.created_at ? new Date(app.created_at).toLocaleDateString() : '—');
-                    var cvLink = getCvLinkForJob(app);
                     var viewHash = '#jobs&view=' + (app.id || '');
                     var editHash = '#jobs&edit=' + (app.id || '');
-                    var safeCvLink = cvLink.replace(/'/g, "\\'");
+                    var safeViewHash = viewHash.replace(/'/g, "\\'");
                     var dueSoon = getDueSoon(app.next_follow_up);
                     var priorityCell = app.priority ? '<span class="inline-flex px-2 py-0.5 rounded text-xs font-medium ' + (app.priority === 'high' ? 'bg-red-100 text-red-800' : (app.priority === 'medium' ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-600')) + '">' + escapeHtml(app.priority) + '</span>' : '—';
                     var dueCell = dueSoon.label ? '<span class="text-xs font-medium ' + (dueSoon.urgent ? 'text-red-600' : (dueSoon.soon ? 'text-amber-700' : 'text-gray-600')) + '">' + escapeHtml(dueSoon.label) + '</span>' : '—';
-                    return '<tr class="hover:bg-gray-50 cursor-pointer" role="button" tabindex="0" onclick="window.location.href=\'' + safeCvLink + '\'" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();window.location.href=\'' + safeCvLink + '\'}">' +
+                    return '<tr class="hover:bg-gray-50 cursor-pointer" role="button" tabindex="0" onclick="window.location.hash=\'' + safeViewHash + '\'" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();window.location.hash=\'' + safeViewHash + '\'}">' +
                         '<td data-column="company" class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">' + escapeHtml(app.company_name || '') + '</td>' +
                         '<td data-column="job_title" class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">' + escapeHtml(app.job_title || '') + '</td>' +
                         '<td data-column="status" class="px-6 py-4 whitespace-nowrap"><span class="status-badge status-' + (app.status || 'applied') + '">' + formatStatus(app.status) + '</span></td>' +
