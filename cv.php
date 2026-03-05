@@ -187,6 +187,11 @@ $cvMetaDescription = $cvName !== ''
     ? "View {$cvName}'s CV on Simple CV Builder. Experience, skills, education and projects."
     : "View this CV on Simple CV Builder. Experience, skills, education and projects.";
 
+// Normalize storage URLs (e.g. profile photo) to current request origin - fixes port mismatch in local dev
+if (!empty($profile['photo_url'])) {
+    $profile['photo_url'] = normalizeStorageUrlForDisplay($profile['photo_url']);
+}
+
 if ($activeTemplate) {
     // Render custom template using Twig (secure)
     $customHtml = $activeTemplate['template_html'];
@@ -232,6 +237,10 @@ if ($activeTemplate) {
             .cv-container .grid .space-y-6 > section {
                 overflow: hidden;
             }
+            /* Ensure lists display with bullets/numbers (Tailwind preflight resets list-style) */
+            .cv-container .markdown-content ul { list-style-type: disc; padding-left: 1.25em; }
+            .cv-container .markdown-content ol { list-style-type: decimal; padding-left: 1.25em; }
+            .cv-container .markdown-content li { display: list-item; }
             /* Keep pre/code from marked.js visible and within column */
             .cv-container .markdown-content pre,
             .cv-container .markdown-content code {
@@ -431,6 +440,10 @@ if ($activeTemplate) {
             vertical-align: middle;
             margin-right: 0.25em;
         }
+        /* Ensure lists display with bullets/numbers (Tailwind preflight resets list-style) */
+        .cv-container .markdown-content ul { list-style-type: disc; padding-left: 1.25em; }
+        .cv-container .markdown-content ol { list-style-type: decimal; padding-left: 1.25em; }
+        .cv-container .markdown-content li { display: list-item; }
         /* Keep pre/code from marked.js visible and within column (no overflow) */
         .cv-container .markdown-content pre,
         .cv-container .markdown-content code {

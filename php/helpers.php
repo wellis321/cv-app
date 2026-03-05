@@ -302,10 +302,11 @@ function renderJobDescription($text) {
 if (!function_exists('renderMarkdown')) {
 function renderMarkdown($markdown) {
     if ($markdown === null || $markdown === '') return '';
-    
-    // Decode HTML entities
     $markdown = html_entity_decode($markdown, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-    
+    // Collapse multiple newlines to single so lists (and editor blank lines) render compact on CV.
+    // Matches the behaviour used for work experience description in cv.php.
+    $markdown = preg_replace('/\R{2,}/u', "\n", $markdown);
+
     // Escape HTML to prevent XSS, then convert markdown syntax
     $text = htmlspecialchars($markdown, ENT_QUOTES | ENT_HTML5, 'UTF-8');
     
@@ -326,12 +327,38 @@ function renderMarkdown($markdown) {
     // Convert underline tags (if they were in original)
     $text = preg_replace('/&lt;u&gt;(.*?)&lt;\/u&gt;/', '<u>$1</u>', $text);
     
-    // Convert markdown tables | a | b | to HTML
+    // Convert markdown lists and tables to HTML
     $lines = explode("\n", $text);
     $output = [];
     $i = 0;
     while ($i < count($lines)) {
         $line = $lines[$i];
+        // Unordered list: - , * , or • at line start
+        if (preg_match('/^\s*[-*•]\s+/', $line)) {
+            $listItems = [];
+            while ($i < count($lines) && preg_match('/^\s*[-*•]\s+(.*)$/s', $lines[$i], $m)) {
+                $listItems[] = $m[1];
+                $i++;
+            }
+            if (!empty($listItems)) {
+                $lis = implode('', array_map(function ($item) { return '<li>' . $item . '</li>'; }, $listItems));
+                $output[] = '<ul style="list-style-type: disc; padding-left: 1.25em;">' . $lis . '</ul>';
+            }
+            continue;
+        }
+        // Ordered list: 1. , 2. , etc at line start
+        if (preg_match('/^\s*\d+\.\s+/', $line)) {
+            $listItems = [];
+            while ($i < count($lines) && preg_match('/^\s*\d+\.\s+(.*)$/s', $lines[$i], $m)) {
+                $listItems[] = $m[1];
+                $i++;
+            }
+            if (!empty($listItems)) {
+                $lis = implode('', array_map(function ($item) { return '<li>' . $item . '</li>'; }, $listItems));
+                $output[] = '<ol style="list-style-type: decimal; padding-left: 1.25em;">' . $lis . '</ol>';
+            }
+            continue;
+        }
         if (preg_match('/^\|.+\|$/', trim($line))) {
             $tableRows = [];
             while ($i < count($lines) && preg_match('/^\|.+\|$/', trim($lines[$i]))) {
@@ -805,6 +832,20 @@ function outputStructuredData($schemas) {
 } // End function_exists check
 
 /**
+ * Normalize storage URL to use current request origin (fixes port mismatch in local dev)
+ */
+if (!function_exists('normalizeStorageUrlForDisplay')) {
+function normalizeStorageUrlForDisplay($url) {
+    if (empty($url)) return $url;
+    $appHost = parse_url(APP_URL, PHP_URL_HOST);
+    $urlHost = parse_url($url, PHP_URL_HOST);
+    if ($urlHost && $appHost && $urlHost !== $appHost) return $url;
+    if (preg_match('#/storage/(.+)#', $url, $m)) return '/storage/' . $m[1];
+    return $url;
+}
+}
+
+/**
  * Generate responsive image srcset and sizes attributes
  * @param string|array $imageData - Either a JSON string or array of responsive image data
  * @param string $fallbackUrl - Fallback URL if responsive data is not available
@@ -814,7 +855,16 @@ function outputStructuredData($schemas) {
 if (!function_exists('getResponsiveImageAttributes')) {
 function getResponsiveImageAttributes($imageData, $fallbackUrl = '', $context = 'full') {
     $responsive = [];
-    
+
+    $normalizeStorageUrl = function($url) {
+        if (empty($url)) return $url;
+        $appHost = parse_url(APP_URL, PHP_URL_HOST);
+        $urlHost = parse_url($url, PHP_URL_HOST);
+        if ($urlHost && $appHost && $urlHost !== $appHost) return $url;
+        if (preg_match('#/storage/(.+)#', $url, $m)) return '/storage/' . $m[1];
+        return $url;
+    };
+
     // Parse JSON if string
     if (is_string($imageData) && !empty($imageData)) {
         $decoded = json_decode($imageData, true);
@@ -929,14 +979,14 @@ function getResponsiveImageAttributes($imageData, $fallbackUrl = '', $context = 
             return [
                 'srcset' => '',
                 'sizes' => '',
-                'src' => $fallbackUrl
+                'src' => $normalizeStorageUrl($fallbackUrl)
             ];
         }
     } elseif (empty($responsive)) {
         return [
             'srcset' => '',
             'sizes' => '',
-            'src' => $fallbackUrl
+            'src' => $normalizeStorageUrl($fallbackUrl)
         ];
     }
     
@@ -944,27 +994,13 @@ function getResponsiveImageAttributes($imageData, $fallbackUrl = '', $context = 
     $srcsetParts = [];
     $sizes = [];
     
-    // Helper function to normalize URL (convert localhost URLs to current domain, preserve production URLs)
     $normalizeUrl = function($url, $path = null) {
-        if ($path) {
-            // New format: Build URL from path using current APP_URL
-            return STORAGE_URL . '/' . $path;
-        }
-        if (empty($url)) {
-            return null;
-        }
-        // Check if URL is a production URL (different domain from APP_URL)
-        $isProductionUrl = (strpos($url, 'https://') === 0 || strpos($url, 'http://') === 0) && strpos($url, APP_URL) === false;
-        if ($isProductionUrl) {
-            // Preserve production URLs as-is
-            return $url;
-        }
-        // Old format: If URL contains localhost or different domain, extract path and rebuild
-        if (preg_match('#https?://[^/]+(/storage/.+)#', $url, $matches)) {
-            // Extract the path part and rebuild with current STORAGE_URL
-            return STORAGE_URL . $matches[1];
-        }
-        // Already correct domain
+        if ($path) return '/storage/' . $path;
+        if (empty($url)) return null;
+        $appHost = parse_url(APP_URL, PHP_URL_HOST);
+        $urlHost = parse_url($url, PHP_URL_HOST);
+        if ($urlHost && $appHost && $urlHost !== $appHost) return $url;
+        if (preg_match('#/storage/(.+)#', $url, $m)) return '/storage/' . $m[1];
         return $url;
     };
     

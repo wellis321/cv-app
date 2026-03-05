@@ -182,6 +182,8 @@
             els.forEach(function(el) {
                 if (el.dataset.markdownEnhanced === 'true') return;
                 var originalHtml = el.innerHTML;
+                // Skip if already rendered HTML (lists, etc.) - re-parsing corrupts server output
+                if (/<\s*(ul|ol|li|br|strong|em|h[1-3]|a|p)\b/i.test(originalHtml)) return;
                 try {
                     el.innerHTML = (typeof marked !== 'undefined' ? marked : window.marked).parse(originalHtml, { breaks: true, gfm: true, headerIds: false, mangle: false });
                     el.dataset.markdownEnhanced = 'true';

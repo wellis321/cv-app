@@ -48,6 +48,11 @@ $profile['show_photo'] = $profile['show_photo'] ?? 1;
 $profile['show_photo_pdf'] = $profile['show_photo_pdf'] ?? 1;
 $profile['show_qr_code'] = $profile['show_qr_code'] ?? ($profile['show_photo'] ? 0 : 1);
 
+// Normalize storage URLs to relative paths (fixes port mismatch when APP_URL differs from actual port)
+if (!empty($profile['photo_url'])) {
+    $profile['photo_url'] = normalizeStorageUrlForDisplay($profile['photo_url']);
+}
+
 // Decode entities for JSON
 function decodeEntitiesRecursive($data) {
     if (is_array($data)) {

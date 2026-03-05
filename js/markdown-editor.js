@@ -109,20 +109,51 @@
     }
 
     /**
-     * Wrap selected text with markdown syntax
+     * Wrap selected text with markdown syntax.
+     * For list prefixes (- , 1. ), applies the prefix to each selected line.
      */
     function wrapSelection(textarea, prefix, suffix, newline) {
         const start = textarea.selectionStart;
         const end = textarea.selectionEnd;
-        const selectedText = textarea.value.substring(start, end);
+        let selectedText = textarea.value.substring(start, end);
         const before = textarea.value.substring(0, start);
         const after = textarea.value.substring(end);
 
         let replacement;
         if (newline) {
-            // For headers and lists, add newline before if needed
             const needsNewline = before.length > 0 && before[before.length - 1] !== '\n';
-            replacement = (needsNewline ? '\n' : '') + prefix + selectedText + suffix;
+            const lead = needsNewline ? '\n' : '';
+
+            const isBulletList = prefix === '- ';
+            const isOrderedList = /^\d+\.\s$/.test(prefix);
+
+            if (isBulletList || isOrderedList) {
+                const lines = selectedText.split(/\r?\n/);
+                const bulletRe = /^\s*[-*•]\s+/;
+                const orderedRe = /^\s*\d+\.\s+/;
+                const allBullets = lines.filter(function (l) { return l.trim() !== ''; }).every(function (l) { return bulletRe.test(l); });
+                const allOrdered = lines.filter(function (l) { return l.trim() !== ''; }).every(function (l) { return orderedRe.test(l); });
+                if (isBulletList && allBullets) {
+                    replacement = lead + lines.map(function (line) {
+                        if (line.trim() === '') return line;
+                        return line.replace(bulletRe, '').trimStart();
+                    }).join('\n');
+                } else if (isOrderedList && allOrdered) {
+                    replacement = lead + lines.map(function (line) {
+                        if (line.trim() === '') return line;
+                        return line.replace(orderedRe, '').trimStart();
+                    }).join('\n');
+                } else {
+                    const prefixed = lines.map(function (line, i) {
+                        if (line.trim() === '') return line;
+                        const listPrefix = isOrderedList ? (i + 1) + '. ' : '- ';
+                        return listPrefix + line.replace(bulletRe, '').replace(orderedRe, '').trimStart();
+                    });
+                    replacement = lead + prefixed.join('\n');
+                }
+            } else {
+                replacement = lead + prefix + selectedText + suffix;
+            }
         } else {
             replacement = prefix + selectedText + suffix;
         }
