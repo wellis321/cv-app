@@ -43,6 +43,9 @@ $validSections = [
     'certifications', 'memberships', 'interests', 'qualificationEquivalence'
 ];
 
+// Section keys for online CV (same set, stored separately from PDF sections)
+$validSectionsOnline = $validSections;
+
 if ($method === 'GET') {
     $prefs = null;
     if (!empty($variant['pdf_preferences'])) {
@@ -61,6 +64,11 @@ if ($method === 'GET') {
             $sections = $decoded['sections'] ?? [];
             foreach ($validSections as $s) {
                 $prefs['sections'][$s] = isset($sections[$s]) ? (bool) $sections[$s] : true;
+            }
+            $sectionsOnline = $decoded['sections_online'] ?? [];
+            $prefs['sections_online'] = [];
+            foreach ($validSectionsOnline as $s) {
+                $prefs['sections_online'][$s] = isset($sectionsOnline[$s]) ? (bool) $sectionsOnline[$s] : true;
             }
         }
     }
@@ -104,6 +112,12 @@ if ($method === 'POST') {
     }
     if (isset($input['include_qr'])) {
         $prefs['include_qr'] = (bool) $input['include_qr'];
+    }
+    if (isset($input['sections_online']) && is_array($input['sections_online'])) {
+        $prefs['sections_online'] = [];
+        foreach ($validSectionsOnline as $s) {
+            $prefs['sections_online'][$s] = isset($input['sections_online'][$s]) ? (bool) $input['sections_online'][$s] : true;
+        }
     }
 
     $existing = [];

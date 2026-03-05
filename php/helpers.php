@@ -287,8 +287,8 @@ if (!function_exists('renderJobDescription')) {
 function renderJobDescription($text) {
     if ($text === null || $text === '') return '';
     $trimmed = trim($text);
-    // Content that looks like HTML (tables from Word/PDF import) – render as safe HTML
-    if (preg_match('/<\s*table[\s>]|<\s*tr\s|<\s*td\s|<\s*th\s/i', $trimmed)) {
+    // Content that looks like HTML (tables from Word/PDF, or <br> line breaks) – render as safe HTML
+    if (preg_match('/<\s*table[\s>]|<\s*tr\s|<\s*td\s|<\s*th\s|<\s*br\s*\/?\s*>/i', $trimmed)) {
         return jobDescriptionHtml($trimmed);
     }
     return renderMarkdown($trimmed);
@@ -413,6 +413,66 @@ function stripMarkdown($markdown) {
 }
 
 /**
+ * Parse max character limit from answer instructions (e.g. "max 1000 characters", "1000 chars").
+ * Returns null if no character limit found.
+ */
+if (!function_exists('parseAnswerCharacterLimit')) {
+function parseAnswerCharacterLimit($instructions) {
+    if ($instructions === null || trim($instructions) === '') return null;
+    if (preg_match('/\b(?:max\.?\s*)?(\d+)\s*(?:character|char)s?\b/i', $instructions, $m)) {
+        $n = (int) $m[1];
+        return $n > 0 ? $n : null;
+    }
+    return null;
+}
+}
+
+/**
+ * Parse max word limit from instructions (e.g. "max 300 words", "approximately 250 words").
+ * Returns null if no word limit found.
+ */
+if (!function_exists('parseAnswerWordLimit')) {
+function parseAnswerWordLimit($instructions) {
+    if ($instructions === null || trim($instructions) === '') return null;
+    if (preg_match('/\b(?:max\.?\s*|approximately\s*|approx\.?\s*|~?\s*)(\d+)\s*words?\b/i', $instructions, $m)) {
+        $n = (int) $m[1];
+        return $n > 0 ? $n : null;
+    }
+    return null;
+}
+}
+
+/**
+ * Truncate text to max words, cutting at word boundary.
+ */
+if (!function_exists('truncateToWordLimit')) {
+function truncateToWordLimit($text, $maxWords) {
+    if ($maxWords <= 0 || $text === null || $text === '') return $text;
+    $text = (string) $text;
+    $words = preg_split('/\s+/', trim($text), $maxWords + 1);
+    if (count($words) <= $maxWords) return $text;
+    return implode(' ', array_slice($words, 0, $maxWords));
+}
+}
+
+/**
+ * Truncate text to max characters, cutting at word boundary when possible.
+ */
+if (!function_exists('truncateToCharacterLimit')) {
+function truncateToCharacterLimit($text, $maxChars) {
+    if ($maxChars <= 0 || $text === null || $text === '') return $text;
+    $text = (string) $text;
+    if (mb_strlen($text) <= $maxChars) return $text;
+    $cut = mb_substr($text, 0, $maxChars);
+    $lastSpace = mb_strrpos($cut, ' ');
+    if ($lastSpace !== false && $lastSpace > $maxChars * 0.6) {
+        return mb_substr($cut, 0, $lastSpace);
+    }
+    return rtrim($cut);
+}
+}
+
+/**
  * Get flash message
  */
 if (!function_exists('getFlash')) {
@@ -467,6 +527,51 @@ function getCvSections() {
         ['id' => 'memberships', 'name' => 'Professional Memberships', 'path' => '/content-editor.php#memberships'],
         ['id' => 'interests', 'name' => 'Interests & Activities', 'path' => '/content-editor.php#interests'],
     ];
+}
+
+/**
+ * Get sections_online for online CV display.
+ * Maps API keys to template section ids. Returns array keyed by template section id.
+ *
+ * @param array $profile Profile row (may have sections_online JSON)
+ * @param array|null $cvVariant Variant row (may have pdf_preferences.sections_online)
+ * @return array ['profile' => true, 'professional-summary' => true, ...]
+ */
+function getSectionsOnlineForCv($profile, $cvVariant = null) {
+    $templateSectionIds = [
+        'profile', 'professional-summary', 'work-experience', 'education', 'skills',
+        'projects', 'certifications', 'memberships', 'interests', 'qualification-equivalence'
+    ];
+    $apiToTemplate = [
+        'profile' => 'profile', 'summary' => 'professional-summary', 'work' => 'work-experience',
+        'education' => 'education', 'skills' => 'skills', 'projects' => 'projects',
+        'certifications' => 'certifications', 'memberships' => 'memberships',
+        'interests' => 'interests', 'qualificationEquivalence' => 'qualification-equivalence'
+    ];
+    $default = array_fill_keys($templateSectionIds, true);
+
+    $raw = null;
+    if ($cvVariant && !empty($cvVariant['pdf_preferences'])) {
+        $decoded = is_string($cvVariant['pdf_preferences'])
+            ? json_decode($cvVariant['pdf_preferences'], true)
+            : $cvVariant['pdf_preferences'];
+        $raw = $decoded['sections_online'] ?? null;
+    }
+    if ($raw === null && !empty($profile['sections_online'])) {
+        $raw = is_string($profile['sections_online'])
+            ? json_decode($profile['sections_online'], true)
+            : $profile['sections_online'];
+    }
+    if (!is_array($raw)) {
+        return $default;
+    }
+    $out = $default;
+    foreach ($apiToTemplate as $apiKey => $templateId) {
+        if (isset($raw[$apiKey])) {
+            $out[$templateId] = (bool) $raw[$apiKey];
+        }
+    }
+    return $out;
 }
 } // End function_exists check
 

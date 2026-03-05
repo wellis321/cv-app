@@ -59,7 +59,9 @@ $cvVariants = getUserCvVariants($userId);
                     <select id="generate-cv-job-application" name="job_application_id" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Select a job application...</option>
                         <?php foreach ($jobApplications as $jobApp): ?>
-                            <option value="<?php echo e($jobApp['id']); ?>">
+                            <option value="<?php echo e($jobApp['id']); ?>"
+                                    data-company="<?php echo e($jobApp['company_name'] ?? ''); ?>"
+                                    data-job-title="<?php echo e($jobApp['job_title'] ?? ''); ?>">
                                 <?php echo e($jobApp['company_name']); ?> - <?php echo e($jobApp['job_title']); ?>
                             </option>
                         <?php endforeach; ?>
@@ -129,6 +131,21 @@ $cvVariants = getUserCvVariants($userId);
     }
     if (cancelBtn) {
         cancelBtn.addEventListener('click', closeModal);
+    }
+    
+    // Pre-fill variant name from job (Company Job Title) when job selected
+    const jobSelect = document.getElementById('generate-cv-job-application');
+    const variantNameInput = document.getElementById('generate-cv-variant-name');
+    if (jobSelect && variantNameInput) {
+        jobSelect.addEventListener('change', function() {
+            const opt = this.options[this.selectedIndex];
+            if (opt && opt.value && opt.dataset.company !== undefined) {
+                const company = (opt.dataset.company || '').trim();
+                const title = (opt.dataset.jobTitle || '').trim();
+                const name = (company + ' ' + title).trim();
+                if (name) variantNameInput.value = name;
+            }
+        });
     }
     
     // Close on outside click

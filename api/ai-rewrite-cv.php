@@ -104,10 +104,16 @@ try {
         // Get job description from text field
         $jobDescription = $jobApp['job_description'] ?? $jobApp['notes'] ?? '';
         
-        // Get selected keywords if available
+        // Get selected keywords; fall back to extracted keywords if none selected
         $selectedKeywords = [];
         if (!empty($jobApp['selected_keywords'])) {
             $decoded = json_decode($jobApp['selected_keywords'], true);
+            if (is_array($decoded)) {
+                $selectedKeywords = $decoded;
+            }
+        }
+        if (empty($selectedKeywords) && !empty($jobApp['extracted_keywords'])) {
+            $decoded = json_decode($jobApp['extracted_keywords'], true);
             if (is_array($decoded)) {
                 $selectedKeywords = $decoded;
             }
@@ -143,8 +149,26 @@ try {
         $jobDescription = $_POST['job_description'] ?? '';
     }
     
-    // Combine job description with file contents
+    // Use company + job title as variant name when creating a new AI variant for a job application
+    if (!$updateVariantId && $jobApplicationId && isset($jobApp)) {
+        $company = trim($jobApp['company_name'] ?? '');
+        $title = trim($jobApp['job_title'] ?? '');
+        $baseName = trim($company . ' ' . $title);
+        if ($baseName !== '') {
+            $variantName = suggestUniqueVariantName($user['id'], $baseName);
+        }
+    }
+    
+    // Combine job description with file contents; prepend role context when available
     $combinedDescription = $jobDescription;
+    if ($jobApplicationId && isset($jobApp)) {
+        $jobTitle = trim($jobApp['job_title'] ?? '');
+        $companyName = trim($jobApp['company_name'] ?? '');
+        if ($jobTitle || $companyName) {
+            $roleContext = 'TARGET ROLE: ' . ($jobTitle ?: 'Role') . ($companyName ? ' at ' . $companyName : '') . "\n\n";
+            $combinedDescription = $roleContext . $combinedDescription;
+        }
+    }
     if (!empty($fileContents)) {
         if (!empty($combinedDescription)) {
             $combinedDescription .= "\n\n--- Additional Information from Uploaded Files ---\n\n";
@@ -414,10 +438,15 @@ try {
     // We must preserve all other sections from the original CV data
     
     // Update professional summary if rewritten (AI may return string or array with description key)
-    if (in_array('professional_summary', $sectionsToRewrite) && isset($rewrittenData['professional_summary'])) {
-        $summary = $rewrittenData['professional_summary'];
+    // Accept alternate keys: professionalSummary, "Professional Summary" (browser AI often uses camelCase)
+    $summary = $rewrittenData['professional_summary'] ?? $rewrittenData['professionalSummary'] ?? ($rewrittenData['Professional Summary'] ?? null);
+    if (in_array('professional_summary', $sectionsToRewrite) && $summary !== null) {
         $base = $cvData['professional_summary'] ?? ['description' => ''];
         if (is_array($summary)) {
+            // AI may use 'summary' instead of 'description'
+            if (isset($summary['summary']) && !isset($summary['description'])) {
+                $summary['description'] = $summary['summary'];
+            }
             $cvData['professional_summary'] = array_merge($base, $summary);
         } else {
             $cvData['professional_summary'] = array_merge($base, ['description' => (string) $summary]);
@@ -622,21 +651,21 @@ try {
         }
     }
     
-    // Update skills if rewritten
-    if (in_array('skills', $sectionsToRewrite) && isset($rewrittenData['skills']) && is_array($rewrittenData['skills'])) {
-        // Merge with existing skills, prioritising rewritten ones
-        $existingSkillNames = array_map(function($s) { return strtolower($s['name']); }, $cvData['skills'] ?? []);
-        $newSkills = [];
-        
-        foreach ($rewrittenData['skills'] as $skill) {
-            $skillName = is_array($skill) ? $skill['name'] : $skill;
-            if (!in_array(strtolower($skillName), $existingSkillNames)) {
-                $newSkills[] = is_array($skill) ? $skill : ['name' => $skill, 'category' => null];
+    // Update skills if rewritten (replace with AI output - tailored to job description/keywords)
+    $rewrittenSkills = $rewrittenData['skills'] ?? $rewrittenData['Skills'] ?? null;
+    if (in_array('skills', $sectionsToRewrite) && isset($rewrittenSkills) && is_array($rewrittenSkills)) {
+        $cvData['skills'] = [];
+        foreach ($rewrittenSkills as $skill) {
+            $skillName = is_array($skill) ? ($skill['name'] ?? '') : (string) $skill;
+            $skillName = trim($skillName);
+            if ($skillName !== '') {
+                $cvData['skills'][] = is_array($skill) ? [
+                    'name' => $skillName,
+                    'category' => $skill['category'] ?? null,
+                    'level' => $skill['level'] ?? null
+                ] : ['name' => $skillName, 'category' => null, 'level' => null];
             }
         }
-        
-        // Add new skills to existing
-        $cvData['skills'] = array_merge($cvData['skills'] ?? [], $newSkills);
     }
     
     // Update education if rewritten (only update description by id; do not add or replace list; deduplicate AI response by id)

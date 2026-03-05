@@ -696,6 +696,21 @@ $stats = getJobApplicationStats();
                 div.textContent = text;
                 return div.innerHTML;
             },
+
+            buildCoverLetterPdfFilename(data) {
+                const fullName = (data.applicant_name || '').trim();
+                const parts = fullName ? fullName.split(/\s+/) : [];
+                const firstName = parts[0] ? String(parts[0]).replace(/[^a-zA-Z0-9\-]/g, '') : '';
+                const lastName = parts.length > 1 ? String(parts[parts.length - 1]).replace(/[^a-zA-Z0-9\-]/g, '') : '';
+                const safeFirst = firstName || 'First';
+                const safeLast = lastName || 'Last';
+                const companyName = (data.company_name || '').trim();
+                if (companyName) {
+                    const safeCompany = companyName.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\-]/g, '');
+                    if (safeCompany) return `${safeCompany}-${safeFirst}-${safeLast}-Cover-Letter.pdf`;
+                }
+                return `${safeFirst}-${safeLast}-Cover-Letter.pdf`;
+            },
             
             decodeHtmlEntities(text) {
                 if (!text) return '';
@@ -1089,7 +1104,15 @@ $stats = getJobApplicationStats();
                         this.hideModal();
                         await this.loadApplications();
                     } else {
-                        alert(result.error || 'Error saving application');
+                        if (result.duplicate && result.existing_id) {
+                            if (confirm(result.error + '\n\nWould you like to view the existing application?')) {
+                                this.hideModal();
+                                await this.loadApplications();
+                                this.viewApplication(result.existing_id);
+                            }
+                        } else {
+                            alert(result.error || 'Error saving application');
+                        }
                     }
                 } catch (error) {
                     console.error('Error saving application:', error);
@@ -1837,43 +1860,61 @@ $stats = getJobApplicationStats();
                     }
                     
                     const data = result.cover_letter;
+                    const c = data.template_colors || {};
+                    const accent = c.accent || '#2563eb';
+                    const headerColor = c.header || '#1f2937';
+                    const bodyColor = c.body || '#374151';
+                    const mutedColor = c.muted || '#6b7280';
                     
                     // Check if pdfMake is available
                     if (typeof pdfMake === 'undefined') {
-                        // Fallback: open in new window for print
+                        // Fallback: open in new window for print (matches CV template styling)
+                        const origin = window.location.origin || '';
+                        const photoSrc = data.photo_url ? (data.photo_url.indexOf('/') === 0 ? origin + data.photo_url : data.photo_url) : '';
+                        let headerHtml = '';
+                        if (photoSrc || data.applicant_name || data.professional_title || data.applicant_email || data.applicant_phone || data.applicant_location) {
+                            headerHtml = '<div class="cl-header">';
+                            if (photoSrc) headerHtml += '<img src="' + this.escapeHtml(photoSrc) + '" alt="" class="cl-photo">';
+                            headerHtml += '<div class="cl-header-right">';
+                            if (data.applicant_name) headerHtml += '<div class="cl-name">' + this.escapeHtml(data.applicant_name) + '</div>';
+                            if (data.professional_title) headerHtml += '<div class="cl-title">' + this.escapeHtml(data.professional_title) + '</div>';
+                            const contacts = [];
+                            if (data.applicant_phone) contacts.push(this.escapeHtml(data.applicant_phone));
+                            if (data.applicant_email) contacts.push(this.escapeHtml(data.applicant_email));
+                            if (data.applicant_location) contacts.push(this.escapeHtml(data.applicant_location));
+                            if (contacts.length) headerHtml += '<div class="cl-contact">' + contacts.join(' &bull; ') + '</div>';
+                            headerHtml += '</div></div>';
+                        }
+                        const year = new Date().getFullYear();
+                        const styles = 'body{font-family:Georgia,"Times New Roman",serif;max-width:800px;margin:40px auto;padding:40px;line-height:1.6;color:' + bodyColor + '}.cl-header{display:flex;gap:24px;margin-bottom:24px;align-items:flex-start}.cl-photo{width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid ' + accent + ';flex-shrink:0}.cl-header-right{flex:1}.cl-name{font-size:24px;font-weight:bold;color:' + headerColor + ';margin-bottom:4px}.cl-title{font-size:14px;font-weight:bold;color:' + accent + ';margin-bottom:8px;text-transform:uppercase}.cl-contact{font-size:13px;color:' + mutedColor + '}.cl-recipient{text-align:right;margin-bottom:16px;font-size:14px;color:' + mutedColor + '}.cl-body{white-space:pre-wrap}.cl-footer{margin-top:32px;padding-top:16px;border-top:1px solid #ddd;font-size:12px;color:' + mutedColor + '}.cl-branding{margin-top:12px;font-size:11px;color:' + mutedColor + ';text-align:center}';
+                        const fullHtml = '<!DOCTYPE html><html><head><title>Cover Letter - ' + this.escapeHtml(data.company_name) + '</title><style>' + styles + '</style></head><body>' + headerHtml + '<div class="cl-recipient">' + this.escapeHtml(data.date || '') + '</div><div class="cl-recipient-block">' + this.escapeHtml(data.company_name || '') + '<br>' + this.escapeHtml(data.job_title || '') + '</div><div class="cl-body">' + this.escapeHtml(data.text || '').replace(/\n/g, '<br>') + '</div><div class="cl-footer">' + this.escapeHtml(data.date || '') + ' &nbsp;|&nbsp; ' + this.escapeHtml(data.applicant_name || 'Applicant') + ' &ndash; Cover Letter</div><div class="cl-branding">Simple CV Builder Designed, Developed and Delivered by William Ellis. &copy; ' + year + '</div></body></html>';
                         const printWindow = window.open('', '_blank');
-                        printWindow.document.write(`
-                            <!DOCTYPE html>
-                            <html>
-                            <head>
-                                <title>Cover Letter - ${this.escapeHtml(data.company_name)}</title>
-                                <style>
-                                    body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; line-height: 1.6; }
-                                    .header { margin-bottom: 30px; }
-                                    .date { text-align: right; margin-bottom: 20px; }
-                                    .content { white-space: pre-wrap; }
-                                </style>
-                            </head>
-                            <body>
-                                <div class="header">
-                                    <div class="date">${this.escapeHtml(data.date)}</div>
-                                    <div><strong>${this.escapeHtml(data.company_name)}</strong></div>
-                                    <div>${this.escapeHtml(data.job_title)}</div>
-                                </div>
-                                <div class="content">${this.escapeHtml(data.text)}</div>
-                            </body>
-                            </html>
-                        `);
-                        printWindow.document.close();
-                        printWindow.print();
+                        if (printWindow) {
+                            printWindow.document.write(fullHtml);
+                            printWindow.document.close();
+                            printWindow.print();
+                        } else {
+                            alert('Please allow pop-ups to export the cover letter.');
+                        }
                         return;
                     }
                     
-                    // Use pdfMake to generate PDF
+                    // Use pdfMake to generate PDF (matches CV template styling)
                     const year = new Date().getFullYear();
                     const siteUrl = window.location.origin;
                     const footerParts = [{ text: `Simple CV Builder Designed, Developed and Delivered by William Ellis. © ${year}` }];
                     if (siteUrl) footerParts.push({ text: ' ', fontSize: 7 }, { text: 'simple-cv-builder.com', link: siteUrl, fontSize: 7 });
+                    const content = [];
+                    if (data.applicant_name || data.professional_title) {
+                        content.push({ text: data.applicant_name || '', style: 'applicantName', margin: [0, 0, 0, 2] });
+                        if (data.professional_title) content.push({ text: data.professional_title, style: 'applicantTitle', margin: [0, 0, 0, 8] });
+                        const contactParts = [data.applicant_phone, data.applicant_email, data.applicant_location].filter(Boolean);
+                        if (contactParts.length) content.push({ text: contactParts.join(' \u2022 '), style: 'applicantContact', margin: [0, 0, 0, 20] });
+                    }
+                    content.push({ text: data.date, alignment: 'right', style: 'date', margin: [0, 0, 0, 20] });
+                    content.push({ text: data.company_name, style: 'company', margin: [0, 0, 0, 5] });
+                    content.push({ text: data.job_title, style: 'jobTitle', margin: [0, 0, 0, 30] });
+                    content.push({ text: data.text, style: 'body', margin: [0, 0, 0, 20] });
                     const docDefinition = {
                         pageSize: 'A4',
                         pageMargins: [40, 60, 40, 60],
@@ -1881,50 +1922,23 @@ $stats = getJobApplicationStats();
                             text: footerParts,
                             alignment: 'center',
                             fontSize: 7,
-                            color: '#6b7280',
+                            color: mutedColor,
                             margin: [0, 10, 0, 0]
                         }),
-                        content: [
-                            {
-                                text: data.date,
-                                alignment: 'right',
-                                margin: [0, 0, 0, 20]
-                            },
-                            {
-                                text: data.company_name,
-                                style: 'company',
-                                margin: [0, 0, 0, 5]
-                            },
-                            {
-                                text: data.job_title,
-                                style: 'jobTitle',
-                                margin: [0, 0, 0, 30]
-                            },
-                            {
-                                text: data.text,
-                                style: 'body',
-                                margin: [0, 0, 0, 20]
-                            }
-                        ],
+                        content,
                         styles: {
-                            company: {
-                                fontSize: 14,
-                                bold: true,
-                                margin: [0, 0, 0, 5]
-                            },
-                            jobTitle: {
-                                fontSize: 12,
-                                margin: [0, 0, 0, 30]
-                            },
-                            body: {
-                                fontSize: 11,
-                                lineHeight: 1.6
-                            }
+                            applicantName: { fontSize: 22, bold: true, color: headerColor },
+                            applicantTitle: { fontSize: 12, bold: true, color: accent },
+                            applicantContact: { fontSize: 10, color: mutedColor },
+                            date: { fontSize: 11, color: mutedColor },
+                            company: { fontSize: 14, bold: true, color: headerColor, margin: [0, 0, 0, 5] },
+                            jobTitle: { fontSize: 12, color: bodyColor, margin: [0, 0, 0, 30] },
+                            body: { fontSize: 11, lineHeight: 1.6, color: bodyColor }
                         }
                     };
                     
                     pdfMake.createPdf(docDefinition).download(
-                        `Cover_Letter_${data.company_name.replace(/[^a-z0-9_\-]/gi, '_')}.pdf`
+                        this.buildCoverLetterPdfFilename(data)
                     );
                     
                 } catch (error) {

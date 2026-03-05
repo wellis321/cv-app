@@ -98,7 +98,9 @@ $preselectJobId = isset($_GET['job']) ? $_GET['job'] : null;
                         $jobDescEncoded = htmlspecialchars($jobDesc, ENT_QUOTES, 'UTF-8');
                         ?>
                         <option value="<?php echo e($jobApp['id']); ?>" 
-                                data-description="<?php echo $jobDescEncoded; ?>">
+                                data-description="<?php echo $jobDescEncoded; ?>"
+                                data-company="<?php echo e($jobApp['company_name'] ?? ''); ?>"
+                                data-job-title="<?php echo e($jobApp['job_title'] ?? ''); ?>">
                             <?php echo e($jobApp['company_name']); ?> - <?php echo e($jobApp['job_title']); ?>
                         </option>
                     <?php endforeach; ?>
@@ -408,12 +410,24 @@ $preselectJobId = isset($_GET['job']) ? $_GET['job'] : null;
     const jobApplicationSelect = document.getElementById('job_application_id');
     const jobDescriptionTextarea = document.getElementById('job_description');
     
+    function updateVariantNameFromJob(selectEl) {
+        const variantNameInput = document.getElementById('variant_name');
+        if (!variantNameInput) return;
+        const selectedOption = selectEl.options[selectEl.selectedIndex];
+        if (selectedOption.value && selectedOption.dataset.company !== undefined) {
+            const company = (selectedOption.dataset.company || '').trim();
+            const title = (selectedOption.dataset.jobTitle || '').trim();
+            const name = (company + ' ' + title).trim();
+            if (name) variantNameInput.value = name;
+        }
+    }
     if (jobApplicationSelect && jobDescriptionTextarea) {
         jobApplicationSelect.addEventListener('change', function() {
             const selectedOption = this.options[this.selectedIndex];
             if (selectedOption.value && selectedOption.dataset.description) {
                 jobDescriptionTextarea.value = selectedOption.dataset.description;
             }
+            updateVariantNameFromJob(this);
         });
         // Pre-select job when opened from job view (#cv-variants&create=1&job=ID)
         const rewriteForm = document.getElementById('rewrite-form');
@@ -425,6 +439,7 @@ $preselectJobId = isset($_GET['job']) ? $_GET['job'] : null;
                 if (opt && opt.dataset.description) {
                     jobDescriptionTextarea.value = opt.dataset.description;
                 }
+                updateVariantNameFromJob(jobApplicationSelect);
             }
         }
     }

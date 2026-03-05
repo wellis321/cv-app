@@ -101,7 +101,9 @@ $suggestedVariantName = suggestUniqueVariantName($user['id'], 'AI-Generated CV')
                                 $jobDescEncoded = htmlspecialchars($jobDesc, ENT_QUOTES, 'UTF-8');
                                 ?>
                                 <option value="<?php echo e($jobApp['id']); ?>" 
-                                        data-description="<?php echo $jobDescEncoded; ?>">
+                                        data-description="<?php echo $jobDescEncoded; ?>"
+                                        data-company="<?php echo e($jobApp['company_name'] ?? ''); ?>"
+                                        data-job-title="<?php echo e($jobApp['job_title'] ?? ''); ?>">
                                     <?php echo e($jobApp['company_name']); ?> - <?php echo e($jobApp['job_title']); ?>
                                 </option>
                             <?php endforeach; ?>
@@ -398,6 +400,13 @@ $suggestedVariantName = suggestUniqueVariantName($user['id'], 'AI-Generated CV')
             const selectedOption = this.options[this.selectedIndex];
             if (selectedOption.value && selectedOption.dataset.description) {
                 document.getElementById('job_description').value = selectedOption.dataset.description;
+            }
+            const variantNameInput = document.getElementById('variant_name');
+            if (variantNameInput && selectedOption.value && selectedOption.dataset.company !== undefined) {
+                const company = (selectedOption.dataset.company || '').trim();
+                const title = (selectedOption.dataset.jobTitle || '').trim();
+                const name = (company + ' ' + title).trim();
+                if (name) variantNameInput.value = name;
             }
         });
 

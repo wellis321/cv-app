@@ -3,6 +3,7 @@
  * Based on clean professional layout: centered header, light blue accents,
  * Skills grouped by category (3-col grid per category), Career Highlights, Professional Experience with shaded headers
  */
+import { escapeHtml, renderMarkdown } from '../preview-utils.js';
 
 /**
  * Render structured template preview
@@ -63,7 +64,7 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
     // PROFESSIONAL SUMMARY
     if (sections?.summary !== false && cvData.professional_summary?.description) {
         html += renderStructuredSection('Professional Summary', colors)
-        html += `<p style="font-size: 13px; color: ${colors.body}; line-height: 1.6; margin: 0 0 20px 0;">${escapeHtml(cvData.professional_summary.description)}</p>`
+        html += `<p style="font-size: 13px; color: ${colors.body}; line-height: 1.6; margin: 0 0 20px 0;">${renderMarkdown(cvData.professional_summary.description)}</p>`
     }
 
     // AREAS OF EXPERTISE (category names only, no individual skills)
@@ -112,7 +113,7 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
             html += '</div>'
 
             if (exp.description) {
-                html += `<p style="font-size: 12px; color: ${colors.muted}; margin: 0 0 8px 0;">${escapeHtml(exp.description)}</p>`
+                html += `<p style="font-size: 12px; color: ${colors.muted}; margin: 0 0 8px 0;">${renderMarkdown(exp.description)}</p>`
             }
 
             if (Array.isArray(exp.responsibility_categories)) {
@@ -187,7 +188,7 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
                 html += `<p style="font-size: 12px; color: ${colors.muted}; margin: 0 0 6px 0;">${dateRange}</p>`
             }
             if (project.description) {
-                html += `<p style="font-size: 12px; color: ${colors.body}; line-height: 1.5; margin: 0 0 6px 0;">${escapeHtml(project.description)}</p>`
+                html += `<p style="font-size: 12px; color: ${colors.body}; line-height: 1.5; margin: 0 0 6px 0;">${renderMarkdown(project.description)}</p>`
             }
             if (project.url) {
                 html += `<p style="margin: 0;"><a href="${escapeHtml(project.url)}" style="font-size: 12px; color: ${colors.link}; text-decoration: underline;">${escapeHtml(project.url)}</a></p>`
@@ -206,7 +207,7 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
                 html += `<div style="font-size: 13px; font-weight: bold; color: ${colors.body}; margin-bottom: 4px;">${escapeHtml(q.level)}</div>`
             }
             if (q.description) {
-                html += `<p style="font-size: 12px; color: ${colors.body}; line-height: 1.5; margin: 0 0 6px 0;">${escapeHtml(q.description)}</p>`
+                html += `<p style="font-size: 12px; color: ${colors.body}; line-height: 1.5; margin: 0 0 6px 0;">${renderMarkdown(q.description)}</p>`
             }
             if (Array.isArray(q.evidence) && q.evidence.length > 0) {
                 html += '<ul style="margin: 0 0 8px 0; padding-left: 20px;">'
@@ -252,7 +253,7 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
                 html += `<div style="font-size: 12px; font-weight: bold; color: ${colors.body}; margin-bottom: 4px;">${escapeHtml(i.name)}</div>`
             }
             if (i.description) {
-                html += `<div style="font-size: 11px; color: ${colors.muted}; line-height: 1.4;">${escapeHtml(i.description)}</div>`
+                html += `<div style="font-size: 11px; color: ${colors.muted}; line-height: 1.4;">${renderMarkdown(i.description)}</div>`
             }
             html += '</div>'
         })
@@ -270,13 +271,6 @@ function renderStructuredSection(title, colors) {
             <div style="border-bottom: 2px solid ${colors.divider}; margin-bottom: 10px;"></div>
         </div>
     `
-}
-
-function escapeHtml(text) {
-    if (!text) return ''
-    const div = document.createElement('div')
-    div.textContent = text
-    return div.innerHTML
 }
 
 function formatDate(dateStr) {

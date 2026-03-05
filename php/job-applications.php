@@ -79,6 +79,7 @@ function getUserJobApplications($userId = null, $filters = []) {
             'remote_type' => $row['remote_type'],
             'application_url' => $row['application_url'],
             'notes' => $row['notes'],
+            'personal_statement' => $row['personal_statement'] ?? null,
             'next_follow_up' => $row['next_follow_up'],
             'had_interview' => (bool)$row['had_interview'],
             'priority' => isset($row['priority']) ? $row['priority'] : null,
@@ -165,10 +166,11 @@ function getJobApplication($applicationId, $userId = null) {
         'salary_range' => $row['salary_range'],
         'job_location' => $row['job_location'],
         'remote_type' => $row['remote_type'],
-        'application_url' => $row['application_url'],
-        'notes' => $row['notes'],
-        'next_follow_up' => $row['next_follow_up'],
-        'had_interview' => (bool)$row['had_interview'],
+            'application_url' => $row['application_url'],
+            'notes' => $row['notes'],
+            'personal_statement' => $row['personal_statement'] ?? null,
+            'next_follow_up' => $row['next_follow_up'],
+            'had_interview' => (bool)$row['had_interview'],
         'priority' => isset($row['priority']) ? $row['priority'] : null,
         'extracted_keywords' => $row['extracted_keywords'] ?? null,
         'selected_keywords' => $row['selected_keywords'] ?? null,
@@ -353,6 +355,148 @@ function deleteJobApplicationQuestion($questionId, $userId) {
 }
 
 /**
+ * Get all interview tasks for a job application
+ */
+function getJobInterviewTasks($applicationId, $userId = null) {
+    if ($userId === null) {
+        $userId = getUserId();
+    }
+    if (!$userId) {
+        return [];
+    }
+    $rows = db()->fetchAll(
+        "SELECT id, job_application_id, task_type, title, task_description, deadline, user_notes, ai_suggestions, sort_order, created_at, updated_at
+         FROM job_interview_tasks
+         WHERE job_application_id = ? AND user_id = ?
+         ORDER BY sort_order ASC, created_at ASC",
+        [$applicationId, $userId]
+    );
+    return $rows ?: [];
+}
+
+/**
+ * Add an interview task
+ * @param string $applicationId
+ * @param string $userId
+ * @param string $taskDescription Required
+ * @param array $options Optional: task_type, title, deadline, sort_order
+ */
+function addJobInterviewTask($applicationId, $userId, $taskDescription, $options = []) {
+    if (!$userId) {
+        return ['success' => false, 'error' => 'User not authenticated'];
+    }
+    $job = getJobApplication($applicationId, $userId);
+    if (!$job) {
+        return ['success' => false, 'error' => 'Application not found'];
+    }
+    $validTypes = ['question', 'assignment', 'presentation', 'case_study', 'other'];
+    $taskType = isset($options['task_type']) && in_array($options['task_type'], $validTypes, true) ? $options['task_type'] : 'question';
+    $title = isset($options['title']) ? prepareForStorage($options['title']) : null;
+    $deadline = null;
+    if (!empty($options['deadline'])) {
+        $ts = strtotime($options['deadline']);
+        $deadline = $ts ? date('Y-m-d H:i:s', $ts) : null;
+    }
+    $sortOrder = isset($options['sort_order']) ? (int) $options['sort_order'] : 0;
+
+    $id = generateUuid();
+    db()->insert('job_interview_tasks', [
+        'id' => $id,
+        'job_application_id' => $applicationId,
+        'user_id' => $userId,
+        'task_type' => $taskType,
+        'title' => $title,
+        'task_description' => prepareForStorage($taskDescription),
+        'deadline' => $deadline,
+        'user_notes' => null,
+        'ai_suggestions' => null,
+        'sort_order' => $sortOrder,
+        'created_at' => date('Y-m-d H:i:s'),
+        'updated_at' => date('Y-m-d H:i:s'),
+    ]);
+    return ['success' => true, 'id' => $id];
+}
+
+/**
+ * Update interview task fields
+ */
+function updateJobInterviewTaskFields($taskId, $userId, $fields) {
+    if (!$userId) {
+        return ['success' => false, 'error' => 'User not authenticated'];
+    }
+    $row = db()->fetchOne(
+        "SELECT id FROM job_interview_tasks WHERE id = ? AND user_id = ?",
+        [$taskId, $userId]
+    );
+    if (!$row) {
+        return ['success' => false, 'error' => 'Task not found'];
+    }
+    $allowed = ['title', 'task_description', 'task_type', 'deadline', 'user_notes', 'ai_suggestions', 'sort_order'];
+    $validTypes = ['question', 'assignment', 'presentation', 'case_study', 'other'];
+    $update = ['updated_at' => date('Y-m-d H:i:s')];
+    foreach ($allowed as $key) {
+        if (array_key_exists($key, $fields)) {
+            $val = $fields[$key];
+            if ($key === 'task_type') {
+                $update[$key] = in_array($val, $validTypes, true) ? $val : 'question';
+            } elseif ($key === 'deadline') {
+                $update[$key] = $val === null || $val === '' ? null : (($ts = strtotime($val)) ? date('Y-m-d H:i:s', $ts) : null);
+            } else {
+                $update[$key] = in_array($key, ['user_notes', 'ai_suggestions', 'task_description', 'title']) ? prepareForStorage($val) : $val;
+            }
+        }
+    }
+    db()->update('job_interview_tasks', $update, 'id = ? AND user_id = ?', [$taskId, $userId]);
+    return ['success' => true];
+}
+
+/**
+ * Delete an interview task
+ */
+function deleteJobInterviewTask($taskId, $userId) {
+    if (!$userId) {
+        return ['success' => false, 'error' => 'User not authenticated'];
+    }
+    $row = db()->fetchOne(
+        "SELECT id FROM job_interview_tasks WHERE id = ? AND user_id = ?",
+        [$taskId, $userId]
+    );
+    if (!$row) {
+        return ['success' => false, 'error' => 'Task not found'];
+    }
+    db()->delete('job_interview_tasks', 'id = ? AND user_id = ?', [$taskId, $userId]);
+    return ['success' => true];
+}
+
+/**
+ * Check if a job application with the same company + title already exists (case-insensitive).
+ * Returns ['duplicate' => true, 'existing_id' => id] or ['duplicate' => false].
+ */
+function checkJobDuplicate($companyName, $jobTitle, $userId = null) {
+    if ($userId === null) {
+        $userId = getUserId();
+    }
+    if (!$userId) {
+        return ['duplicate' => false];
+    }
+    $companyName = trim((string) $companyName);
+    $jobTitle = trim((string) $jobTitle);
+    if ($companyName === '' || $jobTitle === '') {
+        return ['duplicate' => false];
+    }
+    $existing = db()->fetchOne(
+        "SELECT id FROM job_applications
+         WHERE user_id = ? AND LOWER(company_name) = LOWER(?) AND LOWER(job_title) = LOWER(?)
+         ORDER BY created_at DESC LIMIT 1",
+        [$userId, $companyName, $jobTitle]
+    );
+    if ($existing) {
+        return ['duplicate' => true, 'existing_id' => $existing['id']];
+    }
+    return ['duplicate' => false];
+}
+
+/**
  * Create a new job application
  */
 function createJobApplication($data, $userId = null) {
@@ -386,9 +530,9 @@ function createJobApplication($data, $userId = null) {
         }
     }
     
-    // Validate status
+    // Validate status (default "interested" for new applications; user hasn't applied yet)
     $validStatuses = ['interested', 'in_progress', 'applied', 'interviewing', 'offered', 'rejected', 'accepted', 'withdrawn'];
-    $status = in_array($data['status'] ?? 'applied', $validStatuses) ? ($data['status'] ?? 'applied') : 'applied';
+    $status = in_array($data['status'] ?? 'interested', $validStatuses) ? ($data['status'] ?? 'interested') : 'interested';
     
     // Validate remote_type
     $validRemoteTypes = ['onsite', 'hybrid', 'remote'];
@@ -411,6 +555,43 @@ function createJobApplication($data, $userId = null) {
     }
     
     try {
+        $companyName = prepareForStorage($data['company_name']) ?? '';
+        $jobTitle = prepareForStorage($data['job_title']) ?? '';
+        
+        // Duplicate check: warn if same company+title already exists (case-insensitive)
+        if (empty($data['allow_duplicate'])) {
+            $existingDuplicate = db()->fetchOne(
+                "SELECT id, company_name, job_title FROM job_applications 
+                 WHERE user_id = ? AND LOWER(company_name) = LOWER(?) AND LOWER(job_title) = LOWER(?) 
+                 ORDER BY created_at DESC LIMIT 1",
+                [$userId, $companyName, $jobTitle]
+            );
+            if ($existingDuplicate) {
+                $msg = ($companyName === '—' || $companyName === '')
+                    ? 'You already have an application for "' . $jobTitle . '".'
+                    : 'You already have an application for "' . $jobTitle . '" at ' . $companyName . '.';
+                return [
+                    'success' => false,
+                    'error' => $msg,
+                    'duplicate' => true,
+                    'existing_id' => $existingDuplicate['id'],
+                ];
+            }
+        }
+        
+        // Idempotency: avoid duplicate job creation from double-submit or retries
+        // If same company+title was created in last 60 seconds, return existing ID
+        $recentDuplicate = db()->fetchOne(
+            "SELECT id FROM job_applications 
+             WHERE user_id = ? AND company_name = ? AND job_title = ? 
+             AND created_at > DATE_SUB(NOW(), INTERVAL 60 SECOND) 
+             ORDER BY created_at DESC LIMIT 1",
+            [$userId, $companyName, $jobTitle]
+        );
+        if ($recentDuplicate) {
+            return ['success' => true, 'id' => $recentDuplicate['id']];
+        }
+        
         $applicationId = generateUuid();
         
         // application_date: only set when user has actually applied; leave null for quick-add/saved links
@@ -441,16 +622,17 @@ function createJobApplication($data, $userId = null) {
         $insertData = [
             'id' => $applicationId,
             'user_id' => $userId,
-            'company_name' => sanitizeInput($data['company_name']),
-            'job_title' => sanitizeInput($data['job_title']),
+            'company_name' => $companyName,
+            'job_title' => $jobTitle,
             'job_description' => prepareJobDescriptionForStorage($data['job_description'] ?? null),
             'application_date' => $applicationDate,
             'status' => $status,
-            'salary_range' => sanitizeInput($data['salary_range'] ?? null),
-            'job_location' => sanitizeInput($data['job_location'] ?? null),
+            'salary_range' => prepareForStorage($data['salary_range'] ?? null),
+            'job_location' => prepareForStorage($data['job_location'] ?? null),
             'remote_type' => $remoteType,
-            'application_url' => sanitizeInput($data['application_url'] ?? null),
-            'notes' => sanitizeInput($data['notes'] ?? null),
+            'application_url' => prepareForStorage($data['application_url'] ?? null),
+            'notes' => prepareForStorage($data['notes'] ?? null),
+            'personal_statement' => prepareForStorage($data['personal_statement'] ?? null),
             'next_follow_up' => $nextFollowUp,
             'had_interview' => !empty($data['had_interview']) ? 1 : 0,
             'created_at' => date('Y-m-d H:i:s'),
@@ -537,7 +719,7 @@ function updateJobApplication($applicationId, $data, $userId = null) {
     // Update other fields
     $allowedFields = ['company_name', 'job_title', 'job_description', 'application_date', 
                       'salary_range', 'job_location', 'application_url', 'notes', 
-                      'next_follow_up', 'had_interview'];
+                      'personal_statement', 'next_follow_up', 'had_interview'];
     
     foreach ($allowedFields as $field) {
         if (isset($data[$field])) {
@@ -551,8 +733,10 @@ function updateJobApplication($applicationId, $data, $userId = null) {
                 $updateData[$field] = !empty($data[$field]) ? $val : null;
             } elseif ($field === 'job_description') {
                 $updateData[$field] = prepareJobDescriptionForStorage($data[$field]);
+            } elseif ($field === 'personal_statement') {
+                $updateData[$field] = prepareForStorage($data[$field]);
             } else {
-                $updateData[$field] = sanitizeInput($data[$field]);
+                $updateData[$field] = prepareForStorage($data[$field]);
             }
         }
     }

@@ -68,11 +68,12 @@ RewriteRule ^(.*)$ index.php [QSA,L]
 </IfModule>
 
 # Protect sensitive files
-<FilesMatch "\.(env|log|sql|md)$">
+<FilesMatch "\.(env|log|sql|md|ini)$">
     Order allow,deny
     Deny from all
 </FilesMatch>
 
-# PHP settings
-php_value upload_max_filesize 10M
-php_value post_max_size 10M
+# PHP settings (job application files: PDF, Word, etc. – allow up to 25MB)
+# Note: If uploads still fail, your host may ignore these. Try adding .user.ini in the project root.
+php_value upload_max_filesize 25M
+php_value post_max_size 26M

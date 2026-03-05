@@ -182,55 +182,48 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                             The QR code will appear in the header if the photo is hidden; otherwise it is placed at the bottom of the PDF.
                         </p>
                     </div>
+
                     </details>
 
-                    <!-- Collapsible: Select Sections -->
+                    <!-- Collapsible: Sections for PDF -->
                     <details class="sidebar-section group border-b border-gray-200 pb-4 mb-4">
                         <summary class="flex items-center justify-between cursor-pointer list-none py-1 text-sm font-medium text-gray-700 hover:text-gray-900 select-none">
-                            <span>Select Sections</span>
+                            <span>Sections for PDF</span>
                             <svg class="h-4 w-4 text-gray-500 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                         </summary>
-                    <div class="mt-3 space-y-3 pl-0">
-                        <label class="flex items-center">
-                            <input type="checkbox" id="section-profile" checked class="mr-2">
-                            <span>Personal Profile</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" id="section-summary" checked class="mr-2">
-                            <span>Professional Summary</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" id="section-work" checked class="mr-2">
-                            <span>Work Experience</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" id="section-education" checked class="mr-2">
-                            <span>Education</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" id="section-skills" checked class="mr-2">
-                            <span>Skills</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" id="section-projects" checked class="mr-2">
-                            <span>Projects</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" id="section-certifications" checked class="mr-2">
-                            <span>Certifications</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" id="section-memberships" checked class="mr-2">
-                            <span>Professional Memberships</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" id="section-interests" checked class="mr-2">
-                            <span>Interests & Activities</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" id="section-qualifications" checked class="mr-2">
-                            <span>Professional Qualification Equivalence</span>
-                        </label>
+                        <p class="mt-2 text-xs text-gray-500 mb-3">Choose which sections appear in your exported PDF.</p>
+                    <div class="space-y-3 pl-0">
+                        <label class="flex items-center"><input type="checkbox" id="section-profile" checked class="mr-2"><span>Personal Profile</span></label>
+                        <label class="flex items-center"><input type="checkbox" id="section-summary" checked class="mr-2"><span>Professional Summary</span></label>
+                        <label class="flex items-center"><input type="checkbox" id="section-work" checked class="mr-2"><span>Work Experience</span></label>
+                        <label class="flex items-center"><input type="checkbox" id="section-education" checked class="mr-2"><span>Education</span></label>
+                        <label class="flex items-center"><input type="checkbox" id="section-skills" checked class="mr-2"><span>Skills</span></label>
+                        <label class="flex items-center"><input type="checkbox" id="section-projects" checked class="mr-2"><span>Projects</span></label>
+                        <label class="flex items-center"><input type="checkbox" id="section-certifications" checked class="mr-2"><span>Certifications</span></label>
+                        <label class="flex items-center"><input type="checkbox" id="section-memberships" checked class="mr-2"><span>Professional Memberships</span></label>
+                        <label class="flex items-center"><input type="checkbox" id="section-interests" checked class="mr-2"><span>Interests & Activities</span></label>
+                        <label class="flex items-center"><input type="checkbox" id="section-qualifications" checked class="mr-2"><span>Professional Qualification Equivalence</span></label>
+                    </div>
+                    </details>
+
+                    <!-- Collapsible: Sections for Online CV -->
+                    <details class="sidebar-section group border-b border-gray-200 pb-4 mb-4">
+                        <summary class="flex items-center justify-between cursor-pointer list-none py-1 text-sm font-medium text-gray-700 hover:text-gray-900 select-none">
+                            <span>Sections for Online CV</span>
+                            <svg class="h-4 w-4 text-gray-500 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </summary>
+                        <p class="mt-2 text-xs text-gray-500 mb-3">Choose which sections appear at <code class="text-xs">/cv/@<?php echo e($profile['username'] ?? 'username'); ?></code>.</p>
+                    <div class="space-y-3 pl-0">
+                        <label class="flex items-center"><input type="checkbox" id="section-online-profile" checked class="mr-2"><span>Personal Profile</span></label>
+                        <label class="flex items-center"><input type="checkbox" id="section-online-summary" checked class="mr-2"><span>Professional Summary</span></label>
+                        <label class="flex items-center"><input type="checkbox" id="section-online-work" checked class="mr-2"><span>Work Experience</span></label>
+                        <label class="flex items-center"><input type="checkbox" id="section-online-education" checked class="mr-2"><span>Education</span></label>
+                        <label class="flex items-center"><input type="checkbox" id="section-online-skills" checked class="mr-2"><span>Skills</span></label>
+                        <label class="flex items-center"><input type="checkbox" id="section-online-projects" checked class="mr-2"><span>Projects</span></label>
+                        <label class="flex items-center"><input type="checkbox" id="section-online-certifications" checked class="mr-2"><span>Certifications</span></label>
+                        <label class="flex items-center"><input type="checkbox" id="section-online-memberships" checked class="mr-2"><span>Professional Memberships</span></label>
+                        <label class="flex items-center"><input type="checkbox" id="section-online-interests" checked class="mr-2"><span>Interests & Activities</span></label>
+                        <label class="flex items-center"><input type="checkbox" id="section-online-qualifications" checked class="mr-2"><span>Professional Qualification Equivalence</span></label>
                     </div>
                     </details>
 
@@ -340,7 +333,7 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                     </div>
                     </details>
 
-                    <a href="/cv.php" class="mt-4 block w-full text-center px-4 py-2.5 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 hover:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-colors">
+                    <a href="/cv.php<?php echo !empty($variantId) ? '?variant_id=' . rawurlencode($variantId) : ''; ?>" class="mt-4 block w-full text-center px-4 py-2.5 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 hover:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-colors">
                         View Online CV →
                     </a>
                 </div>
@@ -380,6 +373,10 @@ $masterVariantId = getOrCreateMasterVariant($userId);
         const allowedTemplateIds = new Set(SubscriptionContext?.allowedTemplateIds || []);
         const previewVariantId = <?php echo json_encode($variantId ?? null, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
         const previewCsrfToken = <?php echo json_encode(csrfToken(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
+        const profileSectionsOnline = <?php
+            $raw = $profile['sections_online'] ?? null;
+            echo $raw ? json_encode(is_string($raw) ? json_decode($raw, true) : $raw, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) : 'null';
+        ?>;
         let cvData = <?php echo json_encode($cvDataDecoded, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
         let profile = <?php echo json_encode($profileDecoded, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
         const dateFormat = <?php echo json_encode($dateFormat, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
@@ -457,6 +454,21 @@ $masterVariantId = getOrCreateMasterVariant($userId);
             };
         }
 
+        function getSectionsOnline() {
+            return {
+                profile: document.getElementById('section-online-profile')?.checked ?? true,
+                summary: document.getElementById('section-online-summary')?.checked ?? true,
+                work: document.getElementById('section-online-work')?.checked ?? true,
+                education: document.getElementById('section-online-education')?.checked ?? true,
+                skills: document.getElementById('section-online-skills')?.checked ?? true,
+                projects: document.getElementById('section-online-projects')?.checked ?? true,
+                certifications: document.getElementById('section-online-certifications')?.checked ?? true,
+                memberships: document.getElementById('section-online-memberships')?.checked ?? true,
+                interests: document.getElementById('section-online-interests')?.checked ?? true,
+                qualificationEquivalence: document.getElementById('section-online-qualifications')?.checked ?? true
+            };
+        }
+
         function getSelectedTemplate() {
             const templateSelect = document.getElementById('template-select');
             const candidate = templateSelect && templateSelect.value ? templateSelect.value : selectedTemplate || DEFAULT_TEMPLATE_ID;
@@ -487,6 +499,21 @@ $masterVariantId = getOrCreateMasterVariant($userId);
             }
             const colors = COLOUR_PRESETS[preset];
             return colors ? { colors } : {};
+        }
+
+        function buildPdfFilename(profile, cvData) {
+            const fullName = (profile.full_name || '').trim();
+            const parts = fullName ? fullName.split(/\s+/) : [];
+            const firstName = parts[0] ? parts[0].replace(/[^a-zA-Z0-9\-]/g, '') : '';
+            const lastName = parts.length > 1 ? parts[parts.length - 1].replace(/[^a-zA-Z0-9\-]/g, '') : '';
+            const safeFirst = firstName || 'First';
+            const safeLast = lastName || 'Last';
+            const variantName = cvData?.variant?.variant_name;
+            if (variantName && String(variantName).trim()) {
+                const safeVariant = String(variantName).trim().replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\-]/g, '');
+                return `${safeVariant}-${safeFirst}-${safeLast}-CV.pdf`;
+            }
+            return `${safeFirst}-${safeLast}-CV.pdf`;
         }
 
         async function generatePDF() {
@@ -597,7 +624,7 @@ $masterVariantId = getOrCreateMasterVariant($userId);
 
                 const scrollY = window.scrollY;
                 const scrollX = window.scrollX;
-                const filename = `${(profile.full_name || 'CV').replace(/[^a-z0-9_\-]/gi, '_')}_CV.pdf`;
+                const filename = buildPdfFilename(profile, cvData);
 
                 // Try clean copy (fix for React/proxy mutation issues per Stack Overflow)
                 const imgs = docDefinition?.images;
@@ -753,6 +780,18 @@ $masterVariantId = getOrCreateMasterVariant($userId);
             'section-interests': 'interests',
             'section-qualifications': 'qualificationEquivalence'
         };
+        const SECTION_ONLINE_ID_MAP = {
+            'section-online-profile': 'profile',
+            'section-online-summary': 'summary',
+            'section-online-work': 'work',
+            'section-online-education': 'education',
+            'section-online-skills': 'skills',
+            'section-online-projects': 'projects',
+            'section-online-certifications': 'certifications',
+            'section-online-memberships': 'memberships',
+            'section-online-interests': 'interests',
+            'section-online-qualifications': 'qualificationEquivalence'
+        };
 
         function loadPreviewPrefs() {
             try {
@@ -782,6 +821,27 @@ $masterVariantId = getOrCreateMasterVariant($userId);
             }
         }
 
+        let saveProfileSectionsTimeout = null;
+        function saveProfileSectionsOnline(sections) {
+            if (saveProfileSectionsTimeout) clearTimeout(saveProfileSectionsTimeout);
+            saveProfileSectionsTimeout = setTimeout(async () => {
+                saveProfileSectionsTimeout = null;
+                try {
+                    await fetch('/api/save-profile-sections-online.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            sections_online: sections,
+                            csrf_token: previewCsrfToken
+                        }),
+                        credentials: 'include'
+                    });
+                } catch (e) {
+                    console.warn('Could not save profile sections for online CV:', e);
+                }
+            }, 300);
+        }
+
         let saveVariantPrefsTimeout = null;
         function saveVariantPdfPrefs(partial) {
             if (!previewVariantId) return;
@@ -798,6 +858,7 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                 if (partial.custom_accent_hex !== undefined) payload.custom_accent_hex = partial.custom_accent_hex;
                 if (partial.include_photo !== undefined) payload.include_photo = partial.include_photo;
                 if (partial.include_qr !== undefined) payload.include_qr = partial.include_qr;
+                if (partial.sections_online !== undefined) payload.sections_online = partial.sections_online;
                 try {
                     await fetch('/api/variant-pdf-preferences.php', {
                         method: 'POST',
@@ -855,6 +916,15 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                     }
                 }
             }
+            const sectionsOnlineSource = variantPrefs?.sections_online ?? profileSectionsOnline;
+            if (sectionsOnlineSource) {
+                for (const [domId, apiKey] of Object.entries(SECTION_ONLINE_ID_MAP)) {
+                    const el = document.getElementById(domId);
+                    if (el && sectionsOnlineSource[apiKey] !== undefined) {
+                        el.checked = !!sectionsOnlineSource[apiKey];
+                    }
+                }
+            }
 
             const checkboxes = document.querySelectorAll('input[type="checkbox"]');
             checkboxes.forEach((checkbox) => {
@@ -867,13 +937,19 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                         if (previewVariantId) saveVariantPdfPrefs({ include_qr: checkbox.checked });
                     } else if (SECTION_ID_MAP[checkbox.id]) {
                         if (previewVariantId) {
-                            const sections = getSections();
                             const apiSections = {};
                             for (const [domId, apiKey] of Object.entries(SECTION_ID_MAP)) {
                                 const el = document.getElementById(domId);
                                 apiSections[apiKey] = el?.checked ?? true;
                             }
                             saveVariantPdfPrefs({ sections: apiSections });
+                        }
+                    } else if (SECTION_ONLINE_ID_MAP[checkbox.id]) {
+                        const apiSections = getSectionsOnline();
+                        if (previewVariantId) {
+                            saveVariantPdfPrefs({ sections_online: apiSections });
+                        } else {
+                            saveProfileSectionsOnline(apiSections);
                         }
                     }
                     renderPreview();

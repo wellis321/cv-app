@@ -518,6 +518,9 @@ if (isPost()) {
                             <p class="mt-2 text-sm text-gray-500">
                                 The name of the model you downloaded (e.g., <code class="bg-gray-100 px-1 py-0.5 rounded text-xs">llama3:latest</code>, <code class="bg-gray-100 px-1 py-0.5 rounded text-xs">llama3.1:8b</code>, or <code class="bg-gray-100 px-1 py-0.5 rounded text-xs">llama3.3</code>). Click "Test Connection" to auto-detect and update this field.
                             </p>
+                            <p class="mt-1 text-sm text-gray-500">
+                                Not sure which model? <a href="/help/ai-models.php" class="text-blue-600 hover:text-blue-800 underline">Open the Model Guide</a>
+                            </p>
                         </div>
 
                         <!-- Test Connection Button -->
@@ -832,6 +835,9 @@ if (isPost()) {
                                 <p class="mt-2 text-sm text-gray-500">
                                     Select a model to use in your browser. Models are downloaded on first use and cached for future sessions.
                                     Ensure you have enough browser storage available (models can be 2-4GB).
+                                </p>
+                                <p class="mt-1 text-sm text-gray-500">
+                                    Not sure which model? <a href="/help/ai-models.php" class="text-blue-600 hover:text-blue-800 underline">Open the Model Guide</a>
                                 </p>
                             </div>
 

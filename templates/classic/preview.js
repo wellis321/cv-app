@@ -2,6 +2,7 @@
  * Classic Template HTML Preview Renderer
  * Matches the PDF classic template design
  */
+import { escapeHtml, renderMarkdown } from '../preview-utils.js';
 
 /**
  * Render classic template preview
@@ -57,7 +58,7 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
 
         // Bio
         if (profile.bio) {
-            html += `<p style="font-size: 13px; color: ${colors.body}; font-style: italic; margin: 12px 60px 0 60px; line-height: 1.5;">${escapeHtml(profile.bio)}</p>`
+            html += `<p style="font-size: 13px; color: ${colors.body}; font-style: italic; margin: 12px 60px 0 60px; line-height: 1.5;">${renderMarkdown(profile.bio)}</p>`
         }
 
         // Divider
@@ -72,7 +73,7 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
         html += renderSection('Professional Summary', colors)
 
         if (cvData.professional_summary.description) {
-            html += `<p style="font-size: 14px; color: ${colors.body}; line-height: 1.6; margin: 0 0 12px 0;">${escapeHtml(cvData.professional_summary.description)}</p>`
+            html += `<p style="font-size: 14px; color: ${colors.body}; line-height: 1.6; margin: 0 0 12px 0;">${renderMarkdown(cvData.professional_summary.description)}</p>`
         }
 
         if (Array.isArray(cvData.professional_summary.strengths) && cvData.professional_summary.strengths.length > 0) {
@@ -109,7 +110,7 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
             }
 
             if (exp.description) {
-                html += `<p style="font-size: 14px; color: ${colors.body}; line-height: 1.5; margin: 0 0 8px 0;">${escapeHtml(exp.description)}</p>`
+                html += `<p style="font-size: 14px; color: ${colors.body}; line-height: 1.5; margin: 0 0 8px 0;">${renderMarkdown(exp.description)}</p>`
             }
 
             // Responsibilities
@@ -200,7 +201,7 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
             }
 
             if (project.description) {
-                html += `<p style="font-size: 13px; color: ${colors.body}; margin: 0 0 6px 0; line-height: 1.5;">${escapeHtml(project.description)}</p>`
+                html += `<p style="font-size: 13px; color: ${colors.body}; margin: 0 0 6px 0; line-height: 1.5;">${renderMarkdown(project.description)}</p>`
             }
 
             if (project.url) {
@@ -296,13 +297,6 @@ function renderSection(title, colors) {
 /**
  * Helper functions
  */
-function escapeHtml(text) {
-    if (!text) return ''
-    const div = document.createElement('div')
-    div.textContent = text
-    return div.innerHTML
-}
-
 function formatDate(dateStr) {
     if (!dateStr) return ''
     const date = new Date(dateStr)

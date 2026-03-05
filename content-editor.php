@@ -252,6 +252,8 @@ $subscriptionContext = getUserSubscriptionContext($userId);
             max-width: none;
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.min.js"></script>
 </head>
 <body class="bg-gray-50">
     <?php partial('header'); ?>
@@ -302,6 +304,21 @@ $subscriptionContext = getUserSubscriptionContext($userId);
 
             <!-- Center Content Area -->
             <main class="bg-white" id="main-content">
+                <!-- View CV bar – shown when editing a variant; links to view and PDF -->
+                <div id="view-cv-bar" class="hidden border-b border-gray-200 bg-gray-50 px-6 py-3">
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <span id="view-cv-bar-variant-name" class="text-sm text-gray-500 mr-2"></span>
+                        <span class="text-sm font-medium text-gray-700">View this CV:</span>
+                        <a id="view-cv-link" href="#" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 rounded-md hover:bg-blue-100 border border-blue-200 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                            View CV
+                        </a>
+                        <a id="preview-pdf-link" href="#" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-green-700 bg-green-50 rounded-md hover:bg-green-100 border border-green-200 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                            Preview & PDF
+                        </a>
+                    </div>
+                </div>
                 <div id="section-content" class="p-6">
                     <div class="max-w-3xl mx-auto">
                         <div class="text-center py-12">
@@ -330,7 +347,8 @@ $subscriptionContext = getUserSubscriptionContext($userId);
             csrfToken: <?php echo json_encode(csrfToken()); ?>,
             csrfTokenName: <?php echo json_encode(CSRF_TOKEN_NAME); ?>,
             userId: <?php echo json_encode($userId); ?>,
-            subscriptionContext: <?php echo json_encode($subscriptionContext); ?>
+            subscriptionContext: <?php echo json_encode($subscriptionContext); ?>,
+            cvVariants: <?php echo json_encode(array_map(function($v) { return ['id' => $v['id'], 'variant_name' => $v['variant_name'] ?? '', 'job_application_id' => $v['job_application_id'] ?? null]; }, $cvVariants)); ?>
         };
         // Register pass-through service worker so app requests are not broken by other SWs (e.g. WebLLM)
         if ('serviceWorker' in navigator) {

@@ -34,7 +34,8 @@ import {
     decodeHtmlEntities,
     hasVisibleText,
     createDivider,
-    mergeTemplateCustomization
+    mergeTemplateCustomization,
+    convertMarkdownToPlainText
 } from '../builders/utils.js'
 
 /**
@@ -252,7 +253,7 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
 
             if (hasVisibleText(qual.description)) {
                 qualContent.push({
-                    text: decodeHtmlEntities(qual.description),
+                    text: decodeHtmlEntities(convertMarkdownToPlainText(qual.description)),
                     fontSize: 11,
                     color: template.colors.body,
                     margin: [0, 2, 0, 4]
@@ -263,7 +264,7 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
             if (Array.isArray(qual.supporting_evidence) && qual.supporting_evidence.length > 0) {
                 const evidenceItems = qual.supporting_evidence
                     .filter(e => hasVisibleText(e.evidence))
-                    .map(e => decodeHtmlEntities(e.evidence))
+                    .map(e => decodeHtmlEntities(convertMarkdownToPlainText(e.evidence)))
 
                 if (evidenceItems.length > 0) {
                     qualContent.push({

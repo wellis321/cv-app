@@ -384,7 +384,7 @@ const BrowserAIService = {
             [/\bseamless\b/gi, 'smooth'], [/\bseamlessly\b/gi, 'smoothly'],
             [/\bcutting[- ]edge\b/gi, 'modern'],
             [/\binnovative\b/gi, 'new'],
-            [/\bstrategic\b/gi, 'planned'],
+            [/\bstrategic\b/gi, 'focused'],
             [/\bresults[- ]driven\b/gi, 'results focused'],
             [/\bdetail[- ]oriented\b/gi, 'detail focused'],
             [/\bfast[- ]paced\b/gi, 'busy'],
@@ -405,7 +405,7 @@ const BrowserAIService = {
             [/\bstrong background\b/gi, 'background'],
             [/\binnovative solutions\b/gi, 'solutions'],
             [/\bkey stakeholders\b/gi, 'stakeholders'],
-            [/\bstrategic initiatives\b/gi, 'initiatives'],
+            [/\bstrategic planning\b/gi, 'long-term planning'], [/\bstrategic initiatives\b/gi, 'initiatives'],
             [/\bdrive(ing)? impact\b/gi, 'improve'],
             [/\bmission[- ]driven\b/gi, 'purpose led'],
             [/\bend[- ]to[- ]end\b/gi, 'full'],
@@ -575,7 +575,77 @@ const BrowserAIService = {
         }
         return data;
     },
-    
+
+    /**
+     * Parse CV rewrite JSON from AI response - handles malformed output from browser models.
+     * @param {string} raw Raw AI response text
+     * @returns {Object} Parsed CV data object
+     */
+    parseCvRewriteJsonFromAI(raw) {
+        let text = String(raw || '').trim();
+        text = text.replace(/<\|[^]*?\|>/g, '');
+        text = text.replace(/\[INST\][\s\S]*?\[\/INST\]/gi, '');
+        text = text.replace(/<s>[\s\S]*?<\/s>/gi, '');
+        text = text.replace(/<\|im_start\|>[\s\S]*?<\|im_end\|>/gi, '');
+        text = text.replace(/":\s*(assistant|user|system|any_name|start_header_id|end_header_id)""/gi, '": ""');
+        text = text.replace(/":\s*(assistant|user|system|any_name|start_header_id|end_header_id)"/gi, '": ""');
+        var codeBlock = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+        if (codeBlock) text = codeBlock[1].trim();
+        var startObj = text.indexOf('{');
+        var startArr = text.indexOf('[');
+        var start = startObj >= 0 ? (startArr >= 0 && startArr < startObj ? startArr : startObj) : startArr;
+        if (start < 0) throw new Error('No JSON object or array found in AI response');
+        text = text.slice(start);
+        function extractBalancedJson(str, openCh, closeCh) {
+            var depth = 0, inStr = false, escape = false, strCh = '';
+            for (var i = 0; i < str.length; i++) {
+                var ch = str[i];
+                if (escape) { escape = false; continue; }
+                if (ch === '\\' && inStr) { escape = true; continue; }
+                if (!inStr && (ch === '"' || ch === "'")) { inStr = true; strCh = ch; continue; }
+                if (inStr && ch === strCh) { inStr = false; continue; }
+                if (!inStr) {
+                    if (ch === openCh) depth++;
+                    else if (ch === closeCh) { depth--; if (depth === 0) return str.slice(0, i + 1); }
+                }
+            }
+            return null;
+        }
+        var extracted = text.startsWith('[')
+            ? extractBalancedJson(text, '[', ']')
+            : extractBalancedJson(text, '{', '}');
+        if (!extracted) {
+            var lastBrace = text.lastIndexOf('}');
+            if (lastBrace > 0) extracted = text.slice(0, lastBrace + 1);
+            else throw new Error('No complete JSON object found');
+        }
+        if (text.startsWith('[')) {
+            try {
+                var arr = JSON.parse(extracted.replace(/,(\s*[}\]])/g, '$1'));
+                if (Array.isArray(arr) && arr.length === 1 && arr[0] && typeof arr[0] === 'object') return arr[0];
+            } catch (e) { /* fall through */ }
+        }
+        extracted = extracted.replace(/^\s*\/\/[^\n]*$/gm, '').replace(/,(\s*[}\]])/g, '$1');
+        extracted = extracted.replace(/\}\s*\{/g, '}, {').replace(/\]\s*\}\s*\{/g, '] }, {');
+        extracted = extracted.replace(/\}\s*"(description|name)"\s*:/g, '}, "$1":');
+        extracted = extracted.replace(/\{\s*"description"\s*:\s*"([^"]*)"\s*,\s*"items"\s*:/g, '{ "name": "$1", "items":');
+        extracted = extracted.replace(/\{\s*"description"\s*:\s*"([^"]*)"\s*\}\s*,\s*/g, '{ "content": "$1" }, ');
+        extracted = extracted.replace(/\{\s*"description"\s*:\s*"([^"]*)"\s*\}\s*\]/g, '{ "content": "$1" } ]');
+        extracted = extracted.replace(/\s*\.\.\.\s*\(\d+\s+more\s+positions\)\s*/gi, '').replace(/\s*\.\.\.\s*\(\d+\s+more\s+items\)\s*/gi, '');
+        extracted = extracted.replace(/,(\s*[}\]])/g, '$1');
+        try {
+            return JSON.parse(extracted);
+        } catch (e) {
+            var match = extracted.match(/\{[\s\S]*\}/);
+            if (match) {
+                try {
+                    return JSON.parse(match[0].replace(/,(\s*[}\]])/g, '$1'));
+                } catch (e2) {}
+            }
+            throw new Error('Failed to parse AI response as JSON. The AI may have returned malformed JSON. Please try again.');
+        }
+    },
+
     /**
      * Generate text with WebLLM
      * @param {string} prompt Input prompt

@@ -33,7 +33,7 @@ function createCvVariant($userId, $sourceVariantId = null, $variantName = 'Untit
             'id' => $variantId,
             'user_id' => $userId,
             'job_application_id' => $jobApplicationId,
-            'variant_name' => sanitizeInput($variantName),
+            'variant_name' => prepareForStorage($variantName) ?: 'Untitled Variant',
             'is_master' => 0, // Use 0 instead of false for MySQL
             'created_from_variant_id' => $sourceVariantId,
             'ai_generated' => 0, // Use 0 instead of false for MySQL
@@ -1112,7 +1112,7 @@ function updateCvVariantName($variantId, $variantName, $userId = null) {
     try {
         db()->update('cv_variants',
             [
-                'variant_name' => sanitizeInput($variantName),
+                'variant_name' => prepareForStorage($variantName) ?: 'Untitled',
                 'updated_at' => date('Y-m-d H:i:s')
             ],
             'id = ?',

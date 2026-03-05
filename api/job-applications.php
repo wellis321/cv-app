@@ -44,6 +44,19 @@ $applicationId = $_GET['id'] ?? $input['id'] ?? null;
 try {
     switch ($method) {
         case 'GET':
+            // Check for duplicate (company + title) before creating
+            if (isset($_GET['check']) && $_GET['check'] === '1') {
+                $jobApiResponseSent = true;
+                $company = trim((string) ($_GET['company_name'] ?? ''));
+                $title = trim((string) ($_GET['job_title'] ?? ''));
+                if ($company === '' || $title === '') {
+                    echo json_encode(['duplicate' => false]);
+                } else {
+                    $check = checkJobDuplicate($company, $title, $userId);
+                    echo json_encode($check);
+                }
+                break;
+            }
             // Get all applications or a single application
             $jobApiResponseSent = true;
             if ($applicationId) {
@@ -83,7 +96,12 @@ try {
                 echo json_encode(['success' => true, 'id' => $result['id']]);
             } else {
                 http_response_code(400);
-                echo json_encode(['error' => $result['error']]);
+                $response = ['error' => $result['error']];
+                if (!empty($result['duplicate']) && !empty($result['existing_id'])) {
+                    $response['duplicate'] = true;
+                    $response['existing_id'] = $result['existing_id'];
+                }
+                echo json_encode($response);
             }
             break;
             

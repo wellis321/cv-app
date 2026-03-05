@@ -28,7 +28,8 @@ import {
     createDivider,
     formatDateRange,
     getColor,
-    mergeTemplateCustomization
+    mergeTemplateCustomization,
+    convertMarkdownToPlainText
 } from '../builders/utils.js'
 
 /**
@@ -251,7 +252,7 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
 
             if (hasVisibleText(exp.description)) {
                 content.push({
-                    text: decodeHtmlEntities(exp.description),
+                    text: decodeHtmlEntities(convertMarkdownToPlainText(exp.description)),
                     fontSize: 10,
                     color: template.colors.muted,
                     margin: [0, 2, 0, 6]
@@ -263,7 +264,7 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
                     if (Array.isArray(cat.items) && cat.items.length > 0) {
                         const bulletItems = cat.items
                             .filter(item => hasVisibleText(item.content))
-                            .map(item => decodeHtmlEntities(item.content))
+                            .map(item => decodeHtmlEntities(convertMarkdownToPlainText(item.content)))
                         if (bulletItems.length > 0) {
                             content.push({
                                 ul: bulletItems,
@@ -366,7 +367,7 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
             }
             if (hasVisibleText(qual.description)) {
                 qualContent.push({
-                    text: decodeHtmlEntities(qual.description),
+                    text: decodeHtmlEntities(convertMarkdownToPlainText(qual.description)),
                     fontSize: 11,
                     color: template.colors.body,
                     margin: [0, 2, 0, 4]
@@ -376,7 +377,7 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
                 const evidenceItems = qual.evidence
                     .map(e => e.content || e.evidence)
                     .filter(Boolean)
-                    .map(e => decodeHtmlEntities(e))
+                    .map(e => decodeHtmlEntities(convertMarkdownToPlainText(String(e))))
                 if (evidenceItems.length > 0) {
                     qualContent.push({
                         ul: evidenceItems,
@@ -426,7 +427,7 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
                 }
                 if (hasVisibleText(interest.description)) {
                     stack.push({
-                        text: decodeHtmlEntities(interest.description),
+                        text: decodeHtmlEntities(convertMarkdownToPlainText(interest.description)),
                         fontSize: 9,
                         color: template.colors.muted,
                         margin: [0, 0, 0, 0]

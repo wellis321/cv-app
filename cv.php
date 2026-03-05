@@ -127,6 +127,7 @@ if (!$canView) {
 
 // Load CV data - either from variant or master CV
 $cvData = null;
+$cvVariant = null;
 // Load variant when: variant_id in URL and (owner logged in, OR CV is public and variant belongs to this profile)
 if ($variantId && $profileUserId) {
     $cvVariant = getCvVariant($variantId, $profileUserId);
@@ -192,12 +193,13 @@ if ($activeTemplate) {
     $customCss = $activeTemplate['template_css'] ?? '';
     
     // Use Twig template service for secure rendering
-    // Variables profile, cvData, and formatCvDate() function are available in the template
+    // Variables profile, cvData, sections_online, and formatCvDate() function are available in the template
     require_once __DIR__ . '/php/twig-template-service.php';
+    $sectionsOnline = getSectionsOnlineForCv($profile, $cvVariant);
     $renderedContent = renderTemplate($customHtml, [
         'profile' => $profile,
-        'cvData' => $cvData
-        // formatCvDate() function is registered in Twig, no need to pass it
+        'cvData' => $cvData,
+        'sections_online' => $sectionsOnline
     ]);
     
     // Output custom template
@@ -217,6 +219,11 @@ if ($activeTemplate) {
             @media print {
                 .no-print { display: none !important; }
             }
+            /* CV toolbar button styles – harmonious secondary/primary hierarchy */
+            .cv-toolbar-btn-secondary { border: 1px solid #d1d5db; background: #fff; color: #374151; }
+            .cv-toolbar-btn-secondary:hover { background: #f9fafb; }
+            .cv-toolbar-btn-primary { background: #2563eb; color: #fff; border: 1px solid #2563eb; }
+            .cv-toolbar-btn-primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
             /* Prevent left column (e.g. interests) content from bleeding into right column */
             .cv-container .grid > *,
             .cv-container [class*="col-span"] {
@@ -289,33 +296,40 @@ if ($activeTemplate) {
             <?php if (isLoggedIn() && getUserId() === $profileUserId): ?>
                 <div class="no-print bg-white shadow-sm border-b">
                     <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                        <div class="text-sm sm:text-base">
+                        <div class="text-sm sm:text-base flex items-center gap-3 flex-wrap">
                             <a href="/" class="text-blue-600 hover:text-blue-800">← Back to Dashboard</a>
+                            <?php if (!empty($cvVariant['variant_name'])): ?>
+                            <span class="text-gray-500">Viewing: <?php echo e($cvVariant['variant_name']); ?></span>
+                            <?php endif; ?>
                         </div>
-                        <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                        <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 flex-wrap">
                             <?php if (!empty($profile['username'])): ?>
-                                <button type="button" class="copy-cv-link-btn inline-flex items-center justify-center px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm sm:text-base transition-colors" data-cv-url="<?php echo e(APP_URL . '/cv/@' . $profile['username']); ?>" aria-label="Copy CV link">
+                                <button type="button" class="copy-cv-link-btn cv-toolbar-btn cv-toolbar-btn-secondary inline-flex items-center justify-center px-4 py-2 rounded-md text-sm sm:text-base transition-colors" data-cv-url="<?php echo e(APP_URL . '/cv/@' . $profile['username'] . (!empty($variantId) ? '?variant_id=' . rawurlencode($variantId) : '')); ?>" aria-label="Copy CV link">
                                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
                                     <span class="copy-cv-link-label">Copy CV link</span>
                                 </button>
                             <?php endif; ?>
                             <?php if (!empty($variantId)): ?>
-                                <a href="/content-editor.php#work-experience&variant_id=<?php echo e($variantId); ?>" class="inline-flex items-center justify-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 text-sm sm:text-base transition-colors">
-                                    Edit this variant
+                                <?php if (!empty($cvVariant['job_application_id'])): ?>
+                                <a href="/content-editor.php#jobs&view=<?php echo e($cvVariant['job_application_id']); ?>" class="cv-toolbar-btn cv-toolbar-btn-secondary inline-flex items-center justify-center px-4 py-2 rounded-md text-sm sm:text-base transition-colors">
+                                    Related Job
                                 </a>
+                                <?php endif; ?>
                             <?php endif; ?>
-                            <a href="/cv-template-customizer.php" class="inline-flex items-center justify-center px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 text-sm sm:text-base transition-colors">
+                            <a href="/cv-template-customizer.php" class="cv-toolbar-btn cv-toolbar-btn-secondary inline-flex items-center justify-center px-4 py-2 rounded-md text-sm sm:text-base transition-colors">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
                                 </svg>
                                 Customise Template
                             </a>
-                            <a href="/preview-cv.php<?php echo !empty($variantId) ? '?variant_id=' . e($variantId) : ''; ?>" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 inline-block text-center text-sm sm:text-base">
-                                Generate PDF
+                            <?php if (!empty($variantId)): ?>
+                            <a href="/content-editor.php#work-experience&variant_id=<?php echo e($variantId); ?>" class="cv-toolbar-btn cv-toolbar-btn-secondary inline-flex items-center justify-center px-4 py-2 rounded-md text-sm sm:text-base transition-colors">
+                                Edit this variant
                             </a>
-                            <button onclick="window.print()" class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 text-sm sm:text-base">
-                                Print
-                            </button>
+                            <?php endif; ?>
+                            <a href="/preview-cv.php<?php echo !empty($variantId) ? '?variant_id=' . e($variantId) : ''; ?>" class="cv-toolbar-btn cv-toolbar-btn-primary inline-flex items-center justify-center px-4 py-2 rounded-md text-sm sm:text-base transition-colors">
+                                Preview PDF
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -405,6 +419,11 @@ if ($activeTemplate) {
             body { margin: 0; padding: 0; }
             .cv-container { box-shadow: none; }
         }
+        /* CV toolbar button styles – harmonious secondary/primary hierarchy */
+        .cv-toolbar-btn-secondary { border: 1px solid #d1d5db; background: #fff; color: #374151; }
+        .cv-toolbar-btn-secondary:hover { background: #f9fafb; }
+        .cv-toolbar-btn-primary { background: #2563eb; color: #fff; border: 1px solid #2563eb; }
+        .cv-toolbar-btn-primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
         .icon {
             display: inline-block;
             width: 1em;
@@ -477,30 +496,36 @@ if ($activeTemplate) {
     <?php if (isLoggedIn() && getUserId() === $profileUserId): ?>
         <div class="no-print bg-white shadow-sm border-b">
             <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div class="text-sm sm:text-base">
+                <div class="text-sm sm:text-base flex items-center gap-3 flex-wrap">
                     <a href="/" class="text-blue-600 hover:text-blue-800">← Back to Dashboard</a>
+                    <?php if (!empty($cvVariant['variant_name'])): ?>
+                    <span class="text-gray-500">Viewing: <?php echo e($cvVariant['variant_name']); ?></span>
+                    <?php endif; ?>
                 </div>
-                <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 flex-wrap">
                     <?php if (!empty($profile['username'])): ?>
-                        <button type="button" class="copy-cv-link-btn inline-flex items-center justify-center px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm sm:text-base transition-colors" data-cv-url="<?php echo e(APP_URL . '/cv/@' . $profile['username']); ?>" aria-label="Copy CV link">
+                        <button type="button" class="copy-cv-link-btn cv-toolbar-btn cv-toolbar-btn-secondary inline-flex items-center justify-center px-4 py-2 rounded-md text-sm sm:text-base transition-colors" data-cv-url="<?php echo e(APP_URL . '/cv/@' . $profile['username'] . (!empty($variantId) ? '?variant_id=' . rawurlencode($variantId) : '')); ?>" aria-label="Copy CV link">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
                             <span class="copy-cv-link-label">Copy CV link</span>
                         </button>
                     <?php endif; ?>
                     <?php if (!empty($variantId)): ?>
-                        <a href="/content-editor.php#work-experience&variant_id=<?php echo e($variantId); ?>" class="inline-flex items-center justify-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 text-sm sm:text-base transition-colors">
+                        <?php if (!empty($cvVariant['job_application_id'])): ?>
+                        <a href="/content-editor.php#jobs&view=<?php echo e($cvVariant['job_application_id']); ?>" class="cv-toolbar-btn cv-toolbar-btn-secondary inline-flex items-center justify-center px-4 py-2 rounded-md text-sm sm:text-base transition-colors">
+                            Related Job
+                        </a>
+                        <?php endif; ?>
+                        <a href="/content-editor.php#work-experience&variant_id=<?php echo e($variantId); ?>" class="cv-toolbar-btn cv-toolbar-btn-secondary inline-flex items-center justify-center px-4 py-2 rounded-md text-sm sm:text-base transition-colors">
                             Edit this variant
                         </a>
-                    <?php endif; ?>
-                    <a href="/profile.php" class="inline-flex items-center justify-center px-4 py-2 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 text-sm sm:text-base transition-colors">
+                    <?php else: ?>
+                    <a href="/profile.php" class="cv-toolbar-btn cv-toolbar-btn-secondary inline-flex items-center justify-center px-4 py-2 rounded-md text-sm sm:text-base transition-colors">
                         Edit Profile
                     </a>
-                    <a href="/preview-cv.php<?php echo !empty($variantId) ? '?variant_id=' . e($variantId) : ''; ?>" class="inline-flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm sm:text-base transition-colors">
-                        Generate PDF
+                    <?php endif; ?>
+                    <a href="/preview-cv.php<?php echo !empty($variantId) ? '?variant_id=' . e($variantId) : ''; ?>" class="cv-toolbar-btn cv-toolbar-btn-primary inline-flex items-center justify-center px-4 py-2 rounded-md text-sm sm:text-base transition-colors">
+                        Preview PDF
                     </a>
-                    <button type="button" onclick="window.print()" class="inline-flex items-center justify-center px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 text-sm sm:text-base transition-colors">
-                        Print
-                    </button>
                 </div>
             </div>
         </div>

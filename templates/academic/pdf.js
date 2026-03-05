@@ -33,7 +33,8 @@ import {
     decodeHtmlEntities,
     hasVisibleText,
     createDivider,
-    mergeTemplateCustomization
+    mergeTemplateCustomization,
+    convertMarkdownToPlainText
 } from '../builders/utils.js'
 
 /**
@@ -118,7 +119,6 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
         const hasQR = includeQRCode && cvUrl
 
         if (hasQR) {
-            // QR in same position as photo: centered above header (matches "instead of photo")
             content.push({
                 stack: [
                     { qr: cvUrl, fit: 110, alignment: 'center', margin: [0, 0, 0, 8] },
@@ -168,9 +168,9 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
         cvData.qualification_equivalence.forEach((qual, index) => {
             const qualContent = []
             if (qual.level_name) qualContent.push({ text: decodeHtmlEntities(qual.level_name), fontSize: 12, bold: true, color: template.colors.body })
-            if (hasVisibleText(qual.description)) qualContent.push({ text: decodeHtmlEntities(qual.description), fontSize: 11, color: template.colors.body, margin: [0, 2, 0, 4] })
+            if (hasVisibleText(qual.description)) qualContent.push({ text: decodeHtmlEntities(convertMarkdownToPlainText(qual.description)), fontSize: 11, color: template.colors.body, margin: [0, 2, 0, 4] })
             if (Array.isArray(qual.supporting_evidence) && qual.supporting_evidence.length > 0) {
-                const evidenceItems = qual.supporting_evidence.filter(e => hasVisibleText(e.evidence)).map(e => decodeHtmlEntities(e.evidence))
+                const evidenceItems = qual.supporting_evidence.filter(e => hasVisibleText(e.evidence)).map(e => decodeHtmlEntities(convertMarkdownToPlainText(e.evidence)))
                 if (evidenceItems.length > 0) qualContent.push({ ul: evidenceItems, fontSize: 10, color: template.colors.body, margin: [15, 0, 0, 0] })
             }
             content.push({ stack: qualContent, margin: [0, 0, 0, index < cvData.qualification_equivalence.length - 1 ? 8 : 0] })

@@ -49,6 +49,38 @@ function flattenJsonJobDescriptionToPlainText($text) {
 }
 
 /**
+ * Improve structure of flat text: add ## before common section headers, convert "o " bullets to "- ".
+ */
+function improveJobDescriptionStructure($text) {
+    $lines = explode("\n", $text);
+    $out = [];
+    $sectionHeaders = ['Key Responsibilities', 'Experience', 'Knowledge', 'Knowledge & Skills', 'Person Specification', 'Requirements', 'Further Information', 'To Apply', 'Our Culture', 'Equality, Diversity', 'Equality, Diversity & Inclusion', 'Closing Date', 'About the Role', 'About Us', 'The Role', 'How to Apply'];
+    foreach ($lines as $line) {
+        $trimmed = trim($line);
+        if ($trimmed === '') {
+            $out[] = '';
+            continue;
+        }
+        $isHeader = false;
+        foreach ($sectionHeaders as $h) {
+            if (stripos($trimmed, $h) === 0 && strlen($trimmed) <= strlen($h) + 5) {
+                $out[] = "\n## " . $trimmed . "\n";
+                $isHeader = true;
+                break;
+            }
+        }
+        if (!$isHeader) {
+            if (preg_match('/^[o•]\s+/u', $trimmed) || preg_match('/^[\-\*]\s+/', $trimmed)) {
+                $out[] = '- ' . preg_replace('/^[o•\-\*]\s+/u', '', $trimmed);
+            } else {
+                $out[] = $trimmed;
+            }
+        }
+    }
+    return preg_replace("/\n{3,}/", "\n\n", trim(implode("\n", $out)));
+}
+
+/**
  * If the content looks like our own API response (e.g. starts with {"text":" or { "text": ")
  * unwrap it so the description field gets plain text only, not the JSON wrapper.
  * Handles both valid JSON and malformed (e.g. unescaped quotes in content) by stripping prefix/suffix.
@@ -58,12 +90,16 @@ function unwrapApiTextResponse($text) {
     if ($trimmed === '' || $trimmed[0] !== '{') return $text;
 
     $decoded = json_decode($trimmed, true);
-    if (is_array($decoded) && json_last_error() === JSON_ERROR_NONE && isset($decoded['text']) && is_string($decoded['text'])) {
-        return $decoded['text'];
+    if (is_array($decoded) && json_last_error() === JSON_ERROR_NONE) {
+        foreach (['text', 'content', 'result', 'formatted_text', 'formatted', 'output'] as $key) {
+            if (isset($decoded[$key]) && is_string($decoded[$key])) {
+                return $decoded[$key];
+            }
+        }
     }
 
-    // Fallback: content may be malformed JSON (e.g. unescaped " inside the value). Strip literal prefix and suffix.
-    $prefixes = ['{"text":"', '{ "text": "', "{\"text\":\"", "{ \"text\": \""];
+    // Fallback: malformed JSON (unescaped " in content). Strip literal prefix and suffix.
+    $prefixes = ['{"text":"', '{ "text": "', '{"text": "', '{ "text":"', '{"content":"', '{ "content": "'];
     $start = null;
     foreach ($prefixes as $prefix) {
         if (strpos($trimmed, $prefix) === 0) {
@@ -107,14 +143,6 @@ if (!isLoggedIn()) {
 }
 
 $userId = getUserId();
-
-// #region agent log
-$extractLogPath = __DIR__ . '/../.cursor/debug-902fb4.log';
-$extractLog = function ($msg, $data = []) use ($extractLogPath) {
-    $payload = array_merge(['sessionId' => '902fb4', 'location' => 'extract-job-file-text.php', 'message' => $msg, 'timestamp' => (int)(microtime(true) * 1000)], $data);
-    @file_put_contents($extractLogPath, json_encode($payload) . "\n", FILE_APPEND | LOCK_EX);
-};
-// #endregion
 $token = $_POST['csrf_token'] ?? '';
 if (!verifyCsrfToken($token)) {
     $extractResponseSent = true;
@@ -165,9 +193,6 @@ try {
     $ext = $file['original_name'] ? strtolower(pathinfo($file['original_name'], PATHINFO_EXTENSION)) : '';
     $isPdf = ($mimeType === 'application/pdf' || $ext === 'pdf');
     $isDocx = ($mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || $ext === 'docx');
-    // #region agent log
-    $extractLog('extract_entry', ['hypothesisId' => 'DOCX1', 'mime' => $mimeType, 'ext' => $ext, 'isPdf' => $isPdf, 'isDocx' => $isDocx, 'format_with_ai' => !empty($_POST['format_with_ai'])]);
-    // #endregion
     $text = '';
     $usedVision = false;
     if (!empty($_POST['format_with_ai']) && $isPdf && function_exists('getAIService')) {
@@ -190,9 +215,6 @@ try {
     
     if ($text === '') {
         $extractionResult = extractDocumentText($filePath, $mimeType, $file['original_name'] ?? '');
-        // #region agent log
-        $extractLog('extract_result', ['hypothesisId' => 'DOCX2', 'success' => $extractionResult['success'], 'text_len' => strlen($extractionResult['text'] ?? ''), 'error' => $extractionResult['error'] ?? null]);
-        // #endregion
         if (!$extractionResult['success']) {
             $extractResponseSent = true;
             ob_end_clean();
@@ -206,12 +228,20 @@ try {
     }
     
     // Format with AI only if we used standard extraction (vision output is already formatted)
-    if (!empty($_POST['format_with_ai']) && !$usedVision && function_exists('getAIService') && strpos($text, '<table') === false) {
+    // Skip when extraction already has real structure (headings, lists, tables). Plain <p> only = run AI to add structure
+    $hasRealStructure = (strpos($text, '<table') !== false || strpos($text, '<h') !== false || strpos($text, '<ul') !== false || strpos($text, '<ol') !== false || strpos($text, '<li') !== false);
+    if (!empty($_POST['format_with_ai']) && !$usedVision && !$hasRealStructure && function_exists('getAIService')) {
         try {
+            // Strip HTML to plain text for AI (convert <p>, <br> to newlines)
+            $textToFormat = preg_replace('/<br\s*\/?>/i', "\n", $text);
+            $textToFormat = preg_replace('/<\/p>\s*<p[^>]*>/i', "\n\n", $textToFormat);
+            $textToFormat = preg_replace('/<[^>]+>/', '', $textToFormat);
+            $textToFormat = preg_replace("/\n{3,}/", "\n\n", trim($textToFormat));
+            if ($textToFormat === '') $textToFormat = $text;
             $aiService = getAIService($userId);
             if ($aiService && method_exists($aiService, 'formatJobDescriptionText')) {
                 $maxLen = 12000;
-                $textToFormat = strlen($text) > $maxLen ? substr($text, 0, $maxLen) . "\n\n[... truncated for formatting ...]" : $text;
+                $textToFormat = strlen($textToFormat) > $maxLen ? substr($textToFormat, 0, $maxLen) . "\n\n[... truncated for formatting ...]" : $textToFormat;
                 $formatResult = $aiService->formatJobDescriptionText($textToFormat);
                 if (!empty($formatResult['text'])) {
                     $text = strlen($text) > $maxLen ? $formatResult['text'] . "\n\n" . substr($text, $maxLen) : $formatResult['text'];
@@ -227,7 +257,19 @@ try {
     
     // Ensure we never send a "text" value that is itself JSON like {"text":"..."} (unwrap if present)
     $text = unwrapApiTextResponse($text);
-    
+
+    // When extraction gave only <p> tags (no headings/lists), improve structure: section headers, bullets
+    if (strpos($text, '<p') !== false && strpos($text, '<h') === false && strpos($text, '<ul') === false && strpos($text, '<li') === false && strpos($text, '<table') === false) {
+        $plain = preg_replace('/<br\s*\/?>/i', "\n", $text);
+        $plain = preg_replace('/<\/p>\s*<p[^>]*>/i', "\n\n", $plain);
+        $plain = preg_replace('/<[^>]+>/', '', $plain);
+        $plain = html_entity_decode($plain, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $plain = preg_replace("/\n{3,}/", "\n\n", trim($plain));
+        if (strlen($plain) > 50) {
+            $text = improveJobDescriptionStructure($plain);
+        }
+    }
+
     $extractResponseSent = true;
     ob_end_clean();
     echo json_encode([

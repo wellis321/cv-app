@@ -40,7 +40,7 @@ $jobJson = htmlspecialchars(json_encode($job), ENT_QUOTES, 'UTF-8');
             <div>
                 <?php
                 $desc = trim($job['job_description'] ?? '');
-                $descIsHtml = $desc !== '' && preg_match('/<\s*table[\s>]|<\s*tr\s|<\s*td\s|<\s*th\s/i', $desc);
+                $descIsHtml = $desc !== '' && preg_match('/<\s*table[\s>]|<\s*tr\s|<\s*td\s|<\s*th\s|<\s*br\s*\/?\s*>/i', $desc);
                 $descRendered = $descIsHtml ? jobDescriptionHtml($desc) : renderMarkdown($desc);
                 ?>
                 <label for="job-description-editable" class="block text-base font-semibold text-gray-900 mb-3">Job Description</label>
@@ -129,6 +129,14 @@ $jobJson = htmlspecialchars(json_encode($job), ENT_QUOTES, 'UTF-8');
                           class="block w-full rounded-lg border-2 border-gray-400 bg-white px-4 py-3 text-base font-medium text-gray-900 shadow-sm transition-colors focus:border-blue-600 focus:ring-4 focus:ring-blue-200 focus:outline-none resize-y min-h-[200px]"
                           placeholder="Add any additional notes about this application..."></textarea>
                 <p class="mt-2 text-sm text-gray-600 font-medium">You can expand this field by dragging the bottom-right corner if needed.</p>
+            </div>
+
+            <div>
+                <label for="form-personal-statement" class="block text-base font-semibold text-gray-900 mb-3">Personal Statement</label>
+                <p class="text-xs text-gray-500 mb-1">500 words: how your skills, qualities and experience provide evidence of your suitability, with reference to Minimum Criteria</p>
+                <textarea id="form-personal-statement" name="personal_statement" rows="12" data-markdown
+                          class="block w-full rounded-lg border-2 border-gray-400 bg-white px-4 py-3 text-base font-medium text-gray-900 shadow-sm transition-colors focus:border-blue-600 focus:ring-4 focus:ring-blue-200 focus:outline-none resize-y min-h-[240px]"
+                          placeholder="Generate with AI on the job view, or type your personal statement..."></textarea>
             </div>
 
             <!-- File Upload Section -->

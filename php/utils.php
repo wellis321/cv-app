@@ -255,3 +255,46 @@ function convert_american_to_british_spelling($text) {
     }
     return $text;
 }
+
+/**
+ * Convert JSON interview task suggestions (e.g. from AI) to readable plain text.
+ * If the text is not JSON, returns it unchanged.
+ */
+function formatInterviewTaskSuggestions($text) {
+    if (!is_string($text) || trim($text) === '') {
+        return $text;
+    }
+    $trimmed = trim($text);
+    if (preg_match('/^```(?:json)?\s*([\s\S]*?)```\s*$/s', $trimmed, $m)) {
+        $trimmed = trim($m[1]);
+    }
+    if ($trimmed === '' || ($trimmed[0] !== '[' && $trimmed[0] !== '{')) {
+        return $text;
+    }
+    $decoded = json_decode($trimmed, true);
+    if ($decoded === null || !is_array($decoded)) {
+        return $text;
+    }
+    $out = [];
+    foreach ($decoded as $item) {
+        if (is_array($item)) {
+            $section = $item['section'] ?? $item['title'] ?? $item['name'] ?? null;
+            $points = $item['talking_points'] ?? $item['points'] ?? $item['bullets'] ?? $item['content'] ?? null;
+            if ($section) {
+                $out[] = $section;
+                $out[] = str_repeat('-', min(40, strlen($section)));
+            }
+            if (is_array($points)) {
+                foreach ($points as $p) {
+                    if (is_string($p) && trim($p) !== '') {
+                        $out[] = '• ' . trim($p);
+                    }
+                }
+            } elseif (is_string($points) && trim($points) !== '') {
+                $out[] = '• ' . trim($points);
+            }
+            $out[] = '';
+        }
+    }
+    return implode("\n", $out);
+}

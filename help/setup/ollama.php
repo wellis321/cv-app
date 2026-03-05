@@ -353,7 +353,7 @@ $canonicalUrl = APP_URL . '/help/setup/ollama.php';
                     <!-- Model Comparison Section -->
                     <div id="model-comparison" class="bg-white rounded-lg shadow p-6 mb-6 scroll-mt-24">
                         <h2 class="text-2xl font-bold text-gray-900 mb-4">Which Model Should You Use?</h2>
-                <p class="text-gray-700 mb-6">Different models offer different balances of quality, speed, and resource requirements. Choose the one that best fits your computer and needs.</p>
+                <p class="text-gray-700 mb-6">Different models offer different balances of quality, speed, and resource requirements. Choose the one that best fits your computer and needs. For task-specific guidance (CV vs cover letters vs application questions) and LLMfit recommendations, see our <a href="/help/ai-models.php" class="text-blue-600 hover:text-blue-800 underline">AI Model Guide</a>.</p>
                 
                 <div class="bg-gray-100 rounded-xl p-6">
                     <div class="space-y-4">
@@ -1046,7 +1046,7 @@ $canonicalUrl = APP_URL . '/help/setup/ollama.php';
                             </a>
                         </div>
                         <p class="mt-4 pt-4 border-t border-purple-200 text-sm text-gray-600">
-                            <a href="/help/guides/ai-prompts.php" class="text-purple-600 hover:text-purple-700 font-medium">CV Prompt Best Practices</a> — learn how to write effective prompts for AI CV rewriting.
+                            <a href="/help/guides/ai-prompts.php" class="text-purple-600 hover:text-purple-700 font-medium">CV Prompt Best Practices</a> — learn how to write effective prompts for AI CV rewriting. <a href="/help/ai-models.php" class="text-purple-600 hover:text-purple-700 font-medium">AI Model Guide</a> — choose the best model for each AI feature.
                         </p>
                     </div>
                 </div>

@@ -38,6 +38,7 @@
         if (initialVariantId) {
             updateSidebarLinkHrefs(initialVariantId);
         }
+        updateViewCvBar();
         
         // Handle initial section load BEFORE manipulating hash
         // This ensures view/edit/add parameters are preserved
@@ -117,6 +118,7 @@
                 loadSection(sectionId);
             }
         }
+        updateViewCvBar();
     }
 
     function getHashParam(hash, name) {
@@ -145,6 +147,7 @@
         // Update sidebar active state and link hrefs (so sidebar shows correct targets)
         updateSidebarActiveState(sectionId);
         updateSidebarLinkHrefs(variantId);
+        updateViewCvBar();
         
         // Load section content; loadSection reads window.location.hash so variant_id is passed
         loadSection(sectionId);
@@ -220,6 +223,31 @@
         });
     }
 
+    function updateViewCvBar() {
+        const hash = window.location.hash.substring(1);
+        const variantId = getHashParam(hash, 'variant_id');
+        const bar = document.getElementById('view-cv-bar');
+        const viewLink = document.getElementById('view-cv-link');
+        const pdfLink = document.getElementById('preview-pdf-link');
+        const nameEl = document.getElementById('view-cv-bar-variant-name');
+        if (!bar || !viewLink || !pdfLink) return;
+        if (variantId) {
+            bar.classList.add('hidden');
+            viewLink.href = '/cv.php?variant_id=' + encodeURIComponent(variantId);
+            pdfLink.href = '/preview-cv.php?variant_id=' + encodeURIComponent(variantId);
+            var relatedJobId = '';
+            if (window.contentEditorData && window.contentEditorData.cvVariants) {
+                var v = window.contentEditorData.cvVariants.find(function (x) { return x.id === variantId; });
+                relatedJobId = (v && v.job_application_id) ? v.job_application_id : '';
+            }
+            document.dispatchEvent(new CustomEvent('contenteditor:varianteditshown', { detail: { variantId: variantId, relatedJobId: relatedJobId } }));
+        } else {
+            bar.classList.add('hidden');
+            if (nameEl) nameEl.textContent = '';
+            document.dispatchEvent(new CustomEvent('contenteditor:variantedithidden'));
+        }
+    }
+
     function loadSection(sectionId) {
         
         // Prevent concurrent loads
@@ -276,6 +304,15 @@
             var hasJobsView = contentArea.querySelector('[data-jobs-view-container]');
             if (mainElement) mainElement.classList.toggle('jobs-view-active', !!hasJobsView);
             contentArea.classList.toggle('jobs-view-active', !!hasJobsView);
+
+            // Notify nav bar when job view is shown/hidden (for View CV / Edit CV buttons)
+            if (hasJobsView) {
+                var container = contentArea.querySelector('[data-jobs-view-container]');
+                var linkedVariantId = container ? (container.getAttribute('data-linked-variant-id') || '') : '';
+                document.dispatchEvent(new CustomEvent('contenteditor:jobviewshown', { detail: { linkedVariantId: linkedVariantId } }));
+            } else {
+                document.dispatchEvent(new CustomEvent('contenteditor:jobviewhidden'));
+            }
 
             // Jobs view: move Quick Nav into grid slot (between left sidebar and main) so it moves with layout when sidebar collapses
             var quickNavSlot = document.getElementById('jobs-quick-nav-slot');
@@ -714,6 +751,10 @@
 
     function handleFormSubmit(form, sectionId) {
         const formData = new FormData(form);
+        const variantId = getHashParam(window.location.hash.substring(1), 'variant_id');
+        if (variantId && !formData.has('variant_id')) {
+            formData.append('variant_id', variantId);
+        }
         const submitButton = form.querySelector('button[type="submit"]');
         const originalText = submitButton ? submitButton.textContent : 'Save';
         
@@ -744,10 +785,13 @@
                         loadSection(sectionId);
                     }, 500);
                 } else {
-                    // For updates, clear edit parameter and reload
+                    // For updates, clear edit parameter but preserve variant_id, then reload
                     const hash = window.location.hash.substring(1);
                     const sectionFromHash = hash.split('&')[0];
-                    window.history.replaceState(null, '', '#' + sectionFromHash);
+                    let newHash = sectionFromHash;
+                    const variantParam = hash.split('&').find(p => p.startsWith('variant_id='));
+                    if (variantParam) newHash += '&' + variantParam;
+                    window.history.replaceState(null, '', '#' + newHash);
                     setTimeout(() => {
                         loadSection(sectionId);
                     }, 500);
@@ -786,6 +830,10 @@
         formData.append('entry_id', entryId);
         formData.append('section_id', entryType);
         formData.append(data.csrfTokenName, data.csrfToken);
+        const variantId = getHashParam(window.location.hash.substring(1), 'variant_id');
+        if (variantId && (entryType === 'work-experience' || entryType === 'professional-summary')) {
+            formData.append('variant_id', variantId);
+        }
 
         fetch('/api/content-editor/save-section.php', {
             method: 'POST',
@@ -1704,6 +1752,8 @@
             formData.append('csrf_token', getCsrfToken());
             formData.append('action', 'reorder');
             formData.append('ordered_ids', JSON.stringify(orderedIds));
+            const variantId = getHashParam(window.location.hash.substring(1), 'variant_id');
+            if (variantId) formData.append('variant_id', variantId);
 
             fetch('/api/reorder-work-experience.php', {
                 method: 'POST',
@@ -1738,6 +1788,8 @@
             const formData = new FormData();
             formData.append('csrf_token', getCsrfToken());
             formData.append('action', 'reset');
+            const variantId = getHashParam(window.location.hash.substring(1), 'variant_id');
+            if (variantId) formData.append('variant_id', variantId);
             fetch('/api/reorder-work-experience.php', {
                 method: 'POST',
                 body: formData,

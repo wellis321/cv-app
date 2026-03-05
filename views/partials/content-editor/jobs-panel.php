@@ -572,8 +572,11 @@ $stats = getJobApplicationStats($userId);
             });
         }
         if (quickAddForm) {
+            var quickAddSubmitting = false;
             quickAddForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
+                if (quickAddSubmitting) return;
+                quickAddSubmitting = true;
                 var urlInput = document.getElementById('jobs-quick-add-url');
                 var titleInput = document.getElementById('jobs-quick-add-title');
                 var closingInput = document.getElementById('jobs-quick-add-closing');
@@ -609,18 +612,21 @@ $stats = getJobApplicationStats($userId);
                         loadJobsData();
                         window.location.hash = '#jobs&view=' + encodeURIComponent(data.id);
                     } else {
+                        quickAddSubmitting = false;
                         if (quickAddError) {
                             quickAddError.textContent = data.error || 'Failed to save job.';
                             quickAddError.classList.remove('hidden');
                         }
                     }
                 } catch (err) {
+                    quickAddSubmitting = false;
                     if (quickAddError) {
                         quickAddError.textContent = 'Network error. Please try again.';
                         quickAddError.classList.remove('hidden');
                     }
                 }
                 if (submitBtn) submitBtn.disabled = false;
+                quickAddSubmitting = false;
             });
         }
     }

@@ -610,21 +610,10 @@ function extractWordElementTextOrHtml($element) {
  * Tables are output as HTML so they can be displayed as tables in the job description.
  */
 function extractWordText($filePath) {
-    // #region agent log
-    $docLogPath = dirname(__DIR__) . '/.cursor/debug-902fb4.log';
-    $docLog = function ($msg, $data = []) use ($docLogPath) {
-        $payload = array_merge(['sessionId' => '902fb4', 'location' => 'document-extractor.php:extractWordText', 'message' => $msg, 'timestamp' => (int)(microtime(true) * 1000)], $data);
-        @file_put_contents($docLogPath, json_encode($payload) . "\n", FILE_APPEND | LOCK_EX);
-    };
-    $docLog('extractWord_entry', ['hypothesisId' => 'DOCX3', 'hasPhpWord' => class_exists('PhpOffice\PhpWord\IOFactory')]);
-    // #endregion
     // Try using phpoffice/phpword if available
     if (class_exists('PhpOffice\PhpWord\IOFactory')) {
         try {
             $phpWord = \PhpOffice\PhpWord\IOFactory::load($filePath);
-            // #region agent log
-            $docLog('extractWord_loaded', ['hypothesisId' => 'DOCX3b']);
-            // #endregion
             $output = '';
             foreach ($phpWord->getSections() as $section) {
                 $sectionHtml = '';
@@ -655,14 +644,8 @@ function extractWordText($filePath) {
             // Decode HTML entities in plain text (e.g. &lt; from Word); tables are already HTML
             $output = html_entity_decode($output, ENT_QUOTES | ENT_HTML5, 'UTF-8');
             $result = ['success' => true, 'text' => trim($output)];
-            // #region agent log
-            $docLog('extractWord_success', ['hypothesisId' => 'DOCX4', 'text_len' => strlen($result['text'])]);
-            // #endregion
             return $result;
         } catch (\Throwable $e) {
-            // #region agent log
-            $docLog('extractWord_exception', ['hypothesisId' => 'DOCX5', 'error' => $e->getMessage()]);
-            // #endregion
             return [
                 'success' => false,
                 'error' => 'Word extraction failed: ' . $e->getMessage()
@@ -671,9 +654,6 @@ function extractWordText($filePath) {
     }
     
     // Fallback: PhpWord not available
-    // #region agent log
-    $docLog('extractWord_fallback', ['hypothesisId' => 'DOCX6', 'reason' => 'PhpWord missing']);
-    // #endregion
     return [
         'success' => false,
         'error' => 'Word document extraction requires phpoffice/phpword library. Install via: composer require phpoffice/phpword'

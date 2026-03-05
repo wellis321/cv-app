@@ -33,6 +33,20 @@ $csrf = csrfToken();
                 </div>
             </div>
 
+            <div id="duplicate-job-warning" class="hidden mb-6 rounded-lg border-2 border-amber-300 bg-amber-50 p-4" data-duplicate-warning role="alert">
+                <p class="text-sm font-medium text-amber-800 mb-3">You already have an application for this job.</p>
+                <div class="flex flex-wrap items-center gap-3">
+                    <a href="#" data-view-existing-job class="inline-flex items-center px-4 py-2 text-sm font-semibold text-amber-800 bg-white border border-amber-300 rounded-lg hover:bg-amber-100">
+                        View existing application
+                    </a>
+                    <label class="inline-flex items-center gap-2 text-sm text-amber-900 cursor-pointer">
+                        <input type="checkbox" id="form-allow-duplicate" name="allow_duplicate" value="1"
+                               class="h-4 w-4 rounded border-amber-400 text-amber-600 focus:ring-amber-500">
+                        Add as separate application anyway
+                    </label>
+                </div>
+            </div>
+
             <div>
                 <label for="form-description" class="block text-base font-semibold text-gray-900 mb-3">Job Description</label>
                 <p class="text-xs text-gray-500 mb-1">Use the toolbar for formatting: bold, italic, headers, lists, and links</p>
@@ -45,7 +59,7 @@ $csrf = csrfToken();
                     <label for="form-status" class="block text-base font-semibold text-gray-900 mb-3">Status</label>
                     <select id="form-status" name="status"
                             class="block w-full rounded-lg border-2 border-gray-400 bg-white px-4 py-3 text-base font-medium text-gray-900 shadow-sm transition-colors focus:border-blue-600 focus:ring-4 focus:ring-blue-200 focus:outline-none">
-                        <option value="interested">Interested</option>
+                        <option value="interested" selected>Interested</option>
                         <option value="in_progress">In Progress</option>
                         <option value="applied">Applied</option>
                         <option value="interviewing">Interviewing</option>
@@ -117,6 +131,14 @@ $csrf = csrfToken();
                           class="block w-full rounded-lg border-2 border-gray-400 bg-white px-4 py-3 text-base font-medium text-gray-900 shadow-sm transition-colors focus:border-blue-600 focus:ring-4 focus:ring-blue-200 focus:outline-none resize-y min-h-[200px]"
                           placeholder="Add any additional notes about this application..."></textarea>
                 <p class="mt-2 text-sm text-gray-600 font-medium">You can expand this field by dragging the bottom-right corner if needed.</p>
+            </div>
+
+            <div>
+                <label for="form-personal-statement" class="block text-base font-semibold text-gray-900 mb-3">Personal Statement</label>
+                <p class="text-xs text-gray-500 mb-1">500 words: how your skills, qualities and experience provide evidence of your suitability, with reference to Minimum Criteria</p>
+                <textarea id="form-personal-statement" name="personal_statement" rows="12" data-markdown
+                          class="block w-full rounded-lg border-2 border-gray-400 bg-white px-4 py-3 text-base font-medium text-gray-900 shadow-sm transition-colors focus:border-blue-600 focus:ring-4 focus:ring-blue-200 focus:outline-none resize-y min-h-[240px]"
+                          placeholder="Generate with AI on the job view, or paste your personal statement here..."></textarea>
             </div>
 
             <!-- File Upload Section -->

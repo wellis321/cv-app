@@ -158,7 +158,11 @@ function buildSectionHtml($sectionId, $settings, $styling) {
         default:
             $html = '';
     }
-    
+
+    // Wrap in sections_online check so online CV can hide sections independently from PDF
+    $escapedId = str_replace("'", "\\'", $sectionId);
+    $html = "{% if sections_online is not defined or sections_online['{$escapedId}'] is not defined or sections_online['{$escapedId}'] %}" . $html . "{% endif %}\n";
+
     return $html;
 }
 

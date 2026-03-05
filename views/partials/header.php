@@ -198,6 +198,9 @@
                             <a href="/help/guides/ai-prompts.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo strpos($reqUri, '/help/guides/ai-prompts') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
                                 AI Prompt Best Practices
                             </a>
+                            <a href="/help/ai-models.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo strpos($reqUri, '/help/ai-models') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
+                                AI Model Guide
+                            </a>
                         </div>
                     </div>
                     <a href="/about.php" class="px-1.5 py-1.5 md:px-2 md:py-2 rounded-md text-xs md:text-sm font-medium transition-colors whitespace-nowrap <?php echo $currentPage === 'about.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?>">About</a>
@@ -408,6 +411,9 @@
                             <a href="/help/guides/ai-prompts.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo strpos($reqUri, '/help/guides/ai-prompts') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
                                 AI Prompt Best Practices
                             </a>
+                            <a href="/help/ai-models.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo strpos($reqUri, '/help/ai-models') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
+                                AI Model Guide
+                            </a>
                         </div>
                     </div>
                     <a href="/about.php" class="px-2 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap <?php echo $currentPage === 'about.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?>">About</a>
@@ -588,15 +594,19 @@
                        class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo strpos($reqUri, '/help/setup/extension') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
                         Extension Setup
                     </a>
-                    <a href="/help/guides/ai-prompts.php" 
+                    <a href="/help/guides/ai-prompts.php"
                        class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo strpos($reqUri, '/help/guides/ai-prompts') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
                         AI Prompt Best Practices
                     </a>
-                    <a href="/about.php" 
+                    <a href="/help/ai-models.php"
+                       class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo strpos($reqUri, '/help/ai-models') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        AI Model Guide
+                    </a>
+                    <a href="/about.php"
                        class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'about.php' ? 'text-blue-700 bg-blue-100' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500 border-t border-gray-200 mt-2 pt-4">
                         About
                     </a>
-                    <a href="/logout.php" 
+                    <a href="/logout.php"
                        class="block px-4 py-2 rounded-md text-base font-medium transition-colors text-gray-700 hover:bg-red-100 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 border-t border-gray-200 mt-2 pt-4">
                         Sign Out
                     </a>
@@ -682,6 +692,10 @@
                     <a href="/help/guides/ai-prompts.php" 
                        class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo strpos($reqUri, '/help/guides/ai-prompts') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
                         AI Prompt Best Practices
+                    </a>
+                    <a href="/help/ai-models.php" 
+                       class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo strpos($reqUri, '/help/ai-models') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        AI Model Guide
                     </a>
                     <a href="/about.php" 
                        class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'about.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500 border-t border-gray-200 mt-2 pt-4">

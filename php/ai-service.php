@@ -281,9 +281,15 @@ class AIService {
             $cvData = array_merge($cvData, ['projects' => array_values($filtered)]);
         }
         
+        // Skills-only: use a short, focused prompt to reduce parse failures (Ollama/small models often struggle with long prompts)
+        $sectionsToRewrite = $options['sections_to_rewrite'] ?? [];
+        $isSkillsOnly = (count($sectionsToRewrite) === 1 && in_array('skills', $sectionsToRewrite));
+        
         // Check if browser AI will be used - build condensed prompt if so
         $isBrowserAI = ($this->service === 'browser');
-        if ($isBrowserAI) {
+        if ($isSkillsOnly) {
+            $prompt = $this->buildCvRewritePromptSkillsOnly($cvData, $combinedDescription, $options);
+        } elseif ($isBrowserAI) {
             // Build condensed prompt for browser AI (limited context window)
             $prompt = $this->buildCvRewritePromptCondensed($cvData, $combinedDescription, $options);
         } else {
@@ -292,11 +298,10 @@ class AIService {
         }
         
         // Use higher max_tokens when rewriting work experience so all entries are returned (avoid truncation)
-        $sectionsToRewrite = $options['sections_to_rewrite'] ?? [];
         $workCount = isset($cvData['work_experience']) && is_array($cvData['work_experience'])
             ? count($cvData['work_experience']) : 0;
         $needsHighTokens = in_array('work_experience', $sectionsToRewrite) && $workCount > 0;
-        $maxTokens = $needsHighTokens ? max(16000, min(32000, 8000 + $workCount * 1200)) : 8000;
+        $maxTokens = $isSkillsOnly ? 2048 : ($needsHighTokens ? max(16000, min(32000, 8000 + $workCount * 1200)) : 8000);
         // Higher temperature when tailoring a single role to encourage rephrasing (avoid verbatim copy)
         $singleRoleRewrite = ($workCount === 1 && in_array('work_experience', $sectionsToRewrite));
         $temperature = $singleRoleRewrite ? 0.85 : 0.7;
@@ -304,6 +309,7 @@ class AIService {
         $response = $this->callAI($prompt, [
             'temperature' => $temperature,
             'max_tokens' => $maxTokens,
+            'think' => true, // Qwen3/DeepSeek: use deeper reasoning for CV tailoring
         ]);
         
         if (!$response['success']) {
@@ -327,6 +333,11 @@ class AIService {
         
         // Parse JSON response
         $rewritten = $this->parseJsonResponse($response['content']);
+        
+        // Skills-only fallback: try to extract skills from malformed output
+        if (!$rewritten && $isSkillsOnly) {
+            $rewritten = $this->tryParseSkillsFallback($response['content'] ?? '');
+        }
         
         if (!$rewritten) {
             return [
@@ -467,7 +478,7 @@ class AIService {
     }
 
     /**
-     * Humanize AI-generated text (conservative post-processing).
+     * Humanize AI-generated text (strong post-processing – reduces AI-sounding phrases).
      */
     private function humanizeText($text) {
         if (!is_string($text) || trim($text) === '') {
@@ -482,47 +493,52 @@ class AIService {
         $output = preg_replace('/\bLet me know if you have any questions\.?\b/i', '', $output);
         $output = preg_replace('/\bAs an AI[^.\n]*[.\n]*/i', '', $output);
 
-        // Replace common AI-sounding words
+        // Replace common AI-sounding words (strong humaniser – matches BrowserAIService.humanizeText)
         $replacements = [
-            '/\butili[sz]e\b/i' => 'use',
-            '/\bleverage\b/i' => 'use',
-            '/\badditionally\b/i' => 'also',
-            '/\bfurthermore\b/i' => 'also',
-            '/\bmoreover\b/i' => 'also',
-            '/\bimpactful\b/i' => 'useful',
-            '/\brobust\b/i' => 'solid',
-            '/\bcomprehensive\b/i' => 'clear',
+            '/\butili[sz]e\b/i' => 'use', '/\butili[sz]es\b/i' => 'uses', '/\butili[sz]ed\b/i' => 'used',
+            '/\bleverage\b/i' => 'use', '/\bleveraged\b/i' => 'used', '/\bleverages\b/i' => 'uses',
+            '/\badditionally\b/i' => 'also', '/\bfurthermore\b/i' => 'also', '/\bmoreover\b/i' => 'also',
+            '/\bimpactful\b/i' => 'useful', '/\brobust\b/i' => 'solid', '/\bcomprehensive\b/i' => 'clear',
             '/\bdelve into\b/i' => 'look into',
-            '/\bunderscore\b/i' => 'show',
-            '/\bseamless\b/i' => 'smooth',
-            '/\bcutting[- ]edge\b/i' => 'modern',
-            '/\binnovative\b/i' => 'new',
-            '/\bresults[- ]driven\b/i' => 'results focused',
-            '/\bdetail[- ]oriented\b/i' => 'detail focused',
+            '/\bunderscore\b/i' => 'show', '/\bunderscores\b/i' => 'shows', '/\bunderscored\b/i' => 'showed',
+            '/\bseamless\b/i' => 'smooth', '/\bseamlessly\b/i' => 'smoothly',
+            '/\bcutting[- ]edge\b/i' => 'modern', '/\binnovative\b/i' => 'new', '/\bstrategic\b/i' => 'focused',
+            '/\bresults[- ]driven\b/i' => 'results focused', '/\bdetail[- ]oriented\b/i' => 'detail focused',
             '/\bfast[- ]paced\b/i' => 'busy',
-            '/\bpassionate\b/i' => 'keen',
-            '/\bexcited to\b/i' => 'keen to',
-            '/\bthrilled\b/i' => 'pleased',
-            '/\bdelighted\b/i' => 'pleased',
-            '/\bproactive\b/i' => 'active',
-            '/\bsynerg(y|ies)\b/i' => 'fit',
-            '/\bhighly\b/i' => 'very',
-            '/\bexceptional\b/i' => 'strong',
-            '/\boutstanding\b/i' => 'strong',
-            '/\bdynamic\b/i' => 'focused',
-            '/\bresults[- ]oriented\b/i' => 'results focused',
-            '/\bproven track record\b/i' => 'track record',
-            '/\bstrong background\b/i' => 'background',
-            '/\binnovative solutions\b/i' => 'solutions',
-            '/\bkey stakeholders\b/i' => 'stakeholders',
-            '/\bstrategic initiatives\b/i' => 'initiatives',
-            '/\bdrive(ing)? impact\b/i' => 'improve',
-            '/\bmission[- ]driven\b/i' => 'purpose led',
-            '/\bend[- ]to[- ]end\b/i' => 'full',
-            '/\bworld[- ]class\b/i' => 'strong',
-            '/\bresults[- ]based\b/i' => 'results focused',
-            '/\bthought leadership\b/i' => 'leadership',
-            '/\bvalue[- ]add(ed)?\b/i' => 'value',
+            '/\bpassionate\b/i' => 'keen', '/\bpassionately\b/i' => 'keenly',
+            '/\bexcited to\b/i' => 'keen to', '/\bI am excited\b/i' => 'I am keen',
+            '/\beager\b/i' => 'keen', '/\beagerly\b/i' => 'keenly',
+            '/\bthrilled\b/i' => 'pleased', '/\bdelighted\b/i' => 'pleased',
+            '/\bproactive\b/i' => 'active', '/\bproactively\b/i' => 'actively',
+            '/\bsynerg(y|ies)\b/i' => 'fit', '/\bhighly\b/i' => 'very',
+            '/\bexceptional\b/i' => 'strong', '/\bexceptionally\b/i' => 'very',
+            '/\boutstanding\b/i' => 'strong', '/\boutstandingly\b/i' => 'very',
+            '/\bdynamic\b/i' => 'focused', '/\bresults[- ]oriented\b/i' => 'results focused',
+            '/\bproven track record\b/i' => 'track record', '/\bstrong background\b/i' => 'background',
+            '/\binnovative solutions\b/i' => 'solutions', '/\bkey stakeholders\b/i' => 'stakeholders',
+            '/\bstrategic planning\b/i' => 'long-term planning', '/\bstrategic initiatives\b/i' => 'initiatives', '/\bdrive(ing)? impact\b/i' => 'improve',
+            '/\bmission[- ]driven\b/i' => 'purpose led', '/\bend[- ]to[- ]end\b/i' => 'full',
+            '/\bworld[- ]class\b/i' => 'strong', '/\bresults[- ]based\b/i' => 'results focused',
+            '/\bthought leadership\b/i' => 'leadership', '/\bvalue[- ]add(ed)?\b/i' => 'value',
+            '/\bdemonstrate\b/i' => 'show', '/\bdemonstrates\b/i' => 'shows', '/\bdemonstrated\b/i' => 'showed',
+            '/\bfacilitate\b/i' => 'help', '/\bfacilitates\b/i' => 'helps', '/\bfacilitated\b/i' => 'helped',
+            '/\benable\b/i' => 'help', '/\benables\b/i' => 'helps', '/\benabled\b/i' => 'helped',
+            '/\bshowcase\b/i' => 'show', '/\bshowcases\b/i' => 'shows', '/\bshowcased\b/i' => 'showed',
+            '/\bhighlight\b/i' => 'show', '/\bhighlights\b/i' => 'shows', '/\bhighlighted\b/i' => 'showed', '/\bhighlighting\b/i' => 'showing',
+            '/\binstrumental\b/i' => 'important', '/\bintegral\b/i' => 'key',
+            '/\bmyriad\b/i' => 'many', '/\bplethora\b/i' => 'many',
+            '/\bstreamline\b/i' => 'simplify', '/\bstreamlines\b/i' => 'simplifies', '/\bstreamlined\b/i' => 'simplified',
+            '/\benhance\b/i' => 'improve', '/\benhances\b/i' => 'improves', '/\benhanced\b/i' => 'improved',
+            '/\bimplement\b/i' => 'put in place', '/\bimplemented\b/i' => 'put in place', '/\bimplements\b/i' => 'puts in place',
+            '/\btransform\b/i' => 'improve', '/\btransformed\b/i' => 'improved', '/\btransforms\b/i' => 'improves', '/\btransforming\b/i' => 'improving',
+            '/\bempower\b/i' => 'help', '/\bempowers\b/i' => 'helps', '/\bempowered\b/i' => 'helped',
+            '/\bfoster\b/i' => 'support', '/\bfosters\b/i' => 'supports', '/\bfostered\b/i' => 'supported',
+            '/\bnuance\b/i' => 'detail', '/\bnuanced\b/i' => 'detailed',
+            '/\boptimal\b/i' => 'best',
+            '/\boptimize\b/i' => 'improve', '/\boptimizes\b/i' => 'improves', '/\boptimized\b/i' => 'improved',
+            '/\bproficient\b/i' => 'skilled',
+            '/\bexemplify\b/i' => 'show', '/\bexemplifies\b/i' => 'shows', '/\bexemplified\b/i' => 'showed',
+            '/\barticulate\b/i' => 'explain', '/\barticulates\b/i' => 'explains', '/\barticulated\b/i' => 'explained',
         ];
         foreach ($replacements as $pattern => $replacement) {
             $output = preg_replace($pattern, $replacement, $output);
@@ -619,6 +635,8 @@ class AIService {
         $response = $this->callAI($prompt, [
             'temperature' => 0.5,
             'max_tokens' => 2000,
+            'think' => true, // Qwen3: deeper reasoning for tailored cover letters
+            'plain_text' => true,
         ]);
 
         if (!$response['success']) {
@@ -679,6 +697,8 @@ class AIService {
         $response = $this->callAI($prompt, [
             'temperature' => 0.7,
             'max_tokens' => 2000,
+            'think' => true, // Qwen3: better instruction following for personal statement
+            'plain_text' => true,
         ]);
 
         if (!$response['success'] || empty($response['content'])) {
@@ -1012,7 +1032,8 @@ class AIService {
         $response = $this->callAI($prompt, [
             'temperature' => 0.7,
             'max_tokens' => 8000, // HTML/CSS can be long
-            'image_data' => $imageData
+            'image_data' => $imageData,
+            'think' => true, // Qwen3: CV template generation benefits from reasoning
         ]);
         
         if (!$response['success']) {
@@ -1078,6 +1099,7 @@ class AIService {
         $response = $this->callAI($prompt, [
             'temperature' => 0.3,
             'max_tokens' => 2000,
+            'think' => true, // Qwen3: critical analysis benefits from deeper reasoning
         ]);
         
         if (!$response['success']) {
@@ -1244,8 +1266,9 @@ class AIService {
         $response = $this->callAI($prompt, [
             'temperature' => 0.2,
             'max_tokens' => 8000,
+            'think' => true, // Qwen3: tailoring personal statement needs reasoning
         ]);
-        
+
         if (!$response['success'] || empty(trim($response['content'] ?? ''))) {
             return ['success' => true, 'text' => $rawText]; // fallback to raw
         }
@@ -1286,8 +1309,9 @@ class AIService {
         $response = $this->callAI($prompt, [
             'temperature' => 0.2,
             'max_tokens' => 800,
+            'think' => false, // Quick extraction: use fast non-thinking mode
         ]);
-        
+
         if (!$response['success']) {
             return $response;
         }
@@ -1358,8 +1382,10 @@ class AIService {
         $response = $this->callAI($prompt, [
             'temperature' => 0.6,
             'max_tokens' => 600,
+            'think' => true, // Qwen3: tailoring application answers benefits from reasoning
+            'plain_text' => true,
         ]);
-        
+
         if (!$response['success']) {
             return $response;
         }
@@ -1386,12 +1412,271 @@ class AIService {
         if ($this->shouldHumanizeServerOutput()) {
             $answerText = $this->humanizeText($answerText);
         }
+
+        $maxChars = parseAnswerCharacterLimit($options['answer_instructions'] ?? null);
+        if ($maxChars !== null && function_exists('truncateToCharacterLimit')) {
+            $answerText = truncateToCharacterLimit($answerText, $maxChars);
+        }
         
         return [
             'success' => true,
             'answer_text' => $answerText,
             'raw_response' => $response['content']
         ];
+    }
+
+    /**
+     * Generate a 500-word personal statement for a job application.
+     * Uses job description, CV keywords, and CV data. Applies humaniser as much as possible.
+     *
+     * @param array $cvData From loadCvData() or loadCvVariantData()
+     * @param array $jobApplication From getJobApplication()
+     * @param array $options Optional (custom_instructions, humanize_further - defaults true)
+     * @return array { success, personal_statement_text } or { success, browser_execution, prompt, ... } or error
+     */
+    public function generatePersonalStatement($cvData, $jobApplication, $options = []) {
+        $humanizeFurther = array_key_exists('humanize_further', $options) ? (bool)$options['humanize_further'] : true;
+
+        $isBrowserAI = ($this->service === 'browser');
+        $prompt = $isBrowserAI
+            ? $this->buildPersonalStatementPromptCondensed($cvData, $jobApplication, $options)
+            : $this->buildPersonalStatementPrompt($cvData, $jobApplication, $options);
+
+        $response = $this->callAI($prompt, [
+            'temperature' => 0.5,
+            'max_tokens' => 1200,
+            'think' => true, // Qwen3: personal statement generation
+            'plain_text' => true,
+        ]);
+
+        if (!$response['success']) {
+            return $response;
+        }
+
+        if (isset($response['browser_execution']) && $response['browser_execution']) {
+            return [
+                'success' => true,
+                'browser_execution' => true,
+                'prompt' => $prompt,
+                'model' => $response['model'] ?? 'llama3.2',
+                'model_type' => $response['model_type'] ?? 'webllm',
+                'humanize_further' => $humanizeFurther,
+            ];
+        }
+
+        if (!isset($response['content']) || trim($response['content']) === '') {
+            return [
+                'success' => false,
+                'error' => 'No content received from AI service'
+            ];
+        }
+
+        $text = $this->cleanCoverLetterText($response['content']);
+
+        if ($humanizeFurther) {
+            $paraphrased = $this->paraphraseForHumanization($text);
+            if ($paraphrased !== null) {
+                $text = $paraphrased;
+            }
+        }
+
+        if ($this->shouldHumanizeServerOutput()) {
+            $text = $this->humanizeText($text);
+        }
+
+        // Truncate by length/format instructions if provided, else default ~500 words
+        $lengthInstructions = $options['length_instructions'] ?? null;
+        $maxChars = $lengthInstructions ? parseAnswerCharacterLimit($lengthInstructions) : null;
+        $maxWords = $lengthInstructions ? parseAnswerWordLimit($lengthInstructions) : null;
+        if ($maxChars !== null && function_exists('truncateToCharacterLimit')) {
+            $text = truncateToCharacterLimit($text, $maxChars);
+        } elseif ($maxWords !== null && function_exists('truncateToWordLimit')) {
+            $text = truncateToWordLimit($text, $maxWords);
+        } else {
+            $wordCount = str_word_count($text);
+            if ($wordCount > 550) {
+                $words = preg_split('/\s+/', $text, 501);
+                $text = implode(' ', array_slice($words, 0, 500));
+            }
+        }
+
+        return [
+            'success' => true,
+            'personal_statement_text' => $text,
+            'raw_response' => $response['content']
+        ];
+    }
+
+    private function buildPersonalStatementPrompt($cvData, $jobApplication, $options = []) {
+        $customInstructions = $options['custom_instructions'] ?? null;
+        $lengthInstructions = $options['length_instructions'] ?? null;
+        $lengthGuidance = $lengthInstructions && trim($lengthInstructions) !== ''
+            ? trim($lengthInstructions)
+            : 'approximately 500 words';
+
+        $prompt = "You are helping a candidate write a Personal Statement for a job application form. ";
+        $prompt .= "The statement must be {$lengthGuidance} explaining how the candidate's skills, qualities, and experience provide evidence of their suitability for the role, with specific reference to the Minimum Criteria in the job description.\n\n";
+
+        $prompt .= "Job and role:\n";
+        $prompt .= "- Company: " . ($jobApplication['company_name'] ?? 'Unknown') . "\n";
+        $prompt .= "- Job Title: " . ($jobApplication['job_title'] ?? 'Position') . "\n";
+        if (!empty($jobApplication['job_description'])) {
+            $jobDesc = $jobApplication['job_description'];
+            if (function_exists('stripMarkdown')) {
+                $jobDesc = stripMarkdown($jobDesc);
+            }
+            $prompt .= "- Job Description (identify Minimum Criteria and key requirements):\n" . $jobDesc . "\n";
+        }
+
+        $selectedKeywords = [];
+        if (!empty($jobApplication['selected_keywords'])) {
+            $decoded = is_string($jobApplication['selected_keywords'])
+                ? json_decode($jobApplication['selected_keywords'], true) : $jobApplication['selected_keywords'];
+            if (is_array($decoded)) {
+                $selectedKeywords = $decoded;
+            }
+        }
+        $extractedKeywords = [];
+        if (!empty($jobApplication['extracted_keywords'])) {
+            $decoded = is_string($jobApplication['extracted_keywords'])
+                ? json_decode($jobApplication['extracted_keywords'], true) : $jobApplication['extracted_keywords'];
+            if (is_array($decoded)) {
+                $extractedKeywords = $decoded;
+            }
+        }
+        $allKeywords = array_unique(array_merge($selectedKeywords, array_slice($extractedKeywords, 0, 10)));
+        if (!empty($allKeywords)) {
+            $prompt .= "\n- Use these keywords naturally where they fit: " . implode(', ', array_slice($allKeywords, 0, 20)) . "\n";
+        }
+
+        $prompt .= "\nCandidate information (from CV):\n";
+        if (!empty($cvData['profile'])) {
+            $p = $cvData['profile'];
+            $candidateName = preg_replace('/\[control_\d+\]/i', '', trim($p['full_name'] ?? ''));
+            $prompt .= "- Name: " . ($candidateName ?: 'Candidate') . "\n";
+        }
+        if (!empty($cvData['professional_summary']['description'])) {
+            $sum = $cvData['professional_summary']['description'];
+            if (function_exists('stripMarkdown')) {
+                $sum = stripMarkdown($sum);
+            }
+            $prompt .= "- Summary: " . substr($sum, 0, 500) . "\n";
+        }
+        if (!empty($cvData['work_experience'])) {
+            $prompt .= "- Work experience:\n";
+            foreach (array_slice($cvData['work_experience'], 0, 5) as $w) {
+                $prompt .= "  * " . ($w['position'] ?? '') . " at " . ($w['company_name'] ?? '') . "\n";
+                if (!empty($w['description'])) {
+                    $d = function_exists('stripMarkdown') ? stripMarkdown($w['description']) : $w['description'];
+                    $prompt .= "    " . substr($d, 0, 250) . "\n";
+                }
+                if (!empty($w['responsibility_categories'])) {
+                    foreach (array_slice($w['responsibility_categories'], 0, 3) as $cat) {
+                        if (!empty($cat['items'])) {
+                            foreach (array_slice($cat['items'], 0, 3) as $item) {
+                                $prompt .= "    - " . substr($item['content'], 0, 120) . "\n";
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (!empty($cvData['skills'])) {
+            $skills = array_map(function($s) { return $s['name']; }, array_slice($cvData['skills'], 0, 20));
+            $prompt .= "- Skills: " . implode(', ', $skills) . "\n";
+        }
+        if (!empty($cvData['education'])) {
+            $prompt .= "- Education: ";
+            $parts = [];
+            foreach (array_slice($cvData['education'], 0, 3) as $e) {
+                $parts[] = ($e['degree'] ?? '') . ' from ' . ($e['institution'] ?? '');
+            }
+            $prompt .= implode('; ', $parts) . "\n";
+        }
+        if (!empty($cvData['certifications'])) {
+            $certs = array_map(function($c) { return $c['name'] . ' (' . ($c['issuer'] ?? '') . ')'; }, array_slice($cvData['certifications'], 0, 5));
+            $prompt .= "- Certifications: " . implode('; ', $certs) . "\n";
+        }
+
+        $prompt .= "\nInstructions:\n";
+        $prompt .= "- Length: {$lengthGuidance}. This will be explored further at interview, so be specific and evidence-based.\n";
+        $prompt .= "- Structure: introduce yourself briefly, then map your skills/qualities/experience to the Minimum Criteria and key requirements from the job description.\n";
+        $prompt .= "- Use concrete examples from the CV – roles, achievements, responsibilities.\n";
+        $prompt .= "- Use British English spelling.\n";
+        $prompt .= "- Write naturally: vary sentence length, use occasional contractions (I'm, I've, that's), avoid buzzwords (leverage, utilize, passionate, cutting-edge, synergise).\n";
+        $prompt .= "- Return ONLY plain text – no JSON, no markdown, no code blocks, no quotation marks.\n";
+        $prompt .= "- Do not include a title or preamble; start directly with the personal statement.\n";
+        if ($customInstructions) {
+            $prompt .= "\nAdditional instructions:\n" . $customInstructions . "\n";
+        }
+        $prompt .= "\nPersonal statement:\n";
+
+        return $prompt;
+    }
+
+    private function buildPersonalStatementPromptCondensed($cvData, $jobApplication, $options = []) {
+        $maxJobDescChars = 2500;
+        $maxSummaryChars = 300;
+        $maxWorkDescChars = 150;
+        $maxWorkEntries = 4;
+
+        $lengthInstructions = $options['length_instructions'] ?? null;
+        $lengthGuidance = $lengthInstructions && trim($lengthInstructions) !== ''
+            ? trim($lengthInstructions)
+            : 'approximately 500 words';
+
+        $prompt = "Write a Personal Statement of {$lengthGuidance} for a job application. ";
+        $prompt .= "Explain how the candidate's skills, qualities, and experience demonstrate suitability for the role, with specific reference to the Minimum Criteria in the job description.\n\n";
+
+        $prompt .= "Job: " . ($jobApplication['job_title'] ?? 'Position') . " at " . ($jobApplication['company_name'] ?? 'Unknown') . "\n";
+        if (!empty($jobApplication['job_description'])) {
+            $jobDesc = $jobApplication['job_description'];
+            if (function_exists('stripMarkdown')) {
+                $jobDesc = stripMarkdown($jobDesc);
+            }
+            $prompt .= "Job Description:\n" . substr($jobDesc, 0, $maxJobDescChars) . (strlen($jobDesc) > $maxJobDescChars ? "\n..." : "") . "\n\n";
+        }
+
+        $selectedKeywords = [];
+        if (!empty($jobApplication['selected_keywords'])) {
+            $decoded = is_string($jobApplication['selected_keywords']) ? json_decode($jobApplication['selected_keywords'], true) : $jobApplication['selected_keywords'];
+            if (is_array($decoded)) {
+                $selectedKeywords = $decoded;
+            }
+        }
+        $extractedKeywords = [];
+        if (!empty($jobApplication['extracted_keywords'])) {
+            $decoded = is_string($jobApplication['extracted_keywords']) ? json_decode($jobApplication['extracted_keywords'], true) : $jobApplication['extracted_keywords'];
+            if (is_array($decoded)) {
+                $extractedKeywords = array_slice($decoded, 0, 10);
+            }
+        }
+        $allKeywords = array_unique(array_merge($selectedKeywords, $extractedKeywords));
+        if (!empty($allKeywords)) {
+            $prompt .= "Keywords to use naturally: " . implode(', ', array_slice($allKeywords, 0, 15)) . "\n\n";
+        }
+
+        $prompt .= "Candidate (from CV):\n";
+        if (!empty($cvData['professional_summary']['description'])) {
+            $sum = $cvData['professional_summary']['description'];
+            if (function_exists('stripMarkdown')) {
+                $sum = stripMarkdown($sum);
+            }
+            $prompt .= "Summary: " . substr($sum, 0, $maxSummaryChars) . "\n";
+        }
+        if (!empty($cvData['work_experience'])) {
+            foreach (array_slice($cvData['work_experience'], 0, $maxWorkEntries) as $w) {
+                $prompt .= "- " . ($w['position'] ?? '') . " at " . ($w['company_name'] ?? '') . ": ";
+                $prompt .= substr(function_exists('stripMarkdown') ? stripMarkdown($w['description'] ?? '') : ($w['description'] ?? ''), 0, $maxWorkDescChars) . "\n";
+            }
+        }
+        if (!empty($cvData['skills'])) {
+            $skills = array_map(function($s) { return $s['name']; }, array_slice($cvData['skills'], 0, 15));
+            $prompt .= "Skills: " . implode(', ', $skills) . "\n";
+        }
+
+        $prompt .= "\nWrite {$lengthGuidance}. Map skills/experience to Minimum Criteria. British English. Natural tone (contractions, varied sentences). Plain text only.\n\nPersonal statement:\n";
+        return $prompt;
     }
     
     /**
@@ -1558,7 +1843,221 @@ class AIService {
 
         return $prompt;
     }
-    
+
+    /**
+     * Generate help for an interview task (questions, assignments, presentations, case studies).
+     * For questions: practice answer. For assignments/presentations: outline, structure, key points.
+     *
+     * @param array $cvData From loadCvData() or loadCvVariantData()
+     * @param array $jobApplication From getJobApplication()
+     * @param array $task Task with task_type, task_description, optional user_notes
+     * @param array $options Optional
+     * @return array { success, suggestions_text } or { success, browser_execution, prompt, model, model_type } or error
+     */
+    public function generateInterviewTaskHelp($cvData, $jobApplication, $task, $options = []) {
+        $taskType = $task['task_type'] ?? 'question';
+        $taskDescription = trim($task['task_description'] ?? '');
+        $userNotes = isset($task['user_notes']) && trim($task['user_notes']) !== '' ? trim($task['user_notes']) : null;
+
+        if ($taskDescription === '') {
+            return ['success' => false, 'error' => 'Task description is required'];
+        }
+
+        $isBrowserAI = ($this->service === 'browser');
+        $prompt = $isBrowserAI
+            ? $this->buildInterviewTaskHelpPromptCondensed($cvData, $jobApplication, $taskType, $taskDescription, $userNotes)
+            : $this->buildInterviewTaskHelpPrompt($cvData, $jobApplication, $taskType, $taskDescription, $userNotes);
+
+        $response = $this->callAI($prompt, [
+            'temperature' => 0.6,
+            'max_tokens' => 1500,
+            'think' => true, // Qwen3: interview task help (presentations, case studies) benefits from reasoning
+        ]);
+
+        if (!$response['success']) {
+            return $response;
+        }
+
+        if (isset($response['browser_execution']) && $response['browser_execution']) {
+            return [
+                'success' => true,
+                'browser_execution' => true,
+                'prompt' => $prompt,
+                'model' => $response['model'] ?? 'llama3.2',
+                'model_type' => $response['model_type'] ?? 'webllm',
+            ];
+        }
+
+        if (!isset($response['content']) || trim($response['content']) === '') {
+            return ['success' => false, 'error' => 'No suggestions received from AI service'];
+        }
+
+        $raw = trim($response['content']);
+        $suggestionsText = $this->convertInterviewTaskJsonToPlainText($raw);
+        if ($suggestionsText === null) {
+            $suggestionsText = $this->cleanCoverLetterText($raw);
+        }
+        if ($this->shouldHumanizeServerOutput()) {
+            $suggestionsText = $this->humanizeText($suggestionsText);
+        }
+
+        return [
+            'success' => true,
+            'suggestions_text' => $suggestionsText,
+            'raw_response' => $response['content'],
+        ];
+    }
+
+    /**
+     * If the AI returns JSON (e.g. array of {section, talking_points}), convert to readable plain text.
+     * Returns null if the content is not JSON or conversion fails.
+     */
+    private function convertInterviewTaskJsonToPlainText($text) {
+        $trimmed = trim($text);
+        if ($trimmed === '') {
+            return null;
+        }
+        if (preg_match('/^```(?:json)?\s*([\s\S]*?)```\s*$/s', $trimmed, $m)) {
+            $trimmed = trim($m[1]);
+        }
+        if ($trimmed === '' || ($trimmed[0] !== '[' && $trimmed[0] !== '{')) {
+            return null;
+        }
+        $decoded = json_decode($trimmed, true);
+        if ($decoded === null || !is_array($decoded)) {
+            return null;
+        }
+        $out = [];
+        foreach ($decoded as $item) {
+            if (is_array($item)) {
+                $section = $item['section'] ?? $item['title'] ?? $item['name'] ?? null;
+                $points = $item['talking_points'] ?? $item['points'] ?? $item['bullets'] ?? $item['content'] ?? null;
+                if ($section) {
+                    $out[] = $section;
+                    $out[] = str_repeat('-', min(40, strlen($section)));
+                }
+                if (is_array($points)) {
+                    foreach ($points as $p) {
+                        if (is_string($p) && trim($p) !== '') {
+                            $out[] = '• ' . trim($p);
+                        }
+                    }
+                } elseif (is_string($points) && trim($points) !== '') {
+                    $out[] = '• ' . trim($points);
+                }
+                $out[] = '';
+            }
+        }
+        return implode("\n", $out);
+    }
+
+    private function buildInterviewTaskHelpPrompt($cvData, $jobApplication, $taskType, $taskDescription, $userNotes) {
+        $prompt = "You are helping a candidate prepare for an interview-stage task. ";
+        $prompt .= "Using the job description and the candidate's CV, provide tailored help they can use to prepare.\n\n";
+
+        $prompt .= "Job and role:\n";
+        $prompt .= "- Company: " . ($jobApplication['company_name'] ?? 'Unknown') . "\n";
+        $prompt .= "- Job Title: " . ($jobApplication['job_title'] ?? 'Position') . "\n";
+        if (!empty($jobApplication['job_description'])) {
+            $jobDesc = $jobApplication['job_description'];
+            if (function_exists('stripMarkdown')) {
+                $jobDesc = stripMarkdown($jobDesc);
+            }
+            $prompt .= "- Job Description:\n" . substr($jobDesc, 0, 2500) . (strlen($jobDesc) > 2500 ? "\n..." : "") . "\n\n";
+        }
+
+        $prompt .= "Candidate information (from CV):\n";
+        if (!empty($cvData['profile'])) {
+            $p = $cvData['profile'];
+            $candidateName = preg_replace('/\[control_\d+\]/i', '', trim($p['full_name'] ?? ''));
+            $prompt .= "- Name: " . ($candidateName ?: 'Candidate') . "\n";
+        }
+        if (!empty($cvData['professional_summary']['description'])) {
+            $sum = $cvData['professional_summary']['description'];
+            if (function_exists('stripMarkdown')) {
+                $sum = stripMarkdown($sum);
+            }
+            $prompt .= "- Summary: " . substr($sum, 0, 400) . "\n";
+        }
+        if (!empty($cvData['work_experience'])) {
+            $prompt .= "- Work experience:\n";
+            foreach (array_slice($cvData['work_experience'], 0, 4) as $w) {
+                $prompt .= "  * " . ($w['position'] ?? '') . " at " . ($w['company_name'] ?? '') . "\n";
+                if (!empty($w['description'])) {
+                    $d = function_exists('stripMarkdown') ? stripMarkdown($w['description']) : $w['description'];
+                    $prompt .= "    " . substr($d, 0, 180) . "\n";
+                }
+            }
+        }
+        if (!empty($cvData['skills'])) {
+            $skills = array_map(function ($s) {
+                return $s['name'];
+            }, array_slice($cvData['skills'], 0, 12));
+            $prompt .= "- Skills: " . implode(', ', $skills) . "\n";
+        }
+
+        $prompt .= "\nInterview task (type: " . $taskType . "):\n" . $taskDescription . "\n\n";
+        if ($userNotes) {
+            $prompt .= "Candidate's notes/draft so far:\n" . $userNotes . "\n\n";
+        }
+
+        $prompt .= $this->getInterviewTaskHelpInstructions($taskType);
+        return $prompt;
+    }
+
+    private function buildInterviewTaskHelpPromptCondensed($cvData, $jobApplication, $taskType, $taskDescription, $userNotes) {
+        $maxJobDescChars = 1200;
+        $maxSummaryChars = 220;
+        $maxWorkDescChars = 120;
+
+        $prompt = "Help a candidate prepare for this interview task (type: " . $taskType . "). Use their CV and the job.\n\n";
+        $prompt .= "Job: " . ($jobApplication['job_title'] ?? 'Position') . " at " . ($jobApplication['company_name'] ?? 'Unknown') . "\n";
+        if (!empty($jobApplication['job_description'])) {
+            $jobDesc = $jobApplication['job_description'];
+            if (function_exists('stripMarkdown')) {
+                $jobDesc = stripMarkdown($jobDesc);
+            }
+            $prompt .= substr($jobDesc, 0, $maxJobDescChars) . (strlen($jobDesc) > $maxJobDescChars ? "\n..." : "") . "\n\n";
+        }
+        if (!empty($cvData['professional_summary']['description'])) {
+            $sum = $cvData['professional_summary']['description'];
+            if (function_exists('stripMarkdown')) {
+                $sum = stripMarkdown($sum);
+            }
+            $prompt .= "Candidate summary: " . substr($sum, 0, $maxSummaryChars) . "\n";
+        }
+        if (!empty($cvData['work_experience'])) {
+            foreach (array_slice($cvData['work_experience'], 0, 3) as $w) {
+                $prompt .= "- " . ($w['position'] ?? '') . " at " . ($w['company_name'] ?? '') . "\n";
+                if (!empty($w['description'])) {
+                    $d = function_exists('stripMarkdown') ? stripMarkdown($w['description']) : $w['description'];
+                    $prompt .= "  " . substr($d, 0, $maxWorkDescChars) . "\n";
+                }
+            }
+        }
+        $prompt .= "\nTask: " . $taskDescription . "\n\n";
+        if ($userNotes) {
+            $prompt .= "Their notes: " . substr($userNotes, 0, 300) . "\n\n";
+        }
+        $prompt .= $this->getInterviewTaskHelpInstructions($taskType);
+        return $prompt;
+    }
+
+    private function getInterviewTaskHelpInstructions($taskType) {
+        $noJson = "- Return PLAIN TEXT only. Do NOT use JSON, code blocks, or markdown. Use simple headings and bullet points (-) for structure.\n";
+        switch ($taskType) {
+            case 'question':
+                return "Instructions:\n- Write a full practice answer the candidate can use or adapt.\n- Draw on their CV and the job requirements. Use concrete examples from their experience.\n- British English. Plain text only. No preamble. Start directly with the answer.\n" . $noJson . "\nSuggestions:\n";
+            case 'assignment':
+            case 'case_study':
+                return "Instructions:\n- Provide a detailed outline: clear sections/headings with 2–4 bullet points or sentences under each.\n- Include example approaches, key steps, or considerations the candidate could use.\n- Reference the job and the candidate's background. British English.\n- Do NOT give only generic advice. Give a concrete structure they can follow.\n" . $noJson . "\nSuggestions:\n";
+            case 'presentation':
+                return "Instructions:\n- Provide a concrete presentation outline: numbered or titled sections (e.g. '1. Opening', '2. Context', '3. Main points', '4. Closing') with 2–4 example bullet points or talking points under EACH section.\n- Include example content they could use, not just generic advice like 'be clear' or 'use British English'.\n- Reference their CV experience and the role. British English.\n- Do NOT give only high-level tips. Give a usable outline with example bullets they can adapt.\n" . $noJson . "\nSuggestions:\n";
+            default:
+                return "Instructions:\n- Provide a structure or outline with example points, not just generic advice.\n- Include headings and 2–4 bullet points under each. Reference their CV and the job.\n- British English. Plain text.\n" . $noJson . "\nSuggestions:\n";
+        }
+    }
+
     /**
      * Generate improvement suggestions based on assessment
      */
@@ -1570,6 +2069,7 @@ class AIService {
         $response = $this->callAI($prompt, [
             'temperature' => 0.5,
             'max_tokens' => 1500,
+            'think' => true, // Qwen3: improvement suggestions benefit from reasoning
         ]);
         
         if (!$response['success']) {
@@ -1600,7 +2100,8 @@ class AIService {
         $customInstructions = $options['custom_instructions'] ?? null;
         
         $workCountForPrompt = isset($cvData['work_experience']) && is_array($cvData['work_experience']) ? count($cvData['work_experience']) : 0;
-        $prompt = "You are a professional CV writer. Rewrite the following CV sections to better match this job description while maintaining factual accuracy.\n\n";
+        $prompt = "You are a professional CV writer. Your PRIMARY task is to tailor the CV to the specific job below.\n\n";
+        $prompt .= "CRITICAL - TAILORING: Every section you rewrite MUST explicitly align with the job description. Use the employer's wording, requirements, and key terms. Generic or unchanged content is a failure. The reader should immediately see this CV was written for THIS role.\n\n";
         if ($workCountForPrompt === 1 && in_array('work_experience', $sectionsToRewrite)) {
             $prompt .= "CRITICAL: Do NOT copy the input text. Rephrase the description to match the job description. Output identical to the input is invalid.\n\n";
         }
@@ -1620,8 +2121,16 @@ class AIService {
         // Add selected keywords from job application (AI-extracted or user-selected) if provided
         if (!empty($options['selected_keywords']) && is_array($options['selected_keywords'])) {
             $keywordsList = implode(', ', $options['selected_keywords']);
-            $prompt .= "IMPORTANT KEYWORDS TO EMPHASISE (from this job application): " . $keywordsList . "\n\n";
-            $prompt .= "You MUST use these keywords and the job description wording when rewriting. In work experience descriptions: rephrase sentences so that job-relevant terms and these keywords appear where natural. Do not just shorten the original; transform it to match the job and keyword list.\n\n";
+            $sectionsList = ['professional summary', 'work experience'];
+            if (in_array('skills', $sectionsToRewrite ?? [])) {
+                $sectionsList[] = 'skills';
+            }
+            $prompt .= "IMPORTANT KEYWORDS (from this job - you MUST weave these into " . implode(', ', $sectionsList) . "): " . $keywordsList . "\n\n";
+            $prompt .= "You MUST use these keywords and the job description wording when rewriting. In work experience: rephrase sentences so job-relevant terms and these keywords appear where natural. In the professional summary: mention 2-3 of these keywords/themes.";
+            if (in_array('skills', $sectionsToRewrite ?? [])) {
+                $prompt .= " In the skills section: include and prioritise these keywords as skill names where the candidate likely has them; reorder and tailor the list for the job.";
+            }
+            $prompt .= " Generic output without job alignment is wrong.\n\n";
         }
         
         $prompt .= "Current CV Data:\n";
@@ -1751,6 +2260,7 @@ class AIService {
         
         if (in_array('skills', $sectionsToRewrite)) {
             $prompt .= "  \"skills\": [{\"name\": \"...\", \"category\": \"...\"}],\n";
+            $prompt .= "  SKILLS RULE: Tailor the skills list to the job description. (1) Use the employer's wording and key terms from the job. (2) Put the most job-relevant skills first. (3) Add skills from the job description or IMPORTANT KEYWORDS that the candidate likely has. (4) Group by category if the input has categories. (5) Do NOT return the input list unchanged - the output MUST differ and align with the job.\n";
         }
         
         if (in_array('education', $sectionsToRewrite)) {
@@ -1783,6 +2293,30 @@ class AIService {
     }
     
     /**
+     * Build minimal prompt for skills-only tailoring (reduces parse failures with Ollama/small models)
+     */
+    private function buildCvRewritePromptSkillsOnly($cvData, $jobDescription, $options = []) {
+        if (function_exists('stripMarkdown')) {
+            $jobDescription = stripMarkdown($jobDescription);
+        }
+        $jobDesc = mb_strlen($jobDescription) > 2500
+            ? mb_substr($jobDescription, 0, 2500) . "\n\n[Truncated - use above to tailor skills]"
+            : $jobDescription;
+        $skills = !empty($cvData['skills']) ? array_map(function ($s) { return $s['name']; }, $cvData['skills']) : [];
+        $skillsStr = !empty($skills) ? implode(', ', $skills) : 'None listed';
+        $keywordsStr = '';
+        if (!empty($options['selected_keywords']) && is_array($options['selected_keywords'])) {
+            $keywordsStr = "\nIMPORTANT KEYWORDS to include where relevant: " . implode(', ', $options['selected_keywords']) . "\n";
+        }
+        $prompt = "Tailor the skills list below to match this job description. Use the employer's wording. Put job-relevant skills first. Add skills from the job/keywords the candidate likely has. Use British English spelling.{$keywordsStr}\n\n";
+        $prompt .= "Job:\n{$jobDesc}\n\n";
+        $prompt .= "Current skills: {$skillsStr}\n\n";
+        $prompt .= "Return ONLY valid JSON. No other text before or after. Example format:\n{\"skills\":[{\"name\":\"Skill name\",\"category\":\"Category or null\"}]}\n\n";
+        $prompt .= "Output your tailored skills array as JSON:";
+        return $prompt;
+    }
+    
+    /**
      * Build condensed prompt for CV rewriting (for browser AI with limited context)
      */
     private function buildCvRewritePromptCondensed($cvData, $jobDescription, $options = []) {
@@ -1795,13 +2329,14 @@ class AIService {
         $sectionsToRewrite = $options['sections_to_rewrite'] ?? ['professional_summary', 'work_experience', 'skills'];
         $customInstructions = $options['custom_instructions'] ?? null;
         
-        // Truncate job description to ~2000 chars (roughly 500 tokens)
-        $truncatedJobDesc = mb_strlen($jobDescription) > 2000 
-            ? mb_substr($jobDescription, 0, 2000) . "\n\n[Job description truncated for browser AI context limits]"
+        // Truncate job description to ~3500 chars (increased from 2000 for better job alignment)
+        $truncatedJobDesc = mb_strlen($jobDescription) > 3500 
+            ? mb_substr($jobDescription, 0, 3500) . "\n\n[Job description truncated for context limits - use the above to tailor the CV]"
             : $jobDescription;
         
         $workCountCondensed = isset($cvData['work_experience']) && is_array($cvData['work_experience']) ? count($cvData['work_experience']) : 0;
-        $prompt = "You are a professional CV writer. Rewrite the following CV sections to better match this job description while maintaining factual accuracy.\n\n";
+        $prompt = "You are a professional CV writer. Your PRIMARY task is to tailor the CV to the specific job below.\n\n";
+        $prompt .= "CRITICAL - TAILORING: Every section MUST align with the job description. Use the employer's wording and key terms. Generic content is a failure. The reader must see this CV was written for THIS role.\n\n";
         if ($workCountCondensed === 1 && in_array('work_experience', $sectionsToRewrite)) {
             $prompt .= "CRITICAL: Do NOT copy the input text. Rephrase every sentence and bullet to match the job description. Output identical to the input is invalid.\n\n";
         }
@@ -1817,8 +2352,8 @@ class AIService {
         // Add selected keywords from job application (AI-extracted or user-selected) if provided
         if (!empty($options['selected_keywords']) && is_array($options['selected_keywords'])) {
             $keywordsList = implode(', ', $options['selected_keywords']);
-            $prompt .= "IMPORTANT KEYWORDS TO EMPHASISE (from this job application): " . $keywordsList . "\n\n";
-            $prompt .= "You MUST use these keywords and job description wording in work experience descriptions. Rephrase sentences so job-relevant terms appear; do not just shorten the original.\n\n";
+            $prompt .= "IMPORTANT KEYWORDS (from this job - MUST appear in summary and work experience): " . $keywordsList . "\n\n";
+            $prompt .= "Weave these keywords and job description wording into every section. Professional summary: mention 2-3 keywords/themes. Work experience: rephrase so job terms appear. Do not just shorten.\n\n";
         }
         
         $prompt .= "Current CV Data:\n";
@@ -1928,11 +2463,12 @@ class AIService {
             $prompt .= '  "work_experience": [' . "\n";
             $prompt .= '    {"id": "same as input", "position": "exact from original", "company_name": "exact from original", "description": "same length or longer; every sentence reworded; job description phrases and IMPORTANT KEYWORDS woven in; do not shorten"}' . "\n";
             $prompt .= '  ],' . "\n";
-            $prompt .= "  For work experience: return ONLY id, position, company_name, description. Keep at least same number of sentences; weave in keywords and job wording; do not shorten.\n";
+            $prompt .= "  For work experience: return ONLY id, position, company_name, description. Keep at least same number of sentences; weave in keywords and job wording; do not shorten. TAILOR each description to the Job Description - use its phrases.\n";
         }
         
         if (in_array('skills', $sectionsToRewrite)) {
             $prompt .= '  "skills": [{"name": "skill_name", "category": "category_name"}],' . "\n";
+            $prompt .= "  SKILLS RULE: Tailor the skills list to the job description. Use the employer's wording and key terms. Put the most job-relevant skills first. Add skills from the job or IMPORTANT KEYWORDS. Do NOT return the input list unchanged - output MUST align with the job.\n";
         }
         
         if (in_array('projects', $sectionsToRewrite)) {
@@ -1940,6 +2476,7 @@ class AIService {
         }
         
         $prompt .= "}\n";
+        $prompt .= "\nREMINDER: Tailor every description to the Job Description above. Weave in its phrases and IMPORTANT KEYWORDS. Generic output = failure.\n";
         $prompt .= "\nIMPORTANT: You MUST include ALL requested sections in your response. Keep original IDs for all items - set \"id\" to the same value as in the input. Return work_experience and projects in the SAME ORDER as the input. Enhance content with more detail, achievements, and metrics - do not reduce or simplify.\n";
         $prompt .= "\nCRITICAL FOR WORK EXPERIENCE: (1) Keep id, position, company_name EXACTLY as input. (2) ONE-TO-ONE: Entry N = only Entry N input. (3) Do NOT shorten: output must have at least as many sentences as input; reword each and weave in job description phrases and IMPORTANT KEYWORDS.\n";
         $prompt .= "\nJSON OUTPUT: Return ONLY valid JSON. Do NOT include literal text like \"... (8 more positions)\" or \"... (3 more items)\" inside your response - output the full array of objects instead.";
@@ -2264,6 +2801,7 @@ class AIService {
     /**
      * Call Ollama API (local, free)
      * Note: Ollama doesn't support vision yet, so images are ignored
+     * Supports Qwen3/DeepSeek thinking mode (think=true) and 32K context for better reasoning.
      */
     private function callOllama($prompt, $options = []) {
         // Allow up to 5 minutes for local model response (PHP default may be 30s)
@@ -2272,19 +2810,50 @@ class AIService {
         $url = $this->config['ollama']['base_url'] . '/api/generate';
         $model = $this->config['ollama']['model'];
         
-        // Add system prompt for JSON-only responses (Ollama supports system prompts)
-        $systemPrompt = "You are a CV assessment system. You MUST respond with valid JSON only. Do not include markdown formatting, explanatory text, or code blocks. Your response must start with { and end with }. Return ONLY the JSON object.";
+        // System prompt: JSON tasks need strict format; plain-text tasks (cover letter, etc.) need flexible output
+        $plainText = !empty($options['plain_text']);
+        $systemPrompt = $plainText
+            ? "You are a helpful CV and job application assistant. Use British English. Be professional, concise, and follow the user's instructions. Return only the requested content, no preamble or markdown."
+            : "You are a CV assessment system. You MUST respond with valid JSON only. Do not include markdown formatting, explanatory text, or code blocks. Your response must start with { and end with }. Return ONLY the JSON object.";
         
+        $maxTokens = (int)($options['max_tokens'] ?? 2000);
+        $useThinking = !empty($options['think']);
+        $ollamaOptions = [
+            'temperature' => $options['temperature'] ?? 0.3,
+            'num_predict' => $maxTokens,
+        ];
+        // Use 32K context for complex tasks: Qwen3-4B and similar support 32K; helps with full CV + job description
+        $wantsFullContext = $useThinking || $maxTokens > 2000;
+        if ($wantsFullContext) {
+            $ollamaOptions['num_ctx'] = 32768;
+        } elseif ($maxTokens > 4000) {
+            $ollamaOptions['num_ctx'] = min(32768, max(8192, $maxTokens + 4096));
+        }
         $data = [
             'model' => $model,
             'system' => $systemPrompt,
             'prompt' => $prompt,
             'stream' => false,
-            'options' => [
-                'temperature' => $options['temperature'] ?? 0.3, // Lower temperature for more structured output
-                'num_predict' => $options['max_tokens'] ?? 2000,
-            ]
+            'options' => $ollamaOptions,
         ];
+        // Qwen3 controls thinking via prompt tokens, not API params: /think or /no_think
+        $qwen3Models = ['qwen3', 'deepseek-r1', 'deepseek-v3'];
+        $modelLower = strtolower($model);
+        $isQwen3Style = false;
+        foreach ($qwen3Models as $p) {
+            if (strpos($modelLower, $p) !== false) {
+                $isQwen3Style = true;
+                break;
+            }
+        }
+        if ($isQwen3Style) {
+            $token = $useThinking ? '/think ' : '/no_think ';
+            $data['prompt'] = $token . $prompt;
+            // Log when using thinking (set AI_DEBUG=1 in .env to verify)
+            if ($useThinking && (function_exists('env') && env('AI_DEBUG') === '1')) {
+                error_log("AI Service: Qwen3 thinking mode ON - sent /think prefix to model {$model}");
+            }
+        }
         
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -2877,7 +3446,8 @@ class AIService {
         $response = $this->callAI($prompt, [
             'temperature' => 0.7,
             'max_tokens' => 8000, // HTML/CSS can be long
-            'image_data' => $imageData
+            'image_data' => $imageData,
+            'think' => true, // Qwen3: homepage template generation
         ]);
         
         if (!$response['success']) {
@@ -3088,6 +3658,14 @@ class AIService {
         $content = str_replace("\0", '', $content);
         $content = trim($content);
         
+        // Strip model tokens that Ollama/Llama often append (break JSON parsing)
+        $content = preg_replace('/<\|[^|]*\|>/', '', $content);
+        $content = preg_replace('/<\|im_start\|>.*?<\|im_end\|>/s', '', $content);
+        $content = preg_replace('/\[INST\].*?\[\/INST\]/is', '', $content);
+        $content = preg_replace('/<s>.*?<\/s>/is', '', $content);
+        $content = preg_replace('/":\s*(assistant|user|system|any_name|start_header_id|end_header_id)["\s]/i', '": ""', $content);
+        $content = trim($content);
+        
         // Remove markdown code blocks if present
         $content = preg_replace('/```json\s*/i', '', $content);
         $content = preg_replace('/```\s*/', '', $content);
@@ -3129,6 +3707,8 @@ class AIService {
         // Remove AI ellipsis placeholders (literal "..." on a line) - invalid JSON
         $content = preg_replace('/,\s*\n\s*\.\.\.\s*\n\s*/', "\n", $content);
         $content = preg_replace('/\n\s*\.\.\.\s*\n\s*/', "\n", $content);
+        // Remove "... (N more positions)" etc. that models sometimes echo from the prompt
+        $content = preg_replace('/,?\s*\.\.\.\s*\(\d+\s+more\s+(?:positions?|items?)\)\s*/i', '', $content);
         
         // Try to decode first (may work if AI properly escaped)
         $decoded = json_decode($content, true);
@@ -3170,6 +3750,17 @@ class AIService {
             }
         }
         
+        // Last-ditch: truncated output - try parsing up to last balanced } (Ollama often truncates)
+        if ($decoded === null && json_last_error() !== JSON_ERROR_NONE && strpos($content, '{') === 0) {
+            $lastBrace = strrpos($content, '}');
+            if ($lastBrace !== false && $lastBrace > 100) {
+                $truncated = substr($content, 0, $lastBrace + 1);
+                $truncated = preg_replace('/,\s*}\s*$/', '}', $truncated);
+                $truncated = preg_replace('/,\s*]\s*$/', ']', $truncated);
+                $decoded = json_decode($truncated, true);
+            }
+        }
+        
         // Debug: when parsing failed, log the last content we tried and the JSON error
         if ($decoded === null && defined('DEBUG') && DEBUG) {
             $lastAttempt = $content;
@@ -3197,6 +3788,57 @@ class AIService {
         }
         
         return $decoded;
+    }
+    
+    /**
+     * Last-resort parse for skills-only when main parse fails (extract skills array from malformed output)
+     */
+    private function tryParseSkillsFallback($content) {
+        if (empty($content)) {
+            return null;
+        }
+        // Try to find "skills": [...] or "Skills": [...]
+        if (preg_match('/"skills"\s*:\s*\[/i', $content, $m, PREG_OFFSET_CAPTURE)) {
+            $start = $m[0][1] + strlen($m[0][0]) - 1; // position of [
+            $depth = 1;
+            $end = $start;
+            $len = strlen($content);
+            for ($i = $start + 1; $i < $len && $depth > 0; $i++) {
+                $c = $content[$i];
+                if ($c === '[' || $c === '{') {
+                    $depth++;
+                } elseif ($c === ']' || $c === '}') {
+                    $depth--;
+                    if ($depth === 0) {
+                        $end = $i;
+                        break;
+                    }
+                }
+            }
+            if ($depth === 0) {
+                $arrStr = substr($content, $start, $end - $start + 1);
+                $arrStr = preg_replace('/,\s*}/', '}', $arrStr);
+                $arrStr = preg_replace('/,\s*]/', ']', $arrStr);
+                $arr = json_decode($arrStr, true);
+                if (is_array($arr)) {
+                    $skills = [];
+                    foreach ($arr as $item) {
+                        if (is_string($item)) {
+                            $skills[] = ['name' => trim($item), 'category' => null];
+                        } elseif (is_array($item) && isset($item['name'])) {
+                            $skills[] = [
+                                'name' => trim($item['name'] ?? ''),
+                                'category' => $item['category'] ?? null
+                            ];
+                        }
+                    }
+                    if (!empty($skills)) {
+                        return ['skills' => $skills];
+                    }
+                }
+            }
+        }
+        return null;
     }
     
     /**

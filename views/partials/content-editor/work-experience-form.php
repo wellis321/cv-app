@@ -95,6 +95,9 @@ $canAddWorkExperience = planCanAddEntry($subscriptionContext, 'work_experience',
             <input type="hidden" name="<?php echo CSRF_TOKEN_NAME; ?>" value="<?php echo csrfToken(); ?>">
             <input type="hidden" name="action" value="<?php echo $editingExperience ? 'update' : 'create'; ?>">
             <input type="hidden" name="section_id" value="work-experience">
+            <?php if ($variantId): ?>
+                <input type="hidden" name="variant_id" value="<?php echo e($variantId); ?>">
+            <?php endif; ?>
             <?php if ($editingExperience): ?>
                 <input type="hidden" name="id" value="<?php echo e($editingExperience['id']); ?>">
             <?php endif; ?>
@@ -171,7 +174,7 @@ $canAddWorkExperience = planCanAddEntry($subscriptionContext, 'work_experience',
             </div>
         <?php else: ?>
             <?php
-            $showReorder = !$isVariantContext && count($workExperiences) >= 2;
+            $showReorder = count($workExperiences) >= 2;
             if ($showReorder):
             ?>
             <!-- Reorder controls (main profile only, 2+ items) -->

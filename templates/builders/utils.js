@@ -33,8 +33,8 @@ export function decodeHtmlEntities(value) {
 export function convertMarkdownToPlainText(text) {
     if (!text) return ''
     return String(text)
-        .replace(/\*\*(.*?)\*\*/g, '$1')  // Bold
-        .replace(/\*(.*?)\*/g, '$1')      // Italic
+        .replace(/\*\*([\s\S]*?)\*\*/g, '$1')  // Bold (incl. multiline)
+        .replace(/\*([\s\S]*?)\*/g, '$1')      // Italic (incl. multiline)
         .replace(/^•\s+/gm, '• ')          // Bullets
         .replace(/^\-\s+/gm, '- ')         // Dashes
         .replace(/`/g, '')                 // Code

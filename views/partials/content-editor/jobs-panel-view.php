@@ -43,7 +43,7 @@ $savedDate = !empty($job['created_at']) ? date('j M Y, g:i a', strtotime($job['c
 /* Job view nav: constrain height so Back to list stays visible when not sticky */
 #job-view-nav { max-height: calc(100vh - 140px); }
 </style>
-<div class="flex items-start gap-6 relative p-6 w-full min-w-0" data-jobs-view-container data-application-id="<?php echo e($job['id']); ?>" data-csrf="<?php echo e($csrf); ?>">
+<div class="flex items-start gap-6 relative p-6 w-full min-w-0" data-jobs-view-container data-application-id="<?php echo e($job['id']); ?>" data-linked-variant-id="<?php echo e(!empty($job['linked_cv_variant']['id']) ? $job['linked_cv_variant']['id'] : ''); ?>" data-csrf="<?php echo e($csrf); ?>">
     <!-- Quick Nav: moved to #jobs-quick-nav-slot by JS so it sits in grid and moves with sidebar -->
     <aside class="lg:block w-64 flex-shrink-0 self-start" data-jobs-quick-nav id="job-view-nav-aside">
         <nav class="bg-white border border-gray-200 rounded-lg shadow-sm" id="job-view-nav" aria-label="Job view navigation" style="display: flex; flex-direction: column; overflow: hidden;">
@@ -66,6 +66,8 @@ $savedDate = !empty($job['created_at']) ? date('j M Y, g:i a', strtotime($job['c
                 <?php endif; ?>
                 <li><a href="#files" class="job-nav-link block px-3 py-2 text-sm text-gray-700 hover:bg-blue-100 hover:text-blue-900 rounded-md transition-colors" data-section="files">Files</a></li>
                 <li><a href="#application-questions" class="job-nav-link block px-3 py-2 text-sm text-gray-700 hover:bg-blue-100 hover:text-blue-900 rounded-md transition-colors" data-section="application-questions">Application questions</a></li>
+                <li><a href="#interview-tasks" class="job-nav-link block px-3 py-2 text-sm text-gray-700 hover:bg-blue-100 hover:text-blue-900 rounded-md transition-colors" data-section="interview-tasks">Interview tasks</a></li>
+                <li><a href="#personal-statement" class="job-nav-link block px-3 py-2 text-sm text-gray-700 hover:bg-blue-100 hover:text-blue-900 rounded-md transition-colors" data-section="personal-statement">Personal Statement</a></li>
                 <?php if (!empty($job['linked_cv_variant'])): ?>
                 <li><a href="#generate-ai-cv" class="job-nav-link block px-3 py-2 text-sm text-gray-700 hover:bg-blue-100 hover:text-blue-900 rounded-md transition-colors" data-section="generate-ai-cv">CV Variant: <?php echo e($job['linked_cv_variant']['variant_name']); ?></a></li>
                 <?php else: ?>
@@ -266,15 +268,23 @@ $savedDate = !empty($job['created_at']) ? date('j M Y, g:i a', strtotime($job['c
         </section>
         <?php endif; ?>
 
-        <!-- Files (read-only) -->
+        <!-- Files -->
         <section id="files" class="job-view-section scroll-mt-6">
             <h2 class="text-sm font-semibold text-gray-900 mb-2">Files</h2>
             <?php 
             $jobFiles = isset($job['files']) && is_array($job['files']) ? $job['files'] : [];
             ?>
+            <div id="job-view-files-upload" class="mb-4">
+                <input type="file" id="job-view-file-input" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.csv,.jpg,.jpeg,.png" class="hidden">
+                <div id="job-view-upload-area" class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-blue-400 transition-colors cursor-pointer">
+                    <p class="text-sm text-gray-600">Click or drag files here to upload</p>
+                    <p class="text-xs text-gray-500 mt-1">PDF, Word, Excel, Text, Images (max 10MB)</p>
+                </div>
+                <p id="job-view-upload-status" class="text-sm mt-2 hidden"></p>
+            </div>
             <?php if (!empty($jobFiles)): ?>
             <p class="text-xs text-gray-600 mb-3">Documents attached to this application</p>
-            <div class="border border-gray-200 rounded-lg bg-gray-50/50 divide-y divide-gray-200">
+            <div id="job-view-files-list" class="border border-gray-200 rounded-lg bg-gray-50/50 divide-y divide-gray-200">
                 <?php foreach ($jobFiles as $file): ?>
                 <?php 
                 $displayName = !empty($file['custom_name']) ? $file['custom_name'] : ($file['original_name'] ?? 'Unknown');
@@ -297,7 +307,7 @@ $savedDate = !empty($job['created_at']) ? date('j M Y, g:i a', strtotime($job['c
                 <?php endforeach; ?>
             </div>
             <?php else: ?>
-            <p class="text-sm text-gray-500 italic py-4">No files attached. <a href="#jobs&amp;edit=<?php echo e($job['id']); ?>" class="text-blue-600 hover:underline">Edit the job</a> to add files.</p>
+            <div id="job-view-files-list-empty" class="text-sm text-gray-500 italic py-4">No files attached yet.</div>
             <?php endif; ?>
         </section>
 
@@ -343,6 +353,132 @@ $savedDate = !empty($job['created_at']) ? date('j M Y, g:i a', strtotime($job['c
                 <?php endforeach; ?>
                 <?php if (empty($jobQuestions)): ?>
                 <div id="application-questions-empty" class="text-sm text-gray-500 italic">No questions yet. Add a question above to get started.</div>
+                <?php endif; ?>
+            </div>
+        </section>
+
+        <!-- Interview tasks -->
+        <section id="interview-tasks" class="job-view-section scroll-mt-6">
+            <h2 class="text-sm font-semibold text-gray-900 mb-2">Interview tasks</h2>
+            <p class="text-xs text-gray-600 mb-4">Tasks, questions, or assignments given after progressing (e.g. take-home brief, interview questions to prepare, presentation topic). Use AI to help you prepare.</p>
+            <div class="space-y-4 mb-4">
+                <div class="flex gap-2 flex-wrap items-start">
+                    <div class="flex-1 min-w-[200px] space-y-1">
+                        <select id="interview-task-new-type" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500">
+                            <option value="question">Interview question</option>
+                            <option value="assignment">Assignment</option>
+                            <option value="presentation">Presentation</option>
+                            <option value="case_study">Case study</option>
+                            <option value="other">Other</option>
+                        </select>
+                        <input type="text" id="interview-task-new-title" placeholder="Title (optional) – e.g. Panel Q1, Take-home brief" class="w-full px-3 py-1.5 text-sm border border-gray-200 rounded-md focus:ring-green-500 focus:border-green-500 text-gray-600">
+                        <textarea id="interview-task-new-description" placeholder="Paste or type the task, question, or brief…" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500 min-h-[80px]"></textarea>
+                        <input type="text" id="interview-task-new-deadline" placeholder="Deadline (optional) – e.g. 2025-03-15" class="w-full px-3 py-1.5 text-xs border border-gray-200 rounded-md focus:ring-green-500 focus:border-green-500 text-gray-600">
+                    </div>
+                    <button type="button" id="interview-task-add-btn" data-application-id="<?php echo e($job['id']); ?>" data-csrf="<?php echo e($csrf); ?>" class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-1 focus:ring-green-500 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        Add task
+                    </button>
+                </div>
+            </div>
+            <div id="interview-tasks-list" class="space-y-6">
+                <?php
+                $jobInterviewTasks = isset($job['interview_tasks']) && is_array($job['interview_tasks']) ? $job['interview_tasks'] : [];
+                $taskTypeLabels = ['question' => 'Question', 'assignment' => 'Assignment', 'presentation' => 'Presentation', 'case_study' => 'Case study', 'other' => 'Other'];
+                foreach ($jobInterviewTasks as $t):
+                    $tId = $t['id'] ?? '';
+                    $tType = $t['task_type'] ?? 'question';
+                    $tTitle = $t['title'] ?? '';
+                    $tDesc = $t['task_description'] ?? '';
+                    $tDeadline = !empty($t['deadline']) ? date('j M Y', strtotime($t['deadline'])) : null;
+                    $tNotes = $t['user_notes'] ?? '';
+                    $tAi = $t['ai_suggestions'] ?? '';
+                    $tTypeLabel = $taskTypeLabels[$tType] ?? ucfirst($tType);
+                ?>
+                <div class="border border-gray-200 rounded-lg p-4 bg-gray-50/50" data-task-id="<?php echo e($tId); ?>">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="inline-flex px-2 py-0.5 text-xs font-medium rounded bg-purple-100 text-purple-800"><?php echo e($tTypeLabel); ?></span>
+                        <?php if ($tTitle): ?><span class="text-sm font-medium text-gray-900"><?php echo e($tTitle); ?></span><?php endif; ?>
+                        <?php if ($tDeadline): ?><span class="text-xs text-gray-500">Due: <?php echo e($tDeadline); ?></span><?php endif; ?>
+                    </div>
+                    <p class="text-sm text-gray-700 mb-2"><?php echo e($tDesc); ?></p>
+                    <label class="block text-xs text-gray-600 mb-1">Your notes / draft</label>
+                    <textarea class="interview-task-notes w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500 min-h-[80px]" data-task-id="<?php echo e($tId); ?>" placeholder="Your draft, notes, or practice answer"><?php echo e($tNotes); ?></textarea>
+                    <div class="flex flex-wrap gap-2 mt-2 mb-2">
+                        <button type="button" class="interview-task-get-ai inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-white bg-green-600 rounded-md hover:bg-green-700" data-task-id="<?php echo e($tId); ?>" data-application-id="<?php echo e($job['id']); ?>" data-csrf="<?php echo e($csrf); ?>">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            Get AI help
+                        </button>
+                        <button type="button" class="interview-task-save inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50" data-task-id="<?php echo e($tId); ?>" data-csrf="<?php echo e($csrf); ?>">Save</button>
+                        <button type="button" class="interview-task-delete inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-red-700 bg-red-50 border border-red-200 rounded-md hover:bg-red-100" data-task-id="<?php echo e($tId); ?>" data-csrf="<?php echo e($csrf); ?>">Delete</button>
+                    </div>
+                    <?php if ($tAi): ?>
+                    <div class="mt-2 p-3 bg-green-50 border border-green-200 rounded-md">
+                        <p class="text-xs font-medium text-green-900 mb-1">AI suggestions</p>
+                        <div class="interview-task-ai-suggestions text-sm text-gray-800 whitespace-pre-wrap"><?php echo e(function_exists('formatInterviewTaskSuggestions') ? formatInterviewTaskSuggestions($tAi) : $tAi); ?></div>
+                    </div>
+                    <?php else: ?>
+                    <div class="interview-task-ai-placeholder mt-2 p-3 bg-gray-100 border border-dashed border-gray-300 rounded-md hidden">
+                        <p class="text-xs font-medium text-gray-600 mb-1">AI suggestions</p>
+                        <div class="interview-task-ai-suggestions text-sm text-gray-800 whitespace-pre-wrap"></div>
+                    </div>
+                    <?php endif; ?>
+                </div>
+                <?php endforeach; ?>
+                <?php if (empty($jobInterviewTasks)): ?>
+                <div id="interview-tasks-empty" class="text-sm text-gray-500 italic">No interview tasks yet. Add one when you receive a task or questions to prepare for.</div>
+                <?php endif; ?>
+            </div>
+        </section>
+
+        <!-- Personal Statement -->
+        <section id="personal-statement" class="job-view-section scroll-mt-6">
+            <h2 class="text-sm font-semibold text-gray-900 mb-2">Personal Statement</h2>
+            <p class="text-xs text-gray-600 mb-2">500 words by default: how your skills, qualities and experience provide evidence of your suitability for the role, with specific reference to the Minimum Criteria.</p>
+            <div class="mb-3">
+                <label for="personal-statement-length-<?php echo e($job['id']); ?>" class="block text-xs font-medium text-gray-600 mb-1">Length / format (optional)</label>
+                <input type="text" id="personal-statement-length-<?php echo e($job['id']); ?>" name="personal_statement_length" data-personal-statement-length
+                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500"
+                    placeholder="e.g. 500 words (default), max 300 words, 1000 characters, or recruiter's instructions">
+            </div>
+            <div id="personal-statement-container-<?php echo e($job['id']); ?>" class="space-y-3" data-personal-statement-container>
+                <?php if (!empty($job['personal_statement'])): ?>
+                <div class="border border-gray-200 rounded-lg bg-gray-50/50 p-4">
+                    <div class="flex justify-between items-start gap-4 mb-3">
+                        <span class="text-xs font-medium text-gray-500"><?php echo str_word_count($job['personal_statement']); ?> words</span>
+                        <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+                            <input type="checkbox" id="personal-statement-humanize-<?php echo e($job['id']); ?>" class="rounded border-gray-300" checked>
+                            <span>Reduce AI detection (extra pass)</span>
+                        </label>
+                    </div>
+                    <textarea id="personal-statement-text-<?php echo e($job['id']); ?>" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500 min-h-[280px] font-medium text-gray-900" placeholder="Personal statement..."><?php echo e($job['personal_statement']); ?></textarea>
+                    <div class="flex flex-wrap gap-2 mt-3">
+                        <button type="button" data-personal-statement-regenerate class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-white bg-green-600 rounded-md hover:bg-green-700">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                            Regenerate with AI
+                        </button>
+                        <button type="button" data-personal-statement-save class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                            Save changes
+                        </button>
+                    </div>
+                </div>
+                <?php else: ?>
+                <div class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                    <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <p class="text-gray-600 mb-4">No personal statement yet</p>
+                    <label class="flex items-center justify-center gap-2 mb-4 text-sm text-gray-600 cursor-pointer">
+                        <input type="checkbox" id="personal-statement-humanize-<?php echo e($job['id']); ?>" class="rounded border-gray-300" checked>
+                        <span>Reduce AI detection (extra pass, takes longer)</span>
+                    </label>
+                    <button type="button" data-personal-statement-generate class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-1 focus:ring-green-500 transition-colors">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        Generate Personal Statement with AI
+                    </button>
+                </div>
                 <?php endif; ?>
             </div>
         </section>
@@ -691,10 +827,13 @@ $savedDate = !empty($job['created_at']) ? date('j M Y, g:i a', strtotime($job['c
                                 saveFd.append('application_id', applicationId);
                                 saveFd.append('question_id', questionId);
                                 saveFd.append('answer_text', text || '');
+                                if (instInput && instInput.value.trim()) saveFd.append('answer_instructions', instInput.value.trim());
                                 return fetch('/api/ai-generate-application-answer.php', { method: 'POST', body: saveFd, credentials: 'include' });
                             }).then(function(r) { return r.json(); }).then(function(saveResult) {
                                 if (!saveResult || !saveResult.success) {
                                     alert(saveResult && saveResult.error ? saveResult.error : 'Failed to save answer. Please click Save answer to try again.');
+                                } else if (saveResult.answer_text !== undefined && ta) {
+                                    ta.value = saveResult.answer_text;
                                 }
                             }).catch(function(err) {
                                 alert('Browser AI failed: ' + (err.message || 'Please try again.'));
@@ -774,8 +913,238 @@ $savedDate = !empty($job['created_at']) ? date('j M Y, g:i a', strtotime($job['c
                 })
                 .catch(function() { alert('Failed to delete. Please try again.'); });
         }
+
+        // --- Interview tasks ---
+        var intTaskAddBtn = e.target.closest('#interview-task-add-btn');
+        var intTaskSaveBtn = e.target.closest('.interview-task-save');
+        var intTaskDelBtn = e.target.closest('.interview-task-delete');
+        var intTaskGetAiBtn = e.target.closest('.interview-task-get-ai');
+
+        if (intTaskAddBtn) {
+            e.preventDefault();
+            var applicationId = intTaskAddBtn.getAttribute('data-application-id');
+            var csrf = intTaskAddBtn.getAttribute('data-csrf');
+            var typeEl = container.querySelector('#interview-task-new-type');
+            var titleEl = container.querySelector('#interview-task-new-title');
+            var descEl = container.querySelector('#interview-task-new-description');
+            var deadlineEl = container.querySelector('#interview-task-new-deadline');
+            var desc = descEl ? descEl.value.trim() : '';
+            if (!applicationId || !csrf || !desc) {
+                alert('Please enter a task description.');
+                return;
+            }
+            intTaskAddBtn.disabled = true;
+            intTaskAddBtn.innerHTML = 'Adding…';
+            var fd = new FormData();
+            fd.append('<?php echo CSRF_TOKEN_NAME; ?>', csrf);
+            fd.append('application_id', applicationId);
+            fd.append('task_description', desc);
+            fd.append('task_type', typeEl ? typeEl.value : 'question');
+            if (titleEl && titleEl.value.trim()) fd.append('title', titleEl.value.trim());
+            if (deadlineEl && deadlineEl.value.trim()) fd.append('deadline', deadlineEl.value.trim());
+            fetch('/api/job-interview-tasks.php', { method: 'POST', body: fd, credentials: 'include' })
+                .then(function(r) { return r.json(); })
+                .then(function(result) {
+                    if (result.success && result.id) {
+                        var taskTypeLabels = { question: 'Question', assignment: 'Assignment', presentation: 'Presentation', case_study: 'Case study', other: 'Other' };
+                        var typeVal = typeEl ? typeEl.value : 'question';
+                        var typeLabel = taskTypeLabels[typeVal] || typeVal;
+                        var titleVal = titleEl ? titleEl.value.trim() : '';
+                        var deadlineVal = deadlineEl ? deadlineEl.value.trim() : '';
+                        var rowHtml = '<div class="border border-gray-200 rounded-lg p-4 bg-gray-50/50" data-task-id="' + escapeHtmlApp(result.id) + '">' +
+                            '<div class="flex items-center gap-2 mb-2">' +
+                            '<span class="inline-flex px-2 py-0.5 text-xs font-medium rounded bg-purple-100 text-purple-800">' + escapeHtmlApp(typeLabel) + '</span>' +
+                            (titleVal ? '<span class="text-sm font-medium text-gray-900">' + escapeHtmlApp(titleVal) + '</span>' : '') +
+                            (deadlineVal ? '<span class="text-xs text-gray-500">Due: ' + escapeHtmlApp(deadlineVal) + '</span>' : '') +
+                            '</div>' +
+                            '<p class="text-sm text-gray-700 mb-2">' + escapeHtmlApp(desc) + '</p>' +
+                            '<label class="block text-xs text-gray-600 mb-1">Your notes / draft</label>' +
+                            '<textarea class="interview-task-notes w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500 min-h-[80px]" data-task-id="' + escapeHtmlApp(result.id) + '" placeholder="Your draft, notes, or practice answer"></textarea>' +
+                            '<div class="flex flex-wrap gap-2 mt-2 mb-2">' +
+                            '<button type="button" class="interview-task-get-ai inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-white bg-green-600 rounded-md hover:bg-green-700" data-task-id="' + escapeHtmlApp(result.id) + '" data-application-id="' + escapeHtmlApp(applicationId) + '" data-csrf="' + escapeHtmlApp(csrf) + '"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg> Get AI help</button>' +
+                            '<button type="button" class="interview-task-save inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50" data-task-id="' + escapeHtmlApp(result.id) + '" data-csrf="' + escapeHtmlApp(csrf) + '">Save</button>' +
+                            '<button type="button" class="interview-task-delete inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-red-700 bg-red-50 border border-red-200 rounded-md hover:bg-red-100" data-task-id="' + escapeHtmlApp(result.id) + '" data-csrf="' + escapeHtmlApp(csrf) + '">Delete</button>' +
+                            '</div>' +
+                            '<div class="interview-task-ai-placeholder mt-2 p-3 bg-gray-100 border border-dashed border-gray-300 rounded-md hidden"><p class="text-xs font-medium text-gray-600 mb-1">AI suggestions</p><div class="interview-task-ai-suggestions text-sm text-gray-800 whitespace-pre-wrap"></div></div>' +
+                            '</div>';
+                        var list = container.querySelector('#interview-tasks-list');
+                        var emptyEl = container.querySelector('#interview-tasks-empty');
+                        if (list) {
+                            if (emptyEl) emptyEl.style.display = 'none';
+                            list.insertAdjacentHTML('beforeend', rowHtml);
+                        }
+                        if (descEl) descEl.value = '';
+                        if (titleEl) titleEl.value = '';
+                        if (deadlineEl) deadlineEl.value = '';
+                    } else {
+                        alert(result.error || 'Failed to add task');
+                    }
+                })
+                .catch(function() { alert('Failed to add task. Please try again.'); })
+                .finally(function() {
+                    intTaskAddBtn.disabled = false;
+                    intTaskAddBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg> Add task';
+                });
+            return;
+        }
+
+        if (intTaskSaveBtn) {
+            e.preventDefault();
+            var taskId = intTaskSaveBtn.getAttribute('data-task-id');
+            var row = intTaskSaveBtn.closest('div[data-task-id]');
+            var notesTa = row ? row.querySelector('.interview-task-notes') : null;
+            var notes = notesTa ? notesTa.value : '';
+            var body = JSON.stringify({
+                task_id: taskId,
+                user_notes: notes,
+                csrf_token: intTaskSaveBtn.getAttribute('data-csrf')
+            });
+            fetch('/api/job-interview-tasks.php', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: body, credentials: 'include' })
+                .then(function(r) { return r.json(); })
+                .then(function(result) {
+                    if (result.success) {
+                        intTaskSaveBtn.textContent = 'Saved';
+                        setTimeout(function() { intTaskSaveBtn.textContent = 'Save'; }, 1500);
+                    } else {
+                        alert(result.error || 'Failed to save');
+                    }
+                })
+                .catch(function() { alert('Failed to save. Please try again.'); });
+            return;
+        }
+
+        if (intTaskDelBtn) {
+            e.preventDefault();
+            if (!confirm('Delete this interview task?')) return;
+            var taskId = intTaskDelBtn.getAttribute('data-task-id');
+            var row = intTaskDelBtn.closest('div[data-task-id]');
+            var body = JSON.stringify({ task_id: taskId, csrf_token: intTaskDelBtn.getAttribute('data-csrf') });
+            fetch('/api/job-interview-tasks.php', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: body, credentials: 'include' })
+                .then(function(r) {
+                    return r.text().then(function(text) {
+                        try {
+                            var data = JSON.parse(text);
+                            return { ok: r.ok, data: data };
+                        } catch (e) {
+                            return { ok: false, data: { success: false, error: 'Invalid response' } };
+                        }
+                    });
+                })
+                .then(function(res) {
+                    var result = res.data;
+                    if (result.success && row) {
+                        row.remove();
+                        var list = container.querySelector('#interview-tasks-list');
+                        var emptyEl = container.querySelector('#interview-tasks-empty');
+                        if (list && list.querySelectorAll('div[data-task-id]').length === 0 && emptyEl) {
+                            emptyEl.style.display = 'block';
+                        }
+                    } else {
+                        alert(result.error || 'Failed to delete');
+                    }
+                })
+                .catch(function() { alert('Failed to delete. Please try again.'); });
+            return;
+        }
+
+        if (intTaskGetAiBtn) {
+            e.preventDefault();
+            var taskId = intTaskGetAiBtn.getAttribute('data-task-id');
+            var applicationId = intTaskGetAiBtn.getAttribute('data-application-id');
+            var csrf = intTaskGetAiBtn.getAttribute('data-csrf');
+            var row = intTaskGetAiBtn.closest('div[data-task-id]');
+            if (!taskId || !applicationId || !csrf || !row) return;
+            intTaskGetAiBtn.disabled = true;
+            intTaskGetAiBtn.innerHTML = 'Generating…';
+            var notesTa = row.querySelector('.interview-task-notes');
+            var userNotes = notesTa ? notesTa.value : '';
+            var fd = new FormData();
+            fd.append('<?php echo CSRF_TOKEN_NAME; ?>', csrf);
+            fd.append('application_id', applicationId);
+            fd.append('task_id', taskId);
+            if (userNotes) fd.append('user_notes', userNotes);
+            fetch('/api/ai-generate-interview-task-help.php', { method: 'POST', body: fd, credentials: 'include' })
+                .then(function(r) {
+                    return r.text().then(function(text) {
+                        try {
+                            var data = JSON.parse(text);
+                            return { ok: r.ok, data: data };
+                        } catch (e) {
+                            return { ok: false, data: { success: false, error: r.ok ? 'Invalid response' : (text || 'Request failed') } };
+                        }
+                    });
+                })
+                .then(function(res) {
+                    var result = res.data;
+                    if (!res.ok && result && result.error) {
+                        alert(result.error);
+                        return;
+                    }
+                    if (result.success && 'ai_suggestions' in result) {
+                        var aiBlock = row.querySelector('.interview-task-ai-suggestions');
+                        var content = result.ai_suggestions || '';
+                        if (aiBlock) {
+                            aiBlock.textContent = content || 'No suggestions were generated. Please try again with more detail in your task description.';
+                            var parent = aiBlock.closest('.interview-task-ai-placeholder') || aiBlock.parentElement;
+                            if (parent) {
+                                parent.classList.remove('hidden');
+                                parent.classList.remove('bg-gray-100', 'border-dashed', 'border-gray-300');
+                                parent.classList.add('bg-green-50', 'border-green-200');
+                            }
+                        }
+                    } else if (result.success && result.browser_execution) {
+                        if (typeof BrowserAIService !== 'undefined' && BrowserAIService.generateText) {
+                            BrowserAIService.initBrowserAI(result.model_type || 'webllm', result.model).then(function() {
+                                return BrowserAIService.generateText(result.prompt, { temperature: 0.6, maxTokens: 1500 });
+                            }).then(function(text) {
+                                var rawText = text || '';
+                                rawText = rawText.replace(/^\s*(assistant|user|system)\b[^\n]*\n?/gmi, '');
+                                rawText = rawText.replace(/\n\s*(assistant|user|system)\b[^\n]*\n?/gmi, '\n');
+                                rawText = rawText.replace(/\b(user|assistant|system)\b\s*[:.-]\s*/gi, '');
+                                if (typeof BrowserAIService !== 'undefined' && BrowserAIService.humanizeText) {
+                                    rawText = BrowserAIService.humanizeText(rawText);
+                                }
+                                var saveFd = new FormData();
+                                saveFd.append('<?php echo CSRF_TOKEN_NAME; ?>', csrf);
+                                saveFd.append('application_id', applicationId);
+                                saveFd.append('task_id', taskId);
+                                saveFd.append('ai_suggestions', rawText);
+                                return fetch('/api/ai-generate-interview-task-help.php', { method: 'POST', body: saveFd, credentials: 'include' });
+                            }).then(function(r) { return r.json().catch(function() { return { success: false, error: 'Invalid response' }; }); }).then(function(saveResult) {
+                                var aiBlock = row.querySelector('.interview-task-ai-suggestions');
+                                var parent = aiBlock ? (aiBlock.closest('.interview-task-ai-placeholder') || aiBlock.parentElement) : null;
+                                if (saveResult && saveResult.success && aiBlock) {
+                                    var content = saveResult.ai_suggestions || '';
+                                    aiBlock.textContent = content || 'No suggestions were generated. Please try again.';
+                                    if (parent) {
+                                        parent.classList.remove('hidden');
+                                        parent.classList.remove('bg-gray-100', 'border-dashed', 'border-gray-300');
+                                        parent.classList.add('bg-green-50', 'border-green-200');
+                                    }
+                                } else if (saveResult && !saveResult.success) {
+                                    alert(saveResult.error || 'Failed to save AI suggestions.');
+                                }
+                            }).catch(function(err) {
+                                alert('Browser AI failed: ' + (err.message || 'Please try again.'));
+                            });
+                        } else {
+                            alert('Browser AI is not available. Please use server AI or try again.');
+                        }
+                    } else {
+                        alert(result.error || 'Failed to generate help');
+                    }
+                })
+                .catch(function(err) {
+                    alert(err.message || 'Failed to generate help. Please try again.');
+                })
+                .finally(function() {
+                    intTaskGetAiBtn.disabled = false;
+                    intTaskGetAiBtn.innerHTML = '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg> Get AI help';
+                });
+            return;
+        }
     });
-    
+
     function displayKeywords(keywords, container, button, selectedKeywords) {
         var deleteBtn = document.getElementById('delete-keywords-btn');
         if (!container || !Array.isArray(keywords) || keywords.length === 0) {
@@ -977,7 +1346,7 @@ $savedDate = !empty($job['created_at']) ? date('j M Y, g:i a', strtotime($job['c
     // Initialize sticky navigation
     function initJobViewNavigation() {
         var navLinks = document.querySelectorAll('.job-nav-link');
-        var sections = document.querySelectorAll('[id^="job-"], #keywords, #notes, #application-link, #application-questions, #generate-ai-cv, #cover-letter, #cover-letter-actions');
+        var sections = document.querySelectorAll('[id^="job-"], #keywords, #notes, #application-link, #application-questions, #interview-tasks, #generate-ai-cv, #cover-letter, #cover-letter-actions');
         
         // Ensure nav structure is correct
         var nav = document.getElementById('job-view-nav');

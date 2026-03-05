@@ -43,6 +43,11 @@ if (isPost()) {
                 redirect('/content-editor.php#jobs&view=' . urlencode($result['id']));
                 exit;
             }
+            if (!empty($result['duplicate']) && !empty($result['existing_id'])) {
+                setFlash('success', 'This job is already in your list.');
+                redirect('/content-editor.php#jobs&view=' . urlencode($result['existing_id']));
+                exit;
+            }
             $error = $result['error'] ?? 'Failed to save job.';
         }
     }

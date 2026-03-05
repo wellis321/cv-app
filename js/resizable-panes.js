@@ -46,7 +46,7 @@
         } catch (e) {
             console.error('Error loading saved collapse state:', e);
         }
-        return { left: false, right: false };
+        return { left: false, right: true }; // Suggestions panel closed by default
     }
 
     function saveCollapsed(left, right) {

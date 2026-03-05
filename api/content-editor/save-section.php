@@ -96,6 +96,15 @@ function handleProfessionalSummary($action, $userId, $subscriptionContext) {
     if ($action === 'delete') {
         $action = 'delete_strength';
     }
+
+    $variantId = trim($_POST['variant_id'] ?? '');
+    $isVariantContext = !empty($variantId);
+    if ($isVariantContext) {
+        $variant = db()->fetchOne("SELECT id FROM cv_variants WHERE id = ? AND user_id = ?", [$variantId, $userId]);
+        if (!$variant) {
+            return ['success' => false, 'error' => 'Variant not found'];
+        }
+    }
     
     if ($action === 'save') {
         $description = trim($_POST['description'] ?? '');
@@ -110,31 +119,66 @@ function handleProfessionalSummary($action, $userId, $subscriptionContext) {
         }
         $description = $description ?: null;
         
-        $summary = db()->fetchOne("SELECT * FROM professional_summary WHERE profile_id = ?", [$userId]);
-        if ($summary) {
-            db()->update('professional_summary', ['description' => $description, 'updated_at' => date('Y-m-d H:i:s')], 'id = ?', [$summary['id']]);
+        if ($isVariantContext) {
+            $existing = db()->fetchOne("SELECT id FROM cv_variant_professional_summary WHERE cv_variant_id = ?", [$variantId]);
+            if ($existing) {
+                db()->update('cv_variant_professional_summary',
+                    ['description' => $description, 'updated_at' => date('Y-m-d H:i:s')],
+                    'id = ?',
+                    [$existing['id']]
+                );
+            } else {
+                db()->insert('cv_variant_professional_summary', [
+                    'id' => generateUuid(),
+                    'cv_variant_id' => $variantId,
+                    'description' => $description,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s')
+                ]);
+            }
         } else {
-            db()->insert('professional_summary', [
-                'id' => generateUuid(),
-                'profile_id' => $userId,
-                'description' => $description,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s')
-            ]);
+            $summary = db()->fetchOne("SELECT * FROM professional_summary WHERE profile_id = ?", [$userId]);
+            if ($summary) {
+                db()->update('professional_summary', ['description' => $description, 'updated_at' => date('Y-m-d H:i:s')], 'id = ?', [$summary['id']]);
+            } else {
+                db()->insert('professional_summary', [
+                    'id' => generateUuid(),
+                    'profile_id' => $userId,
+                    'description' => $description,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s')
+                ]);
+            }
         }
         return ['success' => true, 'message' => 'Professional summary saved successfully'];
         
     } elseif ($action === 'add_strength') {
-        $summary = db()->fetchOne("SELECT * FROM professional_summary WHERE profile_id = ?", [$userId]);
-        if (!$summary) {
-            $summaryId = generateUuid();
-            db()->insert('professional_summary', [
-                'id' => $summaryId,
-                'profile_id' => $userId,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s')
-            ]);
-            $summary = ['id' => $summaryId];
+        if ($isVariantContext) {
+            $summary = db()->fetchOne("SELECT id FROM cv_variant_professional_summary WHERE cv_variant_id = ?", [$variantId]);
+            if (!$summary) {
+                $summaryId = generateUuid();
+                db()->insert('cv_variant_professional_summary', [
+                    'id' => $summaryId,
+                    'cv_variant_id' => $variantId,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s')
+                ]);
+                $summary = ['id' => $summaryId];
+            }
+            $strengthsTable = 'cv_variant_professional_summary_strengths';
+        } else {
+            $summary = db()->fetchOne("SELECT * FROM professional_summary WHERE profile_id = ?", [$userId]);
+            if (!$summary) {
+                $summaryId = generateUuid();
+                db()->insert('professional_summary', [
+                    'id' => $summaryId,
+                    'profile_id' => $userId,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s')
+                ]);
+                $summary = ['id' => $summaryId];
+            }
+            $strengthsTable = 'professional_summary_strengths';
         }
         
         if (!planCanAddEntry($subscriptionContext, 'summary_strengths', $userId)) {
@@ -153,8 +197,8 @@ function handleProfessionalSummary($action, $userId, $subscriptionContext) {
         }
         $strength = strip_tags($strength);
         
-        $maxOrder = db()->fetchOne("SELECT MAX(sort_order) as max_order FROM professional_summary_strengths WHERE professional_summary_id = ?", [$summary['id']]);
-        db()->insert('professional_summary_strengths', [
+        $maxOrder = db()->fetchOne("SELECT MAX(sort_order) as max_order FROM {$strengthsTable} WHERE professional_summary_id = ?", [$summary['id']]);
+        db()->insert($strengthsTable, [
             'id' => generateUuid(),
             'professional_summary_id' => $summary['id'],
             'strength' => $strength,
@@ -168,13 +212,18 @@ function handleProfessionalSummary($action, $userId, $subscriptionContext) {
         if (empty($id)) {
             return ['success' => false, 'error' => 'Strength ID required'];
         }
-        $summary = db()->fetchOne("SELECT id FROM professional_summary WHERE profile_id = ?", [$userId]);
+        if ($isVariantContext) {
+            $summary = db()->fetchOne("SELECT id FROM cv_variant_professional_summary WHERE cv_variant_id = ?", [$variantId]);
+            $strengthsTable = 'cv_variant_professional_summary_strengths';
+        } else {
+            $summary = db()->fetchOne("SELECT id FROM professional_summary WHERE profile_id = ?", [$userId]);
+            $strengthsTable = 'professional_summary_strengths';
+        }
         if (!$summary) {
             return ['success' => false, 'error' => 'Summary not found'];
         }
         
-        // Verify the strength belongs to this user's summary
-        $strength = db()->fetchOne("SELECT * FROM professional_summary_strengths WHERE id = ? AND professional_summary_id = ?", [$id, $summary['id']]);
+        $strength = db()->fetchOne("SELECT * FROM {$strengthsTable} WHERE id = ? AND professional_summary_id = ?", [$id, $summary['id']]);
         if (!$strength) {
             return ['success' => false, 'error' => 'Strength not found'];
         }
@@ -191,7 +240,7 @@ function handleProfessionalSummary($action, $userId, $subscriptionContext) {
         }
         $strengthText = strip_tags($strengthText);
         
-        db()->update('professional_summary_strengths', ['strength' => $strengthText], 'id = ?', [$id]);
+        db()->update($strengthsTable, ['strength' => $strengthText], 'id = ?', [$id]);
         return ['success' => true, 'message' => 'Strength updated successfully'];
         
     } elseif ($action === 'delete_strength') {
@@ -199,11 +248,17 @@ function handleProfessionalSummary($action, $userId, $subscriptionContext) {
         if (empty($id)) {
             return ['success' => false, 'error' => 'Strength ID required'];
         }
-        $summary = db()->fetchOne("SELECT id FROM professional_summary WHERE profile_id = ?", [$userId]);
+        if ($isVariantContext) {
+            $summary = db()->fetchOne("SELECT id FROM cv_variant_professional_summary WHERE cv_variant_id = ?", [$variantId]);
+            $strengthsTable = 'cv_variant_professional_summary_strengths';
+        } else {
+            $summary = db()->fetchOne("SELECT id FROM professional_summary WHERE profile_id = ?", [$userId]);
+            $strengthsTable = 'professional_summary_strengths';
+        }
         if (!$summary) {
             return ['success' => false, 'error' => 'Summary not found'];
         }
-        db()->delete('professional_summary_strengths', 'id = ? AND professional_summary_id = ?', [$id, $summary['id']]);
+        db()->delete($strengthsTable, 'id = ? AND professional_summary_id = ?', [$id, $summary['id']]);
         return ['success' => true, 'message' => 'Strength deleted successfully'];
     }
     
@@ -211,6 +266,16 @@ function handleProfessionalSummary($action, $userId, $subscriptionContext) {
 }
 
 function handleWorkExperience($action, $userId, $subscriptionContext) {
+    $variantId = trim($_POST['variant_id'] ?? '');
+    $isVariantContext = !empty($variantId);
+    
+    if ($isVariantContext) {
+        $variant = db()->fetchOne("SELECT id FROM cv_variants WHERE id = ? AND user_id = ?", [$variantId, $userId]);
+        if (!$variant) {
+            return ['success' => false, 'error' => 'Variant not found'];
+        }
+    }
+    
     if ($action === 'create') {
         if (!planCanAddEntry($subscriptionContext, 'work_experience', $userId)) {
             return ['success' => false, 'error' => getPlanLimitMessage($subscriptionContext, 'work_experience')];
@@ -241,6 +306,26 @@ function handleWorkExperience($action, $userId, $subscriptionContext) {
             return ['success' => false, 'error' => getPlanWordLimitMessage($subscriptionContext, 'work_description')];
         }
         
+        if ($isVariantContext) {
+            $id = generateUuid();
+            $maxSort = db()->fetchOne("SELECT MAX(sort_order) as m FROM cv_variant_work_experience WHERE cv_variant_id = ?", [$variantId]);
+            $sortOrder = (int)($maxSort['m'] ?? 0) + 1;
+            db()->insert('cv_variant_work_experience', [
+                'id' => $id,
+                'cv_variant_id' => $variantId,
+                'company_name' => $companyName,
+                'position' => $position,
+                'start_date' => $startDate,
+                'end_date' => $_POST['end_date'] ?? null ?: null,
+                'description' => $description,
+                'sort_order' => $sortOrder,
+                'hide_date' => (int)($_POST['hide_date'] ?? 0),
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+            return ['success' => true, 'message' => 'Work experience added successfully', 'id' => $id];
+        }
+        
         $id = generateUuid();
         db()->insert('work_experience', [
             'id' => $id,
@@ -259,9 +344,28 @@ function handleWorkExperience($action, $userId, $subscriptionContext) {
         
     } elseif ($action === 'update') {
         $id = $_POST['id'] ?? '';
-        $existing = db()->fetchOne("SELECT id FROM work_experience WHERE id = ? AND profile_id = ?", [$id, $userId]);
-        if (!$existing) {
-            return ['success' => false, 'error' => 'Entry not found'];
+        
+        if ($isVariantContext) {
+            $existing = db()->fetchOne(
+                "SELECT w.id FROM cv_variant_work_experience w
+                 JOIN cv_variants v ON w.cv_variant_id = v.id
+                 WHERE w.id = ? AND v.user_id = ?",
+                [$id, $userId]
+            );
+            if (!$existing) {
+                return ['success' => false, 'error' => 'Entry not found'];
+            }
+            $table = 'cv_variant_work_experience';
+            $whereClause = 'id = ?';
+            $whereParams = [$id];
+        } else {
+            $existing = db()->fetchOne("SELECT id FROM work_experience WHERE id = ? AND profile_id = ?", [$id, $userId]);
+            if (!$existing) {
+                return ['success' => false, 'error' => 'Entry not found'];
+            }
+            $table = 'work_experience';
+            $whereClause = 'id = ? AND profile_id = ?';
+            $whereParams = [$id, $userId];
         }
         
         $companyName = trim($_POST['company_name'] ?? '');
@@ -285,21 +389,42 @@ function handleWorkExperience($action, $userId, $subscriptionContext) {
             return ['success' => false, 'error' => getPlanWordLimitMessage($subscriptionContext, 'work_description')];
         }
         
-        db()->update('work_experience', [
+        // Preserve sort_order on update – form does not send it; only reorder action changes it
+        $sortOrder = isset($_POST['sort_order']) ? (int)$_POST['sort_order'] : null;
+        if ($sortOrder === null) {
+            $existingRow = db()->fetchOne("SELECT sort_order FROM {$table} WHERE {$whereClause}", $whereParams);
+            $sortOrder = $existingRow ? (int)$existingRow['sort_order'] : 0;
+        }
+        
+        db()->update($table, [
             'company_name' => $companyName,
             'position' => $position,
             'start_date' => $startDate,
             'end_date' => $_POST['end_date'] ?? null ?: null,
             'description' => $description,
-            'sort_order' => (int)($_POST['sort_order'] ?? 0),
+            'sort_order' => $sortOrder,
             'hide_date' => (int)($_POST['hide_date'] ?? 0),
             'updated_at' => date('Y-m-d H:i:s')
-        ], 'id = ? AND profile_id = ?', [$id, $userId]);
+        ], $whereClause, $whereParams);
         return ['success' => true, 'message' => 'Work experience updated successfully'];
         
     } elseif ($action === 'delete') {
         $id = $_POST['entry_id'] ?? $_POST['id'] ?? '';
-        db()->delete('work_experience', 'id = ? AND profile_id = ?', [$id, $userId]);
+        
+        if ($isVariantContext) {
+            $existing = db()->fetchOne(
+                "SELECT w.id FROM cv_variant_work_experience w
+                 JOIN cv_variants v ON w.cv_variant_id = v.id
+                 WHERE w.id = ? AND v.user_id = ?",
+                [$id, $userId]
+            );
+            if (!$existing) {
+                return ['success' => false, 'error' => 'Entry not found'];
+            }
+            db()->delete('cv_variant_work_experience', 'id = ?', [$id]);
+        } else {
+            db()->delete('work_experience', 'id = ? AND profile_id = ?', [$id, $userId]);
+        }
         return ['success' => true, 'message' => 'Work experience deleted successfully'];
     }
     

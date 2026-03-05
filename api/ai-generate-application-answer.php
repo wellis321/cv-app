@@ -59,14 +59,29 @@ if (!$job) {
 
 // If client sends answer_text (browser AI already executed), save and return
 if ($browserAiResult !== '' && $questionId) {
-    $updated = updateJobApplicationQuestionAnswer($questionId, $userId, $browserAiResult);
+    $answerInstructions = $postAnswerInstructions;
+    if ($answerInstructions === null || $answerInstructions === '') {
+        $questions = getJobApplicationQuestions($applicationId, $userId);
+        foreach ($questions as $q) {
+            if ($q['id'] === $questionId) {
+                $answerInstructions = $q['answer_instructions'] ?? null;
+                break;
+            }
+        }
+    }
+    $toSave = $browserAiResult;
+    $maxChars = parseAnswerCharacterLimit($answerInstructions);
+    if ($maxChars !== null && function_exists('truncateToCharacterLimit')) {
+        $toSave = truncateToCharacterLimit($toSave, $maxChars);
+    }
+    $updated = updateJobApplicationQuestionAnswer($questionId, $userId, $toSave);
     if (!$updated['success']) {
         ob_end_clean();
         echo json_encode(['success' => false, 'error' => $updated['error'] ?? 'Failed to save answer']);
         exit;
     }
     ob_end_clean();
-    echo json_encode(['success' => true, 'answer_text' => $browserAiResult]);
+    echo json_encode(['success' => true, 'answer_text' => $toSave]);
     exit;
 }
 

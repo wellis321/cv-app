@@ -12,8 +12,9 @@ B2B CV Builder web application in vanilla PHP. Users create professional CVs wit
 # Install PHP dependencies (Twig templating)
 composer install
 
-# Run local development server
-php -S localhost:8000
+# Run local development server (use npm start for correct upload limits)
+npm start
+# or: php -d upload_max_filesize=25M -d post_max_size=26M -S localhost:8000
 
 # Build Tailwind CSS (run after changing templates/views)
 npm run build:css          # Full site CSS

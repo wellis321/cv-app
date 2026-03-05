@@ -58,11 +58,12 @@ if (!verifyCsrfToken($token)) {
     exit;
 }
 
-if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
+    if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
     $errorMsg = 'No file uploaded';
     if (isset($_FILES['file']['error'])) {
+        $limit = ini_get('upload_max_filesize');
         $uploadErrors = [
-            UPLOAD_ERR_INI_SIZE => 'File exceeds upload_max_filesize',
+            UPLOAD_ERR_INI_SIZE => 'File exceeds server limit (' . $limit . '). Try a smaller file or ask your host to increase upload_max_filesize.',
             UPLOAD_ERR_FORM_SIZE => 'File exceeds MAX_FILE_SIZE',
             UPLOAD_ERR_PARTIAL => 'File was only partially uploaded',
             UPLOAD_ERR_NO_FILE => 'No file was uploaded',

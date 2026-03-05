@@ -1,13 +1,4 @@
-/**
- * Escapes HTML special characters.
- * @param {string} value
- * @returns {string}
- */
-function escapeHtml(value) {
-    const div = document.createElement('div');
-    div.textContent = value ?? '';
-    return div.innerHTML;
-}
+import { escapeHtml, renderMarkdown } from '../preview-utils.js';
 
 /**
  * Formats a date string as MM/YYYY.
@@ -78,7 +69,7 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
                 html += `<div class="flex flex-wrap gap-3 mt-4 text-xs sm:text-sm">${contactBits.join('')}</div>`;
             }
             if (profile.bio && String(profile.bio).trim()) {
-                html += `<div class="mt-4 pt-4 border-t border-gray-200 text-sm sm:text-base"><p style="color:${bodyColor}" class="leading-relaxed">${escapeHtml(profile.bio)}</p></div>`;
+                html += `<div class="mt-4 pt-4 border-t border-gray-200 text-sm sm:text-base"><p style="color:${bodyColor}" class="leading-relaxed markdown-content">${renderMarkdown(profile.bio)}</p></div>`;
             }
             html += `</div>`;
             if (includePhoto && profile.photo_url) {
@@ -104,7 +95,7 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
                 html += `<div class="flex flex-wrap gap-3 mt-4 text-xs sm:text-sm">${contactBits.join('')}</div>`;
             }
             if (profile.bio && String(profile.bio).trim()) {
-                html += `<div class="mt-4 pt-4 border-t border-white/20 text-sm sm:text-base"><p class="text-white/90 leading-relaxed">${escapeHtml(profile.bio)}</p></div>`;
+                html += `<div class="mt-4 pt-4 border-t border-white/20 text-sm sm:text-base"><p class="text-white/90 leading-relaxed markdown-content">${renderMarkdown(profile.bio)}</p></div>`;
             }
             html += `</div>`;
             if (includePhoto && profile.photo_url) {
@@ -162,7 +153,7 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
     if (sections.interests && Array.isArray(cvData.interests) && cvData.interests.length > 0) {
         interestsHtml = '<section>' + addSectionHeading('Interests & Activities') + '<div class="space-y-3">';
         cvData.interests.forEach((interest) => {
-            interestsHtml += `<div class="rounded-lg border border-gray-200 bg-white/70 p-4 shadow-sm"><h3 class="text-sm font-semibold text-gray-800">${escapeHtml(interest.name)}</h3>${interest.description ? `<p class="mt-2 text-sm text-gray-600 leading-relaxed">${escapeHtml(interest.description)}</p>` : ''}</div>`;
+            interestsHtml += `<div class="rounded-lg border border-gray-200 bg-white/70 p-4 shadow-sm"><h3 class="text-sm font-semibold text-gray-800">${escapeHtml(interest.name)}</h3>${interest.description ? `<p class="mt-2 text-sm text-gray-600 leading-relaxed markdown-content">${renderMarkdown(interest.description)}</p>` : ''}</div>`;
         });
         interestsHtml += '</div></section>';
     }
@@ -171,7 +162,7 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
     if (sections.summary && cvData.professional_summary) {
         const s = cvData.professional_summary;
         summaryHtml = '<section>' + addSectionHeading('Professional Summary');
-        if (s.description) summaryHtml += `<p class="text-gray-700 mb-3 text-sm leading-relaxed">${escapeHtml(s.description)}</p>`;
+        if (s.description) summaryHtml += `<p class="text-gray-700 mb-3 text-sm leading-relaxed markdown-content">${renderMarkdown(s.description)}</p>`;
         if (s.strengths && s.strengths.length > 0) {
             summaryHtml += '<h3 class="font-semibold text-gray-800 mb-2 text-sm">Key Strengths:</h3><ul class="list-disc list-inside space-y-1 text-sm text-gray-700">';
             s.strengths.forEach((i) => { summaryHtml += `<li>${escapeHtml(i.strength)}</li>`; });
@@ -187,7 +178,7 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
             workHtml += `<div class="mb-6"><div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between mb-2"><div class="min-w-0"><h3 class="text-lg font-semibold text-gray-900">${escapeHtml(item.position)}</h3><p class="text-base text-gray-700">${escapeHtml(item.company_name)}</p></div>`;
             if (!item.hide_date) workHtml += `<div class="text-gray-600 text-sm sm:text-right whitespace-nowrap flex-shrink-0">${formatCvPreviewDate(item.start_date)}${item.end_date ? ' - ' + formatCvPreviewDate(item.end_date) : ' - Present'}</div>`;
             workHtml += '</div>';
-            if (item.description) workHtml += `<p class="text-gray-700 mb-3 text-sm leading-relaxed">${escapeHtml(item.description)}</p>`;
+            if (item.description) workHtml += `<p class="text-gray-700 mb-3 text-sm leading-relaxed markdown-content">${renderMarkdown(item.description)}</p>`;
             if (item.responsibility_categories && item.responsibility_categories.length > 0) {
                 item.responsibility_categories.forEach((cat) => {
                     if (cat.items && cat.items.length) {
@@ -210,7 +201,7 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
             projectsHtml += p.url ? `<h3 class="text-lg font-semibold text-gray-900"><a href="${escapeHtml(p.url)}" target="_blank" class="text-blue-700 hover:text-blue-900">${escapeHtml(p.title)}</a></h3>` : `<h3 class="text-lg font-semibold text-gray-900">${escapeHtml(p.title)}</h3>`;
             if (p.start_date) projectsHtml += `<div class="text-gray-600 text-sm whitespace-nowrap flex-shrink-0 sm:text-right">${formatCvPreviewDate(p.start_date)}${p.end_date ? ' - ' + formatCvPreviewDate(p.end_date) : ''}</div>`;
             projectsHtml += '</div>';
-            if (p.description) projectsHtml += `<p class="text-gray-700 text-sm leading-relaxed">${escapeHtml(p.description)}</p>`;
+            if (p.description) projectsHtml += `<p class="text-gray-700 text-sm leading-relaxed markdown-content">${renderMarkdown(p.description)}</p>`;
             projectsHtml += '</div>';
         });
         projectsHtml += '</section>';
@@ -221,7 +212,7 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
         qualHtml = '<section>' + addSectionHeading('Professional Qualification Equivalence');
         cvData.qualification_equivalence.forEach((q) => {
             qualHtml += `<div class="mb-4"><h3 class="font-semibold text-gray-900 text-sm mb-1">${escapeHtml(q.level)}</h3>`;
-            if (q.description) qualHtml += `<p class="text-gray-700 text-sm leading-relaxed">${escapeHtml(q.description)}</p>`;
+            if (q.description) qualHtml += `<p class="text-gray-700 text-sm leading-relaxed markdown-content">${renderMarkdown(q.description)}</p>`;
             if (q.evidence && q.evidence.length) {
                 qualHtml += '<ul class="list-disc space-y-1 pl-5 text-sm text-gray-700">';
                 q.evidence.forEach((e) => { qualHtml += `<li>${escapeHtml(e.content || e)}</li>`; });

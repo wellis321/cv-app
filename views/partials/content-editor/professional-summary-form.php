@@ -59,6 +59,7 @@ if ($editingStrengthId && $summary) {
             <input type="hidden" name="<?php echo CSRF_TOKEN_NAME; ?>" value="<?php echo csrfToken(); ?>">
             <input type="hidden" name="action" value="save">
             <input type="hidden" name="section_id" value="professional-summary">
+            <?php if ($variantId): ?><input type="hidden" name="variant_id" value="<?php echo e($variantId); ?>"><?php endif; ?>
             
             <div class="mb-4">
                 <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
@@ -85,6 +86,7 @@ if ($editingStrengthId && $summary) {
                 <input type="hidden" name="<?php echo CSRF_TOKEN_NAME; ?>" value="<?php echo csrfToken(); ?>">
                 <input type="hidden" name="action" value="update_strength">
                 <input type="hidden" name="section_id" value="professional-summary">
+                <?php if ($variantId): ?><input type="hidden" name="variant_id" value="<?php echo e($variantId); ?>"><?php endif; ?>
                 <input type="hidden" name="id" value="<?php echo e($editingStrength['id']); ?>">
                 
                 <div class="flex gap-2">
@@ -103,6 +105,7 @@ if ($editingStrengthId && $summary) {
                 <input type="hidden" name="<?php echo CSRF_TOKEN_NAME; ?>" value="<?php echo csrfToken(); ?>">
                 <input type="hidden" name="action" value="add_strength">
                 <input type="hidden" name="section_id" value="professional-summary">
+                <?php if ($variantId): ?><input type="hidden" name="variant_id" value="<?php echo e($variantId); ?>"><?php endif; ?>
                 
                 <div class="flex gap-2">
                     <input type="text" name="strength" placeholder="Add a strength" required maxlength="255" class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">

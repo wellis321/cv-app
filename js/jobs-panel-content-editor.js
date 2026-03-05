@@ -58,12 +58,20 @@
         return str.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&');
     }
 
-    /** If string looks like {"text":"...\" } or { "text": "...\" } strip wrapper and return inner text. */
+    /** If string looks like {"text":"..."} or { "key": "..." } strip wrapper and return inner text. */
     function stripJsonTextWrapper(str) {
         if (typeof str !== 'string') return str;
         var t = str.trim();
         if (t.charAt(0) !== '{') return str;
-        var prefixes = ['{"text":"', '{ "text": "', '{"text": "', '{ "text":"'];
+        try {
+            var parsed = JSON.parse(t);
+            if (parsed && typeof parsed === 'object') {
+                for (var k of ['text', 'content', 'result', 'formatted_text', 'formatted', 'output']) {
+                    if (typeof parsed[k] === 'string') return parsed[k];
+                }
+            }
+        } catch (e) { /* malformed JSON */ }
+        var prefixes = ['{"text":"', '{ "text": "', '{"text": "', '{ "text":"', '{"content":"', '{ "content": "'];
         var start = -1;
         for (var i = 0; i < prefixes.length; i++) {
             if (t.indexOf(prefixes[i]) === 0) {
@@ -71,16 +79,64 @@
                 break;
             }
         }
+        if (start === -1) {
+            var colonQuote = t.match(/^\s*\{\s*"[^"]*"\s*:\s*"\s*/);
+            if (colonQuote) start = colonQuote[0].length;
+        }
         if (start === -1) return str;
         var end = -1;
-        var suffixes = ['" }', '" }', '"}'];
-        for (var j = 0; j < suffixes.length; j++) {
-            var pos = t.lastIndexOf(suffixes[j]);
+        for (var s of ['" }', '" }', '"}', '" }']) {
+            var pos = t.lastIndexOf(s);
             if (pos > start && (end === -1 || pos > end)) end = pos;
         }
         if (end === -1) return str;
         var inner = t.slice(start, end);
         return inner.replace(/\\n/g, '\n').replace(/\\r/g, '\r').replace(/\\t/g, '\t').replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+    }
+
+    /** Convert HTML to markdown for the description textarea (headings, lists, paragraphs, tables). */
+    function htmlToMarkdown(html) {
+        if (!html || typeof html !== 'string') return '';
+        var div = document.createElement('div');
+        div.innerHTML = html;
+        var parts = [];
+        function textOf(el) { return (el && el.textContent || '').trim(); }
+        function walk(parent) {
+            var nodes = parent.childNodes || [];
+            for (var i = 0; i < nodes.length; i++) {
+                var n = nodes[i];
+                if (n.nodeType === 3) {
+                    var t = (n.textContent || '').trim();
+                    if (t) parts.push(t);
+                    continue;
+                }
+                if (n.nodeType !== 1) continue;
+                var tag = (n.tagName || '').toLowerCase();
+                if (tag === 'h1') { parts.push('\n\n# ' + textOf(n) + '\n'); continue; }
+                if (tag === 'h2') { parts.push('\n\n## ' + textOf(n) + '\n'); continue; }
+                if (tag === 'h3') { parts.push('\n\n### ' + textOf(n) + '\n'); continue; }
+                if (tag === 'h4' || tag === 'h5' || tag === 'h6') { parts.push('\n\n#### ' + textOf(n) + '\n'); continue; }
+                if (tag === 'p') { parts.push('\n\n' + textOf(n) + '\n'); continue; }
+                if (tag === 'br') { parts.push('\n'); continue; }
+                if (tag === 'ul' || tag === 'ol') {
+                    var items = n.querySelectorAll(':scope > li');
+                    for (var j = 0; j < items.length; j++) {
+                        parts.push('\n- ' + textOf(items[j]).replace(/\n/g, ' '));
+                    }
+                    parts.push('\n');
+                    continue;
+                }
+                if (tag === 'table') {
+                    parts.push('\n\n' + htmlTableToMarkdown(n) + '\n\n');
+                    continue;
+                }
+                if (tag === 'li') continue;
+                walk(n);
+            }
+        }
+        walk(div);
+        var md = parts.join('').replace(/\n{3,}/g, '\n\n').trim();
+        return md;
     }
 
     /** Convert HTML table element to markdown table string (for textarea display). */
@@ -554,7 +610,92 @@
             d.textContent = s;
             return d.innerHTML;
         }
+        function formatFileSize(bytes) {
+            if (!bytes) return '0 B';
+            var k = 1024, s = ['B', 'KB', 'MB', 'GB'];
+            var i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + s[i];
+        }
         var coverLetterContainerId = 'cover-letter-container-' + applicationId;
+
+        // File upload in view mode
+        var viewFileInput = document.getElementById('job-view-file-input');
+        var viewUploadArea = document.getElementById('job-view-upload-area');
+        var viewUploadStatus = document.getElementById('job-view-upload-status');
+        if (viewFileInput && viewUploadArea) {
+            viewUploadArea.addEventListener('click', function() { viewFileInput.click(); });
+            viewUploadArea.addEventListener('dragover', function(e) { e.preventDefault(); viewUploadArea.classList.add('border-blue-400', 'bg-blue-50'); });
+            viewUploadArea.addEventListener('dragleave', function(e) { e.preventDefault(); viewUploadArea.classList.remove('border-blue-400', 'bg-blue-50'); });
+            viewUploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                viewUploadArea.classList.remove('border-blue-400', 'bg-blue-50');
+                var files = Array.from(e.dataTransfer.files || []);
+                if (files.length) viewFileInput.files = e.dataTransfer.files;
+                viewFileInput.dispatchEvent(new Event('change'));
+            });
+            viewFileInput.addEventListener('change', function() {
+                var files = Array.from(viewFileInput.files || []);
+                viewFileInput.value = '';
+                if (!files.length) return;
+                files.forEach(function(file) {
+                    if (viewUploadStatus) {
+                        viewUploadStatus.classList.remove('hidden');
+                        viewUploadStatus.textContent = 'Uploading ' + file.name + '...';
+                        viewUploadStatus.className = 'text-sm mt-2 text-blue-600';
+                    }
+                    var fd = new FormData();
+                    fd.append('file', file);
+                    fd.append('application_id', applicationId);
+                    fd.append('file_purpose', 'other');
+                    fd.append('csrf_token', csrfToken);
+                    fetch('/api/upload-job-application-file.php', { method: 'POST', body: fd, credentials: 'include' })
+                        .then(function(r) { return r.json(); })
+                        .then(function(result) {
+                            if (result.success && result.file) {
+                                if (viewUploadStatus) {
+                                    viewUploadStatus.textContent = file.name + ' uploaded successfully';
+                                    viewUploadStatus.className = 'text-sm mt-2 text-green-600';
+                                }
+                                var list = document.getElementById('job-view-files-list');
+                                var emptyEl = document.getElementById('job-view-files-list-empty');
+                                var f = result.file;
+                                var name = f.custom_name || f.original_name || 'File';
+                                var size = formatFileSize(f.size);
+                                var url = f.url || '#';
+                                var rowHtml = '<div class="flex items-center justify-between px-4 py-3"><div class="flex items-center gap-3 min-w-0 flex-1"><svg class="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><div class="min-w-0"><p class="text-sm font-medium text-gray-900 truncate">' + esc(name) + '</p><p class="text-xs text-gray-500">' + esc(size) + '</p></div></div><a href="' + esc(url) + '" target="_blank" rel="noopener" download class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 ml-4 flex-shrink-0">Download</a></div>';
+                                if (emptyEl) {
+                                    var p = document.createElement('p');
+                                    p.className = 'text-xs text-gray-600 mb-3';
+                                    p.textContent = 'Documents attached to this application';
+                                    emptyEl.parentNode.insertBefore(p, emptyEl);
+                                    emptyEl.outerHTML = '<div id="job-view-files-list" class="border border-gray-200 rounded-lg bg-gray-50/50 divide-y divide-gray-200">' + rowHtml + '</div>';
+                                } else if (list) {
+                                    list.insertAdjacentHTML('afterbegin', rowHtml);
+                                }
+                                setTimeout(function() {
+                                    if (viewUploadStatus) {
+                                        viewUploadStatus.classList.add('hidden');
+                                        viewUploadStatus.textContent = '';
+                                    }
+                                }, 2000);
+                            } else {
+                                if (viewUploadStatus) {
+                                    viewUploadStatus.textContent = 'Upload failed: ' + (result.error || 'Unknown error');
+                                    viewUploadStatus.className = 'text-sm mt-2 text-red-600';
+                                }
+                                alert('Upload failed: ' + (result.error || 'Unknown error'));
+                            }
+                        })
+                        .catch(function(err) {
+                            if (viewUploadStatus) {
+                                viewUploadStatus.textContent = 'Upload failed. Please try again.';
+                                viewUploadStatus.className = 'text-sm mt-2 text-red-600';
+                            }
+                            alert('Upload failed. Please try again.');
+                        });
+                });
+            });
+        }
 
         function renderCoverLetterEmpty() {
             var el = document.getElementById(coverLetterContainerId);
@@ -589,6 +730,21 @@
             return html || '<p class="cl-para">' + esc(text).replace(/\n/g, '</p><p class="cl-para">') + '</p>';
         }
 
+        function buildCoverLetterPdfFilename(d) {
+            var fullName = (d.applicant_name || '').trim();
+            var parts = fullName ? fullName.split(/\s+/) : [];
+            var firstName = parts[0] ? String(parts[0]).replace(/[^a-zA-Z0-9\-]/g, '') : '';
+            var lastName = parts.length > 1 ? String(parts[parts.length - 1]).replace(/[^a-zA-Z0-9\-]/g, '') : '';
+            var safeFirst = firstName || 'First';
+            var safeLast = lastName || 'Last';
+            var companyName = (d.company_name || '').trim();
+            if (companyName) {
+                var safeCompany = companyName.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9\-]/g, '');
+                if (safeCompany) return safeCompany + '-' + safeFirst + '-' + safeLast + '-Cover-Letter.pdf';
+            }
+            return safeFirst + '-' + safeLast + '-Cover-Letter.pdf';
+        }
+
         function doExportCoverLetterPdf(coverLetterId) {
             if (!coverLetterId) return;
             fetch('/api/export-cover-letter-pdf.php?cover_letter_id=' + encodeURIComponent(coverLetterId), { credentials: 'include' })
@@ -599,37 +755,77 @@
                         return;
                     }
                     var d = result.cover_letter;
-                    var origin = window.location.origin || '';
-                    var photoSrc = d.photo_url ? (d.photo_url.indexOf('/') === 0 ? origin + d.photo_url : d.photo_url) : '';
-                    var headerHtml = '';
-                    if (photoSrc || d.applicant_name || d.professional_title || d.applicant_email || d.applicant_phone || d.applicant_location) {
-                        headerHtml = '<div class="cl-header">';
-                        if (photoSrc) headerHtml += '<img src="' + esc(photoSrc) + '" alt="" class="cl-photo">';
-                        headerHtml += '<div class="cl-header-right">';
-                        if (d.applicant_name) headerHtml += '<div class="cl-name">' + esc(d.applicant_name) + '</div>';
-                        if (d.professional_title) headerHtml += '<div class="cl-title">' + esc(d.professional_title) + '</div>';
-                        var contacts = [];
-                        if (d.applicant_phone) contacts.push(esc(d.applicant_phone));
-                        if (d.applicant_email) contacts.push(esc(d.applicant_email));
-                        if (d.applicant_location) contacts.push(esc(d.applicant_location));
-                        if (contacts.length) headerHtml += '<div class="cl-contact">' + contacts.join(' &bull; ') + '</div>';
-                        headerHtml += '</div></div>';
-                    }
-                    var recipientHtml = '<div class="cl-recipient">' + esc(d.date || '') + '</div>' +
-                        '<div class="cl-recipient-block">' + esc(d.company_name || '') + '<br>' + esc(d.job_title || '') + '</div>';
-                    var bodyHtml = '<div class="cl-body">' + formatCoverLetterContent(d.text || '') + '</div>';
-                    var year = new Date().getFullYear();
-                    var footerHtml = '<div class="cl-footer">' + esc(d.date || '') + ' &nbsp;|&nbsp; ' + esc(d.applicant_name || 'Applicant') + ' &ndash; Cover Letter</div>' +
-                        '<div class="cl-branding">Simple CV Builder Designed, Developed and Delivered by William Ellis. &copy; ' + year + '</div>';
-                    var styles = 'body{font-family:Georgia,"Times New Roman",serif;max-width:800px;margin:40px auto;padding:40px;line-height:1.6;color:#333}.cl-header{display:flex;gap:24px;margin-bottom:24px;align-items:flex-start}.cl-photo{width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid #c41e3a;flex-shrink:0}.cl-header-right{flex:1}.cl-name{font-size:24px;font-weight:bold;color:#222;margin-bottom:4px}.cl-title{font-size:14px;font-weight:bold;color:#c41e3a;margin-bottom:8px;text-transform:uppercase}.cl-contact{font-size:13px;color:#555}.cl-recipient{text-align:right;margin-bottom:16px;font-size:14px}.cl-recipient-block{margin-bottom:24px;font-size:14px;line-height:1.5}.cl-body{margin-bottom:24px}.cl-section{font-size:16px;font-weight:bold;color:#c41e3a;margin:20px 0 8px;padding-bottom:4px;border-bottom:1px solid #e5e5e5}.cl-section:first-child{margin-top:0}.cl-para{margin:0 0 12px}.cl-footer{margin-top:32px;padding-top:16px;border-top:1px solid #ddd;font-size:12px;color:#888}.cl-branding{margin-top:12px;font-size:11px;color:#888;text-align:center}';
-                    var fullHtml = '<!DOCTYPE html><html><head><title>Cover Letter - ' + esc(d.company_name || '') + '</title><style>' + styles + '</style></head><body>' + headerHtml + recipientHtml + bodyHtml + footerHtml + '</body></html>';
-                    var pw = window.open('', '_blank');
-                    if (pw) {
-                        pw.document.write(fullHtml);
-                        pw.document.close();
-                        pw.print();
+                    var c = d.template_colors || {};
+                    var accent = c.accent || '#2563eb';
+                    var headerColor = c.header || '#1f2937';
+                    var bodyColor = c.body || '#374151';
+                    var mutedColor = c.muted || '#6b7280';
+                    if (typeof pdfMake !== 'undefined') {
+                        var year = new Date().getFullYear();
+                        var footerParts = [{ text: 'Simple CV Builder Designed, Developed and Delivered by William Ellis. \u00a9 ' + year }];
+                        var siteUrl = window.location.origin;
+                        if (siteUrl) footerParts.push({ text: ' ', fontSize: 7 }, { text: 'simple-cv-builder.com', link: siteUrl, fontSize: 7 });
+                        var content = [];
+                        if (d.applicant_name || d.professional_title) {
+                            content.push({ text: d.applicant_name || '', style: 'applicantName', margin: [0, 0, 0, 2] });
+                            if (d.professional_title) content.push({ text: d.professional_title, style: 'applicantTitle', margin: [0, 0, 0, 8] });
+                            var contactParts = [d.applicant_phone, d.applicant_email, d.applicant_location].filter(Boolean);
+                            if (contactParts.length) content.push({ text: contactParts.join(' \u2022 '), style: 'applicantContact', margin: [0, 0, 0, 20] });
+                        }
+                        content.push({ text: d.date || '', alignment: 'right', style: 'date', margin: [0, 0, 0, 20] });
+                        content.push({ text: d.company_name || '', style: 'company', margin: [0, 0, 0, 5] });
+                        content.push({ text: d.job_title || '', style: 'jobTitle', margin: [0, 0, 0, 30] });
+                        content.push({ text: d.text || '', style: 'body', margin: [0, 0, 0, 20] });
+                        var docDefinition = {
+                            pageSize: 'A4',
+                            pageMargins: [40, 60, 40, 60],
+                            footer: function() { return { text: footerParts, alignment: 'center', fontSize: 7, color: mutedColor, margin: [0, 10, 0, 0] }; },
+                            content: content,
+                            styles: {
+                                applicantName: { fontSize: 22, bold: true, color: headerColor },
+                                applicantTitle: { fontSize: 12, bold: true, color: accent },
+                                applicantContact: { fontSize: 10, color: mutedColor },
+                                date: { fontSize: 11, color: mutedColor },
+                                company: { fontSize: 14, bold: true, color: headerColor, margin: [0, 0, 0, 5] },
+                                jobTitle: { fontSize: 12, color: bodyColor, margin: [0, 0, 0, 30] },
+                                body: { fontSize: 11, lineHeight: 1.6, color: bodyColor }
+                            }
+                        };
+                        var filename = buildCoverLetterPdfFilename(d);
+                        pdfMake.createPdf(docDefinition).download(filename);
                     } else {
-                        alert('Please allow pop-ups to export the cover letter.');
+                        var origin = window.location.origin || '';
+                        var photoSrc = d.photo_url ? (d.photo_url.indexOf('/') === 0 ? origin + d.photo_url : d.photo_url) : '';
+                        var headerHtml = '';
+                        if (photoSrc || d.applicant_name || d.professional_title || d.applicant_email || d.applicant_phone || d.applicant_location) {
+                            headerHtml = '<div class="cl-header">';
+                            if (photoSrc) headerHtml += '<img src="' + esc(photoSrc) + '" alt="" class="cl-photo">';
+                            headerHtml += '<div class="cl-header-right">';
+                            if (d.applicant_name) headerHtml += '<div class="cl-name">' + esc(d.applicant_name) + '</div>';
+                            if (d.professional_title) headerHtml += '<div class="cl-title">' + esc(d.professional_title) + '</div>';
+                            var contacts = [];
+                            if (d.applicant_phone) contacts.push(esc(d.applicant_phone));
+                            if (d.applicant_email) contacts.push(esc(d.applicant_email));
+                            if (d.applicant_location) contacts.push(esc(d.applicant_location));
+                            if (contacts.length) headerHtml += '<div class="cl-contact">' + contacts.join(' \u2022 ') + '</div>';
+                            headerHtml += '</div></div>';
+                        }
+                        var recipientHtml = '<div class="cl-recipient">' + esc(d.date || '') + '</div>' +
+                            '<div class="cl-recipient-block">' + esc(d.company_name || '') + '<br>' + esc(d.job_title || '') + '</div>';
+                        var bodyHtml = '<div class="cl-body">' + formatCoverLetterContent(d.text || '') + '</div>';
+                        var year = new Date().getFullYear();
+                        var footerHtml = '<div class="cl-footer">' + esc(d.date || '') + ' \u00a0|\u00a0 ' + esc(d.applicant_name || 'Applicant') + ' \u2013 Cover Letter</div>' +
+                            '<div class="cl-branding">Simple CV Builder Designed, Developed and Delivered by William Ellis. \u00a9 ' + year + '</div>';
+                        var styles = 'body{font-family:Georgia,"Times New Roman",serif;max-width:800px;margin:40px auto;padding:40px;line-height:1.6;color:' + (bodyColor) + '}.cl-header{display:flex;gap:24px;margin-bottom:24px;align-items:flex-start}.cl-photo{width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid ' + accent + ';flex-shrink:0}.cl-header-right{flex:1}.cl-name{font-size:24px;font-weight:bold;color:' + (headerColor) + ';margin-bottom:4px}.cl-title{font-size:14px;font-weight:bold;color:' + accent + ';margin-bottom:8px;text-transform:uppercase}.cl-contact{font-size:13px;color:' + (mutedColor) + '}.cl-recipient{text-align:right;margin-bottom:16px;font-size:14px;color:' + (mutedColor) + '}.cl-recipient-block{margin-bottom:24px;font-size:14px;line-height:1.5}.cl-body{margin-bottom:24px}.cl-section{font-size:16px;font-weight:bold;color:' + accent + ';margin:20px 0 8px;padding-bottom:4px;border-bottom:1px solid #e5e5e5}.cl-section:first-child{margin-top:0}.cl-para{margin:0 0 12px}.cl-footer{margin-top:32px;padding-top:16px;border-top:1px solid #ddd;font-size:12px;color:' + (mutedColor) + '}.cl-branding{margin-top:12px;font-size:11px;color:' + (mutedColor) + ';text-align:center}';
+                        var fullHtml = '<!DOCTYPE html><html><head><title>Cover Letter - ' + esc(d.company_name || '') + '</title><style>' + styles + '</style></head><body>' + headerHtml + recipientHtml + bodyHtml + footerHtml + '</body></html>';
+                        var pw = window.open('', '_blank');
+                        if (pw) {
+                            pw.document.write(fullHtml);
+                            pw.document.close();
+                            pw.print();
+                        } else {
+                            alert('Please allow pop-ups to export the cover letter.');
+                        }
                     }
                 })
                 .catch(function() { alert('Could not export cover letter.'); });
@@ -884,6 +1080,134 @@
             })();
         }
 
+        function renderPersonalStatementFilled(text) {
+            var wc = (text || '').trim().split(/\s+/).filter(Boolean).length;
+            var escaped = (function(s) {
+                if (!s) return '';
+                var d = document.createElement('div');
+                d.textContent = s;
+                return d.innerHTML;
+            })(text || '');
+            return '<div class="border border-gray-200 rounded-lg bg-gray-50/50 p-4">' +
+                '<div class="flex justify-between items-start gap-4 mb-3">' +
+                '<span class="text-xs font-medium text-gray-500">' + wc + ' words</span>' +
+                '<label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">' +
+                '<input type="checkbox" id="personal-statement-humanize-' + applicationId + '" class="rounded border-gray-300" checked>' +
+                '<span>Reduce AI detection (extra pass)</span></label></div>' +
+                '<textarea id="personal-statement-text-' + applicationId + '" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-green-500 focus:border-green-500 min-h-[280px] font-medium text-gray-900" placeholder="Personal statement...">' + escaped + '</textarea>' +
+                '<div class="flex flex-wrap gap-2 mt-3">' +
+                '<button type="button" data-personal-statement-regenerate class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-white bg-green-600 rounded-md hover:bg-green-700">' +
+                '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg> Regenerate with AI</button>' +
+                '<button type="button" data-personal-statement-save class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">Save changes</button></div></div>';
+        }
+
+        function doGeneratePersonalStatement(btn) {
+            if (btn.disabled) return;
+            btn.disabled = true;
+            var origHtml = btn.innerHTML;
+            btn.innerHTML = '<svg class="animate-spin h-4 w-4 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Generating…';
+            var formData = new FormData();
+            formData.append('job_application_id', applicationId);
+            formData.append('csrf_token', csrfToken || '');
+            var linkedVariantId = container.getAttribute('data-linked-variant-id');
+            if (linkedVariantId) formData.append('cv_variant_id', linkedVariantId);
+            var humanizeCb = document.getElementById('personal-statement-humanize-' + applicationId);
+            if (humanizeCb && humanizeCb.checked) formData.append('humanize_further', '1');
+            var lengthInput = document.getElementById('personal-statement-length-' + applicationId);
+            if (lengthInput && lengthInput.value.trim()) formData.append('length_instructions', lengthInput.value.trim());
+            fetch('/api/ai-generate-personal-statement.php', { method: 'POST', body: formData, credentials: 'include' })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.success && !data.browser_execution && data.personal_statement_text) {
+                        var containerEl = document.getElementById('personal-statement-container-' + applicationId);
+                        if (containerEl) {
+                            containerEl.innerHTML = renderPersonalStatementFilled(data.personal_statement_text);
+                        } else {
+                            if (typeof window.contentEditor !== 'undefined' && window.contentEditor.loadSection) {
+                                window.contentEditor.loadSection('jobs');
+                            } else {
+                                location.reload();
+                            }
+                        }
+                    } else if (data.success && !data.browser_execution) {
+                        if (typeof window.contentEditor !== 'undefined' && window.contentEditor.loadSection) {
+                            window.contentEditor.loadSection('jobs');
+                        } else {
+                            location.reload();
+                        }
+                    } else if (data.success && data.browser_execution && typeof BrowserAIService !== 'undefined' && BrowserAIService.generateText) {
+                        BrowserAIService.initBrowserAI(data.model_type || 'webllm', data.model).then(function() {
+                            return BrowserAIService.generateText(data.prompt, { temperature: 0.5, maxTokens: 1200 });
+                        }).then(function(text) {
+                            var rawText = (text || '').replace(/^\s*(assistant|user|system)\b[^\n]*\n?/gmi, '').replace(/\n\s*(assistant|user|system)\b[^\n]*\n?/gmi, '\n').replace(/\b(user|assistant|system)\b\s*[:.-]\s*/gi, '');
+                            if (typeof BrowserAIService !== 'undefined' && BrowserAIService.humanizeText) rawText = BrowserAIService.humanizeText(rawText);
+                            var saveFd = new FormData();
+                            saveFd.append('job_application_id', applicationId);
+                            saveFd.append('csrf_token', csrfToken || '');
+                            saveFd.append('personal_statement_text', rawText || '');
+                            var lenInp = document.getElementById('personal-statement-length-' + applicationId);
+                            if (lenInp && lenInp.value.trim()) saveFd.append('length_instructions', lenInp.value.trim());
+                            return fetch('/api/ai-generate-personal-statement.php', { method: 'POST', body: saveFd, credentials: 'include' });
+                        }).then(function(r) { return r.json(); }).then(function(saveResult) {
+                            if (saveResult.success && saveResult.personal_statement_text) {
+                                var containerEl = document.getElementById('personal-statement-container-' + applicationId);
+                                if (containerEl) {
+                                    containerEl.innerHTML = renderPersonalStatementFilled(saveResult.personal_statement_text);
+                                } else {
+                                    if (typeof window.contentEditor !== 'undefined' && window.contentEditor.loadSection) {
+                                        window.contentEditor.loadSection('jobs');
+                                    } else {
+                                        location.reload();
+                                    }
+                                }
+                            } else if (saveResult.success) {
+                                if (typeof window.contentEditor !== 'undefined' && window.contentEditor.loadSection) {
+                                    window.contentEditor.loadSection('jobs');
+                                } else {
+                                    location.reload();
+                                }
+                            } else {
+                                alert(saveResult.error || 'Failed to save');
+                            }
+                        }).catch(function(err) {
+                            alert('Browser AI failed: ' + (err.message || 'Please try again.'));
+                        });
+                    } else {
+                        alert(data.error || 'Could not generate');
+                    }
+                })
+                .catch(function(err) {
+                    alert('Could not generate. Check your connection.');
+                })
+                .finally(function() {
+                    btn.disabled = false;
+                    btn.innerHTML = origHtml;
+                });
+        }
+
+        function doSavePersonalStatement() {
+            var ta = document.getElementById('personal-statement-text-' + applicationId);
+            if (!ta) return;
+            var btn = container.querySelector('[data-personal-statement-save]');
+            if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+            fetch('/api/job-applications.php?id=' + encodeURIComponent(applicationId), {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ personal_statement: ta.value, csrf_token: csrfToken }),
+                credentials: 'include'
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(result) {
+                if (result.success) {
+                    if (btn) { btn.textContent = 'Saved'; setTimeout(function() { btn.textContent = 'Save changes'; }, 1500); }
+                } else {
+                    alert(result.error || 'Could not save');
+                }
+            })
+            .catch(function() { alert('Could not save.'); })
+            .finally(function() { if (btn) btn.disabled = false; });
+        }
+
         function doGenerateCoverLetter() {
             var overlay = document.createElement('div');
             overlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
@@ -1003,23 +1327,57 @@
                     var id = editLink.getAttribute('data-edit-id');
                     if (id) window.location.hash = '#jobs&edit=' + id;
                 }
+                var psGen = e.target.closest('[data-personal-statement-generate]');
+                var psRegen = e.target.closest('[data-personal-statement-regenerate]');
+                var psSave = e.target.closest('[data-personal-statement-save]');
+                if (psGen || psRegen) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    doGeneratePersonalStatement(psGen || psRegen);
+                } else if (psSave) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    doSavePersonalStatement();
+                }
             });
         }
 
         var aiCvBtn = container.querySelector('[data-ai-cv-generate]');
         if (aiCvBtn) {
             var aiCvBtnOriginalHtml = aiCvBtn.innerHTML;
+            function setBtnState(loading) {
+                aiCvBtn.disabled = loading;
+                aiCvBtn.innerHTML = loading
+                    ? '<svg class="animate-spin h-4 w-4 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Generating...'
+                    : aiCvBtnOriginalHtml;
+            }
+            function setBtnText(txt) {
+                aiCvBtn.innerHTML = '<svg class="animate-spin h-4 w-4 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> ' + (txt || 'Generating...');
+            }
             aiCvBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 if (!confirm('This will generate a new AI-rewritten CV variant for this job application. Continue?')) return;
-                aiCvBtn.disabled = true;
-                aiCvBtn.innerHTML = '<svg class="animate-spin h-4 w-4 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Generating...';
+                setBtnState(true);
                 var fd = new FormData();
                 fd.append('csrf_token', csrfToken || '');
                 fd.append('job_application_id', applicationId);
                 fetch('/api/ai-rewrite-cv.php', { method: 'POST', body: fd, credentials: 'include' })
                     .then(function(r) { return r.json(); })
                     .then(function(result) {
+                        if (result.success && result.browser_execution) {
+                            executeBrowserAICv(fd, result, setBtnText, function() {
+                                setBtnState(false);
+                                alert('CV generated successfully!');
+                                window.location.hash = '#cv-variants';
+                                if (typeof window.contentEditor !== 'undefined' && typeof window.contentEditor.loadSection === 'function') {
+                                    setTimeout(function() { window.contentEditor.loadSection('cv-variants'); }, 300);
+                                }
+                            }, function(err) {
+                                setBtnState(false);
+                                alert('Browser AI Error: ' + (err.message || 'Please try again.'));
+                            });
+                            return;
+                        }
                         if (result.success) {
                             alert('CV generated successfully!');
                             window.location.hash = '#cv-variants';
@@ -1034,15 +1392,91 @@
                         } else {
                             alert('Error: ' + (result.error || 'Failed to generate CV'));
                         }
-                        aiCvBtn.disabled = false;
-                        aiCvBtn.innerHTML = aiCvBtnOriginalHtml;
+                        setBtnState(false);
                     })
                     .catch(function() {
                         alert('An error occurred. Please try again.');
-                        aiCvBtn.disabled = false;
-                        aiCvBtn.innerHTML = aiCvBtnOriginalHtml;
+                        setBtnState(false);
                     });
             });
+        }
+
+        async function executeBrowserAICv(originalFd, result, setBtnText, onSuccess, onError) {
+            try {
+                if (typeof BrowserAIService === 'undefined') {
+                    throw new Error('Browser AI service not available. Please refresh the page.');
+                }
+                var support = BrowserAIService.checkBrowserSupport();
+                if (!support.required) {
+                    throw new Error('Browser does not support WebGPU or WebGL. Browser AI requires a modern browser with GPU support.');
+                }
+                setBtnText('Loading AI model. This may take a few minutes on first use...');
+                var modelType = result.model_type === 'webllm' ? 'webllm' : 'tensorflow';
+                await BrowserAIService.initBrowserAI(modelType, result.model || 'llama3.2', function(progress) {
+                    if (progress && progress.message) setBtnText(progress.message);
+                });
+                setBtnText('Rewriting CV... This may take 30-60 seconds.');
+                var rewrittenText = await BrowserAIService.generateText(result.prompt || '', { temperature: 0.7, maxTokens: 8000 });
+                if (!rewrittenText || !rewrittenText.trim()) {
+                    throw new Error('Browser AI returned empty response. Please try again.');
+                }
+                var rewrittenData;
+                try {
+                    rewrittenData = BrowserAIService.parseCvRewriteJsonFromAI(rewrittenText);
+                } catch (parseErr) {
+                    throw new Error(parseErr.message || 'Failed to parse AI response. The AI may have returned malformed JSON. Please try again.');
+                }
+                if (typeof BrowserAIService.humanizeObjectStrings === 'function') {
+                    rewrittenData = BrowserAIService.humanizeObjectStrings(rewrittenData);
+                }
+                // Normalise professional_summary: AI may return professionalSummary, "Professional Summary", etc.
+                var ps = rewrittenData.professional_summary ?? rewrittenData.professionalSummary ?? rewrittenData['Professional Summary'];
+                if (ps !== undefined) {
+                    rewrittenData.professional_summary = typeof ps === 'string'
+                        ? { description: ps }
+                        : (ps && typeof ps === 'object' && (ps.description !== undefined || ps.summary !== undefined)
+                            ? { description: ps.description ?? ps.summary ?? '' }
+                            : ps);
+                }
+                // Ensure work experience IDs match original so API merge finds them (AI often omits or alters ids)
+                var cvData = result.cv_data || {};
+                if (cvData.work_experience && rewrittenData.work_experience) {
+                    var origWork = cvData.work_experience;
+                    rewrittenData.work_experience = rewrittenData.work_experience.map(function(rw, idx) {
+                        var copy = typeof rw === 'object' && rw !== null ? Object.assign({}, rw) : { description: rw };
+                        var orig = origWork[idx];
+                        if (orig && (orig.id !== undefined || orig.original_work_experience_id !== undefined)) {
+                            copy.id = String(orig.id || orig.original_work_experience_id);
+                        }
+                        if (orig && !copy.position && orig.position) copy.position = orig.position;
+                        if (orig && !copy.company_name && orig.company_name) copy.company_name = orig.company_name;
+                        return copy;
+                    });
+                }
+                if (typeof BrowserAIService.cleanup === 'function') {
+                    await BrowserAIService.cleanup();
+                }
+                var saveFd = new FormData();
+                saveFd.append('csrf_token', originalFd.get('csrf_token') || '');
+                saveFd.append('job_application_id', originalFd.get('job_application_id') || '');
+                saveFd.append('browser_ai_result', JSON.stringify(rewrittenData));
+                saveFd.append('sections_to_rewrite', JSON.stringify(['professional_summary', 'work_experience', 'skills']));
+                var saveRes = await fetch('/api/ai-rewrite-cv.php', { method: 'POST', body: saveFd, credentials: 'include' });
+                var saveResult = await saveRes.json();
+                if (saveResult.success) {
+                    onSuccess();
+                } else if (saveResult.error && saveResult.error.indexOf('already exists') !== -1) {
+                    window.location.hash = '#jobs&view=' + (originalFd.get('job_application_id') || '');
+                    if (typeof window.contentEditor !== 'undefined' && typeof window.contentEditor.loadSection === 'function') {
+                        setTimeout(function() { window.contentEditor.loadSection('jobs'); }, 300);
+                    }
+                    onSuccess();
+                } else {
+                    throw new Error(saveResult.error || 'Failed to save CV');
+                }
+            } catch (err) {
+                onError(err);
+            }
         }
     };
 
@@ -1079,6 +1513,7 @@
             g('form-remote').value = jobData.remote_type || 'onsite';
             g('form-url').value = decodeHtmlEntities(jobData.application_url || '');
             g('form-notes').value = decodeHtmlEntities(jobData.notes || '');
+            if (g('form-personal-statement')) g('form-personal-statement').value = decodeHtmlEntities(jobData.personal_statement || '');
             g('form-date').value = (jobData.application_date || '').toString().split(' ')[0];
             g('form-followup').value = (jobData.next_follow_up || '').toString().split(' ')[0];
             g('form-interview').checked = !!jobData.had_interview;
@@ -1144,30 +1579,16 @@
                 if (deleteBtn) {
                     var id = deleteBtn.getAttribute('data-file-id');
                     if (!confirm('Delete this file?')) return;
-                    // #region agent log
-                    fetch('http://127.0.0.1:7250/ingest/02ed2acd-ae27-46f6-8e5d-0a67a71118e5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'902fb4'},body:JSON.stringify({sessionId:'902fb4',location:'jobs-panel-content-editor.js:delete',message:'delete_click',data:{file_id:id,csrf_present:!!csrfToken},hypothesisId:'F',timestamp:Date.now()})}).catch(function(){});
-                    // #endregion
                     var fd = new FormData();
                     fd.append('file_id', id);
                     fd.append('csrf_token', csrfToken);
                     fetch('/api/delete-job-application-file.php', { method: 'POST', body: fd, credentials: 'include' })
-                        .then(function(r) {
-                            // #region agent log
-                            fetch('http://127.0.0.1:7250/ingest/02ed2acd-ae27-46f6-8e5d-0a67a71118e5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'902fb4'},body:JSON.stringify({sessionId:'902fb4',location:'jobs-panel-content-editor.js:delete',message:'delete_response',data:{ok:r.ok,status:r.status},hypothesisId:'G',timestamp:Date.now()})}).catch(function(){});
-                            // #endregion
-                            return r.json();
-                        })
+                        .then(function(r) { return r.json(); })
                         .then(function(d) {
-                            // #region agent log
-                            fetch('http://127.0.0.1:7250/ingest/02ed2acd-ae27-46f6-8e5d-0a67a71118e5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'902fb4'},body:JSON.stringify({sessionId:'902fb4',location:'jobs-panel-content-editor.js:delete',message:'delete_result',data:{success:!!d&&d.success,error:(d&&d.error)||null},hypothesisId:'H',timestamp:Date.now()})}).catch(function(){});
-                            // #endregion
                             if (d.success) { currentFiles = currentFiles.filter(function(f) { return f.id !== id; }); renderFiles(); }
                             else alert(d.error || 'Could not delete');
                         })
                         .catch(function(err) {
-                            // #region agent log
-                            fetch('http://127.0.0.1:7250/ingest/02ed2acd-ae27-46f6-8e5d-0a67a71118e5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'902fb4'},body:JSON.stringify({sessionId:'902fb4',location:'jobs-panel-content-editor.js:delete',message:'delete_catch',data:{err:String(err)},hypothesisId:'I',timestamp:Date.now()})}).catch(function(){});
-                            // #endregion
                             alert('Could not delete file.');
                         });
                     return;
@@ -1196,7 +1617,7 @@
                                     }
                                 }
                                 if (r.ok && text && text.trim()) {
-                                    var isHtml = /<\s*table[\s>]|<\s*tr\s|<\s*td\s|<\s*th\s/i.test(text);
+                                    var isHtml = /<\s*table[\s>]|<\s*tr\s|<\s*td\s|<\s*th\s|<\s*h[1-6][\s>]|<\s*p[\s>]|<\s*ul[\s>]|<\s*ol[\s>]/i.test(text);
                                     if (!isHtml) text = decodeHtmlEntitiesInText(text);
                                     var editableEl = g('job-description-editable');
                                     var textareaEl = g('form-description');
@@ -1204,7 +1625,7 @@
                                         if (isHtml) editableEl.innerHTML = text; else editableEl.textContent = text;
                                         editableEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                                     } else if (textareaEl) {
-                                        textareaEl.value = text;
+                                        textareaEl.value = isHtml ? htmlToMarkdown(text) : text;
                                         textareaEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                                     } else {
                                         alert('Text extracted but the description field was not found. Please try again.');
@@ -1272,6 +1693,7 @@
                     job_description: fd.get('job_description'),
                     application_date: fd.get('application_date'),
                     status: fd.get('status'),
+                    personal_statement: fd.get('personal_statement'),
                     salary_range: fd.get('salary_range'),
                     job_location: fd.get('job_location'),
                     remote_type: fd.get('remote_type'),
@@ -1306,10 +1728,30 @@
             });
         }
         if (fileInput && uploadArea) {
+            var uploadAreaOrigHtml = uploadArea.innerHTML;
             uploadArea.addEventListener('click', function() { fileInput.click(); });
+            uploadArea.addEventListener('dragover', function(e) { e.preventDefault(); uploadArea.classList.add('border-blue-400', 'bg-blue-50'); });
+            uploadArea.addEventListener('dragleave', function(e) { e.preventDefault(); uploadArea.classList.remove('border-blue-400', 'bg-blue-50'); });
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                uploadArea.classList.remove('border-blue-400', 'bg-blue-50');
+                var files = Array.from(e.dataTransfer.files || []);
+                if (files.length) { fileInput.files = e.dataTransfer.files; fileInput.dispatchEvent(new Event('change')); }
+            });
             fileInput.addEventListener('change', function() {
                 var files = Array.from(fileInput.files || []);
                 fileInput.value = '';
+                if (!files.length) return;
+                var pending = files.length;
+                uploadArea.innerHTML = '<span class="text-blue-600">Uploading ' + (files.length > 1 ? files.length + ' files' : files[0].name) + '...</span>';
+                uploadArea.classList.add('pointer-events-none');
+                function done() {
+                    pending--;
+                    if (pending <= 0) {
+                        uploadArea.innerHTML = uploadAreaOrigHtml;
+                        uploadArea.classList.remove('pointer-events-none');
+                    }
+                }
                 files.forEach(function(file) {
                     var formData = new FormData();
                     formData.append('file', file);
@@ -1322,9 +1764,15 @@
                             if (result.success && result.file) {
                                 currentFiles.push(result.file);
                                 renderFiles();
-                            } else alert(result.error || 'Upload failed');
+                            } else {
+                                alert('Upload failed: ' + (result.error || 'Unknown error'));
+                            }
+                            done();
                         })
-                        .catch(function() { alert('Upload failed.'); });
+                        .catch(function() {
+                            alert('Upload failed. Please try again.');
+                            done();
+                        });
                 });
             });
         }
@@ -1404,30 +1852,16 @@
                 if (deleteBtn) {
                     var id = deleteBtn.getAttribute('data-file-id');
                     if (!confirm('Delete this file?')) return;
-                    // #region agent log
-                    fetch('http://127.0.0.1:7250/ingest/02ed2acd-ae27-46f6-8e5d-0a67a71118e5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'902fb4'},body:JSON.stringify({sessionId:'902fb4',location:'jobs-panel-content-editor.js:delete',message:'delete_click',data:{file_id:id,csrf_present:!!csrfToken},hypothesisId:'F',timestamp:Date.now()})}).catch(function(){});
-                    // #endregion
                     var fd = new FormData();
                     fd.append('file_id', id);
                     fd.append('csrf_token', csrfToken);
                     fetch('/api/delete-job-application-file.php', { method: 'POST', body: fd, credentials: 'include' })
-                        .then(function(r) {
-                            // #region agent log
-                            fetch('http://127.0.0.1:7250/ingest/02ed2acd-ae27-46f6-8e5d-0a67a71118e5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'902fb4'},body:JSON.stringify({sessionId:'902fb4',location:'jobs-panel-content-editor.js:delete',message:'delete_response',data:{ok:r.ok,status:r.status},hypothesisId:'G',timestamp:Date.now()})}).catch(function(){});
-                            // #endregion
-                            return r.json();
-                        })
+                        .then(function(r) { return r.json(); })
                         .then(function(d) {
-                            // #region agent log
-                            fetch('http://127.0.0.1:7250/ingest/02ed2acd-ae27-46f6-8e5d-0a67a71118e5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'902fb4'},body:JSON.stringify({sessionId:'902fb4',location:'jobs-panel-content-editor.js:delete',message:'delete_result',data:{success:!!d&&d.success,error:(d&&d.error)||null},hypothesisId:'H',timestamp:Date.now()})}).catch(function(){});
-                            // #endregion
                             if (d.success) { currentFiles = currentFiles.filter(function(f) { return f.id !== id; }); renderFiles(); }
                             else alert(d.error || 'Could not delete');
                         })
                         .catch(function(err) {
-                            // #region agent log
-                            fetch('http://127.0.0.1:7250/ingest/02ed2acd-ae27-46f6-8e5d-0a67a71118e5',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'902fb4'},body:JSON.stringify({sessionId:'902fb4',location:'jobs-panel-content-editor.js:delete',message:'delete_catch',data:{err:String(err)},hypothesisId:'I',timestamp:Date.now()})}).catch(function(){});
-                            // #endregion
                             alert('Could not delete file.');
                         });
                     return;
@@ -1456,14 +1890,11 @@
                                     }
                                 }
                                 if (r.ok && text && text.trim()) {
-                                    var isHtml = /<\s*table[\s>]|<\s*tr\s|<\s*td\s|<\s*th\s/i.test(text);
+                                    var isHtml = /<\s*table[\s>]|<\s*tr\s|<\s*td\s|<\s*th\s|<\s*h[1-6][\s>]|<\s*p[\s>]|<\s*ul[\s>]|<\s*ol[\s>]/i.test(text);
                                     var descEl = document.getElementById('form-description');
                                     if (descEl) {
                                         if (isHtml) {
-                                            var div = document.createElement('div');
-                                            div.innerHTML = text;
-                                            var tbl = div.querySelector('table');
-                                            descEl.value = tbl ? htmlTableToMarkdown(tbl) : text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+                                            descEl.value = htmlToMarkdown(text);
                                         } else {
                                             descEl.value = decodeHtmlEntitiesInText(text);
                                         }
@@ -1509,10 +1940,68 @@
         var fileInput = document.getElementById('file-input');
         var uploadArea = document.getElementById('file-upload-area');
         var pendingFiles = []; // Store files to upload after application is created
-        
+        var formSubmitting = false; // Guard against double submit
+        var duplicateCheckTimeout = null;
+        var lastDuplicateExistingId = null;
+
+        // Live duplicate check when company and title are entered (debounced)
+        function runDuplicateCheck() {
+            var companyEl = document.getElementById('form-company');
+            var titleEl = document.getElementById('form-job-title');
+            var warningEl = document.getElementById('duplicate-job-warning');
+            var viewLink = container.querySelector('[data-view-existing-job]');
+            var allowCheckbox = document.getElementById('form-allow-duplicate');
+            if (!companyEl || !titleEl || !warningEl) return;
+            var company = (companyEl.value || '').trim();
+            var title = (titleEl.value || '').trim();
+            if (company.length < 2 || title.length < 2) {
+                warningEl.classList.add('hidden');
+                lastDuplicateExistingId = null;
+                if (allowCheckbox) allowCheckbox.checked = false;
+                return;
+            }
+            var url = '/api/job-applications.php?check=1&company_name=' + encodeURIComponent(company) + '&job_title=' + encodeURIComponent(title);
+            fetch(url, { credentials: 'include' })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.duplicate && data.existing_id) {
+                        lastDuplicateExistingId = data.existing_id;
+                        warningEl.classList.remove('hidden');
+                        if (viewLink) viewLink.href = '#jobs&view=' + data.existing_id;
+                    } else {
+                        lastDuplicateExistingId = null;
+                        warningEl.classList.add('hidden');
+                        if (allowCheckbox) allowCheckbox.checked = false;
+                    }
+                })
+                .catch(function() { /* ignore */ });
+        }
+
+        function scheduleDuplicateCheck() {
+            if (duplicateCheckTimeout) clearTimeout(duplicateCheckTimeout);
+            duplicateCheckTimeout = setTimeout(runDuplicateCheck, 450);
+        }
+
+        var companyInput = document.getElementById('form-company');
+        var titleInput = document.getElementById('form-job-title');
+        if (companyInput) companyInput.addEventListener('input', scheduleDuplicateCheck);
+        if (companyInput) companyInput.addEventListener('blur', scheduleDuplicateCheck);
+        if (titleInput) titleInput.addEventListener('input', scheduleDuplicateCheck);
+        if (titleInput) titleInput.addEventListener('blur', scheduleDuplicateCheck);
+
+        var viewExistingBtn = container.querySelector('[data-view-existing-job]');
+        if (viewExistingBtn) {
+            viewExistingBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (lastDuplicateExistingId) window.location.hash = '#jobs&view=' + lastDuplicateExistingId;
+            });
+        }
+
         if (form) {
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
+                if (formSubmitting) return;
+                formSubmitting = true;
                 var fd = new FormData(form);
                 var payload = {
                     company_name: fd.get('company_name'),
@@ -1520,6 +2009,7 @@
                     job_description: fd.get('job_description'),
                     application_date: fd.get('application_date'),
                     status: fd.get('status'),
+                    personal_statement: fd.get('personal_statement'),
                     salary_range: fd.get('salary_range'),
                     job_location: fd.get('job_location'),
                     remote_type: fd.get('remote_type'),
@@ -1530,9 +2020,11 @@
                     priority: fd.get('priority') || null,
                     csrf_token: csrfToken
                 };
+                var allowDupCheck = document.getElementById('form-allow-duplicate');
+                if (allowDupCheck && allowDupCheck.checked) payload.allow_duplicate = true;
                 var btn = form.querySelector('button[type="submit"]');
                 if (btn) { btn.disabled = true; btn.textContent = 'Creating…'; }
-                
+
                 // Create application first
                 fetch('/api/job-applications.php', {
                     method: 'POST',
@@ -1564,11 +2056,19 @@
                             window.location.hash = '#jobs&view=' + newApplicationId;
                         }
                     } else {
-                        alert(result.error || 'Could not create application');
+                        formSubmitting = false;
+                        if (result.duplicate && result.existing_id) {
+                            if (confirm(result.error + '\n\nWould you like to view the existing application?')) {
+                                window.location.hash = '#jobs&view=' + result.existing_id;
+                            }
+                        } else {
+                            alert(result.error || 'Could not create application');
+                        }
                         if (btn) { btn.disabled = false; btn.textContent = 'Add Application'; }
                     }
                 })
                 .catch(function() {
+                    formSubmitting = false;
                     alert('Could not create application. Please try again.');
                     if (btn) { btn.disabled = false; btn.textContent = 'Add Application'; }
                 });

@@ -2,6 +2,7 @@
  * Modern Template HTML Preview Renderer
  * Two-column sidebar layout matching PDF design
  */
+import { escapeHtml, renderMarkdown } from '../preview-utils.js';
 
 /**
  * Render modern template preview
@@ -173,7 +174,7 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
             html += `<h1 style="font-size: 32px; font-weight: bold; color: ${colors.header}; margin: 0 0 6px 0; text-transform: uppercase; letter-spacing: 1px;">${escapeHtml(profile.full_name)}</h1>`
         }
         if (profile.bio) {
-            html += `<p style="font-size: 14px; color: ${colors.accent}; font-style: italic; margin: 0 0 16px 0;">${escapeHtml(profile.bio)}</p>`
+            html += `<p style="font-size: 14px; color: ${colors.accent}; font-style: italic; margin: 0 0 16px 0;">${renderMarkdown(profile.bio)}</p>`
         }
         html += `<hr style="border: none; border-top: 3px solid ${colors.accent}; margin: 0 0 24px 0;">`
     }
@@ -183,7 +184,7 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
         html += renderMainSection('Professional Summary', colors)
 
         if (cvData.professional_summary.description) {
-            html += `<p style="font-size: 13px; color: ${colors.body}; line-height: 1.6; margin: 0 0 12px 0;">${escapeHtml(cvData.professional_summary.description)}</p>`
+            html += `<p style="font-size: 13px; color: ${colors.body}; line-height: 1.6; margin: 0 0 12px 0;">${renderMarkdown(cvData.professional_summary.description)}</p>`
         }
 
         if (Array.isArray(cvData.professional_summary.strengths) && cvData.professional_summary.strengths.length > 0) {
@@ -218,7 +219,7 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
             }
 
             if (exp.description) {
-                html += `<p style="font-size: 13px; color: ${colors.body}; line-height: 1.5; margin: 0 0 10px 0;">${escapeHtml(exp.description)}</p>`
+                html += `<p style="font-size: 13px; color: ${colors.body}; line-height: 1.5; margin: 0 0 10px 0;">${renderMarkdown(exp.description)}</p>`
             }
 
             // Responsibilities
@@ -261,7 +262,7 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
             }
 
             if (project.description) {
-                html += `<p style="font-size: 12px; color: ${colors.body}; margin: 0 0 8px 0; line-height: 1.5;">${escapeHtml(project.description)}</p>`
+                html += `<p style="font-size: 12px; color: ${colors.body}; margin: 0 0 8px 0; line-height: 1.5;">${renderMarkdown(project.description)}</p>`
             }
 
             if (project.url) {
@@ -317,13 +318,6 @@ function renderMainSection(title, colors) {
 /**
  * Helper functions
  */
-function escapeHtml(text) {
-    if (!text) return ''
-    const div = document.createElement('div')
-    div.textContent = text
-    return div.innerHTML
-}
-
 function formatDateRange(startDate, endDate) {
     const formatDate = (dateStr) => {
         if (!dateStr) return ''

@@ -39,13 +39,20 @@ if ($ai_scope_limited) {
         </div>
     </div>
 
-    <!-- Variants Table -->
+    <!-- Variants Table: sticky Name + View so they stay visible when scrolling horizontally -->
+    <style>
+    .cv-variants-table .sticky-name-view { position: sticky; left: 0; z-index: 2; background: inherit; min-width: 280px; }
+    .cv-variants-table thead .sticky-name-view { background: #f9fafb; }
+    .cv-variants-table tbody tr:hover .sticky-name-view { background: #f9fafb; }
+    .cv-variants-table tbody tr .sticky-name-view { background: #fff; }
+    .cv-variants-table .sticky-name-view .name-and-view { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    </style>
     <div class="bg-white rounded-lg shadow overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
+            <table class="cv-variants-table min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Variant Name</th>
+                        <th class="sticky-name-view px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Variant Name & View</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Job Application</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
@@ -62,18 +69,20 @@ if ($ai_scope_limited) {
                     <?php else: ?>
                         <?php foreach ($variants as $variant): ?>
                             <tr class="hover:bg-gray-50" data-variant-id="<?php echo e($variant['id']); ?>">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div>
-                                            <div class="text-sm font-medium text-gray-900">
-                                                <?php echo e($variant['variant_name']); ?>
-                                                <?php if ($variant['is_master']): ?>
-                                                    <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">Master</span>
-                                                <?php endif; ?>
-                                                <?php if ($variant['ai_generated']): ?>
-                                                    <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">AI</span>
-                                                <?php endif; ?>
-                                            </div>
+                                <td class="sticky-name-view px-6 py-4">
+                                    <div class="name-and-view">
+                                        <a href="/cv.php?variant_id=<?php echo e($variant['id']); ?>" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 shrink-0" title="View <?php echo e($variant['variant_name']); ?>">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                            View
+                                        </a>
+                                        <div class="text-sm font-medium text-gray-900">
+                                            <?php echo e($variant['variant_name']); ?>
+                                            <?php if ($variant['is_master']): ?>
+                                                <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">Master</span>
+                                            <?php endif; ?>
+                                            <?php if ($variant['ai_generated']): ?>
+                                                <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">AI</span>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                 </td>
@@ -101,13 +110,7 @@ if ($ai_scope_limited) {
                                     <?php echo date('d/m/Y', strtotime($variant['created_at'])); ?>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <div class="flex items-center space-x-2">
-                                        <a href="/cv.php?variant_id=<?php echo e($variant['id']); ?>" 
-                                           target="_blank"
-                                           class="text-blue-600 hover:text-blue-900" 
-                                           title="View CV">
-                                            View
-                                        </a>
+                                    <div class="flex flex-wrap items-center gap-2">
                                         <a href="#work-experience&variant_id=<?php echo e($variant['id']); ?>" 
                                            class="text-indigo-600 hover:text-indigo-900" 
                                            title="Edit this variant in the content editor">
