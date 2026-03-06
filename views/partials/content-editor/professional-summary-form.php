@@ -66,7 +66,7 @@ if ($editingStrengthId && $summary) {
                 <?php if ($summaryWordLimit): ?>
                     <p class="text-xs text-gray-500 mb-2">Free plan summaries are limited to <?php echo $summaryWordLimit; ?> words.</p>
                 <?php endif; ?>
-                <p class="text-xs text-gray-500 mb-1">Use the toolbar for formatting: bold, italic, headers, lists, and links</p>
+                <p class="text-xs text-gray-500 mb-1">Use the toolbar for formatting: bold, italic, headers, lists, and links. Press Enter twice for paragraph spacing.</p>
                 <textarea id="description" name="description" rows="6" maxlength="5000" data-markdown class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"><?php echo e($summary['description'] ?? ''); ?></textarea>
             </div>
             

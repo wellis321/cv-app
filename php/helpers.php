@@ -303,9 +303,9 @@ if (!function_exists('renderMarkdown')) {
 function renderMarkdown($markdown) {
     if ($markdown === null || $markdown === '') return '';
     $markdown = html_entity_decode($markdown, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-    // Collapse multiple newlines to single so lists (and editor blank lines) render compact on CV.
-    // Matches the behaviour used for work experience description in cv.php.
-    $markdown = preg_replace('/\R{2,}/u', "\n", $markdown);
+    // Normalise excessive newlines (3+) to paragraph break; preserve \n\n for paragraph spacing.
+    // Single \n = line break, double \n\n = paragraph spacing on the CV.
+    $markdown = preg_replace('/\R{3,}/u', "\n\n", $markdown);
 
     // Escape HTML to prevent XSS, then convert markdown syntax
     $text = htmlspecialchars($markdown, ENT_QUOTES | ENT_HTML5, 'UTF-8');

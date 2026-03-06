@@ -775,9 +775,7 @@ if ($activeTemplate) {
                                         </div>
                                         <?php if (!empty($work['description'])): ?>
                                             <?php
-                                            $workDescriptionRaw = (string)($work['description'] ?? '');
-                                            // Collapse paragraph separators so one editor blank line renders as a tighter single line break on CV display.
-                                            $workDescriptionForDisplay = preg_replace('/\R{2,}/u', "\n", $workDescriptionRaw);
+                                            $workDescriptionForDisplay = trim((string)($work['description'] ?? ''));
                                             $renderedWorkDescription = renderMarkdown($workDescriptionForDisplay);
                                             ?>
                                             <div class="text-gray-700 mb-3 text-sm leading-relaxed markdown-content"><?php echo $renderedWorkDescription; ?></div>
