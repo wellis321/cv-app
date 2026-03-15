@@ -7,7 +7,7 @@ import { escapeHtml, renderMarkdown } from '../preview-utils.js';
 /**
  * Render modern template preview
  */
-export function render(container, { cvData, profile, sections, includePhoto, includeQr, cvUrl, template }) {
+export function render(container, { cvData, profile, sections, includePhoto, includeQr, includeResponsibilitiesInPdf, cvUrl, template }) {
     if (!container) {
         console.error('Preview container not found')
         return
@@ -223,7 +223,7 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
             }
 
             // Responsibilities
-            if (Array.isArray(exp.responsibility_categories)) {
+            if (includeResponsibilitiesInPdf !== false && Array.isArray(exp.responsibility_categories)) {
                 exp.responsibility_categories.forEach(cat => {
                     if (cat.name) {
                         html += `<p style="font-size: 12px; font-weight: bold; color: ${colors.body}; margin: 10px 0 6px 0;">${escapeHtml(cat.name)}</p>`

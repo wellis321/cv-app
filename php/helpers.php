@@ -566,12 +566,12 @@ function getCvSections() {
  */
 function getSectionsOnlineForCv($profile, $cvVariant = null) {
     $templateSectionIds = [
-        'profile', 'professional-summary', 'work-experience', 'education', 'skills',
+        'profile', 'professional-summary', 'work-experience', 'education', 'areas-of-expertise', 'skills',
         'projects', 'certifications', 'memberships', 'interests', 'qualification-equivalence'
     ];
     $apiToTemplate = [
         'profile' => 'profile', 'summary' => 'professional-summary', 'work' => 'work-experience',
-        'education' => 'education', 'skills' => 'skills', 'projects' => 'projects',
+        'education' => 'education', 'areasOfExpertise' => 'areas-of-expertise', 'skills' => 'skills', 'projects' => 'projects',
         'certifications' => 'certifications', 'memberships' => 'memberships',
         'interests' => 'interests', 'qualificationEquivalence' => 'qualification-equivalence'
     ];

@@ -11,9 +11,9 @@ define('SKIP_CANONICAL_REDIRECT', true);
 ob_start();
 ini_set('display_errors', '0');
 
-// Increase timeout for AI processing (Ollama CV rewrite can take 2-5+ minutes on Mac)
-set_time_limit(300); // 5 minutes
-ini_set('max_execution_time', 300);
+// Increase timeout for AI processing (Ollama whole-CV rewrite can take 15+ minutes on Mac)
+set_time_limit(1800); // 30 minutes for full CV generation
+ini_set('max_execution_time', 1800);
 
 require_once __DIR__ . '/../php/helpers.php';
 
@@ -32,6 +32,8 @@ register_shutdown_function(function () {
     if (!in_array($error['type'], $fatalTypes, true)) {
         return;
     }
+    // Log the actual error for debugging (check PHP error_log or server logs)
+    error_log('AI Rewrite CV fatal error: ' . ($error['message'] ?? 'unknown') . ' in ' . ($error['file'] ?? '') . ':' . ($error['line'] ?? 0));
     if (ob_get_level() > 0) {
         @ob_end_clean();
     }
@@ -39,9 +41,13 @@ register_shutdown_function(function () {
         header('Content-Type: application/json');
         http_response_code(500);
     }
+    $userMessage = 'The server hit an internal error while generating this CV. Please try again, or tailor one section at a time.';
+    if (defined('APP_ENV') && APP_ENV === 'development' && !empty($error['message'])) {
+        $userMessage .= ' (Debug: ' . $error['message'] . ')';
+    }
     echo json_encode([
         'success' => false,
-        'error' => 'The server hit an internal error while generating this CV. Please try again, or tailor one section at a time.'
+        'error' => $userMessage
     ]);
 });
 

@@ -854,6 +854,7 @@ function saveCvVariantData($variantId, $cvData) {
                     'issuer' => sanitizeInput($cert['issuer'] ?? ''),
                     'date_obtained' => $cert['date_obtained'] ?? date('Y-m-d'),
                     'expiry_date' => !empty($cert['expiry_date']) ? $cert['expiry_date'] : null,
+                    'hide_date' => !empty($cert['hide_date']) ? 1 : 0,
                     'updated_at' => date('Y-m-d H:i:s')
                 ];
                 

@@ -8,7 +8,7 @@ import { escapeHtml, renderMarkdown } from '../preview-utils.js';
 /**
  * Render structured template preview
  */
-export function render(container, { cvData, profile, sections, includePhoto, includeQr, cvUrl, template }) {
+export function render(container, { cvData, profile, sections, includePhoto, includeQr, includeResponsibilitiesInPdf, cvUrl, template }) {
     if (!container) {
         console.error('Preview container not found')
         return
@@ -68,7 +68,7 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
     }
 
     // AREAS OF EXPERTISE (category names only, no individual skills)
-    if (sections?.skills !== false && Array.isArray(cvData.skills) && cvData.skills.length > 0) {
+    if (sections?.areasOfExpertise !== false && Array.isArray(cvData.skills) && cvData.skills.length > 0) {
         const grouped = groupSkills(cvData.skills)
         const categories = Object.keys(grouped)
         if (categories.length > 0) {
@@ -116,7 +116,7 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
                 html += `<p style="font-size: 12px; color: ${colors.muted}; margin: 0 0 8px 0;">${renderMarkdown(exp.description)}</p>`
             }
 
-            if (Array.isArray(exp.responsibility_categories)) {
+            if (includeResponsibilitiesInPdf !== false && Array.isArray(exp.responsibility_categories)) {
                 exp.responsibility_categories.forEach(cat => {
                     if (Array.isArray(cat.items) && cat.items.length > 0) {
                         html += '<ul style="margin: 0 0 8px 0; padding-left: 20px;">'
@@ -141,8 +141,7 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
             const parts = []
             if (edu.degree) parts.push(escapeHtml(edu.degree))
             if (edu.institution) parts.push(escapeHtml(edu.institution))
-            if (profile?.location) parts.push(escapeHtml(profile.location))
-            if (edu.end_date) parts.push(new Date(edu.end_date).getFullYear())
+            if (!edu.hide_date && edu.end_date) parts.push(new Date(edu.end_date).getFullYear())
             html += `<p style="font-size: 13px; font-weight: bold; color: ${colors.body}; margin: 0 0 4px 0;">${parts.join(' | ')}</p>`
         })
         html += '<div style="margin-bottom: 20px;"></div>'
@@ -155,7 +154,7 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
             const parts = []
             if (cert.name) parts.push(escapeHtml(cert.name))
             if (cert.issuer) parts.push(escapeHtml(cert.issuer))
-            if (cert.date_obtained) parts.push(new Date(cert.date_obtained).getFullYear())
+            if (!cert.hide_date && cert.date_obtained) parts.push(new Date(cert.date_obtained).getFullYear())
             html += `<p style="font-size: 13px; font-weight: bold; color: ${colors.body}; margin: 0 0 4px 0;">${parts.join(' | ')}</p>`
         })
         html += '<div style="margin-bottom: 20px;"></div>'

@@ -39,7 +39,7 @@ if (!$variant) {
 }
 
 $validSections = [
-    'profile', 'summary', 'work', 'education', 'skills', 'projects',
+    'profile', 'summary', 'work', 'education', 'areasOfExpertise', 'skills', 'projects',
     'certifications', 'memberships', 'interests', 'qualificationEquivalence'
 ];
 
@@ -60,6 +60,7 @@ if ($method === 'GET') {
                 'custom_accent_hex' => $decoded['custom_accent_hex'] ?? null,
                 'include_photo' => isset($decoded['include_photo']) ? (bool) $decoded['include_photo'] : null,
                 'include_qr' => isset($decoded['include_qr']) ? (bool) $decoded['include_qr'] : null,
+                'show_responsibilities_in_pdf' => isset($decoded['show_responsibilities_in_pdf']) ? (bool) $decoded['show_responsibilities_in_pdf'] : true,
             ];
             $sections = $decoded['sections'] ?? [];
             foreach ($validSections as $s) {
@@ -112,6 +113,9 @@ if ($method === 'POST') {
     }
     if (isset($input['include_qr'])) {
         $prefs['include_qr'] = (bool) $input['include_qr'];
+    }
+    if (isset($input['show_responsibilities_in_pdf'])) {
+        $prefs['show_responsibilities_in_pdf'] = (bool) $input['show_responsibilities_in_pdf'];
     }
     if (isset($input['sections_online']) && is_array($input['sections_online'])) {
         $prefs['sections_online'] = [];

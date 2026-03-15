@@ -197,12 +197,17 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                         <label class="flex items-center"><input type="checkbox" id="section-summary" checked class="mr-2"><span>Professional Summary</span></label>
                         <label class="flex items-center"><input type="checkbox" id="section-work" checked class="mr-2"><span>Work Experience</span></label>
                         <label class="flex items-center"><input type="checkbox" id="section-education" checked class="mr-2"><span>Education</span></label>
+                        <label class="flex items-center"><input type="checkbox" id="section-areas-of-expertise" checked class="mr-2"><span>Areas of Expertise</span></label>
                         <label class="flex items-center"><input type="checkbox" id="section-skills" checked class="mr-2"><span>Skills</span></label>
                         <label class="flex items-center"><input type="checkbox" id="section-projects" checked class="mr-2"><span>Projects</span></label>
                         <label class="flex items-center"><input type="checkbox" id="section-certifications" checked class="mr-2"><span>Certifications</span></label>
                         <label class="flex items-center"><input type="checkbox" id="section-memberships" checked class="mr-2"><span>Professional Memberships</span></label>
                         <label class="flex items-center"><input type="checkbox" id="section-interests" checked class="mr-2"><span>Interests & Activities</span></label>
                         <label class="flex items-center"><input type="checkbox" id="section-qualifications" checked class="mr-2"><span>Professional Qualification Equivalence</span></label>
+                        <div class="mt-4 pt-3 border-t border-gray-100">
+                            <label class="flex items-center"><input type="checkbox" id="include-responsibilities-pdf" checked class="mr-2"><span>Include key responsibilities in PDF</span></label>
+                            <p class="mt-1 text-xs text-gray-500">Turn off to save space; job titles, companies, dates and descriptions will still appear.</p>
+                        </div>
                     </div>
                     </details>
 
@@ -218,6 +223,7 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                         <label class="flex items-center"><input type="checkbox" id="section-online-summary" checked class="mr-2"><span>Professional Summary</span></label>
                         <label class="flex items-center"><input type="checkbox" id="section-online-work" checked class="mr-2"><span>Work Experience</span></label>
                         <label class="flex items-center"><input type="checkbox" id="section-online-education" checked class="mr-2"><span>Education</span></label>
+                        <label class="flex items-center"><input type="checkbox" id="section-online-areas-of-expertise" checked class="mr-2"><span>Areas of Expertise</span></label>
                         <label class="flex items-center"><input type="checkbox" id="section-online-skills" checked class="mr-2"><span>Skills</span></label>
                         <label class="flex items-center"><input type="checkbox" id="section-online-projects" checked class="mr-2"><span>Projects</span></label>
                         <label class="flex items-center"><input type="checkbox" id="section-online-certifications" checked class="mr-2"><span>Certifications</span></label>
@@ -445,6 +451,7 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                 summary: document.getElementById('section-summary')?.checked ?? true,
                 work: document.getElementById('section-work')?.checked ?? true,
                 education: document.getElementById('section-education')?.checked ?? true,
+                areasOfExpertise: document.getElementById('section-areas-of-expertise')?.checked ?? true,
                 skills: document.getElementById('section-skills')?.checked ?? true,
                 projects: document.getElementById('section-projects')?.checked ?? true,
                 certifications: document.getElementById('section-certifications')?.checked ?? true,
@@ -460,6 +467,7 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                 summary: document.getElementById('section-online-summary')?.checked ?? true,
                 work: document.getElementById('section-online-work')?.checked ?? true,
                 education: document.getElementById('section-online-education')?.checked ?? true,
+                areasOfExpertise: document.getElementById('section-online-areas-of-expertise')?.checked ?? true,
                 skills: document.getElementById('section-online-skills')?.checked ?? true,
                 projects: document.getElementById('section-online-projects')?.checked ?? true,
                 certifications: document.getElementById('section-online-certifications')?.checked ?? true,
@@ -558,6 +566,7 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                     workExperience: sectionsObj.work,
                     work: sectionsObj.work,
                     education: sectionsObj.education,
+                    areasOfExpertise: sectionsObj.areasOfExpertise,
                     skills: sectionsObj.skills,
                     projects: sectionsObj.projects,
                     certifications: sectionsObj.certifications,
@@ -575,10 +584,12 @@ $masterVariantId = getOrCreateMasterVariant($userId);
 
                 // Prepare config (include colour customization for Pro users, free plan branding)
                 const customization = getCustomization();
+                const showResponsibilitiesInPdf = document.getElementById('include-responsibilities-pdf')?.checked ?? true;
                 const config = {
                     sections: sections,
                     includePhoto: includePhoto,
                     includeQRCode: includeQr,
+                    show_responsibilities_in_pdf: showResponsibilitiesInPdf,
                     showFreePlanBranding: !SubscriptionContext?.isPaid,
                     siteUrl: siteUrl || window.location.origin
                 };
@@ -713,6 +724,7 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                 const sections = getSections();
                 const includePhoto = document.getElementById('include-photo')?.checked ?? true;
                 const includeQr = document.getElementById('include-qr')?.checked ?? true;
+                const includeResponsibilitiesInPdf = document.getElementById('include-responsibilities-pdf')?.checked ?? true;
 
                 let templateMeta = getTemplateMeta(selectedTemplate);
                 const customization = getCustomization();
@@ -751,6 +763,7 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                     sections,
                     includePhoto,
                     includeQr,
+                    includeResponsibilitiesInPdf,
                     cvUrl,
                     template: templateMeta
                 });
@@ -773,6 +786,7 @@ $masterVariantId = getOrCreateMasterVariant($userId);
             'section-summary': 'summary',
             'section-work': 'work',
             'section-education': 'education',
+            'section-areas-of-expertise': 'areasOfExpertise',
             'section-skills': 'skills',
             'section-projects': 'projects',
             'section-certifications': 'certifications',
@@ -785,6 +799,7 @@ $masterVariantId = getOrCreateMasterVariant($userId);
             'section-online-summary': 'summary',
             'section-online-work': 'work',
             'section-online-education': 'education',
+            'section-online-areas-of-expertise': 'areasOfExpertise',
             'section-online-skills': 'skills',
             'section-online-projects': 'projects',
             'section-online-certifications': 'certifications',
@@ -858,6 +873,7 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                 if (partial.custom_accent_hex !== undefined) payload.custom_accent_hex = partial.custom_accent_hex;
                 if (partial.include_photo !== undefined) payload.include_photo = partial.include_photo;
                 if (partial.include_qr !== undefined) payload.include_qr = partial.include_qr;
+                if (partial.show_responsibilities_in_pdf !== undefined) payload.show_responsibilities_in_pdf = partial.show_responsibilities_in_pdf;
                 if (partial.sections_online !== undefined) payload.sections_online = partial.sections_online;
                 try {
                     await fetch('/api/variant-pdf-preferences.php', {
@@ -881,6 +897,7 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                     if (variantPrefs.preferred_template_id) selectedTemplate = variantPrefs.preferred_template_id;
                     if (variantPrefs.include_photo !== null) prefs = { ...prefs, includePhoto: variantPrefs.include_photo };
                     if (variantPrefs.include_qr !== null) prefs = { ...prefs, includeQr: variantPrefs.include_qr };
+                    if (variantPrefs.show_responsibilities_in_pdf !== undefined) prefs = { ...prefs, showResponsibilitiesInPdf: variantPrefs.show_responsibilities_in_pdf };
                     if (variantPrefs.colour_preset) prefs = { ...prefs, colourPreset: variantPrefs.colour_preset };
                     if (variantPrefs.custom_accent_hex) prefs = { ...prefs, customAccentHex: variantPrefs.custom_accent_hex };
                 }
@@ -892,6 +909,10 @@ $masterVariantId = getOrCreateMasterVariant($userId);
             }
             if (includeQrEl && prefs.includeQr !== undefined) {
                 includeQrEl.checked = !!prefs.includeQr;
+            }
+            const includeResponsibilitiesPdfEl = document.getElementById('include-responsibilities-pdf');
+            if (includeResponsibilitiesPdfEl && prefs.showResponsibilitiesInPdf !== undefined) {
+                includeResponsibilitiesPdfEl.checked = !!prefs.showResponsibilitiesInPdf;
             }
             const colourContainer = document.getElementById('colour-customization-container');
             if (colourContainer && prefs.colourPreset) {
@@ -935,6 +956,8 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                     } else if (checkbox.id === 'include-qr') {
                         savePreviewPrefs({ includeQr: checkbox.checked });
                         if (previewVariantId) saveVariantPdfPrefs({ include_qr: checkbox.checked });
+                    } else if (checkbox.id === 'include-responsibilities-pdf') {
+                        if (previewVariantId) saveVariantPdfPrefs({ show_responsibilities_in_pdf: checkbox.checked });
                     } else if (SECTION_ID_MAP[checkbox.id]) {
                         if (previewVariantId) {
                             const apiSections = {};

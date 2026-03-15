@@ -509,7 +509,7 @@ export function buildCertificationsSection(certifications, template, options = {
         }
 
         // Dates
-        if (showDates) {
+        if (showDates && !cert.hide_date) {
             const dateText = cert.date_obtained ? `Issued: ${formatDate(cert.date_obtained)}` : ''
             const expiryText = cert.expiry_date ? `Expires: ${formatDate(cert.expiry_date)}` : ''
             const fullDateText = [dateText, expiryText].filter(Boolean).join(' | ')

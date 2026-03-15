@@ -700,20 +700,47 @@ function handleProjects($action, $userId, $subscriptionContext) {
 }
 
 function handleCertifications($action, $userId, $subscriptionContext) {
+    $variantId = trim($_POST['variant_id'] ?? '');
+    $isVariantContext = !empty($variantId);
+
+    if ($isVariantContext) {
+        $variant = db()->fetchOne("SELECT id FROM cv_variants WHERE id = ? AND user_id = ?", [$variantId, $userId]);
+        if (!$variant) {
+            return ['success' => false, 'error' => 'Variant not found'];
+        }
+    }
+
     if ($action === 'create') {
         if (!planCanAddEntry($subscriptionContext, 'certifications', $userId)) {
             return ['success' => false, 'error' => getPlanLimitMessage($subscriptionContext, 'certifications')];
         }
-        
+
         $name = sanitizeInput($_POST['name'] ?? '');
         $issuer = sanitizeInput($_POST['issuer'] ?? '');
         $dateObtained = trim($_POST['date_obtained'] ?? '');
         $expiryDate = $_POST['expiry_date'] ?? null ?: null;
-        
+        $hideDate = (int)($_POST['hide_date'] ?? 0);
+
         if (empty($name) || empty($issuer)) {
             return ['success' => false, 'error' => 'Name and issuer are required'];
         }
-        
+
+        if ($isVariantContext) {
+            $id = generateUuid();
+            db()->insert('cv_variant_certifications', [
+                'id' => $id,
+                'cv_variant_id' => $variantId,
+                'name' => $name,
+                'issuer' => $issuer,
+                'date_obtained' => $dateObtained ?: date('Y-m-d'),
+                'expiry_date' => $expiryDate,
+                'hide_date' => $hideDate,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+            return ['success' => true, 'message' => 'Certification added successfully', 'id' => $id];
+        }
+
         $id = generateUuid();
         db()->insert('certifications', [
             'id' => $id,
@@ -722,42 +749,78 @@ function handleCertifications($action, $userId, $subscriptionContext) {
             'issuer' => $issuer,
             'date_obtained' => $dateObtained ?: null,
             'expiry_date' => $expiryDate,
+            'hide_date' => $hideDate,
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s')
         ]);
         return ['success' => true, 'message' => 'Certification added successfully', 'id' => $id];
-        
+
     } elseif ($action === 'update') {
         $id = $_POST['id'] ?? '';
-        $existing = db()->fetchOne("SELECT id FROM certifications WHERE id = ? AND profile_id = ?", [$id, $userId]);
-        if (!$existing) {
-            return ['success' => false, 'error' => 'Entry not found'];
+
+        if ($isVariantContext) {
+            $existing = db()->fetchOne(
+                "SELECT c.id FROM cv_variant_certifications c
+                 JOIN cv_variants v ON c.cv_variant_id = v.id
+                 WHERE c.id = ? AND v.user_id = ?",
+                [$id, $userId]
+            );
+            if (!$existing) {
+                return ['success' => false, 'error' => 'Entry not found'];
+            }
+            $table = 'cv_variant_certifications';
+            $whereClause = 'id = ?';
+            $whereParams = [$id];
+        } else {
+            $existing = db()->fetchOne("SELECT id FROM certifications WHERE id = ? AND profile_id = ?", [$id, $userId]);
+            if (!$existing) {
+                return ['success' => false, 'error' => 'Entry not found'];
+            }
+            $table = 'certifications';
+            $whereClause = 'id = ? AND profile_id = ?';
+            $whereParams = [$id, $userId];
         }
-        
+
         $name = sanitizeInput($_POST['name'] ?? '');
         $issuer = sanitizeInput($_POST['issuer'] ?? '');
         $dateObtained = trim($_POST['date_obtained'] ?? '');
         $expiryDate = $_POST['expiry_date'] ?? null ?: null;
-        
+        $hideDate = (int)($_POST['hide_date'] ?? 0);
+
         if (empty($name) || empty($issuer)) {
             return ['success' => false, 'error' => 'Name and issuer are required'];
         }
-        
-        db()->update('certifications', [
+
+        db()->update($table, [
             'name' => $name,
             'issuer' => $issuer,
-            'date_obtained' => $dateObtained ?: null,
+            'date_obtained' => $dateObtained ?: ($table === 'cv_variant_certifications' ? date('Y-m-d') : null),
             'expiry_date' => $expiryDate,
+            'hide_date' => $hideDate,
             'updated_at' => date('Y-m-d H:i:s')
-        ], 'id = ? AND profile_id = ?', [$id, $userId]);
+        ], $whereClause, $whereParams);
         return ['success' => true, 'message' => 'Certification updated successfully'];
-        
+
     } elseif ($action === 'delete') {
         $id = $_POST['entry_id'] ?? $_POST['id'] ?? '';
-        db()->delete('certifications', 'id = ? AND profile_id = ?', [$id, $userId]);
+
+        if ($isVariantContext) {
+            $existing = db()->fetchOne(
+                "SELECT c.id FROM cv_variant_certifications c
+                 JOIN cv_variants v ON c.cv_variant_id = v.id
+                 WHERE c.id = ? AND v.user_id = ?",
+                [$id, $userId]
+            );
+            if (!$existing) {
+                return ['success' => false, 'error' => 'Entry not found'];
+            }
+            db()->delete('cv_variant_certifications', 'id = ?', [$id]);
+        } else {
+            db()->delete('certifications', 'id = ? AND profile_id = ?', [$id, $userId]);
+        }
         return ['success' => true, 'message' => 'Certification deleted successfully'];
     }
-    
+
     return ['success' => false, 'error' => 'Invalid action'];
 }
 

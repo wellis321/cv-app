@@ -34,7 +34,7 @@ if (!verifyCsrfToken($csrf)) {
 
 $userId = getUserId();
 $validSections = [
-    'profile', 'summary', 'work', 'education', 'skills', 'projects',
+    'profile', 'summary', 'work', 'education', 'areasOfExpertise', 'skills', 'projects',
     'certifications', 'memberships', 'interests', 'qualificationEquivalence'
 ];
 

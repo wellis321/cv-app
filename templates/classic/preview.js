@@ -7,7 +7,7 @@ import { escapeHtml, renderMarkdown } from '../preview-utils.js';
 /**
  * Render classic template preview
  */
-export function render(container, { cvData, profile, sections, includePhoto, includeQr, cvUrl, template }) {
+export function render(container, { cvData, profile, sections, includePhoto, includeQr, includeResponsibilitiesInPdf, cvUrl, template }) {
     if (!container) {
         console.error('Preview container not found')
         return
@@ -114,7 +114,7 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
             }
 
             // Responsibilities
-            if (Array.isArray(exp.responsibility_categories)) {
+            if (includeResponsibilitiesInPdf !== false && Array.isArray(exp.responsibility_categories)) {
                 exp.responsibility_categories.forEach(cat => {
                     if (cat.name) {
                         html += `<p style="font-size: 13px; font-weight: bold; color: ${colors.body}; margin: 8px 0 4px 0;">${escapeHtml(cat.name)}</p>`
@@ -229,7 +229,7 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
                 html += `<p style="font-size: 13px; color: ${colors.accent}; margin: 0 0 4px 0;">${escapeHtml(cert.issuer)}</p>`
             }
 
-            if (cert.date_obtained || cert.expiry_date) {
+            if (!cert.hide_date && (cert.date_obtained || cert.expiry_date)) {
                 const parts = []
                 if (cert.date_obtained) parts.push(`Issued: ${formatDate(cert.date_obtained)}`)
                 if (cert.expiry_date) parts.push(`Expires: ${formatDate(cert.expiry_date)}`)

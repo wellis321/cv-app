@@ -558,29 +558,8 @@ function createJobApplication($data, $userId = null) {
         $companyName = prepareForStorage($data['company_name']) ?? '';
         $jobTitle = prepareForStorage($data['job_title']) ?? '';
         
-        // Duplicate check: warn if same company+title already exists (case-insensitive)
-        if (empty($data['allow_duplicate'])) {
-            $existingDuplicate = db()->fetchOne(
-                "SELECT id, company_name, job_title FROM job_applications 
-                 WHERE user_id = ? AND LOWER(company_name) = LOWER(?) AND LOWER(job_title) = LOWER(?) 
-                 ORDER BY created_at DESC LIMIT 1",
-                [$userId, $companyName, $jobTitle]
-            );
-            if ($existingDuplicate) {
-                $msg = ($companyName === '—' || $companyName === '')
-                    ? 'You already have an application for "' . $jobTitle . '".'
-                    : 'You already have an application for "' . $jobTitle . '" at ' . $companyName . '.';
-                return [
-                    'success' => false,
-                    'error' => $msg,
-                    'duplicate' => true,
-                    'existing_id' => $existingDuplicate['id'],
-                ];
-            }
-        }
-        
-        // Idempotency: avoid duplicate job creation from double-submit or retries
-        // If same company+title was created in last 60 seconds, return existing ID
+        // Idempotency first: avoid duplicate creation from double-submit or retries.
+        // If same company+title was created in last 60 seconds, return existing ID (no error).
         $recentDuplicate = db()->fetchOne(
             "SELECT id FROM job_applications 
              WHERE user_id = ? AND company_name = ? AND job_title = ? 
@@ -590,6 +569,35 @@ function createJobApplication($data, $userId = null) {
         );
         if ($recentDuplicate) {
             return ['success' => true, 'id' => $recentDuplicate['id']];
+        }
+        
+        // Duplicate check: warn if same company+title already exists (case-insensitive).
+        // Skip if new application has a different application_url – same company can have multiple postings.
+        if (empty($data['allow_duplicate'])) {
+            $newUrl = trim((string)($data['application_url'] ?? ''));
+            $existingDuplicate = db()->fetchOne(
+                "SELECT id, company_name, job_title, application_url FROM job_applications 
+                 WHERE user_id = ? AND LOWER(company_name) = LOWER(?) AND LOWER(job_title) = LOWER(?) 
+                 ORDER BY created_at DESC LIMIT 1",
+                [$userId, $companyName, $jobTitle]
+            );
+            if ($existingDuplicate) {
+                $existingUrl = trim((string)($existingDuplicate['application_url'] ?? ''));
+                // Allow if both have URLs and they differ (different job postings)
+                if ($newUrl !== '' && $existingUrl !== '' && $newUrl !== $existingUrl) {
+                    // Different URLs – treat as separate application
+                } else {
+                    $msg = ($companyName === '—' || $companyName === '')
+                        ? 'You already have an application for "' . $jobTitle . '".'
+                        : 'You already have an application for "' . $jobTitle . '" at ' . $companyName . '.';
+                    return [
+                        'success' => false,
+                        'error' => $msg,
+                        'duplicate' => true,
+                        'existing_id' => $existingDuplicate['id'],
+                    ];
+                }
+            }
         }
         
         $applicationId = generateUuid();

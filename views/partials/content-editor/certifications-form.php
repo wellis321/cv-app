@@ -74,6 +74,13 @@ $canAddCertification = planCanAddEntry($subscriptionContext, 'certifications', $
                         <input type="date" id="expiry_date" name="expiry_date" value="<?php echo $editingCertification && $editingCertification['expiry_date'] ? date('Y-m-d', strtotime($editingCertification['expiry_date'])) : ''; ?>" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
                     </div>
                 </div>
+
+                <div class="mt-4">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="hide_date" value="1" <?php echo $editingCertification && !empty($editingCertification['hide_date']) ? 'checked' : ''; ?> class="mr-2 rounded border-gray-300">
+                        <span class="text-sm text-gray-700">Hide date on CV</span>
+                    </label>
+                </div>
             </div>
             
             <div class="mt-6">

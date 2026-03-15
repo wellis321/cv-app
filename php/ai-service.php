@@ -2804,8 +2804,8 @@ class AIService {
      * Supports Qwen3/DeepSeek thinking mode (think=true) and 32K context for better reasoning.
      */
     private function callOllama($prompt, $options = []) {
-        // Allow up to 5 minutes for local model response (PHP default may be 30s)
-        @set_time_limit(300);
+        // Reset timer: allow up to 20 minutes per request (whole-CV rewrite can be very slow on Mac)
+        @set_time_limit(1200);
 
         $url = $this->config['ollama']['base_url'] . '/api/generate';
         $model = $this->config['ollama']['model'];
@@ -2862,7 +2862,7 @@ class AIService {
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'Content-Type: application/json',
         ]);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 300); // 5 minute timeout for local models (CV rewrite can be slow on Mac)
+        curl_setopt($ch, CURLOPT_TIMEOUT, 1200); // 20 minute timeout per Ollama request (whole-CV can be very slow on Mac)
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10); // 10 second connection timeout
         
         $response = curl_exec($ch);

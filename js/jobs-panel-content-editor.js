@@ -164,6 +164,9 @@
     var applicationsCache = [];
     var csrfTokenCache = '';
 
+    var jobsSortColumn = null;
+    var jobsSortDirection = 'asc';
+
     var jobsCurrentView = (function() {
         try {
             var saved = localStorage.getItem('jobApplicationsView');
@@ -263,6 +266,65 @@
         return parts[0] + '-' + parts[1] + '-' + (parts[2] || '01');
     }
 
+    function getDateAddedForSort(app) {
+        var d = app.application_date || app.created_at;
+        if (!d) return '1970-01-01';
+        var parts = String(d).split(/[T\-]/);
+        if (parts.length < 3) return '1970-01-01';
+        return parts[0] + '-' + parts[1] + '-' + (parts[2] || '01');
+    }
+
+    function getPriorityRank(p) {
+        if (!p) return 0;
+        var s = (p || '').toLowerCase();
+        if (s === 'high') return 3;
+        if (s === 'medium') return 2;
+        if (s === 'low') return 1;
+        return 0;
+    }
+
+    function compareJobs(a, b, column, direction) {
+        var mul = direction === 'asc' ? 1 : -1;
+        var cmp = 0;
+        if (column === 'company') {
+            var va = (a.company_name || '').toLowerCase();
+            var vb = (b.company_name || '').toLowerCase();
+            cmp = va.localeCompare(vb);
+        } else if (column === 'job_title') {
+            va = (a.job_title || '').toLowerCase();
+            vb = (b.job_title || '').toLowerCase();
+            cmp = va.localeCompare(vb);
+        } else if (column === 'status') {
+            va = (a.status || '').toLowerCase();
+            vb = (b.status || '').toLowerCase();
+            cmp = va.localeCompare(vb);
+        } else if (column === 'priority') {
+            var ra = getPriorityRank(a.priority);
+            var rb = getPriorityRank(b.priority);
+            cmp = ra - rb;
+        } else if (column === 'closing_date') {
+            va = getClosingDateForSort(a);
+            vb = getClosingDateForSort(b);
+            cmp = va.localeCompare(vb);
+        } else if (column === 'location') {
+            va = (a.job_location || '').toLowerCase();
+            vb = (b.job_location || '').toLowerCase();
+            cmp = va.localeCompare(vb);
+        } else if (column === 'salary') {
+            va = (a.salary_range || '').toLowerCase();
+            vb = (b.salary_range || '').toLowerCase();
+            cmp = va.localeCompare(vb);
+        } else if (column === 'date_added') {
+            va = getDateAddedForSort(a);
+            vb = getDateAddedForSort(b);
+            cmp = va.localeCompare(vb);
+        } else {
+            return 0;
+        }
+        if (cmp !== 0) return mul * cmp;
+        return mul * ((a.company_name || '').toLowerCase().localeCompare((b.company_name || '').toLowerCase()));
+    }
+
     function renderJobsList(applications, csrfToken) {
         var cardsContainer = document.getElementById('jobs-applications-cards');
         var tableBody = document.getElementById('jobs-table-body');
@@ -285,7 +347,9 @@
             return matchesStatus && matchesSearch;
         });
 
-        if (statusFilter === 'available') {
+        if (jobsSortColumn) {
+            filtered.sort(function(a, b) { return compareJobs(a, b, jobsSortColumn, jobsSortDirection); });
+        } else if (statusFilter === 'available') {
             filtered.sort(function(a, b) {
                 var closeA = getClosingDateForSort(a);
                 var closeB = getClosingDateForSort(b);
@@ -367,6 +431,47 @@
         }
 
         setJobsView(jobsCurrentView);
+        updateJobsSortIndicators();
+    }
+
+    function updateJobsSortIndicators() {
+        var headers = document.querySelectorAll('.jobs-sortable-header');
+        var chevronUp = '<svg class="w-4 h-4 text-gray-600 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>';
+        var chevronDown = '<svg class="w-4 h-4 text-gray-600 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>';
+        headers.forEach(function(th) {
+            var col = th.getAttribute('data-sortable');
+            var span = th.querySelector('.jobs-sort-indicator');
+            if (!span) return;
+            if (col === jobsSortColumn) {
+                span.innerHTML = jobsSortDirection === 'asc' ? chevronUp : chevronDown;
+                span.classList.remove('invisible');
+                th.setAttribute('aria-sort', jobsSortDirection === 'asc' ? 'ascending' : 'descending');
+            } else {
+                span.innerHTML = '';
+                span.classList.add('invisible');
+                th.setAttribute('aria-sort', 'none');
+            }
+        });
+    }
+
+    function setupJobsSortHeaders() {
+        var wrap = document.getElementById('jobs-applications-table');
+        if (!wrap || wrap.dataset.jobsSortWired) return;
+        wrap.dataset.jobsSortWired = '1';
+        wrap.addEventListener('click', function(e) {
+            var th = e.target.closest('.jobs-sortable-header');
+            if (!th) return;
+            e.preventDefault();
+            var col = th.getAttribute('data-sortable');
+            if (!col) return;
+            if (jobsSortColumn === col) {
+                jobsSortDirection = jobsSortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                jobsSortColumn = col;
+                jobsSortDirection = 'asc';
+            }
+            renderJobsList(applicationsCache, csrfTokenCache);
+        });
     }
 
     function setupJobsEventListeners(applications, csrfToken) {
@@ -526,6 +631,7 @@
         var container = document.getElementById('jobs-applications-container');
         if (!container) return;
         setupJobsColumnVisibility();
+        setupJobsSortHeaders();
         setJobsView(jobsCurrentView);
         wireJobsViewToggleButtons();
         loadJobsData();

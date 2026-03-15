@@ -27,7 +27,7 @@ function formatCvPreviewDate(dateStr) {
  * @param {string} [context.cvUrl]
  * @param {object} context.template
  */
-export function render(container, { cvData, profile, sections, includePhoto, includeQr, cvUrl, template }) {
+export function render(container, { cvData, profile, sections, includePhoto, includeQr, includeResponsibilitiesInPdf, cvUrl, template }) {
     if (!container) {
         console.error('Preview container not provided');
         return;
@@ -117,7 +117,10 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
     if (sections.certifications && Array.isArray(cvData.certifications) && cvData.certifications.length > 0) {
         certHtml = '<section>' + addSectionHeading('Certifications');
         cvData.certifications.forEach((item) => {
-            certHtml += `<div class="mb-3"><h3 class="font-semibold text-gray-900 text-sm">${escapeHtml(item.name)}</h3><p class="text-gray-700 text-sm">${escapeHtml(item.issuer || '')}</p><p class="text-gray-600 text-xs mt-1">${item.date_obtained ? formatCvPreviewDate(item.date_obtained) : ''}${item.expiry_date ? '<br>Expires: ' + formatCvPreviewDate(item.expiry_date) : ''}</p></div>`;
+            const dateHtml = !item.hide_date && (item.date_obtained || item.expiry_date)
+                ? `<p class="text-gray-600 text-xs mt-1">${item.date_obtained ? formatCvPreviewDate(item.date_obtained) : ''}${item.expiry_date ? (item.date_obtained ? '<br>' : '') + 'Expires: ' + formatCvPreviewDate(item.expiry_date) : ''}</p>`
+                : '';
+            certHtml += `<div class="mb-3"><h3 class="font-semibold text-gray-900 text-sm">${escapeHtml(item.name)}</h3><p class="text-gray-700 text-sm">${escapeHtml(item.issuer || '')}</p>${dateHtml}</div>`;
         });
         certHtml += '</section>';
     }
@@ -179,7 +182,7 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
             if (!item.hide_date) workHtml += `<div class="text-gray-600 text-sm sm:text-right whitespace-nowrap flex-shrink-0">${formatCvPreviewDate(item.start_date)}${item.end_date ? ' - ' + formatCvPreviewDate(item.end_date) : ' - Present'}</div>`;
             workHtml += '</div>';
             if (item.description) workHtml += `<p class="text-gray-700 mb-3 text-sm leading-relaxed markdown-content">${renderMarkdown(item.description)}</p>`;
-            if (item.responsibility_categories && item.responsibility_categories.length > 0) {
+            if (includeResponsibilitiesInPdf !== false && item.responsibility_categories && item.responsibility_categories.length > 0) {
                 item.responsibility_categories.forEach((cat) => {
                     if (cat.items && cat.items.length) {
                         workHtml += `<div class="mb-3"><h4 class="font-semibold text-gray-800 mb-1 text-sm">${escapeHtml(cat.name)}:</h4><ul class="list-disc space-y-1 pl-5 text-sm text-gray-700">`;

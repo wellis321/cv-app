@@ -140,7 +140,7 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
 
     if (sections.workExperience !== false && Array.isArray(cvData.work_experience) && cvData.work_experience.length > 0) {
         content.push(...createAcademicHeader('Professional Experience', template))
-        content.push(...buildWorkExperienceSection(cvData.work_experience, template, { showDates: true, showDescription: true, showResponsibilities: true, fontSize: 11, layout: 'academic' }))
+        content.push(...buildWorkExperienceSection(cvData.work_experience, template, { showDates: true, showDescription: true, showResponsibilities: config?.show_responsibilities_in_pdf !== false, fontSize: 11, layout: 'academic' }))
     }
 
     if (sections.education !== false && Array.isArray(cvData.education) && cvData.education.length > 0) {

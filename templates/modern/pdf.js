@@ -393,7 +393,7 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
             {
                 showDates: true,
                 showDescription: true,
-                showResponsibilities: true,
+                showResponsibilities: config?.show_responsibilities_in_pdf !== false,
                 fontSize: 12,
                 spacing: 1.5
             }

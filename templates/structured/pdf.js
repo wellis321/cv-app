@@ -160,7 +160,7 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
     }
 
     // AREAS OF EXPERTISE (category names only, no individual skills)
-    if (sections.skills !== false && Array.isArray(cvData.skills) && cvData.skills.length > 0) {
+    if (sections.areasOfExpertise !== false && Array.isArray(cvData.skills) && cvData.skills.length > 0) {
         const grouped = groupSkills(cvData.skills)
         const categories = Object.keys(grouped)
         if (categories.length > 0) {
@@ -259,7 +259,7 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
                 })
             }
 
-            if (Array.isArray(exp.responsibility_categories)) {
+            if (config?.show_responsibilities_in_pdf !== false && Array.isArray(exp.responsibility_categories)) {
                 exp.responsibility_categories.forEach(cat => {
                     if (Array.isArray(cat.items) && cat.items.length > 0) {
                         const bulletItems = cat.items
@@ -293,8 +293,7 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
             const parts = []
             if (edu.degree) parts.push(decodeHtmlEntities(edu.degree))
             if (edu.institution) parts.push(decodeHtmlEntities(edu.institution))
-            if (profile?.location) parts.push(decodeHtmlEntities(profile.location))
-            if (edu.end_date) parts.push(new Date(edu.end_date).getFullYear().toString())
+            if (!edu.hide_date && edu.end_date) parts.push(new Date(edu.end_date).getFullYear().toString())
 
             content.push({
                 text: parts.join(' | '),
@@ -315,7 +314,7 @@ export function buildDocDefinition({ cvData, profile, config, cvUrl, qrCodeImage
             const parts = []
             if (cert.name) parts.push(decodeHtmlEntities(cert.name))
             if (cert.issuer) parts.push(decodeHtmlEntities(cert.issuer))
-            if (cert.date_obtained) parts.push(new Date(cert.date_obtained).getFullYear().toString())
+            if (!cert.hide_date && cert.date_obtained) parts.push(new Date(cert.date_obtained).getFullYear().toString())
 
             content.push({
                 text: parts.join(' | '),

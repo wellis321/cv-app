@@ -485,7 +485,7 @@ function buildProfessionalDocDefinition({ cvData = {}, profile = {}, config = {}
 
             pushParagraphs(workBlocks, role.description, palette)
 
-            if (Array.isArray(role.responsibility_categories)) {
+            if (config.show_responsibilities_in_pdf !== false && Array.isArray(role.responsibility_categories)) {
                 role.responsibility_categories.forEach((category) => {
                     if (!category || !category.items || !category.items.length) {
                         return
@@ -581,16 +581,13 @@ function buildProfessionalDocDefinition({ cvData = {}, profile = {}, config = {}
             if (cert.name) {
                 certBlocks.push({ text: decodeHtmlEntities(cert.name), style: 'certificationTitle', margin: [0, 0, 0, 2] })
 
-                const issued = formatDate(cert.date_obtained || cert.date_issued)
-                const expires = formatDate(cert.expiry_date)
                 const details = []
-                if (issued) {
-                    details.push(`Issued ${issued}`)
+                if (!cert.hide_date) {
+                    const issued = formatDate(cert.date_obtained || cert.date_issued)
+                    const expires = formatDate(cert.expiry_date)
+                    if (issued) details.push(`Issued ${issued}`)
+                    if (expires) details.push(`Expires ${expires}`)
                 }
-                if (expires) {
-                    details.push(`Expires ${expires}`)
-                }
-
                 if (details.length) {
                     certBlocks.push({ text: details.join(' · '), style: 'dates', margin: [0, 2, 0, 2] })
                 }
