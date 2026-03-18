@@ -61,6 +61,7 @@ if ($method === 'GET') {
                 'include_photo' => isset($decoded['include_photo']) ? (bool) $decoded['include_photo'] : null,
                 'include_qr' => isset($decoded['include_qr']) ? (bool) $decoded['include_qr'] : null,
                 'show_responsibilities_in_pdf' => isset($decoded['show_responsibilities_in_pdf']) ? (bool) $decoded['show_responsibilities_in_pdf'] : true,
+                'show_responsibilities_online' => isset($decoded['show_responsibilities_online']) ? (bool) $decoded['show_responsibilities_online'] : true,
             ];
             $sections = $decoded['sections'] ?? [];
             foreach ($validSections as $s) {
@@ -116,6 +117,9 @@ if ($method === 'POST') {
     }
     if (isset($input['show_responsibilities_in_pdf'])) {
         $prefs['show_responsibilities_in_pdf'] = (bool) $input['show_responsibilities_in_pdf'];
+    }
+    if (isset($input['show_responsibilities_online'])) {
+        $prefs['show_responsibilities_online'] = (bool) $input['show_responsibilities_online'];
     }
     if (isset($input['sections_online']) && is_array($input['sections_online'])) {
         $prefs['sections_online'] = [];

@@ -192,6 +192,17 @@ if (!empty($profile['photo_url'])) {
     $profile['photo_url'] = normalizeStorageUrlForDisplay($profile['photo_url']);
 }
 
+// Online CV preference: show/hide key responsibilities within work experience.
+// Apply to all render paths (Twig templates and built-in fallback).
+$showResponsibilitiesOnline = getShowResponsibilitiesOnlineForCv($profile, $cvVariant);
+if (!$showResponsibilitiesOnline && !empty($cvData['work_experience']) && is_array($cvData['work_experience'])) {
+    foreach ($cvData['work_experience'] as $i => $w) {
+        if (is_array($w) && array_key_exists('responsibility_categories', $w)) {
+            unset($cvData['work_experience'][$i]['responsibility_categories']);
+        }
+    }
+}
+
 if ($activeTemplate) {
     // Render custom template using Twig (secure)
     $customHtml = $activeTemplate['template_html'];
@@ -204,7 +215,8 @@ if ($activeTemplate) {
     $renderedContent = renderTemplate($customHtml, [
         'profile' => $profile,
         'cvData' => $cvData,
-        'sections_online' => $sectionsOnline
+        'sections_online' => $sectionsOnline,
+        'show_responsibilities_online' => $showResponsibilitiesOnline
     ]);
     
     // Output custom template

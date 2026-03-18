@@ -48,6 +48,11 @@ $sections = [];
 foreach ($validSections as $s) {
     $sections[$s] = isset($input['sections_online'][$s]) ? (bool) $input['sections_online'][$s] : true;
 }
+// Extra online display preferences stored alongside section booleans.
+// (Kept here to avoid additional schema changes.)
+if (isset($input['show_responsibilities_online'])) {
+    $sections['show_responsibilities_online'] = (bool) $input['show_responsibilities_online'];
+}
 
 $json = json_encode($sections);
 

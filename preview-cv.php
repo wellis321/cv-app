@@ -230,6 +230,10 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                         <label class="flex items-center"><input type="checkbox" id="section-online-memberships" checked class="mr-2"><span>Professional Memberships</span></label>
                         <label class="flex items-center"><input type="checkbox" id="section-online-interests" checked class="mr-2"><span>Interests & Activities</span></label>
                         <label class="flex items-center"><input type="checkbox" id="section-online-qualifications" checked class="mr-2"><span>Professional Qualification Equivalence</span></label>
+                        <div class="mt-4 pt-3 border-t border-gray-100">
+                            <label class="flex items-center"><input type="checkbox" id="include-responsibilities-online" checked class="mr-2"><span>Include key responsibilities on Online CV</span></label>
+                            <p class="mt-1 text-xs text-gray-500">Turn off to shorten the online CV. Work history and descriptions will still appear.</p>
+                        </div>
                     </div>
                     </details>
 
@@ -857,6 +861,31 @@ $masterVariantId = getOrCreateMasterVariant($userId);
             }, 300);
         }
 
+        let saveProfileOnlinePrefsTimeout = null;
+        function saveProfileOnlinePrefs(partial) {
+            if (saveProfileOnlinePrefsTimeout) clearTimeout(saveProfileOnlinePrefsTimeout);
+            saveProfileOnlinePrefsTimeout = setTimeout(async () => {
+                saveProfileOnlinePrefsTimeout = null;
+                const payload = {
+                    sections_online: getSectionsOnline(),
+                    csrf_token: previewCsrfToken
+                };
+                if (partial && partial.show_responsibilities_online !== undefined) {
+                    payload.show_responsibilities_online = partial.show_responsibilities_online;
+                }
+                try {
+                    await fetch('/api/save-profile-sections-online.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload),
+                        credentials: 'include'
+                    });
+                } catch (e) {
+                    console.warn('Could not save profile online preferences:', e);
+                }
+            }, 300);
+        }
+
         let saveVariantPrefsTimeout = null;
         function saveVariantPdfPrefs(partial) {
             if (!previewVariantId) return;
@@ -874,6 +903,7 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                 if (partial.include_photo !== undefined) payload.include_photo = partial.include_photo;
                 if (partial.include_qr !== undefined) payload.include_qr = partial.include_qr;
                 if (partial.show_responsibilities_in_pdf !== undefined) payload.show_responsibilities_in_pdf = partial.show_responsibilities_in_pdf;
+                if (partial.show_responsibilities_online !== undefined) payload.show_responsibilities_online = partial.show_responsibilities_online;
                 if (partial.sections_online !== undefined) payload.sections_online = partial.sections_online;
                 try {
                     await fetch('/api/variant-pdf-preferences.php', {
@@ -898,6 +928,7 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                     if (variantPrefs.include_photo !== null) prefs = { ...prefs, includePhoto: variantPrefs.include_photo };
                     if (variantPrefs.include_qr !== null) prefs = { ...prefs, includeQr: variantPrefs.include_qr };
                     if (variantPrefs.show_responsibilities_in_pdf !== undefined) prefs = { ...prefs, showResponsibilitiesInPdf: variantPrefs.show_responsibilities_in_pdf };
+                    if (variantPrefs.show_responsibilities_online !== undefined) prefs = { ...prefs, showResponsibilitiesOnline: variantPrefs.show_responsibilities_online };
                     if (variantPrefs.colour_preset) prefs = { ...prefs, colourPreset: variantPrefs.colour_preset };
                     if (variantPrefs.custom_accent_hex) prefs = { ...prefs, customAccentHex: variantPrefs.custom_accent_hex };
                 }
@@ -913,6 +944,14 @@ $masterVariantId = getOrCreateMasterVariant($userId);
             const includeResponsibilitiesPdfEl = document.getElementById('include-responsibilities-pdf');
             if (includeResponsibilitiesPdfEl && prefs.showResponsibilitiesInPdf !== undefined) {
                 includeResponsibilitiesPdfEl.checked = !!prefs.showResponsibilitiesInPdf;
+            }
+            const includeResponsibilitiesOnlineEl = document.getElementById('include-responsibilities-online');
+            if (includeResponsibilitiesOnlineEl) {
+                const fromProfile = (profileSectionsOnline && typeof profileSectionsOnline === 'object' && profileSectionsOnline.show_responsibilities_online !== undefined)
+                    ? !!profileSectionsOnline.show_responsibilities_online
+                    : true;
+                const desired = (prefs.showResponsibilitiesOnline !== undefined) ? !!prefs.showResponsibilitiesOnline : fromProfile;
+                includeResponsibilitiesOnlineEl.checked = desired;
             }
             const colourContainer = document.getElementById('colour-customization-container');
             if (colourContainer && prefs.colourPreset) {
@@ -958,6 +997,13 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                         if (previewVariantId) saveVariantPdfPrefs({ include_qr: checkbox.checked });
                     } else if (checkbox.id === 'include-responsibilities-pdf') {
                         if (previewVariantId) saveVariantPdfPrefs({ show_responsibilities_in_pdf: checkbox.checked });
+                    } else if (checkbox.id === 'include-responsibilities-online') {
+                        // Online CV preference: variant-level when viewing a variant, otherwise profile-level
+                        if (previewVariantId) {
+                            saveVariantPdfPrefs({ show_responsibilities_online: checkbox.checked });
+                        } else {
+                            saveProfileOnlinePrefs({ show_responsibilities_online: checkbox.checked });
+                        }
                     } else if (SECTION_ID_MAP[checkbox.id]) {
                         if (previewVariantId) {
                             const apiSections = {};

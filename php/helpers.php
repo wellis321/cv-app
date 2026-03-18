@@ -603,6 +603,40 @@ function getSectionsOnlineForCv($profile, $cvVariant = null) {
 } // End function_exists check
 
 /**
+ * Get online CV preference: whether to show responsibility_categories within work experience.
+ * Defaults to true.
+ *
+ * Source of truth:
+ * - Variant: cv_variants.pdf_preferences.show_responsibilities_online
+ * - Else profile: profiles.sections_online.show_responsibilities_online
+ */
+if (!function_exists('getShowResponsibilitiesOnlineForCv')) {
+function getShowResponsibilitiesOnlineForCv($profile, $cvVariant = null) {
+    // Variant-level preference first
+    if ($cvVariant && !empty($cvVariant['pdf_preferences'])) {
+        $decoded = is_string($cvVariant['pdf_preferences'])
+            ? json_decode($cvVariant['pdf_preferences'], true)
+            : $cvVariant['pdf_preferences'];
+        if (is_array($decoded) && array_key_exists('show_responsibilities_online', $decoded)) {
+            return (bool) $decoded['show_responsibilities_online'];
+        }
+    }
+
+    // Profile-level preference fallback (stored in sections_online JSON)
+    if (!empty($profile['sections_online'])) {
+        $raw = is_string($profile['sections_online'])
+            ? json_decode($profile['sections_online'], true)
+            : $profile['sections_online'];
+        if (is_array($raw) && array_key_exists('show_responsibilities_online', $raw)) {
+            return (bool) $raw['show_responsibilities_online'];
+        }
+    }
+
+    return true;
+}
+} // End function_exists check
+
+/**
  * Get section navigation (previous and next sections)
  */
 if (!function_exists('getSectionNavigation')) {
