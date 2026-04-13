@@ -129,6 +129,7 @@ CREATE TABLE IF NOT EXISTS professional_memberships (
     role VARCHAR(255),
     start_date DATE NOT NULL,
     end_date DATE,
+    description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE,
