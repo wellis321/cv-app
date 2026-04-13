@@ -52,6 +52,29 @@ $totalPages = ceil($totalUsers / $perPage);
 // Get all organisations for filter
 $allOrganisations = getAllOrganisations();
 
+// Handle quick grant lifetime action
+if (isPost() && post('action') === 'grant_lifetime') {
+    if (!verifyCsrfToken(post(CSRF_TOKEN_NAME))) {
+        setFlash('error', 'Invalid security token.');
+        redirect('/admin/users.php');
+    }
+    $targetUserId = sanitizeInput(post('user_id') ?? '');
+    if (!empty($targetUserId)) {
+        db()->update('profiles', [
+            'plan' => 'lifetime',
+            'subscription_status' => 'active',
+            'subscription_current_period_end' => null,
+            'updated_at' => date('Y-m-d H:i:s'),
+        ], 'id = ?', [$targetUserId]);
+        logActivity('admin.user.updated', null, [
+            'user_id' => $targetUserId,
+            'updates' => ['Plan changed to: Lifetime', 'Subscription status changed to: Active', 'Expiration date cleared'],
+        ], null);
+        setFlash('success', 'Lifetime access granted.');
+    }
+    redirect('/admin/users.php' . ($search ? '?search=' . urlencode($search) : ''));
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -225,10 +248,22 @@ $allOrganisations = getAllOrganisations();
                                         <?php echo date('j M Y', strtotime($u['created_at'])); ?>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                        <a href="/admin/users/edit.php?id=<?php echo e($u['id']); ?>" 
-                                           class="text-blue-600 hover:text-blue-900 font-medium">
-                                            Edit
-                                        </a>
+                                        <div class="flex items-center gap-3">
+                                            <a href="/admin/users/edit.php?id=<?php echo e($u['id']); ?>"
+                                               class="text-blue-600 hover:text-blue-900 font-medium">
+                                                Edit
+                                            </a>
+                                            <?php if ($userSubContext['plan'] !== 'lifetime'): ?>
+                                                <form method="POST" class="inline" onsubmit="return confirm('Grant lifetime access to <?php echo e(addslashes($u['email'])); ?>?');">
+                                                    <input type="hidden" name="<?php echo CSRF_TOKEN_NAME; ?>" value="<?php echo csrfToken(); ?>">
+                                                    <input type="hidden" name="action" value="grant_lifetime">
+                                                    <input type="hidden" name="user_id" value="<?php echo e($u['id']); ?>">
+                                                    <button type="submit" class="text-purple-600 hover:text-purple-900 font-medium">
+                                                        Grant Lifetime
+                                                    </button>
+                                                </form>
+                                            <?php endif; ?>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
