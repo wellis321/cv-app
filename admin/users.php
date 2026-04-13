@@ -160,7 +160,7 @@ if (isPost() && post('action') === 'grant_lifetime') {
             </div>
 
             <!-- Users Table -->
-            <div class="bg-white shadow rounded-lg overflow-hidden">
+            <div class="bg-white shadow rounded-lg overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
@@ -173,7 +173,7 @@ if (isPost() && post('action') === 'grant_lifetime') {
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Super Admin</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            <th class="sticky right-0 bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-l border-gray-200 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.06)]">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
@@ -247,7 +247,7 @@ if (isPost() && post('action') === 'grant_lifetime') {
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         <?php echo date('j M Y', strtotime($u['created_at'])); ?>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    <td class="sticky right-0 bg-white px-6 py-4 whitespace-nowrap text-sm border-l border-gray-200 shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.06)]">
                                         <div class="flex items-center gap-3">
                                             <a href="/admin/users/edit.php?id=<?php echo e($u['id']); ?>"
                                                class="text-blue-600 hover:text-blue-900 font-medium">
