@@ -437,23 +437,23 @@ function handleEducation($action, $userId, $subscriptionContext) {
             return ['success' => false, 'error' => getPlanLimitMessage($subscriptionContext, 'education')];
         }
         
-        $institution = sanitizeInput($_POST['institution'] ?? '');
-        $degree = sanitizeInput($_POST['degree'] ?? '');
-        $fieldOfStudy = sanitizeInput($_POST['field_of_study'] ?? '');
+        $institution = prepareForStorage($_POST['institution'] ?? '');
+        $degree = prepareForStorage($_POST['degree'] ?? '');
+        $fieldOfStudy = prepareForStorage($_POST['field_of_study'] ?? '');
         $startDate = $_POST['start_date'] ?? '';
-        
+
         if (empty($institution) || empty($degree) || empty($startDate)) {
             return ['success' => false, 'error' => 'Institution, degree, and start date are required'];
         }
-        
+
         if (checkForXss($institution) || checkForXss($degree) || (!empty($fieldOfStudy) && checkForXss($fieldOfStudy))) {
             return ['success' => false, 'error' => 'Invalid content detected'];
         }
-        
+
         if (strlen($institution) > 255 || strlen($degree) > 255 || (!empty($fieldOfStudy) && strlen($fieldOfStudy) > 255)) {
             return ['success' => false, 'error' => 'Field length exceeded'];
         }
-        
+
         $id = generateUuid();
         db()->insert('education', [
             'id' => $id,
@@ -476,15 +476,15 @@ function handleEducation($action, $userId, $subscriptionContext) {
             return ['success' => false, 'error' => 'Entry not found'];
         }
         
-        $institution = sanitizeInput($_POST['institution'] ?? '');
-        $degree = sanitizeInput($_POST['degree'] ?? '');
-        $fieldOfStudy = sanitizeInput($_POST['field_of_study'] ?? '');
+        $institution = prepareForStorage($_POST['institution'] ?? '');
+        $degree = prepareForStorage($_POST['degree'] ?? '');
+        $fieldOfStudy = prepareForStorage($_POST['field_of_study'] ?? '');
         $startDate = $_POST['start_date'] ?? '';
-        
+
         if (empty($institution) || empty($degree) || empty($startDate)) {
             return ['success' => false, 'error' => 'Institution, degree, and start date are required'];
         }
-        
+
         db()->update('education', [
             'institution' => $institution,
             'degree' => $degree,
@@ -577,31 +577,31 @@ function handleProjects($action, $userId, $subscriptionContext) {
             return ['success' => false, 'error' => getPlanLimitMessage($subscriptionContext, 'projects')];
         }
         
-        $title = sanitizeInput($_POST['title'] ?? '');
+        $title = prepareForStorage($_POST['title'] ?? '');
         $description = trim($_POST['description'] ?? '');
-        $url = sanitizeInput($_POST['url'] ?? '');
-        
+        $url = trim($_POST['url'] ?? '');
+
         if (empty($title)) {
             return ['success' => false, 'error' => 'Project title is required'];
         }
-        
+
         if (checkForXss($title) || (!empty($description) && checkForXss($description)) || (!empty($url) && checkForXss($url))) {
             return ['success' => false, 'error' => 'Invalid content detected'];
         }
-        
+
         if (strlen($title) > 255 || (!empty($url) && strlen($url) > 2048)) {
             return ['success' => false, 'error' => 'Field length exceeded'];
         }
-        
+
         if (!empty($url) && !filter_var($url, FILTER_VALIDATE_URL)) {
             return ['success' => false, 'error' => 'Invalid URL format'];
         }
-        
+
         $description = !empty($description) ? strip_tags($description) : null;
         if ($description && planWordLimitExceeded($subscriptionContext, 'project_description', $description)) {
             return ['success' => false, 'error' => getPlanWordLimitMessage($subscriptionContext, 'project_description')];
         }
-        
+
         $id = generateUuid();
         $insertData = [
             'id' => $id,
@@ -614,13 +614,13 @@ function handleProjects($action, $userId, $subscriptionContext) {
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s')
         ];
-        
+
         // Handle image fields if provided (from upload-project-image.php)
         if (!empty($_POST['image_url'])) {
-            $insertData['image_url'] = sanitizeInput($_POST['image_url']);
+            $insertData['image_url'] = trim($_POST['image_url']);
         }
         if (!empty($_POST['image_path'])) {
-            $insertData['image_path'] = sanitizeInput($_POST['image_path']);
+            $insertData['image_path'] = trim($_POST['image_path']);
         }
         if (!empty($_POST['image_responsive'])) {
             $insertData['image_responsive'] = $_POST['image_responsive']; // Already JSON string from JS
@@ -636,22 +636,22 @@ function handleProjects($action, $userId, $subscriptionContext) {
             return ['success' => false, 'error' => 'Entry not found'];
         }
         
-        $title = sanitizeInput($_POST['title'] ?? '');
+        $title = prepareForStorage($_POST['title'] ?? '');
         $description = trim($_POST['description'] ?? '');
-        $url = sanitizeInput($_POST['url'] ?? '');
-        
+        $url = trim($_POST['url'] ?? '');
+
         if (empty($title)) {
             return ['success' => false, 'error' => 'Project title is required'];
         }
-        
+
         $description = !empty($description) ? strip_tags($description) : null;
         if ($description && planWordLimitExceeded($subscriptionContext, 'project_description', $description)) {
             return ['success' => false, 'error' => getPlanWordLimitMessage($subscriptionContext, 'project_description')];
         }
-        
+
         // Get existing project to check for old image
         $project = db()->fetchOne("SELECT image_path, image_url FROM projects WHERE id = ? AND profile_id = ?", [$id, $userId]);
-        
+
         $updateData = [
             'title' => $title,
             'description' => $description,
@@ -660,14 +660,14 @@ function handleProjects($action, $userId, $subscriptionContext) {
             'url' => !empty($url) ? $url : null,
             'updated_at' => date('Y-m-d H:i:s')
         ];
-        
+
         // Handle image fields
         if (isset($_POST['image_url'])) {
             // If image_url is provided (even if empty), update it
-            $updateData['image_url'] = !empty($_POST['image_url']) ? sanitizeInput($_POST['image_url']) : null;
+            $updateData['image_url'] = !empty($_POST['image_url']) ? trim($_POST['image_url']) : null;
         }
         if (isset($_POST['image_path'])) {
-            $updateData['image_path'] = !empty($_POST['image_path']) ? sanitizeInput($_POST['image_path']) : null;
+            $updateData['image_path'] = !empty($_POST['image_path']) ? trim($_POST['image_path']) : null;
         }
         if (isset($_POST['image_responsive'])) {
             $updateData['image_responsive'] = !empty($_POST['image_responsive']) ? $_POST['image_responsive'] : null;
@@ -715,8 +715,8 @@ function handleCertifications($action, $userId, $subscriptionContext) {
             return ['success' => false, 'error' => getPlanLimitMessage($subscriptionContext, 'certifications')];
         }
 
-        $name = sanitizeInput($_POST['name'] ?? '');
-        $issuer = sanitizeInput($_POST['issuer'] ?? '');
+        $name = prepareForStorage($_POST['name'] ?? '');
+        $issuer = prepareForStorage($_POST['issuer'] ?? '');
         $dateObtained = trim($_POST['date_obtained'] ?? '');
         $expiryDate = $_POST['expiry_date'] ?? null ?: null;
         $hideDate = (int)($_POST['hide_date'] ?? 0);
@@ -781,8 +781,8 @@ function handleCertifications($action, $userId, $subscriptionContext) {
             $whereParams = [$id, $userId];
         }
 
-        $name = sanitizeInput($_POST['name'] ?? '');
-        $issuer = sanitizeInput($_POST['issuer'] ?? '');
+        $name = prepareForStorage($_POST['name'] ?? '');
+        $issuer = prepareForStorage($_POST['issuer'] ?? '');
         $dateObtained = trim($_POST['date_obtained'] ?? '');
         $expiryDate = $_POST['expiry_date'] ?? null ?: null;
         $hideDate = (int)($_POST['hide_date'] ?? 0);
@@ -830,24 +830,24 @@ function handleMemberships($action, $userId, $subscriptionContext) {
             return ['success' => false, 'error' => getPlanLimitMessage($subscriptionContext, 'memberships')];
         }
         
-        $organisation = sanitizeInput($_POST['organisation'] ?? '');
-        $role = sanitizeInput($_POST['role'] ?? '');
+        $organisation = prepareForStorage($_POST['organisation'] ?? '');
+        $role = prepareForStorage($_POST['role'] ?? '');
         $startDate = $_POST['start_date'] ?? null ?: null;
         $endDate = $_POST['end_date'] ?? null ?: null;
         $description = trim($_POST['description'] ?? '');
-        
+
         if (empty($organisation)) {
             return ['success' => false, 'error' => 'Organisation is required'];
         }
-        
+
         if (checkForXss($organisation) || (!empty($role) && checkForXss($role))) {
             return ['success' => false, 'error' => 'Invalid content detected'];
         }
-        
+
         if (strlen($organisation) > 255 || (!empty($role) && strlen($role) > 255)) {
             return ['success' => false, 'error' => 'Field length exceeded'];
         }
-        
+
         $id = generateUuid();
         db()->insert('professional_memberships', [
             'id' => $id,
@@ -869,16 +869,16 @@ function handleMemberships($action, $userId, $subscriptionContext) {
             return ['success' => false, 'error' => 'Entry not found'];
         }
         
-        $organisation = sanitizeInput($_POST['organisation'] ?? '');
-        $role = sanitizeInput($_POST['role'] ?? '');
+        $organisation = prepareForStorage($_POST['organisation'] ?? '');
+        $role = prepareForStorage($_POST['role'] ?? '');
         $startDate = $_POST['start_date'] ?? null ?: null;
         $endDate = $_POST['end_date'] ?? null ?: null;
         $description = trim($_POST['description'] ?? '');
-        
+
         if (empty($organisation)) {
             return ['success' => false, 'error' => 'Organisation is required'];
         }
-        
+
         db()->update('professional_memberships', [
             'organisation' => $organisation,
             'role' => !empty($role) ? $role : null,
@@ -904,21 +904,21 @@ function handleInterests($action, $userId, $subscriptionContext) {
             return ['success' => false, 'error' => getPlanLimitMessage($subscriptionContext, 'interests')];
         }
         
-        $name = sanitizeInput($_POST['name'] ?? '');
+        $name = prepareForStorage($_POST['name'] ?? '');
         $description = trim($_POST['description'] ?? '');
-        
+
         if (empty($name)) {
             return ['success' => false, 'error' => 'Interest name is required'];
         }
-        
+
         if (checkForXss($name) || (!empty($description) && checkForXss($description))) {
             return ['success' => false, 'error' => 'Invalid content detected'];
         }
-        
+
         if (strlen($name) > 255) {
             return ['success' => false, 'error' => 'Interest name must be 255 characters or less'];
         }
-        
+
         $id = generateUuid();
         db()->insert('interests', [
             'id' => $id,
@@ -937,13 +937,13 @@ function handleInterests($action, $userId, $subscriptionContext) {
             return ['success' => false, 'error' => 'Entry not found'];
         }
         
-        $name = sanitizeInput($_POST['name'] ?? '');
+        $name = prepareForStorage($_POST['name'] ?? '');
         $description = trim($_POST['description'] ?? '');
-        
+
         if (empty($name)) {
             return ['success' => false, 'error' => 'Interest name is required'];
         }
-        
+
         db()->update('interests', [
             'name' => $name,
             'description' => !empty($description) ? strip_tags($description) : null,
