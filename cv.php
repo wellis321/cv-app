@@ -666,13 +666,17 @@ if ($activeTemplate) {
                                         <?php if (!empty($edu['field_of_study'])): ?>
                                             <p class="text-gray-600 text-sm"><span class="text-gray-500 font-normal">Subject:</span> <?php echo e($edu['field_of_study']); ?></p>
                                         <?php endif; ?>
-                                        <?php if (empty($edu['hide_date'])): ?>
+                                        <?php if (empty($edu['hide_date']) && (!empty($edu['start_date']) || !empty($edu['end_date']))): ?>
                                         <p class="text-gray-600 text-xs mt-1">
-                                            <?php echo formatCvDate($edu['start_date']); ?>
-                                            <?php if (!empty($edu['end_date'])): ?>
-                                                - <?php echo formatCvDate($edu['end_date']); ?>
+                                            <?php if (!empty($edu['start_date'])): ?>
+                                                <?php echo formatCvDate($edu['start_date']); ?>
+                                                <?php if (!empty($edu['end_date'])): ?>
+                                                    - <?php echo formatCvDate($edu['end_date']); ?>
+                                                <?php else: ?>
+                                                    - Present
+                                                <?php endif; ?>
                                             <?php else: ?>
-                                                - Present
+                                                <?php echo formatCvDate($edu['end_date']); ?>
                                             <?php endif; ?>
                                         </p>
                                         <?php endif; ?>
@@ -981,14 +985,20 @@ if ($activeTemplate) {
                                                     <p class="text-gray-700 text-sm"><?php echo e($membership['role']); ?></p>
                                                 <?php endif; ?>
                                             </div>
+                                            <?php if (!empty($membership['start_date']) || !empty($membership['end_date'])): ?>
                                             <div class="text-gray-600 text-sm sm:text-right whitespace-nowrap flex-shrink-0">
-                                                <?php echo formatCvDate($membership['start_date']); ?>
-                                                <?php if (!empty($membership['end_date'])): ?>
-                                                    - <?php echo formatCvDate($membership['end_date']); ?>
+                                                <?php if (!empty($membership['start_date'])): ?>
+                                                    <?php echo formatCvDate($membership['start_date']); ?>
+                                                    <?php if (!empty($membership['end_date'])): ?>
+                                                        - <?php echo formatCvDate($membership['end_date']); ?>
+                                                    <?php else: ?>
+                                                        - Present
+                                                    <?php endif; ?>
                                                 <?php else: ?>
-                                                    - Present
+                                                    <?php echo formatCvDate($membership['end_date']); ?>
                                                 <?php endif; ?>
                                             </div>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                 <?php endforeach; ?>

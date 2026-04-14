@@ -111,8 +111,16 @@ $canAddMembership = planCanAddEntry($subscriptionContext, 'memberships', $userId
                                 <?php endif; ?>
                                 <?php if ($membership['start_date'] || $membership['end_date']): ?>
                                     <p class="text-sm text-gray-500">
-                                        <?php echo $membership['start_date'] ? date('M Y', strtotime($membership['start_date'])) : ''; ?> - 
-                                        <?php echo $membership['end_date'] ? date('M Y', strtotime($membership['end_date'])) : 'Present'; ?>
+                                        <?php if ($membership['start_date']): ?>
+                                            <?php echo date('M Y', strtotime($membership['start_date'])); ?>
+                                            <?php if ($membership['end_date']): ?>
+                                                - <?php echo date('M Y', strtotime($membership['end_date'])); ?>
+                                            <?php else: ?>
+                                                - Present
+                                            <?php endif; ?>
+                                        <?php else: ?>
+                                            <?php echo date('M Y', strtotime($membership['end_date'])); ?>
+                                        <?php endif; ?>
                                     </p>
                                 <?php endif; ?>
                             </div>
