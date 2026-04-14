@@ -80,8 +80,20 @@ $profileComplete = !empty($profileRow['full_name']) && !empty($profileRow['usern
         // Split sections into sidebar (left column) and main body (right column) groups
         $sidebarColIds = ['certifications', 'education', 'skills', 'interests'];
         $mainColIds    = ['professional-summary', 'work-experience', 'projects', 'qualification-equivalence', 'memberships'];
-        $sidebarSections = array_filter($sections, fn($s) => in_array($s['id'], $sidebarColIds));
-        $mainSections    = array_filter($sections, fn($s) => in_array($s['id'], $mainColIds));
+        $sidebarSections = array_values(array_filter($sections, fn($s) => in_array($s['id'], $sidebarColIds)));
+        $mainSections    = array_values(array_filter($sections, fn($s) => in_array($s['id'], $mainColIds)));
+
+        // Apply the user's saved section order so the sidebar reflects the same order as the CV
+        $savedOrderRaw = db()->fetchOne("SELECT section_order FROM profiles WHERE id = ?", [$userId]);
+        if (!empty($savedOrderRaw['section_order'])) {
+            $savedOrder = json_decode($savedOrderRaw['section_order'], true);
+            if (is_array($savedOrder)) {
+                $savedPos = array_flip($savedOrder);
+                $sortByPos = fn($a, $b) => ($savedPos[$a['id']] ?? 999) - ($savedPos[$b['id']] ?? 999);
+                usort($sidebarSections, $sortByPos);
+                usort($mainSections,    $sortByPos);
+            }
+        }
         ?>
         <!-- CV Sections -->
         <div>
