@@ -2072,89 +2072,95 @@
 
     // =============================================
     // Section Sidebar Drag-and-Drop Reorder
+    // Two independent lists: main body and sidebar column.
+    // Sections can only be reordered within their own group.
     // =============================================
 
     function initializeSectionSidebarReorder() {
-        const toggleBtn = document.getElementById('toggle-section-reorder-btn');
+        const toggleBtn   = document.getElementById('toggle-section-reorder-btn');
         const reorderInfo = document.getElementById('section-reorder-info');
-        const saveBtn = document.getElementById('save-section-order-btn');
-        const navList = document.getElementById('sections-nav-list');
+        const saveBtn     = document.getElementById('save-section-order-btn');
+        const mainList    = document.getElementById('main-sections-list');
+        const sidebarList = document.getElementById('sidebar-sections-list');
 
-        if (!toggleBtn || !navList) return;
+        if (!toggleBtn || (!mainList && !sidebarList)) return;
 
         let isReordering = false;
-        let dragSrcEl = null;
 
-        function getWrappers() {
-            return Array.from(navList.querySelectorAll('.section-nav-wrapper'));
+        // Make one drag list independently sortable
+        function makeDraggable(list) {
+            if (!list) return;
+            var dragSrc = null;
+
+            function onDragStart(e) {
+                dragSrc = this;
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', this.dataset.sectionId);
+                this.classList.add('opacity-50');
+            }
+            function onDragOver(e) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                this.classList.add('ring-2', 'ring-blue-400', 'ring-inset');
+            }
+            function onDragLeave() {
+                this.classList.remove('ring-2', 'ring-blue-400', 'ring-inset');
+            }
+            function onDrop(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                this.classList.remove('ring-2', 'ring-blue-400', 'ring-inset');
+                if (dragSrc && dragSrc !== this) {
+                    list.insertBefore(dragSrc, this);
+                }
+            }
+            function onDragEnd() {
+                this.classList.remove('opacity-50');
+                list.querySelectorAll('.section-nav-wrapper').forEach(function(w) {
+                    w.classList.remove('ring-2', 'ring-blue-400', 'ring-inset');
+                });
+            }
+
+            list._enableReorder = function() {
+                list.querySelectorAll('.section-nav-wrapper').forEach(function(wrapper) {
+                    wrapper.setAttribute('draggable', 'true');
+                    wrapper.classList.add('cursor-move', 'rounded-md');
+                    var handle = wrapper.querySelector('.drag-handle-sidebar');
+                    if (handle) handle.classList.remove('hidden');
+                    var link = wrapper.querySelector('a');
+                    if (link) link.style.pointerEvents = 'none';
+                    wrapper.addEventListener('dragstart', onDragStart);
+                    wrapper.addEventListener('dragover',  onDragOver);
+                    wrapper.addEventListener('dragleave', onDragLeave);
+                    wrapper.addEventListener('drop',      onDrop);
+                    wrapper.addEventListener('dragend',   onDragEnd);
+                });
+            };
+
+            list._disableReorder = function() {
+                list.querySelectorAll('.section-nav-wrapper').forEach(function(wrapper) {
+                    wrapper.setAttribute('draggable', 'false');
+                    wrapper.classList.remove('cursor-move', 'rounded-md', 'ring-2', 'ring-blue-400', 'ring-inset', 'opacity-50');
+                    var handle = wrapper.querySelector('.drag-handle-sidebar');
+                    if (handle) handle.classList.add('hidden');
+                    var link = wrapper.querySelector('a');
+                    if (link) link.style.pointerEvents = '';
+                    wrapper.removeEventListener('dragstart', onDragStart);
+                    wrapper.removeEventListener('dragover',  onDragOver);
+                    wrapper.removeEventListener('dragleave', onDragLeave);
+                    wrapper.removeEventListener('drop',      onDrop);
+                    wrapper.removeEventListener('dragend',   onDragEnd);
+                });
+            };
         }
 
-        function handleDragStart(e) {
-            dragSrcEl = this;
-            e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/plain', this.dataset.sectionId);
-            this.classList.add('opacity-50');
-        }
+        makeDraggable(mainList);
+        makeDraggable(sidebarList);
 
-        function handleDragOver(e) {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-            this.classList.add('border-2', 'border-blue-400');
-            return false;
-        }
-
-        function handleDragLeave() {
-            this.classList.remove('border-2', 'border-blue-400');
-        }
-
-        function handleDrop(e) {
-            e.stopPropagation();
-            e.preventDefault();
-            this.classList.remove('border-2', 'border-blue-400');
-            if (dragSrcEl === this) return;
-            // Insert dragSrcEl before this element
-            navList.insertBefore(dragSrcEl, this);
-            return false;
-        }
-
-        function handleDragEnd() {
-            this.classList.remove('opacity-50');
-            getWrappers().forEach(function(w) {
-                w.classList.remove('border-2', 'border-blue-400');
-            });
-        }
-
-        function enableReorder() {
-            getWrappers().forEach(function(wrapper) {
-                wrapper.setAttribute('draggable', 'true');
-                wrapper.classList.add('relative', 'cursor-move', 'rounded-md', 'border-2', 'border-transparent');
-                var handle = wrapper.querySelector('.drag-handle-sidebar');
-                if (handle) handle.classList.remove('hidden');
-                // Prevent link clicks during reorder
-                var link = wrapper.querySelector('a');
-                if (link) link.style.pointerEvents = 'none';
-                wrapper.addEventListener('dragstart', handleDragStart);
-                wrapper.addEventListener('dragover', handleDragOver);
-                wrapper.addEventListener('dragleave', handleDragLeave);
-                wrapper.addEventListener('drop', handleDrop);
-                wrapper.addEventListener('dragend', handleDragEnd);
-            });
-        }
-
-        function disableReorder() {
-            getWrappers().forEach(function(wrapper) {
-                wrapper.setAttribute('draggable', 'false');
-                wrapper.classList.remove('relative', 'cursor-move', 'rounded-md', 'border-2', 'border-transparent', 'border-blue-400', 'opacity-50');
-                var handle = wrapper.querySelector('.drag-handle-sidebar');
-                if (handle) handle.classList.add('hidden');
-                var link = wrapper.querySelector('a');
-                if (link) link.style.pointerEvents = '';
-                wrapper.removeEventListener('dragstart', handleDragStart);
-                wrapper.removeEventListener('dragover', handleDragOver);
-                wrapper.removeEventListener('dragleave', handleDragLeave);
-                wrapper.removeEventListener('drop', handleDrop);
-                wrapper.removeEventListener('dragend', handleDragEnd);
-            });
+        function getOrderedIds(list) {
+            if (!list) return [];
+            return Array.from(list.querySelectorAll('.section-nav-wrapper'))
+                        .map(function(w) { return w.dataset.sectionId; });
         }
 
         function toggleReorderMode() {
@@ -2164,22 +2170,26 @@
                 toggleBtn.classList.add('text-green-600', 'hover:text-green-800');
                 toggleBtn.classList.remove('text-blue-600', 'hover:text-blue-800');
                 if (reorderInfo) reorderInfo.classList.remove('hidden');
-                enableReorder();
+                if (mainList)    mainList._enableReorder();
+                if (sidebarList) sidebarList._enableReorder();
             } else {
                 toggleBtn.textContent = 'Reorder';
                 toggleBtn.classList.remove('text-green-600', 'hover:text-green-800');
                 toggleBtn.classList.add('text-blue-600', 'hover:text-blue-800');
                 if (reorderInfo) reorderInfo.classList.add('hidden');
-                disableReorder();
+                if (mainList)    mainList._disableReorder();
+                if (sidebarList) sidebarList._disableReorder();
             }
         }
 
         function saveSectionOrder() {
-            var order = getWrappers().map(function(w) { return w.dataset.sectionId; });
-            var csrfToken = (window.contentEditorData && window.contentEditorData.csrfToken) || '';
+            // Collect both lists in order: main first, then sidebar column
+            var order = getOrderedIds(mainList).concat(getOrderedIds(sidebarList));
+            var csrfToken    = (window.contentEditorData && window.contentEditorData.csrfToken) || '';
+            var csrfTokenName = (window.contentEditorData && window.contentEditorData.csrfTokenName) || '_csrf_token';
             var body = new URLSearchParams();
             body.append('section_order', JSON.stringify(order));
-            body.append(window.contentEditorData && window.contentEditorData.csrfTokenName ? window.contentEditorData.csrfTokenName : '_csrf_token', csrfToken);
+            body.append(csrfTokenName, csrfToken);
 
             saveBtn.disabled = true;
             saveBtn.textContent = 'Saving…';
@@ -2196,7 +2206,7 @@
                     setTimeout(function() {
                         saveBtn.textContent = 'Save order';
                         saveBtn.disabled = false;
-                        toggleReorderMode(); // exit reorder mode
+                        toggleReorderMode();
                     }, 800);
                 } else {
                     saveBtn.textContent = 'Error – try again';
