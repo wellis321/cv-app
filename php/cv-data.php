@@ -147,7 +147,7 @@ function loadCvData($userId) {
     $cvData['certifications'] = db()->fetchAll(
         "SELECT * FROM certifications
          WHERE profile_id = ?
-         ORDER BY date_obtained DESC",
+         ORDER BY sort_order ASC, date_obtained DESC",
         [$userId]
     );
     foreach ($cvData['certifications'] as &$cert) {

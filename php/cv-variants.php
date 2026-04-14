@@ -428,7 +428,7 @@ function loadCvVariantData($variantId) {
     $certsRaw = db()->fetchAll(
         "SELECT * FROM cv_variant_certifications
          WHERE cv_variant_id = ?
-         ORDER BY date_obtained DESC",
+         ORDER BY sort_order ASC, date_obtained DESC",
         [$variantId]
     );
     $seen = [];
