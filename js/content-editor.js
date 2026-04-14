@@ -2070,6 +2070,154 @@
         if (resetBtn) resetBtn.addEventListener('click', resetToDateOrder);
     }
 
+    // =============================================
+    // Section Sidebar Drag-and-Drop Reorder
+    // =============================================
+
+    function initializeSectionSidebarReorder() {
+        const toggleBtn = document.getElementById('toggle-section-reorder-btn');
+        const reorderInfo = document.getElementById('section-reorder-info');
+        const saveBtn = document.getElementById('save-section-order-btn');
+        const navList = document.getElementById('sections-nav-list');
+
+        if (!toggleBtn || !navList) return;
+
+        let isReordering = false;
+        let dragSrcEl = null;
+
+        function getWrappers() {
+            return Array.from(navList.querySelectorAll('.section-nav-wrapper'));
+        }
+
+        function handleDragStart(e) {
+            dragSrcEl = this;
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', this.dataset.sectionId);
+            this.classList.add('opacity-50');
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            this.classList.add('border-2', 'border-blue-400');
+            return false;
+        }
+
+        function handleDragLeave() {
+            this.classList.remove('border-2', 'border-blue-400');
+        }
+
+        function handleDrop(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            this.classList.remove('border-2', 'border-blue-400');
+            if (dragSrcEl === this) return;
+            // Insert dragSrcEl before this element
+            navList.insertBefore(dragSrcEl, this);
+            return false;
+        }
+
+        function handleDragEnd() {
+            this.classList.remove('opacity-50');
+            getWrappers().forEach(function(w) {
+                w.classList.remove('border-2', 'border-blue-400');
+            });
+        }
+
+        function enableReorder() {
+            getWrappers().forEach(function(wrapper) {
+                wrapper.setAttribute('draggable', 'true');
+                wrapper.classList.add('relative', 'cursor-move', 'rounded-md', 'border-2', 'border-transparent');
+                var handle = wrapper.querySelector('.drag-handle-sidebar');
+                if (handle) handle.classList.remove('hidden');
+                // Prevent link clicks during reorder
+                var link = wrapper.querySelector('a');
+                if (link) link.style.pointerEvents = 'none';
+                wrapper.addEventListener('dragstart', handleDragStart);
+                wrapper.addEventListener('dragover', handleDragOver);
+                wrapper.addEventListener('dragleave', handleDragLeave);
+                wrapper.addEventListener('drop', handleDrop);
+                wrapper.addEventListener('dragend', handleDragEnd);
+            });
+        }
+
+        function disableReorder() {
+            getWrappers().forEach(function(wrapper) {
+                wrapper.setAttribute('draggable', 'false');
+                wrapper.classList.remove('relative', 'cursor-move', 'rounded-md', 'border-2', 'border-transparent', 'border-blue-400', 'opacity-50');
+                var handle = wrapper.querySelector('.drag-handle-sidebar');
+                if (handle) handle.classList.add('hidden');
+                var link = wrapper.querySelector('a');
+                if (link) link.style.pointerEvents = '';
+                wrapper.removeEventListener('dragstart', handleDragStart);
+                wrapper.removeEventListener('dragover', handleDragOver);
+                wrapper.removeEventListener('dragleave', handleDragLeave);
+                wrapper.removeEventListener('drop', handleDrop);
+                wrapper.removeEventListener('dragend', handleDragEnd);
+            });
+        }
+
+        function toggleReorderMode() {
+            isReordering = !isReordering;
+            if (isReordering) {
+                toggleBtn.textContent = 'Done';
+                toggleBtn.classList.add('text-green-600', 'hover:text-green-800');
+                toggleBtn.classList.remove('text-blue-600', 'hover:text-blue-800');
+                if (reorderInfo) reorderInfo.classList.remove('hidden');
+                enableReorder();
+            } else {
+                toggleBtn.textContent = 'Reorder';
+                toggleBtn.classList.remove('text-green-600', 'hover:text-green-800');
+                toggleBtn.classList.add('text-blue-600', 'hover:text-blue-800');
+                if (reorderInfo) reorderInfo.classList.add('hidden');
+                disableReorder();
+            }
+        }
+
+        function saveSectionOrder() {
+            var order = getWrappers().map(function(w) { return w.dataset.sectionId; });
+            var csrfToken = (window.contentEditorData && window.contentEditorData.csrfToken) || '';
+            var body = new URLSearchParams();
+            body.append('section_order', JSON.stringify(order));
+            body.append(window.contentEditorData && window.contentEditorData.csrfTokenName ? window.contentEditorData.csrfTokenName : '_csrf_token', csrfToken);
+
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Saving…';
+
+            fetch('/api/save-section-order.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: body.toString()
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    saveBtn.textContent = 'Saved!';
+                    setTimeout(function() {
+                        saveBtn.textContent = 'Save order';
+                        saveBtn.disabled = false;
+                        toggleReorderMode(); // exit reorder mode
+                    }, 800);
+                } else {
+                    saveBtn.textContent = 'Error – try again';
+                    saveBtn.disabled = false;
+                }
+            })
+            .catch(function() {
+                saveBtn.textContent = 'Error – try again';
+                saveBtn.disabled = false;
+            });
+        }
+
+        toggleBtn.addEventListener('click', toggleReorderMode);
+        if (saveBtn) saveBtn.addEventListener('click', saveSectionOrder);
+    }
+
+    // Initialise sidebar reorder once the DOM is ready (runs after initializeEditor)
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeSectionSidebarReorder();
+    });
+
     // Export for global access if needed
     window.contentEditor = {
         navigateToSection,

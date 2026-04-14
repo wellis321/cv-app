@@ -629,32 +629,53 @@ if ($activeTemplate) {
 
             <!-- CV Content -->
             <div class="p-6 sm:p-8">
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10">
-                    <!-- Left Column (Narrower) - Certifications, Education, Skills, Interests -->
-                    <div class="lg:col-span-1 min-w-0 overflow-hidden space-y-6 order-2 lg:order-1">
-                        <!-- Certifications -->
-                        <?php if (!empty($cvData['certifications'])): ?>
-                            <section>
-                                <h2 class="text-xl font-bold text-gray-900 mb-3 border-b-2 border-gray-300 pb-2">
-                                    Certifications
-                                </h2>
-                                <?php foreach ($cvData['certifications'] as $cert): ?>
-                                    <div class="mb-3">
-                                        <h3 class="font-semibold text-gray-900 text-sm"><?php echo e($cert['name']); ?></h3>
-                                        <p class="text-gray-700 text-sm"><?php echo e($cert['issuer']); ?></p>
-                                        <p class="text-gray-600 text-xs mt-1">
-                                            <?php echo formatCvDate($cert['date_obtained']); ?>
-                                            <?php if (!empty($cert['expiry_date'])): ?>
-                                                <br>Expires: <?php echo formatCvDate($cert['expiry_date']); ?>
-                                            <?php endif; ?>
-                                        </p>
-                                    </div>
-                                <?php endforeach; ?>
-                            </section>
-                        <?php endif; ?>
+                <?php
+                // Determine user's preferred section order for this CV page
+                $cvPageOrder = null;
+                if (!empty($profile['section_order'])) {
+                    $decoded = json_decode($profile['section_order'], true);
+                    if (is_array($decoded)) $cvPageOrder = $decoded;
+                }
+                $cvLeftDefault  = ['certifications', 'education', 'skills', 'interests'];
+                $cvRightDefault = ['professional-summary', 'work-experience', 'projects', 'qualification-equivalence', 'memberships'];
+                if ($cvPageOrder) {
+                    $cvPagePos = array_flip($cvPageOrder);
+                    $cvSortFn  = function($a, $b) use ($cvPagePos) {
+                        return ($cvPagePos[$a] ?? 999) - ($cvPagePos[$b] ?? 999);
+                    };
+                    usort($cvLeftDefault, $cvSortFn);
+                    usort($cvRightDefault, $cvSortFn);
+                }
 
-                        <!-- Education -->
-                        <?php if (!empty($cvData['education'])): ?>
+                // Capture each section's rendered HTML so we can output in the right order
+                $cvSectionBlocks = [];
+
+                // --- certifications ---
+                ob_start(); ?>
+                <?php if (!empty($cvData['certifications'])): ?>
+                    <section>
+                        <h2 class="text-xl font-bold text-gray-900 mb-3 border-b-2 border-gray-300 pb-2">
+                            Certifications
+                        </h2>
+                        <?php foreach ($cvData['certifications'] as $cert): ?>
+                            <div class="mb-3">
+                                <h3 class="font-semibold text-gray-900 text-sm"><?php echo e($cert['name']); ?></h3>
+                                <p class="text-gray-700 text-sm"><?php echo e($cert['issuer']); ?></p>
+                                <p class="text-gray-600 text-xs mt-1">
+                                    <?php echo formatCvDate($cert['date_obtained']); ?>
+                                    <?php if (!empty($cert['expiry_date'])): ?>
+                                        <br>Expires: <?php echo formatCvDate($cert['expiry_date']); ?>
+                                    <?php endif; ?>
+                                </p>
+                            </div>
+                        <?php endforeach; ?>
+                    </section>
+                <?php endif; ?>
+                <?php $cvSectionBlocks['certifications'] = ob_get_clean(); ?>
+
+                <!-- Education -->
+                <?php ob_start(); ?>
+                <?php if (!empty($cvData['education'])): ?>
                             <section>
                                 <h2 class="text-xl font-bold text-gray-900 mb-3 border-b-2 border-gray-300 pb-2">
                                     Education
@@ -684,88 +705,94 @@ if ($activeTemplate) {
                                 <?php endforeach; ?>
                             </section>
                         <?php endif; ?>
+                <?php $cvSectionBlocks['education'] = ob_get_clean(); ?>
 
-                        <!-- Skills -->
-                        <?php if (!empty($cvData['skills'])): ?>
-                            <section>
-                                <h2 class="text-xl font-bold text-gray-900 mb-3 border-b-2 border-gray-300 pb-2">
-                                    Skills
-                                </h2>
-                                <?php
-                                $skillsByCategory = [];
-                                foreach ($cvData['skills'] as $skill) {
-                                    $category = $skill['category'] ?? 'Other';
-                                    if (!isset($skillsByCategory[$category])) {
-                                        $skillsByCategory[$category] = [];
-                                    }
-                                    $skillsByCategory[$category][] = $skill;
-                                }
-                                ?>
-                                <?php foreach ($skillsByCategory as $category => $skills): ?>
-                                    <div class="mb-3">
-                                        <h3 class="font-semibold text-gray-800 text-sm mb-1"><?php echo e($category); ?>:</h3>
-                                        <div class="flex flex-wrap gap-1.5">
-                                            <?php foreach ($skills as $skill): ?>
-                                                <span class="bg-gray-100 px-2 py-0.5 rounded text-gray-700 text-xs">
-                                                    <?php echo e($skill['name']); ?>
-                                                    <?php if (!empty($skill['level'])): ?>
-                                                        <span class="text-gray-500">(<?php echo e($skill['level']); ?>)</span>
-                                                    <?php endif; ?>
-                                                </span>
-                                            <?php endforeach; ?>
-                                        </div>
-                                    </div>
-                                <?php endforeach; ?>
-                            </section>
-                        <?php endif; ?>
-
-                        <!-- Interests & Activities -->
-                        <?php if (!empty($cvData['interests'])): ?>
-                            <section id="cv-interests-section">
-                                <h2 class="text-xl font-bold text-gray-900 mb-3 border-b-2 border-gray-300 pb-2">
-                                    Interests & Activities
-                                </h2>
-                                <div class="space-y-3">
-                                    <?php foreach ($cvData['interests'] as $interest): ?>
-                                        <div class="min-w-0 rounded-lg border border-gray-200 bg-white/70 p-4 shadow-sm">
-                                            <h3 class="text-sm font-semibold text-gray-800">
-                                                <?php echo e($interest['name']); ?>
-                                            </h3>
-                                            <?php if (!empty($interest['description'])): ?>
-                                                <div class="mt-2 text-sm text-gray-600 leading-relaxed break-words markdown-content">
-                                                    <?php echo renderMarkdown(trim($interest['description'] ?? '')); ?>
-                                                </div>
+                <!-- Skills -->
+                <?php ob_start(); ?>
+                <?php if (!empty($cvData['skills'])): ?>
+                    <section>
+                        <h2 class="text-xl font-bold text-gray-900 mb-3 border-b-2 border-gray-300 pb-2">
+                            Skills
+                        </h2>
+                        <?php
+                        $skillsByCategory = [];
+                        foreach ($cvData['skills'] as $skill) {
+                            $category = $skill['category'] ?? 'Other';
+                            if (!isset($skillsByCategory[$category])) {
+                                $skillsByCategory[$category] = [];
+                            }
+                            $skillsByCategory[$category][] = $skill;
+                        }
+                        ?>
+                        <?php foreach ($skillsByCategory as $category => $skills): ?>
+                            <div class="mb-3">
+                                <h3 class="font-semibold text-gray-800 text-sm mb-1"><?php echo e($category); ?>:</h3>
+                                <div class="flex flex-wrap gap-1.5">
+                                    <?php foreach ($skills as $skill): ?>
+                                        <span class="bg-gray-100 px-2 py-0.5 rounded text-gray-700 text-xs">
+                                            <?php echo e($skill['name']); ?>
+                                            <?php if (!empty($skill['level'])): ?>
+                                                <span class="text-gray-500">(<?php echo e($skill['level']); ?>)</span>
                                             <?php endif; ?>
-                                        </div>
+                                        </span>
                                     <?php endforeach; ?>
                                 </div>
-                            </section>
-                        <?php endif; ?>
-                    </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </section>
+                <?php endif; ?>
+                <?php $cvSectionBlocks['skills'] = ob_get_clean(); ?>
 
-                    <!-- Right Column (Wider) - Summary, Work Experience, Projects, Memberships -->
-                    <div class="lg:col-span-2 min-w-0 space-y-6 order-1 lg:order-2">
-                        <!-- Professional Summary -->
-                        <?php if (!empty($cvData['professional_summary'])): ?>
-                            <section>
-                                <h2 class="text-xl font-bold text-gray-900 mb-3 border-b-2 border-gray-300 pb-2">
-                                    Professional Summary
-                                </h2>
-                                <?php if (!empty($cvData['professional_summary']['description'])): ?>
-                                    <div class="text-gray-700 mb-3 text-sm leading-relaxed markdown-content"><?php echo renderMarkdown($cvData['professional_summary']['description'] ?? ''); ?></div>
-                                <?php endif; ?>
-                                <?php if (!empty($cvData['professional_summary']['strengths'])): ?>
-                                    <h3 class="font-semibold text-gray-800 mb-2 text-sm">Key Strengths:</h3>
-                                    <ul class="list-disc list-inside space-y-1 text-sm">
-                                        <?php foreach ($cvData['professional_summary']['strengths'] as $strength): ?>
-                                            <li class="text-gray-700"><?php echo e(html_entity_decode($strength['strength'], ENT_QUOTES, 'UTF-8')); ?></li>
-                                        <?php endforeach; ?>
-                                    </ul>
-                                <?php endif; ?>
-                            </section>
-                        <?php endif; ?>
+                <!-- Interests & Activities -->
+                <?php ob_start(); ?>
+                <?php if (!empty($cvData['interests'])): ?>
+                    <section id="cv-interests-section">
+                        <h2 class="text-xl font-bold text-gray-900 mb-3 border-b-2 border-gray-300 pb-2">
+                            Interests & Activities
+                        </h2>
+                        <div class="space-y-3">
+                            <?php foreach ($cvData['interests'] as $interest): ?>
+                                <div class="min-w-0 rounded-lg border border-gray-200 bg-white/70 p-4 shadow-sm">
+                                    <h3 class="text-sm font-semibold text-gray-800">
+                                        <?php echo e($interest['name']); ?>
+                                    </h3>
+                                    <?php if (!empty($interest['description'])): ?>
+                                        <div class="mt-2 text-sm text-gray-600 leading-relaxed break-words markdown-content">
+                                            <?php echo renderMarkdown(trim($interest['description'] ?? '')); ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </section>
+                <?php endif; ?>
+                <?php $cvSectionBlocks['interests'] = ob_get_clean(); ?>
 
-                        <!-- Work Experience -->
+                <!-- Right column section captures start here -->
+                <!-- Professional Summary -->
+                <?php ob_start(); ?>
+                <?php if (!empty($cvData['professional_summary'])): ?>
+                    <section>
+                        <h2 class="text-xl font-bold text-gray-900 mb-3 border-b-2 border-gray-300 pb-2">
+                            Professional Summary
+                        </h2>
+                        <?php if (!empty($cvData['professional_summary']['description'])): ?>
+                            <div class="text-gray-700 mb-3 text-sm leading-relaxed markdown-content"><?php echo renderMarkdown($cvData['professional_summary']['description'] ?? ''); ?></div>
+                        <?php endif; ?>
+                        <?php if (!empty($cvData['professional_summary']['strengths'])): ?>
+                            <h3 class="font-semibold text-gray-800 mb-2 text-sm">Key Strengths:</h3>
+                            <ul class="list-disc list-inside space-y-1 text-sm">
+                                <?php foreach ($cvData['professional_summary']['strengths'] as $strength): ?>
+                                    <li class="text-gray-700"><?php echo e(html_entity_decode($strength['strength'], ENT_QUOTES, 'UTF-8')); ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php endif; ?>
+                    </section>
+                <?php endif; ?>
+                <?php $cvSectionBlocks['professional-summary'] = ob_get_clean(); ?>
+
+                <!-- Work Experience -->
+                <?php ob_start(); ?>
                         <?php if (!empty($cvData['work_experience'])): ?>
                             <section>
                                 <h2 class="text-xl font-bold text-gray-900 mb-3 border-b-2 border-gray-300 pb-2">
@@ -838,19 +865,21 @@ if ($activeTemplate) {
                                 <?php endforeach; ?>
                             </section>
                         <?php endif; ?>
+                <?php $cvSectionBlocks['work-experience'] = ob_get_clean(); ?>
 
-                        <!-- Projects -->
-                        <?php if (!empty($cvData['projects'])): ?>
-                            <section>
-                                <h2 class="text-xl font-bold text-gray-900 mb-3 border-b-2 border-gray-300 pb-2">
-                                    Projects
-                                </h2>
-                                <?php foreach ($cvData['projects'] as $project): ?>
-                                    <div class="mb-4">
-                                        <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between mb-1">
-                                            <?php
-                                            $projectUrl = !empty($project['url']) ? html_entity_decode($project['url'], ENT_QUOTES, 'UTF-8') : '';
-                                            ?>
+                <!-- Projects -->
+                <?php ob_start(); ?>
+                <?php if (!empty($cvData['projects'])): ?>
+                    <section>
+                        <h2 class="text-xl font-bold text-gray-900 mb-3 border-b-2 border-gray-300 pb-2">
+                            Projects
+                        </h2>
+                        <?php foreach ($cvData['projects'] as $project): ?>
+                            <div class="mb-4">
+                                <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between mb-1">
+                                    <?php
+                                    $projectUrl = !empty($project['url']) ? html_entity_decode($project['url'], ENT_QUOTES, 'UTF-8') : '';
+                                    ?>
                                             <h3 class="text-lg font-semibold text-gray-900 flex items-center min-w-0">
                                                 <?php if (!empty($projectUrl)): ?>
                                                     <a href="<?php echo e($projectUrl); ?>" target="_blank" class="inline-flex items-center text-blue-700 hover:text-blue-900">
@@ -927,9 +956,11 @@ if ($activeTemplate) {
                                 <?php endforeach; ?>
                             </section>
                         <?php endif; ?>
+                <?php $cvSectionBlocks['projects'] = ob_get_clean(); ?>
 
-                        <!-- Professional Qualification Equivalence -->
-                        <?php if (!empty($cvData['qualification_equivalence'])): ?>
+                <!-- Professional Qualification Equivalence -->
+                <?php ob_start(); ?>
+                <?php if (!empty($cvData['qualification_equivalence'])): ?>
                             <section>
                                 <h2 class="text-xl font-bold text-gray-900 mb-3 border-b-2 border-gray-300 pb-2">
                                     Professional Qualification Equivalence
@@ -969,9 +1000,11 @@ if ($activeTemplate) {
                                 <?php endforeach; ?>
                             </section>
                         <?php endif; ?>
+                <?php $cvSectionBlocks['qualification-equivalence'] = ob_get_clean(); ?>
 
-                        <!-- Professional Memberships -->
-                        <?php if (!empty($cvData['memberships'])): ?>
+                <!-- Professional Memberships -->
+                <?php ob_start(); ?>
+                <?php if (!empty($cvData['memberships'])): ?>
                             <section>
                                 <h2 class="text-xl font-bold text-gray-900 mb-3 border-b-2 border-gray-300 pb-2">
                                     Professional Memberships
@@ -1003,8 +1036,18 @@ if ($activeTemplate) {
                                     </div>
                                 <?php endforeach; ?>
                             </section>
-                            <?php endif; ?>
-                        </div>
+                        <?php endif; ?>
+                <?php $cvSectionBlocks['memberships'] = ob_get_clean(); ?>
+
+                <!-- Render columns in user-defined order -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10">
+                    <!-- Left Column (Narrower) -->
+                    <div class="lg:col-span-1 min-w-0 overflow-hidden space-y-6 order-2 lg:order-1">
+                        <?php foreach ($cvLeftDefault as $cvSId) echo $cvSectionBlocks[$cvSId] ?? ''; ?>
+                    </div>
+                    <!-- Right Column (Wider) -->
+                    <div class="lg:col-span-2 min-w-0 space-y-6 order-1 lg:order-2">
+                        <?php foreach ($cvRightDefault as $cvSId) echo $cvSectionBlocks[$cvSId] ?? ''; ?>
                     </div>
                 </div>
             </div>
