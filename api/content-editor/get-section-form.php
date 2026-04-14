@@ -156,6 +156,26 @@ if ($sectionId === 'profile') {
     exit;
 }
 
+// Handle custom sections (IDs like "custom-<uuid>")
+if (str_starts_with($sectionId, 'custom-')) {
+    // Strip "custom-" prefix to get DB id
+    $customSectionId = substr($sectionId, 7);
+    // Verify ownership
+    $customSection = db()->fetchOne(
+        "SELECT * FROM custom_sections WHERE id = ? AND profile_id = ?",
+        [$customSectionId, $userId]
+    );
+    if (!$customSection) {
+        echo '<div class="bg-red-50 border border-red-200 rounded-md p-4"><p class="text-sm font-medium text-red-800">Section not found</p></div>';
+        exit;
+    }
+    $partialPath = __DIR__ . '/../../views/partials/content-editor/custom-section-form.php';
+    if (file_exists($partialPath)) {
+        include $partialPath;
+    }
+    exit;
+}
+
 // Validate section ID
 $validSections = ['professional-summary', 'work-experience', 'education', 'skills', 'projects', 'certifications', 'memberships', 'interests', 'qualification-equivalence'];
 if (!in_array($sectionId, $validSections)) {

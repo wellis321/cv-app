@@ -23,10 +23,11 @@
         if (hash) {
             const hashParts = hash.split('&');
             const sectionFromHash = hashParts[0];
-            // Allow CV sections, jobs, ai-tools, and cv-variants
+            // Allow CV sections, jobs, ai-tools, cv-variants, and custom sections
             const validSections = ['jobs', 'ai-tools', 'cv-variants'];
             const isValidCvSection = data.sections && data.sections.some(s => s.id === sectionFromHash);
-            if (sectionFromHash && (isValidCvSection || validSections.includes(sectionFromHash))) {
+            const isCustomSection = sectionFromHash && sectionFromHash.startsWith('custom-');
+            if (sectionFromHash && (isValidCvSection || validSections.includes(sectionFromHash) || isCustomSection)) {
                 currentSectionId = sectionFromHash;
             }
         }
@@ -51,8 +52,9 @@
             const hash = window.location.hash;
             // Only manipulate hash if it's not a content-editor hash (doesn't start with #jobs, #ai-tools, #cv-variants, or section IDs)
             const hashValue = hash.substring(1);
-            const isContentEditorHash = data.sections?.some(s => s.id === hashValue.split('&')[0]) || 
-                                       ['jobs', 'ai-tools', 'cv-variants'].includes(hashValue.split('&')[0]);
+            const isContentEditorHash = data.sections?.some(s => s.id === hashValue.split('&')[0]) ||
+                                       ['jobs', 'ai-tools', 'cv-variants'].includes(hashValue.split('&')[0]) ||
+                                       hashValue.split('&')[0].startsWith('custom-');
             if (!isContentEditorHash) {
                 window.history.replaceState(null, null, ' ');
                 setTimeout(() => {
@@ -357,6 +359,49 @@
                 }
             }, 100);
             
+            // Handle delete custom section button (emitted by custom-section-form.php)
+            var deleteCustomSectionBtn = contentArea.querySelector('[data-action="delete-custom-section"]');
+            if (deleteCustomSectionBtn) {
+                deleteCustomSectionBtn.addEventListener('click', function() {
+                    var sId = this.dataset.sectionId;
+                    if (!confirm('Delete this custom section and all its items?')) return;
+                    var csrfToken = (window.contentEditorData && window.contentEditorData.csrfToken) || '';
+                    var csrfTokenName = (window.contentEditorData && window.contentEditorData.csrfTokenName) || '_csrf_token';
+                    var body = new URLSearchParams();
+                    body.append('action', 'delete');
+                    body.append('id', sId);
+                    body.append(csrfTokenName, csrfToken);
+                    fetch('/api/content-editor/save-custom-section.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: body.toString()
+                    }).then(function(r) { return r.json(); }).then(function(resp) {
+                        if (resp.success) {
+                            // Remove from sidebar nav
+                            var navLink = document.querySelector('a[data-section-id="custom-' + sId + '"]');
+                            if (navLink) navLink.remove();
+                            navigateToSection('professional-summary');
+                        }
+                    }).catch(function() {});
+                });
+            }
+
+            // Execute inline scripts from custom section form (and other partials that use them)
+            if (sectionId.startsWith('custom-')) {
+                setTimeout(function() {
+                    var scripts = contentArea.querySelectorAll('script');
+                    scripts.forEach(function(oldScript) {
+                        if (oldScript.src) return;
+                        var newScript = document.createElement('script');
+                        Array.from(oldScript.attributes).forEach(function(attr) {
+                            newScript.setAttribute(attr.name, attr.value);
+                        });
+                        newScript.textContent = oldScript.textContent;
+                        oldScript.parentNode.replaceChild(newScript, oldScript);
+                    });
+                }, 50);
+            }
+
             // Initialize form handlers (only for CV sections, not jobs/ai-tools/cv-variants)
             if (sectionId !== 'jobs' && sectionId !== 'ai-tools' && sectionId !== 'cv-variants') {
                 initializeFormHandlers(sectionId);
@@ -763,13 +808,18 @@
         }
         const submitButton = form.querySelector('button[type="submit"]');
         const originalText = submitButton ? submitButton.textContent : 'Save';
-        
+
         if (submitButton) {
             submitButton.disabled = true;
             submitButton.textContent = 'Saving...';
         }
 
-        fetch('/api/content-editor/save-section.php', {
+        // Use the form's own action attribute when set (e.g. custom item forms post to save-custom-item.php)
+        const submitUrl = (form.getAttribute('action') && !form.getAttribute('action').endsWith('/content-editor.php'))
+            ? form.getAttribute('action')
+            : '/api/content-editor/save-section.php';
+
+        fetch(submitUrl, {
             method: 'POST',
             body: formData,
             credentials: 'include',
@@ -2222,6 +2272,87 @@
         toggleBtn.addEventListener('click', toggleReorderMode);
         if (saveBtn) saveBtn.addEventListener('click', saveSectionOrder);
     }
+
+    function initializeCustomSections() {
+        var addBtn    = document.getElementById('add-custom-section-btn');
+        var addForm   = document.getElementById('add-custom-section-form');
+        var titleInput = document.getElementById('new-custom-section-title');
+        var createBtn  = document.getElementById('create-custom-section-btn');
+        var navList    = document.getElementById('custom-sections-nav');
+        var noMsg      = document.getElementById('no-custom-sections-msg');
+
+        if (!addBtn) return;
+
+        addBtn.addEventListener('click', function() {
+            addForm.classList.toggle('hidden');
+            if (!addForm.classList.contains('hidden') && titleInput) titleInput.focus();
+        });
+
+        if (titleInput) {
+            titleInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') { e.preventDefault(); if (createBtn) createBtn.click(); }
+            });
+        }
+
+        if (createBtn) {
+            createBtn.addEventListener('click', function() {
+                var title = (titleInput ? titleInput.value : '').trim();
+                if (!title) { if (titleInput) titleInput.focus(); return; }
+
+                var csrfToken     = (window.contentEditorData && window.contentEditorData.csrfToken) || '';
+                var csrfTokenName = (window.contentEditorData && window.contentEditorData.csrfTokenName) || '_csrf_token';
+                var body = new URLSearchParams();
+                body.append('action', 'create');
+                body.append('title', title);
+                body.append(csrfTokenName, csrfToken);
+
+                createBtn.disabled = true;
+
+                fetch('/api/content-editor/save-custom-section.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: body.toString()
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(resp) {
+                    if (resp.success && resp.id) {
+                        var sectionId = 'custom-' + resp.id;
+                        if (noMsg) noMsg.remove();
+                        var a = document.createElement('a');
+                        a.href = '#' + sectionId;
+                        a.className = 'section-nav-item flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium transition-colors text-gray-700 hover:bg-gray-50';
+                        a.dataset.sectionId = sectionId;
+                        var escapedTitle = resp.title
+                            .replace(/&/g, '&amp;')
+                            .replace(/</g, '&lt;')
+                            .replace(/>/g, '&gt;');
+                        a.innerHTML = '<div class="flex items-center min-w-0">' +
+                            '<svg class="w-5 h-5 mr-2 flex-shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
+                            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>' +
+                            '</svg>' +
+                            '<span class="truncate">' + escapedTitle + '</span>' +
+                            '</div>';
+                        if (navList) navList.appendChild(a);
+                        a.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            navigateToSection(sectionId);
+                        });
+                        if (titleInput) titleInput.value = '';
+                        if (addForm) addForm.classList.add('hidden');
+                        createBtn.disabled = false;
+                        navigateToSection(sectionId);
+                    } else {
+                        createBtn.disabled = false;
+                    }
+                })
+                .catch(function() { createBtn.disabled = false; });
+            });
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeCustomSections();
+    });
 
     // Initialise sidebar reorder once the DOM is ready (runs after initializeEditor)
     document.addEventListener('DOMContentLoaded', function() {

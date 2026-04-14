@@ -647,6 +647,24 @@ if ($activeTemplate) {
                     usort($cvRightDefault, $cvSortFn);
                 }
 
+                // Load custom sections for this profile
+                $cvCustomSections = db()->fetchAll(
+                    "SELECT * FROM custom_sections WHERE profile_id = ? ORDER BY sort_order ASC, created_at ASC",
+                    [$profileUserId]
+                );
+                // Load items for each custom section
+                foreach ($cvCustomSections as &$cs) {
+                    $cs['items'] = db()->fetchAll(
+                        "SELECT * FROM custom_section_items WHERE custom_section_id = ? ORDER BY sort_order ASC, created_at ASC",
+                        [$cs['id']]
+                    );
+                }
+                unset($cs);
+                // Add custom section IDs to right column default (after standard sections)
+                foreach ($cvCustomSections as $cs) {
+                    $cvRightDefault[] = 'custom-' . $cs['id'];
+                }
+
                 // Capture each section's rendered HTML so we can output in the right order
                 $cvSectionBlocks = [];
 
@@ -1038,6 +1056,40 @@ if ($activeTemplate) {
                             </section>
                         <?php endif; ?>
                 <?php $cvSectionBlocks['memberships'] = ob_get_clean(); ?>
+
+                <!-- Custom Sections -->
+                <?php foreach ($cvCustomSections as $cs): ?>
+                    <?php ob_start(); ?>
+                    <?php if (!empty($cs['items'])): ?>
+                    <section>
+                        <h2 class="text-xl font-bold text-gray-900 mb-3 border-b-2 border-gray-300 pb-2">
+                            <?php echo e($cs['title']); ?>
+                        </h2>
+                        <?php foreach ($cs['items'] as $item): ?>
+                            <div class="mb-3">
+                                <div class="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+                                    <div class="min-w-0">
+                                        <h3 class="font-semibold text-gray-900 text-sm"><?php echo e($item['title']); ?></h3>
+                                        <?php if (!empty($item['subtitle'])): ?>
+                                            <p class="text-gray-700 text-sm"><?php echo e($item['subtitle']); ?></p>
+                                        <?php endif; ?>
+                                    </div>
+                                    <?php if (!empty($item['item_date'])): ?>
+                                        <div class="text-gray-600 text-sm whitespace-nowrap flex-shrink-0"><?php echo e($item['item_date']); ?></div>
+                                    <?php endif; ?>
+                                </div>
+                                <?php if (!empty($item['url'])): ?>
+                                    <p class="text-sm mt-1"><a href="<?php echo e(html_entity_decode($item['url'], ENT_QUOTES, 'UTF-8')); ?>" target="_blank" rel="noopener" class="text-blue-600 hover:text-blue-800 break-all"><?php echo e(html_entity_decode($item['url'], ENT_QUOTES, 'UTF-8')); ?></a></p>
+                                <?php endif; ?>
+                                <?php if (!empty($item['description'])): ?>
+                                    <div class="mt-1 text-sm text-gray-600 leading-relaxed markdown-content"><?php echo renderMarkdown($item['description']); ?></div>
+                                <?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
+                    </section>
+                    <?php endif; ?>
+                    <?php $cvSectionBlocks['custom-' . $cs['id']] = ob_get_clean(); ?>
+                <?php endforeach; ?>
 
                 <!-- Render columns in user-defined order -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10">
