@@ -134,11 +134,49 @@ $profileComplete = !empty($profileRow['full_name']) && !empty($profileRow['usern
                 </a>
             </nav>
 
-            <!-- Main body sections (right column on CV) -->
+            <!-- Main body sections (right column on CV) — includes custom sections -->
+            <?php
+            $customSections = db()->fetchAll(
+                "SELECT * FROM custom_sections WHERE profile_id = ? ORDER BY sort_order ASC, created_at ASC",
+                [$userId]
+            );
+            // Apply saved order to custom sections too
+            if (!empty($savedOrderRaw['section_order'])) {
+                $savedOrder = json_decode($savedOrderRaw['section_order'], true);
+                if (is_array($savedOrder)) {
+                    $savedPos = array_flip($savedOrder);
+                    usort($customSections, fn($a, $b) =>
+                        ($savedPos['custom-' . $a['id']] ?? 999) - ($savedPos['custom-' . $b['id']] ?? 999)
+                    );
+                }
+            }
+            ?>
             <p class="text-xs font-medium text-gray-400 uppercase tracking-wide px-1 mb-1 section-group-label">Main</p>
             <nav id="main-sections-list" class="space-y-1 mb-3">
                 <?php foreach ($mainSections as $section): ?>
                     <?php include __DIR__ . '/_section-nav-item.php'; ?>
+                <?php endforeach; ?>
+                <?php foreach ($customSections as $cs):
+                    $csId = 'custom-' . $cs['id'];
+                    $isActive = $currentSectionId === $csId;
+                ?>
+                    <div class="section-nav-wrapper relative" data-section-id="<?php echo e($csId); ?>" draggable="false">
+                        <div class="drag-handle-sidebar hidden absolute left-0 top-0 bottom-0 flex items-center pl-1 cursor-move text-gray-400" style="z-index:1">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M7 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM7 8a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM7 14a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 8a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 14a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/>
+                            </svg>
+                        </div>
+                        <a href="#<?php echo e($csId); ?>"
+                           class="section-nav-item flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium transition-colors <?php echo $isActive ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-50'; ?>"
+                           data-section-id="<?php echo e($csId); ?>">
+                            <div class="flex items-center min-w-0">
+                                <svg class="w-5 h-5 mr-2 flex-shrink-0 <?php echo $isActive ? 'text-blue-600' : 'text-gray-400'; ?>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                <span class="truncate"><?php echo e($cs['title']); ?></span>
+                            </div>
+                        </a>
+                    </div>
                 <?php endforeach; ?>
             </nav>
 
@@ -151,20 +189,13 @@ $profileComplete = !empty($profileRow['full_name']) && !empty($profileRow['usern
             </nav>
         </div>
 
-        <!-- Custom Sections -->
-        <?php
-        $customSections = db()->fetchAll(
-            "SELECT * FROM custom_sections WHERE profile_id = ? ORDER BY sort_order ASC, created_at ASC",
-            [$userId]
-        );
-        ?>
+        <!-- Custom Sections — "+ Add" only; items live in the Main list above -->
         <div class="border-t border-gray-200 pt-4 mt-2">
             <div class="flex items-center justify-between mb-2">
                 <p class="text-xs font-medium text-gray-400 uppercase tracking-wide px-1">Custom Sections</p>
                 <button id="add-custom-section-btn" type="button"
                         class="text-xs text-blue-600 hover:text-blue-800 font-medium focus:outline-none">+ Add</button>
             </div>
-            <!-- Inline create form (hidden by default) -->
             <div id="add-custom-section-form" class="hidden mb-2">
                 <div class="flex gap-1">
                     <input type="text" id="new-custom-section-title" placeholder="Section name" maxlength="255"
@@ -173,23 +204,6 @@ $profileComplete = !empty($profileRow['full_name']) && !empty($profileRow['usern
                             class="px-2 py-1 bg-blue-600 text-white text-xs rounded-md hover:bg-blue-700">Add</button>
                 </div>
             </div>
-            <nav id="custom-sections-nav" class="space-y-1">
-                <?php foreach ($customSections as $cs): ?>
-                    <a href="#custom-<?php echo e($cs['id']); ?>"
-                       class="section-nav-item flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium transition-colors <?php echo $currentSectionId === 'custom-' . $cs['id'] ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-50'; ?>"
-                       data-section-id="custom-<?php echo e($cs['id']); ?>">
-                        <div class="flex items-center min-w-0">
-                            <svg class="w-5 h-5 mr-2 flex-shrink-0 <?php echo $currentSectionId === 'custom-' . $cs['id'] ? 'text-blue-600' : 'text-gray-400'; ?>" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                            </svg>
-                            <span class="truncate"><?php echo e($cs['title']); ?></span>
-                        </div>
-                    </a>
-                <?php endforeach; ?>
-                <?php if (empty($customSections)): ?>
-                    <p class="text-xs text-gray-400 px-3 py-1" id="no-custom-sections-msg">No custom sections yet.</p>
-                <?php endif; ?>
-            </nav>
         </div>
 
         <!-- Jobs Section -->

@@ -2317,26 +2317,37 @@
                 .then(function(resp) {
                     if (resp.success && resp.id) {
                         var sectionId = 'custom-' + resp.id;
-                        if (noMsg) noMsg.remove();
-                        var a = document.createElement('a');
-                        a.href = '#' + sectionId;
-                        a.className = 'section-nav-item flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium transition-colors text-gray-700 hover:bg-gray-50';
-                        a.dataset.sectionId = sectionId;
                         var escapedTitle = resp.title
                             .replace(/&/g, '&amp;')
                             .replace(/</g, '&lt;')
                             .replace(/>/g, '&gt;');
-                        a.innerHTML = '<div class="flex items-center min-w-0">' +
-                            '<svg class="w-5 h-5 mr-2 flex-shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
-                            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>' +
-                            '</svg>' +
+
+                        // Add as a draggable wrapper into the Main list (so it's reorderable)
+                        var mainList = document.getElementById('main-sections-list');
+                        var wrapper = document.createElement('div');
+                        wrapper.className = 'section-nav-wrapper relative';
+                        wrapper.dataset.sectionId = sectionId;
+                        wrapper.setAttribute('draggable', 'false');
+                        wrapper.innerHTML =
+                            '<div class="drag-handle-sidebar hidden absolute left-0 top-0 bottom-0 flex items-center pl-1 cursor-move text-gray-400" style="z-index:1">' +
+                            '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M7 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM7 8a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM7 14a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 8a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 14a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></svg>' +
+                            '</div>' +
+                            '<a href="#' + sectionId + '" class="section-nav-item flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium transition-colors text-gray-700 hover:bg-gray-50" data-section-id="' + sectionId + '">' +
+                            '<div class="flex items-center min-w-0">' +
+                            '<svg class="w-5 h-5 mr-2 flex-shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>' +
                             '<span class="truncate">' + escapedTitle + '</span>' +
-                            '</div>';
-                        if (navList) navList.appendChild(a);
-                        a.addEventListener('click', function(e) {
-                            e.preventDefault();
-                            navigateToSection(sectionId);
-                        });
+                            '</div></a>';
+                        if (mainList) mainList.appendChild(wrapper);
+
+                        // Wire up the inner link click
+                        var innerLink = wrapper.querySelector('a');
+                        if (innerLink) {
+                            innerLink.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                navigateToSection(sectionId);
+                            });
+                        }
+
                         if (titleInput) titleInput.value = '';
                         if (addForm) addForm.classList.add('hidden');
                         createBtn.disabled = false;

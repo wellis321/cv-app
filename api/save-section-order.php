@@ -54,9 +54,9 @@ try {
         exit;
     }
 
-    // Validate all submitted IDs are recognised
+    // Validate all submitted IDs are recognised (standard sections or custom-<uuid>)
     foreach ($sectionOrder as $id) {
-        if (!in_array($id, $validSectionIds, true)) {
+        if (!in_array($id, $validSectionIds, true) && !preg_match('/^custom-[0-9a-f\-]{36}$/', $id)) {
             http_response_code(400);
             echo json_encode(['error' => 'Unknown section ID: ' . $id]);
             exit;
