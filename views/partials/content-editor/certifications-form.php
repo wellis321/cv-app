@@ -17,7 +17,7 @@ if ($variantId) {
         if ($editingId) {
             $editingCertification = db()->fetchOne("SELECT * FROM cv_variant_certifications WHERE cv_variant_id = ? AND (id = ? OR original_certification_id = ?)", [$variantId, $editingId, $editingId]);
         }
-        $certifications = db()->fetchAll("SELECT * FROM cv_variant_certifications WHERE cv_variant_id = ? ORDER BY date_obtained DESC", [$variantId]);
+        $certifications = db()->fetchAll("SELECT * FROM cv_variant_certifications WHERE cv_variant_id = ? ORDER BY sort_order ASC, date_obtained DESC", [$variantId]);
     }
 }
 
@@ -25,7 +25,7 @@ if (!$isVariantContext) {
     if ($editingId) {
         $editingCertification = db()->fetchOne("SELECT * FROM certifications WHERE id = ? AND profile_id = ?", [$editingId, $userId]);
     }
-    $certifications = db()->fetchAll("SELECT * FROM certifications WHERE profile_id = ? ORDER BY date_obtained DESC", [$userId]);
+    $certifications = db()->fetchAll("SELECT * FROM certifications WHERE profile_id = ? ORDER BY sort_order ASC, date_obtained DESC", [$userId]);
 }
 
 $canAddCertification = planCanAddEntry($subscriptionContext, 'certifications', $userId, count($certifications));
@@ -102,23 +102,55 @@ $canAddCertification = planCanAddEntry($subscriptionContext, 'certifications', $
                 <p>No certifications added yet.</p>
             </div>
         <?php else: ?>
-            <div class="space-y-4">
+            <?php
+            $showReorder = !$isVariantContext && count($certifications) >= 2;
+            if ($showReorder):
+            ?>
+            <!-- Reorder controls (main profile only, 2+ items) -->
+            <div class="mb-4 flex flex-wrap justify-between items-center gap-3">
+                <button type="button" id="toggle-cert-reorder-btn" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                    Reorder certifications
+                </button>
+                <div id="cert-reorder-info" class="hidden rounded-md bg-blue-50 p-4 text-blue-700 flex-1 min-w-0">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <p class="text-sm">
+                            <strong>Reorder mode:</strong> Drag and drop to change order. Order is saved automatically.
+                        </p>
+                        <button type="button" id="reset-cert-reorder-btn" class="shrink-0 rounded-md bg-blue-600 px-3 py-1 text-xs text-white hover:bg-blue-700">
+                            Reset to date order
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
+            <div id="certifications-list" class="space-y-4">
                 <?php foreach ($certifications as $cert): ?>
-                    <div class="bg-white shadow rounded-lg p-6">
+                    <div class="certification-item bg-white shadow rounded-lg p-6 <?php echo $showReorder ? 'border border-gray-200' : ''; ?>"
+                         data-id="<?php echo e($cert['id']); ?>"
+                         <?php echo $showReorder ? 'draggable="false"' : ''; ?>>
                         <div class="flex justify-between items-start">
-                            <div>
-                                <h3 class="text-xl font-semibold text-gray-900"><?php echo e($cert['name']); ?></h3>
-                                <p class="text-lg text-gray-700"><?php echo e($cert['issuer']); ?></p>
-                                <?php if ($cert['date_obtained'] || $cert['expiry_date']): ?>
-                                    <p class="text-sm text-gray-500">
-                                        <?php if ($cert['date_obtained']): ?>
-                                            Issued: <?php echo date('M Y', strtotime($cert['date_obtained'])); ?>
-                                        <?php endif; ?>
-                                        <?php if ($cert['expiry_date']): ?>
-                                            <?php echo $cert['date_obtained'] ? ' · ' : ''; ?>Expires: <?php echo date('M Y', strtotime($cert['expiry_date'])); ?>
-                                        <?php endif; ?>
-                                    </p>
+                            <div class="flex items-start gap-3">
+                                <?php if ($showReorder): ?>
+                                <div class="drag-handle hidden cursor-move text-gray-400 hover:text-gray-600 mt-1 shrink-0" aria-hidden="true">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path>
+                                    </svg>
+                                </div>
                                 <?php endif; ?>
+                                <div>
+                                    <h3 class="text-xl font-semibold text-gray-900"><?php echo e($cert['name']); ?></h3>
+                                    <p class="text-lg text-gray-700"><?php echo e($cert['issuer']); ?></p>
+                                    <?php if (empty($cert['hide_date']) && ($cert['date_obtained'] || $cert['expiry_date'])): ?>
+                                        <p class="text-sm text-gray-500">
+                                            <?php if ($cert['date_obtained']): ?>
+                                                Issued: <?php echo date('M Y', strtotime($cert['date_obtained'])); ?>
+                                            <?php endif; ?>
+                                            <?php if ($cert['expiry_date']): ?>
+                                                <?php echo $cert['date_obtained'] ? ' · ' : ''; ?>Expires: <?php echo date('M Y', strtotime($cert['expiry_date'])); ?>
+                                            <?php endif; ?>
+                                        </p>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                             <div class="flex gap-2">
                                 <button type="button" data-action="edit" data-entry-id="<?php echo e($cert['id']); ?>" class="px-3 py-1.5 bg-green-50 text-green-700 text-sm font-medium rounded-md border border-green-200 hover:bg-green-100 hover:border-green-300 focus:outline-none focus:ring-1 focus:ring-green-500 transition-colors">Edit</button>

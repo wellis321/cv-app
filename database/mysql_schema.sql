@@ -115,10 +115,12 @@ CREATE TABLE IF NOT EXISTS certifications (
     issuer VARCHAR(255) NOT NULL,
     date_obtained DATE NOT NULL,
     expiry_date DATE,
+    sort_order INT NOT NULL DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE,
-    INDEX idx_certifications_profile (profile_id)
+    INDEX idx_certifications_profile (profile_id),
+    INDEX idx_certifications_sort (profile_id, sort_order)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Create professional_memberships table

@@ -378,6 +378,12 @@
                         initializeWorkExperienceReorder(contentArea);
                     }, 150);
                 }
+                // Initialize certifications reorder
+                if (sectionId === 'certifications') {
+                    setTimeout(() => {
+                        initializeCertificationsReorder(contentArea);
+                    }, 150);
+                }
             } else if (sectionId === 'cv-variants') {
                 // Extract and execute inline scripts for CV variants panel (list or create form)
                 // Inline scripts don't execute when inserted via innerHTML, so we need to extract and run them
@@ -1878,6 +1884,171 @@
                 });
             } else {
                 toggleBtn.textContent = 'Reorder experiences';
+                toggleBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                toggleBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                if (reorderInfo) reorderInfo.classList.add('hidden');
+                items.forEach(function(item) {
+                    item.setAttribute('draggable', 'false');
+                    item.classList.remove('cursor-move', 'border-2', 'border-blue-300', 'border-blue-500', 'bg-blue-50');
+                    var h = item.querySelector('.drag-handle');
+                    if (h) h.classList.add('hidden');
+                    item.removeEventListener('dragstart', handleDragStart);
+                    item.removeEventListener('dragover', handleDragOver);
+                    item.removeEventListener('dragleave', handleDragLeave);
+                    item.removeEventListener('drop', handleDrop);
+                    item.removeEventListener('dragend', handleDragEnd);
+                });
+            }
+        }
+
+        toggleBtn.addEventListener('click', toggleReorderMode);
+        if (resetBtn) resetBtn.addEventListener('click', resetToDateOrder);
+    }
+
+    function initializeCertificationsReorder(container) {
+        const list = container.querySelector('#certifications-list');
+        const toggleBtn = container.querySelector('#toggle-cert-reorder-btn');
+        const resetBtn = container.querySelector('#reset-cert-reorder-btn');
+        const reorderInfo = container.querySelector('#cert-reorder-info');
+        if (!list || !toggleBtn) return;
+
+        let isReordering = false;
+        let draggedElement = null;
+
+        function getCsrfToken() {
+            const input = container.querySelector('input[name="csrf_token"]');
+            return input ? input.value : '';
+        }
+
+        function saveOrder() {
+            const items = list.querySelectorAll('.certification-item');
+            const orderedIds = Array.from(items).map(function(item) { return item.getAttribute('data-id'); });
+
+            const formData = new FormData();
+            formData.append('csrf_token', getCsrfToken());
+            formData.append('action', 'reorder');
+            formData.append('ordered_ids', JSON.stringify(orderedIds));
+
+            fetch('/api/reorder-certifications.php', {
+                method: 'POST',
+                body: formData,
+                credentials: 'include'
+            })
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    let msg = container.querySelector('.cert-reorder-success');
+                    if (!msg) {
+                        msg = document.createElement('div');
+                        msg.className = 'cert-reorder-success mb-4 rounded-md bg-green-50 p-4 text-green-700 text-sm';
+                        const parent = container.querySelector('#certifications-entries-list');
+                        if (parent && parent.firstChild) parent.insertBefore(msg, parent.firstChild);
+                        else if (parent) parent.appendChild(msg);
+                    }
+                    msg.textContent = 'Order updated successfully.';
+                    msg.classList.remove('hidden');
+                    setTimeout(function() { msg.classList.add('hidden'); }, 3000);
+                } else {
+                    alert('Failed to save order. Please try again.');
+                }
+            })
+            .catch(function() {
+                alert('Failed to save order. Please try again.');
+            });
+        }
+
+        function resetToDateOrder() {
+            if (!confirm('Reset order to date-based sorting (newest first)?')) return;
+            const formData = new FormData();
+            formData.append('csrf_token', getCsrfToken());
+            formData.append('action', 'reset');
+            fetch('/api/reorder-certifications.php', {
+                method: 'POST',
+                body: formData,
+                credentials: 'include'
+            })
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    loadSection('certifications');
+                } else {
+                    alert('Failed to reset order. Please try again.');
+                }
+            })
+            .catch(function() {
+                alert('Failed to reset order. Please try again.');
+            });
+        }
+
+        function handleDragStart(e) {
+            draggedElement = this;
+            this.classList.add('opacity-50');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', this.getAttribute('data-id'));
+        }
+
+        function handleDragOver(e) {
+            if (e.preventDefault) e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            if (this !== draggedElement && this.classList.contains('certification-item')) {
+                this.classList.add('border-blue-500', 'bg-blue-50');
+            }
+            return false;
+        }
+
+        function handleDragLeave(e) {
+            if (this !== draggedElement && this.classList.contains('certification-item')) {
+                this.classList.remove('border-blue-500', 'bg-blue-50');
+            }
+        }
+
+        function handleDrop(e) {
+            if (e.stopPropagation) e.stopPropagation();
+            if (draggedElement !== this && this.classList.contains('certification-item')) {
+                const items = Array.from(list.querySelectorAll('.certification-item'));
+                const draggedIndex = items.indexOf(draggedElement);
+                const targetIndex = items.indexOf(this);
+                if (draggedIndex < targetIndex) {
+                    list.insertBefore(draggedElement, this.nextSibling);
+                } else {
+                    list.insertBefore(draggedElement, this);
+                }
+                saveOrder();
+            }
+            this.classList.remove('border-blue-500', 'bg-blue-50');
+            return false;
+        }
+
+        function handleDragEnd(e) {
+            this.classList.remove('opacity-50');
+            draggedElement = null;
+            list.querySelectorAll('.certification-item').forEach(function(el) {
+                el.classList.remove('border-blue-500', 'bg-blue-50');
+            });
+        }
+
+        function toggleReorderMode() {
+            isReordering = !isReordering;
+            const items = list.querySelectorAll('.certification-item');
+
+            if (isReordering) {
+                toggleBtn.textContent = 'Done reordering';
+                toggleBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                toggleBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+                if (reorderInfo) reorderInfo.classList.remove('hidden');
+                items.forEach(function(item) {
+                    item.setAttribute('draggable', 'true');
+                    item.classList.add('cursor-move', 'border-2', 'border-blue-300');
+                    var h = item.querySelector('.drag-handle');
+                    if (h) h.classList.remove('hidden');
+                    item.addEventListener('dragstart', handleDragStart);
+                    item.addEventListener('dragover', handleDragOver);
+                    item.addEventListener('dragleave', handleDragLeave);
+                    item.addEventListener('drop', handleDrop);
+                    item.addEventListener('dragend', handleDragEnd);
+                });
+            } else {
+                toggleBtn.textContent = 'Reorder certifications';
                 toggleBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
                 toggleBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
                 if (reorderInfo) reorderInfo.classList.add('hidden');
