@@ -67,6 +67,13 @@ $features = [
             'link' => '/online-cv-username.php'
         ],
         [
+            'name' => 'Edit Mode',
+            'description' => 'Show/hide sections, add, edit, delete, and drag-and-drop reorder your CV directly on the live page - no separate editor needed for quick changes',
+            'free' => true,
+            'pro' => true,
+            'link' => '/online-cv-username.php#edit-mode'
+        ],
+        [
             'name' => 'PDF Export',
             'description' => 'Export your CV as a professional PDF document with selective sections and optional QR codes',
             'free' => false,

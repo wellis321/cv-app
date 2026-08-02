@@ -229,9 +229,9 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
                     <div class="flex flex-col md:flex-row md:items-center md:gap-12">
                         <div class="md:w-1/2">
                             <span class="inline-block rounded-full bg-indigo-100 text-indigo-800 px-3 py-1 text-sm font-semibold">Step 3</span>
-                            <h3 class="mt-4 text-2xl font-bold text-gray-900">Preview and share</h3>
+                            <h3 class="mt-4 text-2xl font-bold text-gray-900">Preview, share, and edit live</h3>
                             <p class="mt-3 text-gray-600">
-                                Preview your CV online at your unique link (/cv/@username). Share it anywhere—email signatures, LinkedIn, social media. Pro users can also export to PDF with QR codes.
+                                Preview your CV online at your unique link (/cv/@username). Share it anywhere—email signatures, LinkedIn, social media. Turn on <a href="/online-cv-username.php#edit-mode" class="text-indigo-600 hover:text-indigo-800 font-medium">Edit Mode</a> to add, edit, reorder, or hide sections right there on the page. Pro users can also export to PDF with QR codes.
                             </p>
                         </div>
                         <div class="mt-8 md:mt-0 md:w-1/2">

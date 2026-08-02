@@ -101,6 +101,55 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
             </div>
         </section>
 
+        <!-- Edit Mode -->
+        <section id="edit-mode" class="py-16 bg-white">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <span class="inline-flex items-center rounded-full bg-blue-100 px-4 py-1.5 text-sm font-semibold text-blue-800">New</span>
+                    <h2 class="mt-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+                        Edit your CV right on the page
+                    </h2>
+                    <p class="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
+                        Turn on Edit Mode from your online CV and make changes in place—no need to jump into a separate editor for quick updates.
+                    </p>
+                </div>
+
+                <div class="grid gap-8 md:grid-cols-2">
+                    <div class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl border-2 border-blue-200 p-6">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-500 text-white mb-4">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Show or hide sections instantly</h3>
+                        <p class="text-sm text-gray-600">Hidden sections still show up in Edit Mode—dimmed with a dashed outline—so you can see exactly what visitors don't see, and switch it back on with one click.</p>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-cyan-50 to-teal-50 rounded-xl border-2 border-cyan-200 p-6">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-cyan-500 text-white mb-4">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Add, edit, and delete inline</h3>
+                        <p class="text-sm text-gray-600">Every section gets a quick popup for adding new entries, and every entry gets its own edit and delete controls—directly on your live CV.</p>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-teal-50 to-blue-50 rounded-xl border-2 border-teal-200 p-6">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-teal-500 text-white mb-4">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"/></svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Drag and drop to reorder</h3>
+                        <p class="text-sm text-gray-600">Rearrange whole sections—even move one to the other column—or reorder the entries within a section, like which job appears first.</p>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-blue-50 to-teal-50 rounded-xl border-2 border-blue-200 p-6">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-600 text-white mb-4">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Changes save automatically</h3>
+                        <p class="text-sm text-gray-600">Nothing to submit—every change in Edit Mode saves as you make it, the same as the full content editor.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- How it works -->
         <section class="py-16 bg-gray-50">
             <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
