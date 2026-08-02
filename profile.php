@@ -214,8 +214,7 @@ if (isPost()) {
 
                 <!-- Intro -->
                 <div class="px-6 pt-4 pb-4 bg-gray-50 border-b border-gray-200">
-                    <p class="text-base text-gray-800 font-medium">Account settings.</p>
-                    <p class="text-sm text-gray-700 mt-2">Your name, photo, header &amp; accent colours, and who can see your CV are edited in the content editor -
+                    <p class="text-sm text-gray-700">Your name, photo, header &amp; accent colours, and who can see your CV are edited in the content editor -
                         <a href="/content-editor.php#profile" class="text-blue-600 hover:underline">Profile</a>,
                         <a href="/content-editor.php#appearance" class="text-blue-600 hover:underline">Appearance</a>, and
                         <a href="/content-editor.php#visibility" class="text-blue-600 hover:underline">Visibility</a>.
@@ -226,7 +225,7 @@ if (isPost()) {
                 <div class="px-6 py-3 bg-gray-100 border-b border-gray-200">
                     <nav class="flex flex-nowrap gap-2 overflow-x-auto pb-1" aria-label="Account tabs">
                         <button type="button" onclick="switchTab('main')" id="tab-main" class="tab-button shrink-0 py-2.5 px-4 rounded-lg font-medium text-sm border-2 border-blue-500 bg-blue-50 text-blue-700 whitespace-nowrap flex items-center gap-1.5 shadow-sm">
-                            <span>Account</span>
+                            <span>Details</span>
                         </button>
                         <?php if (array_key_exists('closing_date_reminder_enabled', $profile)): ?>
                         <button type="button" onclick="switchTab('reminders')" id="tab-reminders" class="tab-button shrink-0 py-2.5 px-4 rounded-lg font-medium text-sm border-2 border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50 whitespace-nowrap flex items-center gap-1.5 shadow-sm">
@@ -241,7 +240,7 @@ if (isPost()) {
 
                 <!-- Tab Content -->
                 <div class="p-6">
-                    <!-- Main (Account) Tab -->
+                    <!-- Main (Details) Tab -->
                     <div id="tab-content-main" class="tab-content">
                         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                             <div>
