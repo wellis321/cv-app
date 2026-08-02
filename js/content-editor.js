@@ -1584,14 +1584,12 @@
         };
         notification.querySelector('button').addEventListener('click', dismiss);
 
-        // Longer messages get more time; hovering pauses the timer so it doesn't
-        // disappear mid-read.
-        const duration = Math.max(5000, Math.min(12000, message.length * 60));
-        let dismissTimer = setTimeout(dismiss, duration);
-        notification.addEventListener('mouseenter', () => clearTimeout(dismissTimer));
-        notification.addEventListener('mouseleave', () => {
-            dismissTimer = setTimeout(dismiss, 3000);
-        });
+        // Errors stay until the user closes them - there's often something to act on
+        // (e.g. switch browsers, pick a different model) that a timed toast would cut off.
+        // Success messages are just confirmation, so they can auto-dismiss.
+        if (type === 'success') {
+            setTimeout(dismiss, 5000);
+        }
     }
 
     function escapeHtml(text) {
