@@ -164,18 +164,15 @@ if ($isVariantContext) {
                     <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
                     <input type="date" id="end_date" name="end_date" value="<?php echo $editingExperience && $editingExperience['end_date'] ? date('Y-m-d', strtotime($editingExperience['end_date'])) : ''; ?>" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
                     <p class="mt-1 text-xs text-gray-500">Leave blank if current position</p>
-                </div>
-                
-                <div class="sm:col-span-2">
-                    <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                    <textarea id="description" name="description" rows="3" maxlength="5000" data-markdown class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"><?php echo $editingExperience ? e($editingExperience['description']) : ''; ?></textarea>
-                </div>
-                
-                <div>
-                    <label class="flex items-center">
+                    <label class="mt-2 flex items-center">
                         <input type="checkbox" name="hide_date" value="1" <?php echo $editingExperience && $editingExperience['hide_date'] ? 'checked' : ''; ?> class="mr-2">
                         <span class="text-sm text-gray-700">Hide date on CV</span>
                     </label>
+                </div>
+
+                <div class="sm:col-span-2">
+                    <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                    <textarea id="description" name="description" rows="3" maxlength="5000" data-markdown class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"><?php echo $editingExperience ? e($editingExperience['description']) : ''; ?></textarea>
                 </div>
             </div>
             

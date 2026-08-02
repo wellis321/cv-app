@@ -76,10 +76,7 @@ $canAddEducation = planCanAddEntry($subscriptionContext, 'education', $userId, c
                     <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
                     <input type="date" id="end_date" name="end_date" value="<?php echo $editingEducation && $editingEducation['end_date'] ? date('Y-m-d', strtotime($editingEducation['end_date'])) : ''; ?>" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
                     <p class="mt-1 text-xs text-gray-500">Leave blank if still studying</p>
-                </div>
-                
-                <div class="sm:col-span-2">
-                    <label class="flex items-center">
+                    <label class="mt-2 flex items-center">
                         <input type="checkbox" name="hide_date" value="1" <?php echo $editingEducation && !empty($editingEducation['hide_date']) ? 'checked' : ''; ?> class="mr-2">
                         <span class="text-sm text-gray-700">Hide date on CV</span>
                     </label>
