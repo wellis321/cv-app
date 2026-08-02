@@ -113,8 +113,7 @@ $preselectJobId = isset($_GET['job']) ? $_GET['job'] : null;
                 <label for="job_description" class="block text-sm font-medium text-gray-700 mb-2">
                     Job Description <span class="text-red-600">*</span>
                 </label>
-                <p class="text-xs text-gray-500 mb-1">Use the toolbar for formatting: bold, italic, headers, lists, and links</p>
-                <textarea id="job_description" 
+                <textarea id="job_description"
                           name="job_description" 
                           rows="8" 
                           required

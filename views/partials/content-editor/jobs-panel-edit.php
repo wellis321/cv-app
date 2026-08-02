@@ -44,7 +44,6 @@ $jobJson = htmlspecialchars(json_encode($job), ENT_QUOTES, 'UTF-8');
                 $descRendered = $descIsHtml ? jobDescriptionHtml($desc) : renderMarkdown($desc);
                 ?>
                 <label for="job-description-editable" class="block text-base font-semibold text-gray-900 mb-3">Job Description</label>
-                <p class="text-xs text-gray-500 mb-2">Use the toolbar for formatting, tables, and links. Edit in place like a document.</p>
                 <input type="hidden" name="job_description" id="form-description-hidden" value="">
                 <div id="job-description-editable" data-markdown role="textbox" aria-label="Job description" contenteditable="true" class="job-description-editable text-gray-700 rounded-lg border-2 border-gray-400 bg-white px-4 py-3 min-h-[200px] max-h-[480px] overflow-y-auto focus:ring-4 focus:ring-blue-200 focus:border-blue-600 focus:outline-none"><?php echo $descRendered; ?></div>
                 <style>.job-description-editable table { border-collapse: collapse; width: 100%; margin: 0.75rem 0; }
@@ -124,7 +123,6 @@ $jobJson = htmlspecialchars(json_encode($job), ENT_QUOTES, 'UTF-8');
 
             <div>
                 <label for="form-notes" class="block text-base font-semibold text-gray-900 mb-3">Notes</label>
-                <p class="text-xs text-gray-500 mb-1">Use the toolbar for formatting: bold, italic, headers, lists, and links. Press Enter twice for paragraph spacing.</p>
                 <textarea id="form-notes" name="notes" rows="8" data-markdown
                           class="block w-full rounded-lg border-2 border-gray-400 bg-white px-4 py-3 text-base font-medium text-gray-900 shadow-sm transition-colors focus:border-blue-600 focus:ring-4 focus:ring-blue-200 focus:outline-none resize-y min-h-[200px]"
                           placeholder="Add any additional notes about this application..."></textarea>

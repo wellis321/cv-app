@@ -42,31 +42,29 @@ if ($editingStrengthId && $summary) {
 }
 ?>
 <div class="max-w-3xl mx-auto">
-    <h1 class="text-2xl font-bold text-gray-900 mb-6">Professional Summary</h1>
-    
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">Professional Summary</h1>
+        <button type="button" onclick="assessSection('professional-summary')" class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-50 rounded-md border border-gray-300 hover:bg-gray-100">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Assess This Section
+        </button>
+    </div>
+
     <!-- Description Form -->
     <div class="bg-white shadow rounded-lg p-6 mb-6">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-xl font-semibold">Professional Summary Description</h2>
-            <button type="button" onclick="assessSection('professional-summary')" class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-50 rounded-md border border-gray-300 hover:bg-gray-100">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                Assess This Section
-            </button>
-        </div>
         <form method="POST" data-section-form data-form-type="save">
             <input type="hidden" name="<?php echo CSRF_TOKEN_NAME; ?>" value="<?php echo csrfToken(); ?>">
             <input type="hidden" name="action" value="save">
             <input type="hidden" name="section_id" value="professional-summary">
             <?php if ($variantId): ?><input type="hidden" name="variant_id" value="<?php echo e($variantId); ?>"><?php endif; ?>
-            
+
             <div class="mb-4">
-                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <label for="description" class="sr-only">Professional summary description</label>
                 <?php if ($summaryWordLimit): ?>
                     <p class="text-xs text-gray-500 mb-2">Free plan summaries are limited to <?php echo $summaryWordLimit; ?> words.</p>
                 <?php endif; ?>
-                <p class="text-xs text-gray-500 mb-1">Use the toolbar for formatting: bold, italic, headers, lists, and links. Press Enter twice for paragraph spacing.</p>
                 <textarea id="description" name="description" rows="6" maxlength="5000" data-markdown class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"><?php echo e($summary['description'] ?? ''); ?></textarea>
             </div>
             

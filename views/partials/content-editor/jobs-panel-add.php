@@ -49,7 +49,6 @@ $csrf = csrfToken();
 
             <div>
                 <label for="form-description" class="block text-base font-semibold text-gray-900 mb-3">Job Description</label>
-                <p class="text-xs text-gray-500 mb-1">Use the toolbar for formatting: bold, italic, headers, lists, and links</p>
                 <textarea id="form-description" name="job_description" rows="4" data-markdown
                           class="block w-full rounded-lg border-2 border-gray-400 bg-white px-4 py-3 text-base font-medium text-gray-900 shadow-sm transition-colors focus:border-blue-600 focus:ring-4 focus:ring-blue-200 focus:outline-none resize-y"></textarea>
             </div>
@@ -126,7 +125,6 @@ $csrf = csrfToken();
 
             <div>
                 <label for="form-notes" class="block text-base font-semibold text-gray-900 mb-3">Notes</label>
-                <p class="text-xs text-gray-500 mb-1">Use the toolbar for formatting: bold, italic, headers, lists, and links. Press Enter twice for paragraph spacing.</p>
                 <textarea id="form-notes" name="notes" rows="8" data-markdown
                           class="block w-full rounded-lg border-2 border-gray-400 bg-white px-4 py-3 text-base font-medium text-gray-900 shadow-sm transition-colors focus:border-blue-600 focus:ring-4 focus:ring-blue-200 focus:outline-none resize-y min-h-[200px]"
                           placeholder="Add any additional notes about this application..."></textarea>
