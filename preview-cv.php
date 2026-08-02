@@ -97,6 +97,24 @@ $resolvedShowResponsibilitiesOnline = getShowResponsibilitiesOnlineForCv($profil
 $resolvedIncludePhoto = $resolvedPdfPrefs['include_photo'];
 $resolvedIncludeQr = $resolvedPdfPrefs['include_qr'];
 $resolvedShowResponsibilitiesInPdf = $resolvedPdfPrefs['show_responsibilities_in_pdf'];
+
+// Section order and column placement (set via cv.php's Edit Mode drag-and-drop) - same
+// profile-level settings regardless of variant, matching cv.php's own behaviour, so the
+// preview/PDF layout matches what the owner arranged on their online CV.
+$resolvedSectionOrder = null;
+if (!empty($profile['section_order'])) {
+    $decodedSectionOrder = json_decode($profile['section_order'], true);
+    if (is_array($decodedSectionOrder)) {
+        $resolvedSectionOrder = $decodedSectionOrder;
+    }
+}
+$resolvedCvPageColumns = [];
+if (!empty($profile['cv_page_columns'])) {
+    $decodedCvPageColumns = json_decode($profile['cv_page_columns'], true);
+    if (is_array($decodedCvPageColumns)) {
+        $resolvedCvPageColumns = $decodedCvPageColumns;
+    }
+}
 $resolvedColourPreset = $resolvedPdfPrefs['colour_preset'] ?: 'default';
 $resolvedCustomAccentHex = $resolvedPdfPrefs['custom_accent_hex'] ?: '#2563eb';
 
@@ -242,6 +260,8 @@ $masterVariantId = getOrCreateMasterVariant($userId);
         const resolvedIncludeQr = <?php echo json_encode($resolvedIncludeQr, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
         const resolvedColourPreset = <?php echo json_encode($resolvedColourPreset, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
         const resolvedCustomAccentHex = <?php echo json_encode($resolvedCustomAccentHex, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
+        const resolvedSectionOrder = <?php echo json_encode($resolvedSectionOrder, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
+        const resolvedCvPageColumns = <?php echo json_encode($resolvedCvPageColumns, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
 
         function loadQRCodeLibrary() {
             return new Promise((resolve, reject) => {
@@ -432,7 +452,9 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                     includeQRCode: includeQr,
                     show_responsibilities_in_pdf: showResponsibilitiesInPdf,
                     showFreePlanBranding: !SubscriptionContext?.isPaid,
-                    siteUrl: siteUrl || window.location.origin
+                    siteUrl: siteUrl || window.location.origin,
+                    sectionOrder: resolvedSectionOrder,
+                    cvPageColumns: resolvedCvPageColumns
                 };
                 if (customization?.colors && Object.keys(customization.colors).length > 0) {
                     config.customization = customization;
@@ -606,7 +628,9 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                     includeQr,
                     includeResponsibilitiesInPdf,
                     cvUrl,
-                    template: templateMeta
+                    template: templateMeta,
+                    sectionOrder: resolvedSectionOrder,
+                    cvPageColumns: resolvedCvPageColumns
                 });
             } catch (error) {
                 console.error('Error rendering preview:', error);

@@ -1,3 +1,5 @@
+import { resolveCvSectionLayout, resolveCvSectionOrderFlat } from '../preview-utils.js'
+
 const DEFAULT_TEMPLATE_ID = 'professional'
 
 const ACCENT_COLOR = '#3498db'
@@ -716,16 +718,30 @@ function buildProfessionalDocDefinition({ cvData = {}, profile = {}, config = {}
         })
     }
 
-    // Minimal = one column; Professional Blue = two columns
+    // Section id -> this file's local Blocks array, so the shared layout helper (which only
+    // knows about cv.php's kebab-case template ids) can be mapped onto what's built above.
+    const sectionBlocksById = {
+        'professional-summary': summaryBlocks,
+        'work-experience': workBlocks,
+        'education': educationBlocks,
+        'certifications': certBlocks,
+        'skills': skillsBlocks,
+        'projects': projectsBlocks,
+        'qualification-equivalence': qualBlocks,
+        'memberships': membershipsBlocks,
+        'interests': interestsBlocks
+    }
+
+    // Minimal = one column; Professional Blue = two columns. Order/columns mirror whatever the
+    // owner arranged via cv.php's Edit Mode (section_order / cv_page_columns).
     if (isMinimal) {
-        const mainCol = [].concat(
-            summaryBlocks, workBlocks, educationBlocks, certBlocks, skillsBlocks,
-            projectsBlocks, qualBlocks, membershipsBlocks, interestsBlocks
-        )
+        const orderedIds = resolveCvSectionOrderFlat(config.sectionOrder)
+        const mainCol = [].concat(...orderedIds.map((id) => sectionBlocksById[id] || []))
         content.push({ stack: mainCol })
     } else {
-        const leftCol = [].concat(certBlocks, educationBlocks, skillsBlocks, interestsBlocks)
-        const rightCol = [].concat(summaryBlocks, workBlocks, projectsBlocks, qualBlocks, membershipsBlocks)
+        const { left, right } = resolveCvSectionLayout(config.sectionOrder, config.cvPageColumns)
+        const leftCol = [].concat(...left.map((id) => sectionBlocksById[id] || []))
+        const rightCol = [].concat(...right.map((id) => sectionBlocksById[id] || []))
 
         // Explicit pt widths so the two-column body uses the full content area.
         // pdfmake's '*'/'2*' can fail to expand in some builds, causing "squashed to the left".

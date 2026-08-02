@@ -1,4 +1,4 @@
-import { escapeHtml, renderMarkdown } from '../preview-utils.js';
+import { escapeHtml, renderMarkdown, resolveCvSectionLayout, resolveCvSectionOrderFlat } from '../preview-utils.js';
 
 /**
  * Formats a date string as MM/YYYY.
@@ -27,7 +27,7 @@ function formatCvPreviewDate(dateStr) {
  * @param {string} [context.cvUrl]
  * @param {object} context.template
  */
-export function render(container, { cvData, profile, sections, includePhoto, includeQr, includeResponsibilitiesInPdf, cvUrl, template }) {
+export function render(container, { cvData, profile, sections, includePhoto, includeQr, includeResponsibilitiesInPdf, cvUrl, template, sectionOrder, cvPageColumns }) {
     if (!container) {
         console.error('Preview container not provided');
         return;
@@ -236,13 +236,30 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
         membershipsHtml += '</section>';
     }
 
-    // Assemble: Minimal = one column; Professional Blue = two-column grid
+    // Section id -> this file's local HTML variable, so the shared layout helper (which only
+    // knows about cv.php's kebab-case template ids) can be mapped onto what's actually built above.
+    const sectionHtmlById = {
+        'professional-summary': summaryHtml,
+        'work-experience': workHtml,
+        'education': educationHtml,
+        'certifications': certHtml,
+        'skills': skillsHtml,
+        'projects': projectsHtml,
+        'qualification-equivalence': qualHtml,
+        'memberships': membershipsHtml,
+        'interests': interestsHtml
+    };
+
+    // Assemble: Minimal = one column; Professional Blue = two-column grid. Order/columns mirror
+    // whatever the owner arranged via cv.php's Edit Mode (section_order / cv_page_columns).
     if (isMinimal) {
-        const mainHtml = summaryHtml + workHtml + educationHtml + certHtml + skillsHtml + projectsHtml + qualHtml + membershipsHtml + interestsHtml;
+        const orderedIds = resolveCvSectionOrderFlat(sectionOrder);
+        const mainHtml = orderedIds.map((id) => sectionHtmlById[id] || '').join('');
         html += `<div class="p-6 sm:p-8"><div class="space-y-6 max-w-3xl">${mainHtml || '<div></div>'}</div></div>`;
     } else {
-        const leftHtml = certHtml + educationHtml + skillsHtml + interestsHtml;
-        const rightHtml = summaryHtml + workHtml + projectsHtml + qualHtml + membershipsHtml;
+        const { left, right } = resolveCvSectionLayout(sectionOrder, cvPageColumns);
+        const leftHtml = left.map((id) => sectionHtmlById[id] || '').join('');
+        const rightHtml = right.map((id) => sectionHtmlById[id] || '').join('');
         html += `<div class="p-6 sm:p-8"><div class="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10">
         <div class="lg:col-span-1 space-y-6 order-2 lg:order-1">${leftHtml || '<div></div>'}</div>
         <div class="lg:col-span-2 space-y-6 order-1 lg:order-2">${rightHtml || '<div></div>'}</div>
