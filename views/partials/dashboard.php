@@ -218,30 +218,23 @@ unset($section);
                 </div>
             </a>
 
-            <!-- CV Quality Assessment Card -->
-            <a href="/cv-quality.php" class="group flex flex-col overflow-hidden rounded-xl shadow-lg bg-white border-2 border-transparent hover:border-purple-500 transition-all duration-200 hover:shadow-xl">
+            <!-- CV Quality Assessment Card (temporarily disabled - not working well currently) -->
+            <div class="group flex flex-col overflow-hidden rounded-xl shadow-lg bg-gray-50 border-2 border-gray-200 opacity-75">
                 <div class="p-6 flex-1 flex flex-col">
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center">
-                            <div class="p-3 bg-purple-100 rounded-lg">
-                                <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="p-3 bg-gray-200 rounded-lg">
+                                <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                             </div>
-                            <h3 class="ml-3 text-xl font-bold text-gray-900 group-hover:text-purple-600">CV Quality Assessment</h3>
+                            <h3 class="ml-3 text-xl font-bold text-gray-500">CV Quality Assessment</h3>
                         </div>
+                        <span class="text-xs font-medium text-gray-400 bg-gray-200 px-2 py-1 rounded">Temporarily Unavailable</span>
                     </div>
-                    <p class="text-gray-600 mb-4">Get AI-powered feedback on your CV with scores and actionable recommendations.</p>
-                    <div class="mt-auto">
-                        <span class="inline-flex items-center text-sm font-medium text-purple-600 group-hover:underline">
-                            Assess your CV now
-                            <svg class="ml-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                            </svg>
-                        </span>
-                    </div>
+                    <p class="text-gray-500 mb-4">Get AI-powered feedback on your CV with scores and actionable recommendations.</p>
                 </div>
-            </a>
+            </div>
 
             <!-- View All CVs Card -->
             <a href="/content-editor.php#cv-variants" class="group flex flex-col overflow-hidden rounded-xl shadow-lg bg-white border-2 border-transparent hover:border-indigo-500 transition-all duration-200 hover:shadow-xl">
