@@ -31,6 +31,16 @@ if (!$user) {
     exit;
 }
 
+// Ollama is a super-admin-only feature (see ai-settings.php) - the UI that calls this
+// already hides itself from other users, but the endpoint should refuse it too rather
+// than relying solely on the UI not offering it.
+if (!isSuperAdmin($user['id'])) {
+    http_response_code(403);
+    ob_end_clean();
+    echo json_encode(['success' => false, 'error' => 'Only super administrators can use this feature']);
+    exit;
+}
+
 // Verify CSRF token
 if (!verifyCsrfToken($_POST['csrf_token'] ?? '')) {
     http_response_code(403);
