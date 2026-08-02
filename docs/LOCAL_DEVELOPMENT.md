@@ -77,7 +77,7 @@ DB_USER=root
 DB_PASS=root
 
 # Application Configuration
-APP_URL=http://localhost:8889
+APP_URL=http://localhost:8000
 APP_ENV=development
 
 # Stripe Configuration (optional, for subscriptions)
@@ -94,6 +94,7 @@ STRIPE_PRICE_LIFETIME=
 **Important:** 
 - Adjust `DB_PASS` to match your MySQL password
 - Adjust `APP_URL` to match your server URL and port
+- **Do not use port 8889 for the web server** - on macOS, MAMP's MySQL defaults to port 8889 (this is also the default in the `.env` examples above and in `DB_PORT`). Running the PHP dev server on the same port MySQL uses causes an intermittent, hard-to-diagnose bug: depending on whether your browser resolves `localhost` to IPv4 or IPv6, you can end up connected directly to the MySQL process instead of PHP, and see raw MySQL protocol bytes (a version string, `caching_sha2_password`, "Got packets out of order") rendered as garbled page content. This tends to work fine in one browser and break in another, which makes it especially confusing - always pick a port that's different from `DB_PORT`.
 - The `.env` file is gitignored for security
 
 ## Step 4: Run the Development Server
@@ -103,15 +104,21 @@ STRIPE_PRICE_LIFETIME=
 From the project root directory, run:
 
 ```bash
-php -S localhost:8889 -t . index.php
+npm start
+```
+
+This starts the PHP built-in server with the correct upload limits (see `scripts/start-server.js`; defaults to port 8890, or set `PORT=xxxx npm start` to override). Alternatively, run PHP directly on a port of your choosing - just make sure it's different from `DB_PORT` (MySQL/MAMP commonly uses 8889):
+
+```bash
+php -S localhost:8000 -t . index.php
 ```
 
 This will:
-- Start a PHP development server on port 8889
+- Start a PHP development server on the port you specify
 - Use `index.php` as the router
 - Serve files from the current directory
 
-**Access your app at:** `http://localhost:8889/`
+**Access your app at:** `http://localhost:8000/` (or whichever port you chose)
 
 ### Option 2: Using MAMP (macOS)
 
@@ -134,7 +141,7 @@ Configure your web server to point to the project directory and use `index.php` 
 
 ## Step 5: Verify Installation
 
-1. Open `http://localhost:8889/test-connection.php` (or your configured URL)
+1. Open `http://localhost:8000/test-connection.php` (or your configured URL)
 2. You should see:
    - ✅ Config loaded successfully
    - ✅ Database connection successful
@@ -144,7 +151,7 @@ If you see errors, check the troubleshooting section below.
 
 ## Step 6: Create Your First Account
 
-1. Go to `http://localhost:8889/`
+1. Go to `http://localhost:8000/`
 2. Click "Register" or "Sign Up"
 3. Fill in your details
 4. Check your email for verification (if email is configured)
@@ -168,26 +175,24 @@ If you see errors, check the troubleshooting section below.
 - Create the database (Step 2.1)
 - Or update `DB_NAME` in `.env` to match your database name
 
-### Character Encoding Warning
+### Character Encoding Warning / Garbled Page Content
 
-If you see: "The character encoding of the document was not declared"
+If you see: "The character encoding of the document was not declared", or the page shows garbled binary text containing things like a MySQL version string, `caching_sha2_password`, or "Got packets out of order" - **your web server and MySQL are sharing the same port.** This is almost always caused by running the PHP dev server on port 8889, which is also MAMP's default MySQL port (`DB_PORT` in `.env`). Depending on whether a given browser resolves `localhost` to IPv4 or IPv6, it can connect straight into MySQL instead of PHP, and MySQL's raw protocol handshake gets rendered as page content - which is also why this often "works" in one browser and not another.
 
-This is usually just a browser warning and doesn't affect functionality. The Content-Type header should be set automatically. If it persists:
+Fix: run the PHP dev server on a different port than `DB_PORT` (see Step 4 above - `npm start` or `php -S localhost:8000 ...`), and update `APP_URL` in `.env` to match.
 
-1. Check browser console for actual errors
-2. Verify `php/config.php` has the header set (it should)
-3. Clear browser cache
+If the encoding warning shows up on an otherwise normal-looking page (no garbled binary content), it's a harmless browser warning - check `php/config.php` has the Content-Type header set and clear your browser cache.
 
 ### Port Already in Use
 
 If you get "Address already in use" error:
 
 ```bash
-# Find what's using the port (macOS/Linux)
-lsof -i :8889
+# Find what's using a port (macOS/Linux) - replace 8000 with the port in question
+lsof -i :8000
 
-# Kill the process or use a different port
-php -S localhost:8000 -t . index.php
+# Kill the process, or just run on a different port
+php -S localhost:8001 -t . index.php
 ```
 
 ### Permission Errors
@@ -228,7 +233,7 @@ Run migrations in phpMyAdmin or via command line.
 ### Testing
 
 To verify your setup is working:
-1. Visit the homepage: `http://localhost:8889/`
+1. Visit the homepage: `http://localhost:8000/`
 2. Try registering a new account
 3. Check browser console (F12) for any errors
 4. Verify database connection by checking if you can log in

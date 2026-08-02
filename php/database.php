@@ -10,14 +10,26 @@ class Database {
     private $pdo;
 
     private function __construct() {
-        $dsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=" . DB_CHARSET;
+        $dsn = "mysql:host=" . DB_HOST;
+        if (DB_PORT !== '') {
+            $dsn .= ";port=" . (int) DB_PORT;
+        }
+        $dsn .= ";dbname=" . DB_NAME . ";charset=" . DB_CHARSET;
         
         $options = [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             PDO::ATTR_EMULATE_PREPARES => false,
         ];
-        
+
+        if (defined('PDO::MYSQL_ATTR_CONNECT_TIMEOUT')) {
+            $options[PDO::MYSQL_ATTR_CONNECT_TIMEOUT] = 5;
+        }
+
+        // Cap blocking connect when the constant above is unavailable (common on macOS/Homebrew PHP).
+        $savedSocketTimeout = ini_get('default_socket_timeout');
+        ini_set('default_socket_timeout', '5');
+
         // For PHP < 8.5, use the init command option (deprecated in 8.5+)
         // PHP 8.4 and earlier: Use PDO::MYSQL_ATTR_INIT_COMMAND (not deprecated)
         // PHP 8.5+: Execute command after connection to avoid deprecation warning
@@ -26,12 +38,18 @@ class Database {
         }
 
         try {
-            $this->pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
-            // Set connection attributes after connection to handle MySQL 8.0 auth
-            $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            // For PHP 8.5+, execute charset command after connection (deprecated option removed)
-            if (version_compare(PHP_VERSION, '8.5.0', '>=')) {
-                $this->pdo->exec("SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci");
+            try {
+                $this->pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
+                // Set connection attributes after connection to handle MySQL 8.0 auth
+                $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                // For PHP 8.5+, execute charset command after connection (deprecated option removed)
+                if (version_compare(PHP_VERSION, '8.5.0', '>=')) {
+                    $this->pdo->exec("SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci");
+                }
+            } finally {
+                if ($savedSocketTimeout !== false) {
+                    ini_set('default_socket_timeout', $savedSocketTimeout);
+                }
             }
         } catch (PDOException $e) {
             // Ensure headers are set before outputting error

@@ -110,7 +110,15 @@ function env($key, $default = '') {
 }
 
 // Database configuration (reads from .env file)
-define('DB_HOST', env('DB_HOST', 'localhost'));
+// PDO needs host and port separately — allow DB_HOST=127.0.0.1:3307 or set DB_PORT=8889 (e.g. MAMP).
+$dbHost = env('DB_HOST', 'localhost');
+$dbPort = trim((string) env('DB_PORT', ''));
+if ($dbPort === '' && preg_match('/^(.+):(\d+)$/', $dbHost, $m)) {
+    $dbHost = $m[1];
+    $dbPort = $m[2];
+}
+define('DB_HOST', $dbHost);
+define('DB_PORT', $dbPort);
 define('DB_NAME', env('DB_NAME', 'cv_app'));
 define('DB_USER', env('DB_USER', 'root'));
 define('DB_PASS', env('DB_PASS', ''));
