@@ -62,7 +62,7 @@ $user = getCurrentUser();
                             </a>
                         <?php endif; ?>
                         <a href="/profile.php" role="menuitem" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:bg-gray-50">
-                            My CV
+                            Account
                         </a>
                         <a href="/logout.php" role="menuitem" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:bg-gray-50">
                             Sign Out
@@ -91,7 +91,7 @@ $user = getCurrentUser();
                         </a>
                     <?php endif; ?>
                     <a href="/profile.php" class="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-blue-100 hover:text-blue-700 rounded-md transition-colors">
-                        My CV
+                        Account
                     </a>
                     <a href="/logout.php" class="block px-4 py-2 text-sm font-medium text-gray-700 hover:bg-red-100 hover:text-red-700 rounded-md transition-colors">
                         Sign Out

@@ -116,7 +116,7 @@ $isOwnerOrAdmin = $org && in_array($org['role'], ['owner', 'admin']);
                             <p class="text-xs text-gray-500"><?php echo e(getCurrentUser()['email'] ?? ''); ?></p>
                         </div>
                         <a href="/profile.php" role="menuitem" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:bg-gray-50">
-                            My CV
+                            Account
                         </a>
                         <a href="/logout.php" role="menuitem" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 focus:outline-none focus:bg-gray-50">
                             Sign Out
@@ -185,7 +185,7 @@ $isOwnerOrAdmin = $org && in_array($org['role'], ['owner', 'admin']);
                         <p class="text-xs text-gray-500"><?php echo e(getCurrentUser()['email'] ?? ''); ?></p>
                     </div>
                     <a href="/profile.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
-                        My CV
+                        Account
                     </a>
                     <a href="/logout.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
                         Sign Out
