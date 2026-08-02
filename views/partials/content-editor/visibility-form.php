@@ -127,10 +127,10 @@ if ($isVariantContext && !empty($cvVariant['pdf_preferences'])) {
                         <tr>
                             <td class="py-2.5 text-gray-800"><?php echo e($sectionLabels[$key]); ?></td>
                             <td class="py-2.5 text-center">
-                                <input type="checkbox" data-section-toggle data-key="<?php echo e($key); ?>" data-kind="online" <?php echo $onlineToggles[$key] ? 'checked' : ''; ?>>
+                                <input type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" data-section-toggle data-key="<?php echo e($key); ?>" data-kind="online" <?php echo $onlineToggles[$key] ? 'checked' : ''; ?>>
                             </td>
                             <td class="py-2.5 text-center">
-                                <input type="checkbox" data-section-toggle data-key="<?php echo e($key); ?>" data-kind="pdf" <?php echo $pdfToggles[$key] ? 'checked' : ''; ?>>
+                                <input type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" data-section-toggle data-key="<?php echo e($key); ?>" data-kind="pdf" <?php echo $pdfToggles[$key] ? 'checked' : ''; ?>>
                             </td>
                         </tr>
                         <?php if ($key === 'profile'): ?>
@@ -145,7 +145,7 @@ if ($isVariantContext && !empty($cvVariant['pdf_preferences'])) {
                                     </span>
                                 </td>
                                 <td class="py-2 text-center">
-                                    <input type="checkbox" data-section-toggle data-kind="photo-online" <?php echo !empty($profile['show_photo']) ? 'checked' : ''; ?>>
+                                    <input type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" data-section-toggle data-kind="photo-online" <?php echo !empty($profile['show_photo']) ? 'checked' : ''; ?>>
                                 </td>
                                 <td class="py-2 text-center text-gray-300">&mdash;</td>
                             </tr>
@@ -161,7 +161,7 @@ if ($isVariantContext && !empty($cvVariant['pdf_preferences'])) {
                                 </td>
                                 <td class="py-2 text-center text-gray-300">&mdash;</td>
                                 <td class="py-2 text-center">
-                                    <input type="checkbox" data-section-toggle data-kind="include-photo-pdf" <?php echo $pdfPrefs['include_photo'] ? 'checked' : ''; ?>>
+                                    <input type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" data-section-toggle data-kind="include-photo-pdf" <?php echo $pdfPrefs['include_photo'] ? 'checked' : ''; ?>>
                                 </td>
                             </tr>
                             <tr>
@@ -175,7 +175,7 @@ if ($isVariantContext && !empty($cvVariant['pdf_preferences'])) {
                                 </td>
                                 <td class="py-2 text-center text-gray-300">&mdash;</td>
                                 <td class="py-2 text-center">
-                                    <input type="checkbox" data-section-toggle data-kind="include-qr-pdf" <?php echo $pdfPrefs['include_qr'] ? 'checked' : ''; ?>>
+                                    <input type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" data-section-toggle data-kind="include-qr-pdf" <?php echo $pdfPrefs['include_qr'] ? 'checked' : ''; ?>>
                                 </td>
                             </tr>
                         <?php endif; ?>
@@ -202,10 +202,10 @@ if ($isVariantContext && !empty($cvVariant['pdf_preferences'])) {
                                     </span>
                                 </td>
                                 <td class="py-2 text-center">
-                                    <input type="checkbox" data-section-toggle data-kind="responsibilities-online" <?php echo $showResponsibilitiesOnline ? 'checked' : ''; ?>>
+                                    <input type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" data-section-toggle data-kind="responsibilities-online" <?php echo $showResponsibilitiesOnline ? 'checked' : ''; ?>>
                                 </td>
                                 <td class="py-2 text-center">
-                                    <input type="checkbox" data-section-toggle data-kind="responsibilities-pdf" <?php echo $showResponsibilitiesInPdf ? 'checked' : ''; ?>>
+                                    <input type="checkbox" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" data-section-toggle data-kind="responsibilities-pdf" <?php echo $showResponsibilitiesInPdf ? 'checked' : ''; ?>>
                                 </td>
                             </tr>
                         <?php endif; ?>
