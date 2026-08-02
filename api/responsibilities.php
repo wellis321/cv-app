@@ -131,12 +131,63 @@ if (!verifyCsrfToken($token)) {
 
 $action = $_POST['action'] ?? '';
 
+/**
+ * Find or create the hidden "ungrouped" category for a work experience entry, used when a
+ * user adds a responsibility bullet without first creating a named category. The sentinel
+ * name is filtered out wherever a CV is actually rendered (see RESPONSIBILITY_DEFAULT_CATEGORY_NAME).
+ */
+function getOrCreateDefaultResponsibilityCategory($workExperienceId, $userId, $isVariantContext) {
+    $categoryTable = $isVariantContext ? 'cv_variant_responsibility_categories' : 'responsibility_categories';
+
+    if ($isVariantContext) {
+        $workExp = db()->fetchOne(
+            "SELECT w.id FROM cv_variant_work_experience w
+             JOIN cv_variants v ON w.cv_variant_id = v.id
+             WHERE w.id = ? AND v.user_id = ?",
+            [$workExperienceId, $userId]
+        );
+    } else {
+        $workExp = db()->fetchOne(
+            "SELECT id FROM work_experience WHERE id = ? AND profile_id = ?",
+            [$workExperienceId, $userId]
+        );
+    }
+    if (!$workExp) {
+        return null;
+    }
+
+    $existing = db()->fetchOne(
+        "SELECT id FROM {$categoryTable} WHERE work_experience_id = ? AND name = ?",
+        [$workExperienceId, RESPONSIBILITY_DEFAULT_CATEGORY_NAME]
+    );
+    if ($existing) {
+        return $existing['id'];
+    }
+
+    // Sort ahead of any existing named categories so ungrouped bullets appear first.
+    $minOrder = db()->fetchOne(
+        "SELECT MIN(sort_order) as min_order FROM {$categoryTable} WHERE work_experience_id = ?",
+        [$workExperienceId]
+    );
+    $sortOrder = ($minOrder && $minOrder['min_order'] !== null) ? (int)$minOrder['min_order'] - 1 : 0;
+
+    $categoryId = generateUuid();
+    db()->insert($categoryTable, [
+        'id' => $categoryId,
+        'work_experience_id' => $workExperienceId,
+        'name' => RESPONSIBILITY_DEFAULT_CATEGORY_NAME,
+        'sort_order' => $sortOrder,
+        'created_at' => date('Y-m-d H:i:s')
+    ]);
+    return $categoryId;
+}
+
 try {
     if ($action === 'add_category') {
         $workExperienceId = $_POST['work_experience_id'] ?? '';
         $name = trim($_POST['name'] ?? '');
 
-        if (empty($workExperienceId) || empty($name)) {
+        if (empty($workExperienceId) || empty($name) || $name === RESPONSIBILITY_DEFAULT_CATEGORY_NAME) {
             http_response_code(400);
             echo json_encode(['success' => false, 'error' => 'Missing required fields']);
             exit;
@@ -197,7 +248,7 @@ try {
         $categoryId = $_POST['category_id'] ?? '';
         $name = trim($_POST['name'] ?? '');
 
-        if (empty($categoryId) || empty($name)) {
+        if (empty($categoryId) || empty($name) || $name === RESPONSIBILITY_DEFAULT_CATEGORY_NAME) {
             http_response_code(400);
             echo json_encode(['success' => false, 'error' => 'Missing required fields']);
             exit;
@@ -274,12 +325,24 @@ try {
         echo json_encode(['success' => true]);
     } elseif ($action === 'add_item') {
         $categoryId = $_POST['category_id'] ?? '';
+        $workExperienceId = $_POST['work_experience_id'] ?? '';
         $content = trim($_POST['content'] ?? '');
 
-        if (empty($categoryId) || empty($content)) {
+        if ((empty($categoryId) && empty($workExperienceId)) || empty($content)) {
             http_response_code(400);
             echo json_encode(['success' => false, 'error' => 'Missing required fields']);
             exit;
+        }
+
+        // No category chosen (flat/ungrouped bullet) — resolve or create the hidden default
+        // category for this work experience so the user isn't forced to name a category first.
+        if (empty($categoryId)) {
+            $categoryId = getOrCreateDefaultResponsibilityCategory($workExperienceId, $userId, $isVariantContext);
+            if (!$categoryId) {
+                http_response_code(403);
+                echo json_encode(['success' => false, 'error' => 'Invalid work experience']);
+                exit;
+            }
         }
 
         if ($isVariantContext) {

@@ -68,6 +68,34 @@ if (!$isVariantContext) {
 
 $existingWorkCount = count($workExperiences);
 $canAddWorkExperience = planCanAddEntry($subscriptionContext, 'work_experience', $userId, $existingWorkCount);
+
+// Current "show responsibilities" display preferences, so the toggle below reflects
+// what's actually on the generated CV without having to visit Preview & PDF separately.
+$showResponsibilitiesOnline = true;
+$showResponsibilitiesInPdf = true;
+if ($isVariantContext) {
+    $variantPrefsRow = db()->fetchOne("SELECT pdf_preferences FROM cv_variants WHERE id = ? AND user_id = ?", [$variantId, $userId]);
+    if ($variantPrefsRow && !empty($variantPrefsRow['pdf_preferences'])) {
+        $decodedPrefs = json_decode($variantPrefsRow['pdf_preferences'], true);
+        if (is_array($decodedPrefs)) {
+            if (array_key_exists('show_responsibilities_online', $decodedPrefs)) {
+                $showResponsibilitiesOnline = (bool) $decodedPrefs['show_responsibilities_online'];
+            }
+            if (array_key_exists('show_responsibilities_in_pdf', $decodedPrefs)) {
+                $showResponsibilitiesInPdf = (bool) $decodedPrefs['show_responsibilities_in_pdf'];
+            }
+        }
+    }
+} else {
+    $profileSectionsOnlineRow = db()->fetchOne("SELECT sections_online FROM profiles WHERE id = ?", [$userId]);
+    if ($profileSectionsOnlineRow && !empty($profileSectionsOnlineRow['sections_online'])) {
+        $decodedSections = json_decode($profileSectionsOnlineRow['sections_online'], true);
+        if (is_array($decodedSections) && array_key_exists('show_responsibilities_online', $decodedSections)) {
+            $showResponsibilitiesOnline = (bool) $decodedSections['show_responsibilities_online'];
+        }
+    }
+    // PDF-only preference has no master-CV equivalent to read from yet; defaults to true.
+}
 ?>
 <div class="max-w-3xl mx-auto">
     <div class="flex justify-between items-center mb-6">
@@ -79,7 +107,25 @@ $canAddWorkExperience = planCanAddEntry($subscriptionContext, 'work_experience',
             Assess This Section
         </button>
     </div>
-    
+
+    <div class="mb-6 flex flex-wrap items-center gap-x-5 gap-y-2 rounded-md border border-gray-200 bg-gray-50 px-4 py-3 text-sm"
+         id="we-responsibilities-toggles" data-variant-id="<?php echo $isVariantContext ? e($variantId) : ''; ?>">
+        <span class="font-medium text-gray-700">Show &ldquo;Key Responsibilities&rdquo; bullets:</span>
+        <label class="flex items-center gap-2 text-gray-700">
+            <input type="checkbox" id="we-show-responsibilities-online" <?php echo $showResponsibilitiesOnline ? 'checked' : ''; ?>>
+            <span>On Online CV</span>
+        </label>
+        <?php if ($isVariantContext): ?>
+            <label class="flex items-center gap-2 text-gray-700">
+                <input type="checkbox" id="we-show-responsibilities-pdf" <?php echo $showResponsibilitiesInPdf ? 'checked' : ''; ?>>
+                <span>In PDF</span>
+            </label>
+        <?php else: ?>
+            <a href="/preview-cv.php" class="text-indigo-600 hover:text-indigo-800">PDF options &rarr;</a>
+        <?php endif; ?>
+        <span id="we-responsibilities-toggle-status" class="text-gray-500" aria-live="polite"></span>
+    </div>
+
     <!-- Add/Edit Form -->
     <div class="bg-white shadow rounded-lg p-6 mb-6">
         <h2 class="text-xl font-semibold mb-4">
@@ -138,20 +184,22 @@ $canAddWorkExperience = planCanAddEntry($subscriptionContext, 'work_experience',
                 </div>
             </div>
             
-            <div class="mt-6">
+            <div class="mt-6 flex items-center">
                 <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md">
                     <?php echo $editingExperience ? 'Update Work Experience' : 'Add Work Experience'; ?>
                 </button>
                 <?php if ($editingExperience): ?>
                     <button type="button" data-action="cancel" class="ml-4 text-gray-700 hover:text-gray-900">Cancel</button>
+                    <span id="work-experience-autosave-status" class="ml-4 text-sm text-gray-500" aria-live="polite"></span>
                 <?php endif; ?>
             </div>
         </form>
-        
+
         <!-- Responsibilities Editor (only when editing) -->
         <?php if ($editingExperience): ?>
             <div class="mt-8 pt-8 border-t border-gray-200">
                 <h3 class="text-lg font-semibold text-gray-800 mb-4">Key Responsibilities</h3>
+                <p class="text-sm text-gray-500 mb-4">Add a bullet point for each responsibility or achievement. Changes save automatically as you go &mdash; group bullets into named categories only if you want that extra structure.</p>
                 <div id="responsibilities-editor-<?php echo e($editingExperience['id']); ?>"
                      data-work-experience-id="<?php echo e($editingExperience['id']); ?>">
                     <!-- Responsibilities will be loaded here via JavaScript -->
@@ -173,24 +221,24 @@ $canAddWorkExperience = planCanAddEntry($subscriptionContext, 'work_experience',
                 <p>No work experience added yet.</p>
             </div>
         <?php else: ?>
-            <?php
-            $showReorder = count($workExperiences) >= 2;
-            if ($showReorder):
-            ?>
-            <!-- Reorder controls (main profile only, 2+ items) -->
-            <div class="mb-4 flex flex-wrap justify-between items-center gap-3">
-                <button type="button" id="toggle-reorder-btn" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-                    Reorder experiences
-                </button>
-                <div id="reorder-info" class="hidden rounded-md bg-blue-50 p-4 text-blue-700 flex-1 min-w-0">
-                    <div class="flex flex-wrap items-center justify-between gap-2">
-                        <p class="text-sm">
-                            <strong>Reorder mode:</strong> Drag and drop to change order. Order is saved automatically.
-                        </p>
-                        <button type="button" id="reset-reorder-btn" class="shrink-0 rounded-md bg-blue-600 px-3 py-1 text-xs text-white hover:bg-blue-700">
-                            Reset to date order
-                        </button>
-                    </div>
+            <?php $showReorder = count($workExperiences) >= 2; ?>
+            <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
+                <h2 class="text-lg font-semibold text-gray-900">Your Experience</h2>
+                <?php if ($showReorder): ?>
+                    <button type="button" id="toggle-reorder-btn" class="px-3 py-1.5 text-sm font-medium rounded-md border transition-colors bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-100 hover:border-gray-400 hover:text-gray-900 hover:shadow-sm">
+                        Reorder
+                    </button>
+                <?php endif; ?>
+            </div>
+            <?php if ($showReorder): ?>
+            <div id="reorder-info" class="hidden mb-4 rounded-md bg-blue-50 p-4 text-blue-700">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <p class="text-sm">
+                        <strong>Reorder mode:</strong> Drag and drop to change order. Order is saved automatically.
+                    </p>
+                    <button type="button" id="reset-reorder-btn" class="shrink-0 rounded-md bg-blue-600 px-3 py-1 text-xs text-white hover:bg-blue-700">
+                        Reset to date order
+                    </button>
                 </div>
             </div>
             <?php endif; ?>
@@ -220,7 +268,7 @@ $canAddWorkExperience = planCanAddEntry($subscriptionContext, 'work_experience',
                                 </div>
                             </div>
                             <div class="flex gap-2">
-                                <button type="button" data-action="edit" data-entry-id="<?php echo e($work['id']); ?>" class="px-3 py-1.5 bg-green-50 text-green-700 text-sm font-medium rounded-md border border-green-200 hover:bg-green-100 hover:border-green-300 focus:outline-none focus:ring-1 focus:ring-green-500 transition-colors">Edit</button>
+                                <button type="button" data-action="edit" data-entry-id="<?php echo e($work['id']); ?>" class="px-3 py-1.5 bg-gray-50 text-gray-700 text-sm font-medium rounded-md border border-gray-300 hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-gray-400 transition-colors">Edit</button>
                                 <button type="button" data-action="delete" data-entry-id="<?php echo e($work['id']); ?>" data-entry-type="work-experience" class="px-3 py-1.5 bg-red-50 text-red-700 text-sm font-medium rounded-md border border-red-200 hover:bg-red-100 hover:border-red-300 focus:outline-none focus:ring-1 focus:ring-red-500 transition-colors">Delete</button>
                             </div>
                         </div>
