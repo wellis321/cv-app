@@ -2158,8 +2158,11 @@
             showNotification('success', 'Section assessment completed');
         } catch (error) {
             console.error('Browser AI execution error:', error);
-            showNotification('error', 'Browser AI Error: ' + error.message);
-            
+            const helpInfo = (typeof BrowserAIService !== 'undefined' && BrowserAIService.getWebLLMErrorHelp)
+                ? BrowserAIService.getWebLLMErrorHelp(error)
+                : { message: 'Browser AI Error: ' + error.message };
+            showNotification('error', helpInfo.message);
+
             // Restore guidance panel
             loadGuidance(sectionId);
         }

@@ -18,6 +18,17 @@ const BrowserAIService = {
      */
     getWebLLMErrorHelp(error) {
         const msg = (error && error.message) ? String(error.message) : '';
+        const isGpuLimitError = msg.includes('maxStorageBuffersPerShaderStage') || (msg.includes('exceeds limit') && msg.includes('requested='));
+        if (isGpuLimitError) {
+            const isFirefox = typeof navigator !== 'undefined' && /firefox/i.test(navigator.userAgent || '');
+            const browserNote = isFirefox
+                ? "This is a known limitation of Firefox's current WebGPU support — it exposes fewer GPU resources than Chrome or Edge."
+                : "Your browser's WebGPU support doesn't expose enough GPU resources for this model.";
+            return {
+                message: `Browser AI failed: this AI model is too demanding for your browser's GPU support. ${browserNote} Try switching to Chrome or Edge, or pick a smaller model (Llama 3.2 or Phi-3) in AI Settings.`,
+                offerServerFallback: true
+            };
+        }
         const isCacheError = msg.includes('Cache.add()') || msg.includes('network error') || msg.includes('Cache') && msg.includes('network');
         const isWebLLMInit = msg.includes('WebLLM') || msg.includes('Failed to load') || msg.includes('CreateMLCEngine');
         if (isCacheError || isWebLLMInit) {
