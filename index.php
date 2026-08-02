@@ -84,6 +84,7 @@ if ($searchQuery !== '' && ($requestPath === '/' || $requestPath === '/index.php
             'pageTitle' => 'Search results for "' . $searchQuery . '" | Simple CV Builder',
             'metaDescription' => 'Search Simple CV Builder help guides and CV advice articles.',
             'canonicalUrl' => APP_URL . '/?s=' . urlencode($searchQuery),
+            'metaNoindex' => true,
         ]); ?>
     </head>
     <body class="bg-gray-50">
