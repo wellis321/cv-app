@@ -72,6 +72,32 @@ if ($requestPath !== '/' && $requestPath !== '/index.php' && $requestPath !== ''
     }
 }
 
+// Site search (SearchAction structured data target: /?s={search_term_string})
+$searchQuery = trim($_GET['s'] ?? '');
+if ($searchQuery !== '' && ($requestPath === '/' || $requestPath === '/index.php' || empty($requestPath))) {
+    $searchResults = searchSiteContent($searchQuery);
+    ?>
+    <!DOCTYPE html>
+    <html lang="en-GB">
+    <head>
+        <?php partial('head', [
+            'pageTitle' => 'Search results for "' . $searchQuery . '" | Simple CV Builder',
+            'metaDescription' => 'Search Simple CV Builder help guides and CV advice articles.',
+            'canonicalUrl' => APP_URL . '/?s=' . urlencode($searchQuery),
+        ]); ?>
+    </head>
+    <body class="bg-gray-50">
+        <?php partial('header'); ?>
+        <main id="main-content" role="main">
+            <?php partial('search-results', ['query' => $searchQuery, 'results' => $searchResults]); ?>
+        </main>
+        <?php partial('footer'); ?>
+    </body>
+    </html>
+    <?php
+    exit;
+}
+
 // Handle login/register
 if (isPost()) {
     // Verify CSRF token

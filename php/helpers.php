@@ -19,6 +19,7 @@ require_once __DIR__ . '/invitations.php';
 require_once __DIR__ . '/job-applications.php';
 require_once __DIR__ . '/ai-service.php';
 require_once __DIR__ . '/cv-variants.php';
+require_once __DIR__ . '/site-search.php';
 
 /**
  * Enforce canonical domain (prevents www/non-www duplicates)
