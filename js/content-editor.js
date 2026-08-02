@@ -1570,7 +1570,7 @@
         notification.innerHTML = `
             <div class="bg-${color}-50 border border-${color}-200 rounded-md p-4 shadow-lg flex items-start gap-3">
                 <p class="text-sm font-medium text-${color}-800 flex-1">${escapeHtml(message)}</p>
-                <button type="button" class="flex-shrink-0 text-${color}-500 hover:text-${color}-700" aria-label="Dismiss">
+                <button type="button" class="flex-shrink-0 text-${color}-600 hover:text-${color}-900" aria-label="Dismiss">
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
@@ -1581,10 +1581,21 @@
             notification.style.transition = 'opacity 0.3s';
             notification.style.opacity = '0';
             setTimeout(() => notification.remove(), 300);
+            document.removeEventListener('click', handleOutsideClick, true);
         };
         notification.querySelector('button').addEventListener('click', dismiss);
 
-        // Errors stay until the user closes them - there's often something to act on
+        // Clicking anywhere outside the toast dismisses it too, since the close
+        // button is small. Deferred so the click that triggered this notification
+        // doesn't immediately close it.
+        const handleOutsideClick = (e) => {
+            if (!notification.contains(e.target)) {
+                dismiss();
+            }
+        };
+        setTimeout(() => document.addEventListener('click', handleOutsideClick, true), 0);
+
+        // Errors stay until the user dismisses them - there's often something to act on
         // (e.g. switch browsers, pick a different model) that a timed toast would cut off.
         // Success messages are just confirmation, so they can auto-dismiss.
         if (type === 'success') {
