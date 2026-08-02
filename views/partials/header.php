@@ -78,7 +78,7 @@
                         <?php if (!$isAgencyPage): ?>
                             <div class="relative group inline-flex items-stretch">
                                 <div class="inline-flex items-stretch rounded-md border border-gray-300 overflow-hidden">
-                                    <span class="inline-flex items-center px-3 py-2 text-xs md:text-sm font-medium whitespace-nowrap <?php echo $isCvPage ? 'bg-blue-600 text-white' : 'text-gray-700'; ?>">CV</span>
+                                    <span class="inline-flex items-center px-3 py-2 text-xs md:text-sm font-medium whitespace-nowrap <?php echo $isCvPage ? 'bg-blue-600 text-white' : 'text-gray-700'; ?>">My CV</span>
                                     <button type="button" aria-haspopup="true" aria-expanded="false" class="inline-flex items-center px-2 py-2 border-l border-gray-300 text-xs md:text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 <?php echo $isCvPage ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-800'; ?>">
                                         <svg class="h-3 w-3 md:h-4 md:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                                     </button>
@@ -144,7 +144,7 @@
                         ?>
                         <div class="relative group inline-flex items-stretch">
                             <div class="inline-flex items-stretch rounded-md border border-gray-300 overflow-hidden">
-                                <span class="inline-flex items-center px-3 py-2 text-xs md:text-sm font-medium whitespace-nowrap <?php echo $isCvPage ? 'bg-blue-600 text-white' : 'text-gray-700'; ?>">CV</span>
+                                <span class="inline-flex items-center px-3 py-2 text-xs md:text-sm font-medium whitespace-nowrap <?php echo $isCvPage ? 'bg-blue-600 text-white' : 'text-gray-700'; ?>">My CV</span>
                                 <button type="button" aria-haspopup="true" aria-expanded="false" class="inline-flex items-center px-2 py-2 border-l border-gray-300 text-xs md:text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 <?php echo $isCvPage ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-800'; ?>">
                                     <svg class="h-3 w-3 md:h-4 md:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                                 </button>

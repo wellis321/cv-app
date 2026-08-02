@@ -52,6 +52,7 @@ docs/SEO_PLAN.md
 
 # GSC export data (temporary – do not commit)
 views/partials/*Performance*
+docs/google/
 
 # SEO/audit report exports (temporary – do not commit)
 *FailingUrls*.csv
