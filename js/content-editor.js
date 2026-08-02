@@ -293,11 +293,14 @@
             if (mainElement) mainElement.classList.toggle('jobs-view-active', !!hasJobsView);
             contentArea.classList.toggle('jobs-view-active', !!hasJobsView);
 
-            // Jobs view has no use for the CV section nav - free up the width it takes.
+            // Jobs section (list view or an individual job's detail view) has no use for
+            // the CV section nav - free up the width it takes. Note: sectionId, not
+            // hasJobsView, since hasJobsView only detects the individual job detail view,
+            // not the general Jobs list.
             // Only auto-expand it back on the way out if we're the ones who collapsed it,
             // so a user who manually closed it for CV editing isn't overridden.
             if (window.contentEditorLayout) {
-                if (hasJobsView) {
+                if (sectionId === 'jobs') {
                     if (!window.contentEditorLayout.isLeftCollapsed()) {
                         window.contentEditorLayout.collapseLeftSilent();
                         leftSidebarAutoCollapsedForJobs = true;
