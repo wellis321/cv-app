@@ -189,3 +189,23 @@ db()->delete('table_name', 'id = ? AND profile_id = ?', [$id, $userId]);
 - **Debugging**: Set `APP_ENV=development` in `.env` for error display
 - **Documentation**: See `docs/` for security audits, Stripe setup, production checklists
 - **Icons**: Never use emoji or Unicode dingbat characters (e.g. `&#8618;`, `↳`, `⚠️`) as UI icons — they render inconsistently across platforms (some show as colored emoji glyphs instead of plain symbols). Always use inline SVG icons matching the existing style used throughout the app (`viewBox="0 0 24 24"`, `stroke="currentColor"`, `stroke-linecap="round"`, `stroke-linejoin="round"`, `stroke-width="2"` — see `views/partials/content-editor/section-sidebar.php` for examples). Plain punctuation (e.g. `&mdash;` for an empty-state placeholder) is fine — this rule is about icons/symbols, not general typography.
+
+## Design Context
+
+### Users
+Two audiences share the same product: individual job seekers (UK-focused — "Free CV Builder UK") building and sharing a CV, tracking job applications, and exporting PDFs; and recruitment agencies/organisations managing candidates through the same tool. Job hunting is often a stressful, high-stakes process — the interface should reduce friction and feel dependable, not add anxiety.
+
+### Brand Personality
+**Sharp & professional.** Confident, trustworthy, no-nonsense — the tool a serious job seeker or recruiter expects to work correctly and look credible, not a flashy or playful consumer app.
+
+### Aesthetic Direction
+Clean, professional SaaS look. Light mode only (no dark mode in use). System/Tailwind default sans-serif typography — no custom display font. Blue (`blue-600` family) is the established single brand color, used for primary actions and links across the whole site (homepage, dashboard, forms). Stay within this existing blue-based palette rather than introducing a second accent hue.
+
+**Anti-reference**: washed-out, low-contrast pastel states (e.g. `bg-blue-50`/`bg-blue-100` used identically for both hover and active, with no clear escalation between them) — reads as tentative and unfinished, not professional.
+
+### Design Principles
+1. **Confident contrast over pale tints** — default, hover, and active states must be immediately distinguishable at a glance, not subtly different shades of near-white blue.
+2. **One brand color, sharpened, not diluted** — deepen/strengthen the existing blue for interactive states rather than introducing competing accent colors.
+3. **Professional restraint** — motion and state changes should feel purposeful and efficient (quick, clean transitions), not decorative or playful.
+4. **Consistency across repeated patterns** — every instance of the same UI pattern (nav items, dropdown items, buttons) shares one interaction system, not per-instance variations.
+5. **Accessible by default** — WCAG AA contrast minimum; this is a professional tool used by a broad audience under time pressure.
