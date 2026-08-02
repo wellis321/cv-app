@@ -779,9 +779,6 @@
                     <div>
                         <a href="/forgot-username.php" class="text-blue-600 hover:text-blue-800">Forgot your username?</a>
                     </div>
-                    <div>
-                        <a href="/resend-verification.php" class="text-blue-600 hover:text-blue-800">Resend verification email</a>
-                    </div>
                 </div>
             </form>
         </div>
