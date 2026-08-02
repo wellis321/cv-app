@@ -880,7 +880,7 @@ function renderCvSectionWrapper($cvSId, $sectionHtml, $isCvOwner, $sectionsOnlin
                         </div>
                         <?php if (!empty($profile['bio'])): ?>
                             <div class="mt-4 pt-4 border-t border-white/20 text-sm sm:text-base">
-                                <p class="text-white/90 leading-relaxed"><?php echo nl2br(e(html_entity_decode($profile['bio'], ENT_QUOTES, 'UTF-8'))); ?></p>
+                                <div class="text-white/90 leading-relaxed markdown-content"><?php echo renderMarkdown($profile['bio']); ?></div>
                             </div>
                         <?php endif; ?>
                     </div>
@@ -1425,6 +1425,7 @@ function renderCvSectionWrapper($cvSId, $sectionHtml, $isCvOwner, $sectionsOnlin
                                                 'id' => $membership['id'],
                                                 'organisation' => $membership['organisation'],
                                                 'role' => $membership['role'] ?? '',
+                                                'description' => $membership['description'] ?? '',
                                                 'start_date' => cvFormatDateForInput($membership['start_date'] ?? null),
                                                 'end_date' => cvFormatDateForInput($membership['end_date'] ?? null),
                                             ]); ?>
@@ -1434,6 +1435,9 @@ function renderCvSectionWrapper($cvSId, $sectionHtml, $isCvOwner, $sectionsOnlin
                                                 <h3 class="font-semibold text-gray-900 text-sm"><?php echo e($membership['organisation']); ?></h3>
                                                 <?php if (!empty($membership['role'])): ?>
                                                     <p class="text-gray-700 text-sm"><?php echo e($membership['role']); ?></p>
+                                                <?php endif; ?>
+                                                <?php if (!empty($membership['description'])): ?>
+                                                    <div class="text-gray-700 text-sm leading-relaxed markdown-content mt-1"><?php echo renderMarkdown($membership['description']); ?></div>
                                                 <?php endif; ?>
                                             </div>
                                             <?php if (!empty($membership['start_date']) || !empty($membership['end_date'])): ?>

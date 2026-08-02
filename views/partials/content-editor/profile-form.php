@@ -98,7 +98,7 @@ $photoUrl = $profile['photo_url'] ?? null;
 
             <div class="mb-6">
                 <label for="bio" class="block text-sm font-medium text-gray-700 mb-1">Strapline</label>
-                <textarea id="bio" name="bio" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"><?php echo e($profile['bio'] ?? ''); ?></textarea>
+                <textarea id="bio" name="bio" rows="3" maxlength="5000" data-markdown class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"><?php echo e($profile['bio'] ?? ''); ?></textarea>
                 <p class="mt-1 text-xs text-gray-500">A single line of text that appears on your CV</p>
             </div>
 
