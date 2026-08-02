@@ -233,8 +233,6 @@ $masterVariantId = getOrCreateMasterVariant($userId);
         window.SubscriptionContext = SubscriptionContext;
         const siteUrl = <?php echo json_encode(APP_URL, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
         const allowedTemplateIds = new Set(SubscriptionContext?.allowedTemplateIds || []);
-        const previewVariantId = <?php echo json_encode($variantId ?? null, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
-        const previewCsrfToken = <?php echo json_encode(csrfToken(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
         const profileSectionsOnline = <?php
             $raw = $profile['sections_online'] ?? null;
             echo $raw ? json_encode(is_string($raw) ? json_decode($raw, true) : $raw, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) : 'null';
@@ -654,31 +652,17 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                 pdfButton.textContent = 'Upgrade to download PDF';
             }
 
-            // Update Preview button – fetch fresh CV data and re-render
+            // Update Preview button – full reload rather than a partial JS refetch, since
+            // content, Appearance, and Visibility settings are all resolved server-side once
+            // at page load. A partial refetch only ever picked up content changes (new work
+            // experience, edited skills) and silently missed colour/template/section changes
+            // made elsewhere - a reload guarantees everything shown here is current.
             const updatePreviewBtn = document.getElementById('update-preview-button');
             if (updatePreviewBtn) {
-                updatePreviewBtn.addEventListener('click', async () => {
-                    const originalText = updatePreviewBtn.textContent;
-                    updatePreviewBtn.textContent = 'Updating…';
+                updatePreviewBtn.addEventListener('click', () => {
                     updatePreviewBtn.disabled = true;
-                    try {
-                        let url = '/api/content-editor/get-cv-data.php';
-                        if (previewVariantId) url += '?variant_id=' + encodeURIComponent(previewVariantId);
-                        const res = await fetch(url);
-                        if (!res.ok) throw new Error('Failed to load CV data');
-                        const { cvData: newCvData, profile: newProfile } = await res.json();
-                        if (!newCvData || !newProfile) throw new Error('Invalid CV data');
-                        cvData = newCvData;
-                        profile = newProfile;
-                        currentSkillSelection = (cvData.skills || []).map(s => s.id);
-                        await renderPreview();
-                    } catch (err) {
-                        console.error('Update preview error:', err);
-                        alert('Could not update preview. Please refresh the page.');
-                    } finally {
-                        updatePreviewBtn.textContent = originalText;
-                        updatePreviewBtn.disabled = false;
-                    }
+                    updatePreviewBtn.textContent = 'Updating…';
+                    window.location.reload();
                 });
             }
 
