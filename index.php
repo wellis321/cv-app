@@ -209,7 +209,7 @@ if (isPost()) {
 
         if ($result['success']) {
             logAuthAttempt('login', $email, true);
-            $redirect = post('redirect', '/profile.php');
+            $redirect = post('redirect', '/dashboard.php');
             redirect($redirect);
         } else {
             $reason = $result['error'] ?? 'Invalid credentials';
