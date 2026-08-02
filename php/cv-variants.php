@@ -349,7 +349,9 @@ function loadCvVariantData($variantId) {
             [$work['id']]
         );
         foreach ($categories as &$category) {
-            $category['name'] = decodeHtmlEntities($category['name'] ?? '');
+            $category['name'] = $category['name'] === RESPONSIBILITY_DEFAULT_CATEGORY_NAME
+                ? ''
+                : decodeHtmlEntities($category['name'] ?? '');
             $category['items'] = db()->fetchAll(
                 "SELECT * FROM cv_variant_responsibility_items
                  WHERE category_id = ?

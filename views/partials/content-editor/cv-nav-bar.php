@@ -8,8 +8,23 @@ if (!isset($cvVariants) || !isset($masterVariantId)) {
     return;
 }
 $isPreviewPage = !empty($isPreviewPage);
+$isCvPage = !empty($isCvPage);
+$isEditorPage = !empty($isEditorPage);
 $previewVariantId = $variantId ?? null;
 $relatedJobId = null;
+
+// Unified action-button set, same order everywhere (most-used to least-used, left to
+// right): Edit CV, View CV, Preview & PDF, Jobs, Copy Link. Each page hides the one
+// button that duplicates where the user already is - nothing else about the set changes.
+$pageContext = $isEditorPage ? 'editor' : ($isCvPage ? 'cv' : ($isPreviewPage ? 'preview' : null));
+
+// Share/Copy link - built once here so every mode (preview, cv page, editor default,
+// and the JS-driven variant/job context switches below) can point at the same button.
+$navProfileRow = db()->fetchOne("SELECT username FROM profiles WHERE id = ?", [getUserId()]);
+$navUsername = $navProfileRow['username'] ?? '';
+$navShareUrl = !empty($navUsername)
+    ? APP_URL . '/cv/@' . $navUsername . (!empty($previewVariantId) ? '?variant_id=' . rawurlencode($previewVariantId) : '')
+    : '';
 if ($previewVariantId && !empty($cvVariants)) {
     foreach ($cvVariants as $v) {
         if (($v['id'] ?? null) === $previewVariantId && !empty($v['job_application_id'])) {
@@ -19,14 +34,27 @@ if ($previewVariantId && !empty($cvVariants)) {
     }
 }
 
+$navVariantSuffixAmp = $previewVariantId ? '&variant_id=' . rawurlencode($previewVariantId) : '';
+$navVariantSuffixQs = $previewVariantId ? '?variant_id=' . rawurlencode($previewVariantId) : '';
+$navEditCvHref = '/content-editor.php#work-experience' . $navVariantSuffixAmp;
+$navViewCvHref = '/cv.php' . $navVariantSuffixQs;
+$navPreviewPdfHref = '/preview-cv.php' . $navVariantSuffixQs;
+$navJobsHref = $relatedJobId
+    ? '/content-editor.php#jobs&view=' . rawurlencode($relatedJobId)
+    : ($pageContext === 'editor' ? '#jobs' : '/content-editor.php#jobs');
+$navJobsLabel = $relatedJobId ? 'Related Job' : 'Jobs';
+
 // Content editor edits the master CV, but we can show variants for viewing
 // Get recent variants (last 5)
 $recentVariants = array_slice($cvVariants, 0, 5);
 $masterVariant = null;
+$viewingVariantName = null;
 foreach ($cvVariants as $variant) {
     if ($variant['is_master']) {
         $masterVariant = $variant;
-        break;
+    }
+    if ($previewVariantId && ($variant['id'] ?? null) === $previewVariantId) {
+        $viewingVariantName = $variant['variant_name'] ?? 'Untitled';
     }
 }
 ?>
@@ -94,10 +122,10 @@ foreach ($cvVariants as $variant) {
                 </div>
             </div>
             <!-- Viewing variant label (shown when editing a non-master variant, like cv.php) -->
-            <span id="cv-nav-viewing-label" class="hidden text-sm text-gray-500 flex-shrink-0" data-cv-nav-viewing></span>
+            <span id="cv-nav-viewing-label" class="<?php echo $viewingVariantName ? '' : 'hidden'; ?> text-sm text-gray-500 flex-shrink-0" data-cv-nav-viewing><?php echo $viewingVariantName ? 'Viewing: ' . e($viewingVariantName) : ''; ?></span>
         </div>
         
-        <?php if (!$isPreviewPage): ?>
+        <?php if ($pageContext === 'editor'): ?>
         <!-- Center: Layout (column visibility) - content editor only -->
         <div class="flex items-center gap-1 border border-gray-200 rounded-md p-1 bg-gray-50 flex-shrink-0" id="layout-presets" role="group" aria-label="Layout">
             <button type="button" class="layout-preset-btn rounded p-1.5 text-gray-600 hover:bg-white hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset" data-layout="all" title="All three columns (section nav + content + guidance)">
@@ -115,83 +143,34 @@ foreach ($cvVariants as $variant) {
         </div>
         <?php endif; ?>
 
-        <!-- Right: Actions -->
+        <!-- Right: Actions - same five buttons, same order, everywhere. Each page hides the
+             one button that duplicates where the user already is. -->
         <div class="flex items-center gap-2 flex-shrink-0">
-            <?php if ($isPreviewPage && $previewVariantId): ?>
-            <!-- View CV (preview page with variant) -->
-            <a href="/cv.php?variant_id=<?php echo e($previewVariantId); ?>" target="_blank" rel="noopener" class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-blue-700 bg-blue-50 rounded-md border border-blue-200 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap">
-                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                <span>View CV</span>
-            </a>
-            <!-- Edit CV (preview page with variant – links to editor with variant context) -->
-            <a href="/content-editor.php#work-experience&variant_id=<?php echo e($previewVariantId); ?>" class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 whitespace-nowrap">
+            <a id="cv-nav-edit-cv" href="<?php echo e($navEditCvHref); ?>" class="<?php echo $pageContext === 'editor' ? 'hidden ' : ''; ?>flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 whitespace-nowrap">
                 <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                 </svg>
-                <span>Edit CV</span>
+                <span id="cv-nav-edit-cv-label">Edit CV</span>
             </a>
-            <?php if ($relatedJobId): ?>
-            <!-- Related Job (variant is linked to a job application) -->
-            <a href="/content-editor.php#jobs&view=<?php echo e($relatedJobId); ?>" class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-50 rounded-md border border-gray-300 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap">
-                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                </svg>
-                <span>Related Job</span>
-            </a>
-            <?php endif; ?>
-            <?php elseif ($isPreviewPage): ?>
-            <!-- Preview page without variant: View CV (master), Edit CV -->
-            <a href="/cv.php" target="_blank" rel="noopener" class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-blue-700 bg-blue-50 rounded-md border border-blue-200 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap">
+            <a id="cv-nav-view-cv" href="<?php echo e($navViewCvHref); ?>" target="_blank" rel="noopener" class="<?php echo $pageContext === 'cv' ? 'hidden ' : ''; ?>flex items-center gap-2 px-3 py-2 text-sm font-medium text-blue-700 bg-blue-50 rounded-md border border-blue-200 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap">
                 <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                <span>View CV</span>
+                <span id="cv-nav-view-cv-label">View CV</span>
             </a>
-            <a href="/content-editor.php" class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 whitespace-nowrap">
-                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                </svg>
-                <span>Edit CV</span>
+            <a id="cv-nav-preview-pdf" href="<?php echo e($navPreviewPdfHref); ?>" class="<?php echo $pageContext === 'preview' ? 'hidden ' : ''; ?>flex items-center gap-2 px-3 py-2 text-sm font-medium text-green-700 bg-green-50 rounded-md border border-green-200 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                <span>Preview &amp; PDF</span>
             </a>
-            <?php endif; ?>
-            <!-- Jobs Link (hidden on content-editor when editing a variant - replaced by variant context) -->
-            <a id="cv-nav-jobs-link" href="<?php echo $isPreviewPage ? '/content-editor.php#jobs' : '#jobs'; ?>" class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-50 rounded-md border border-gray-300 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap" data-cv-nav-jobs>
+            <a id="cv-nav-jobs-link" href="<?php echo e($navJobsHref); ?>" class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-50 rounded-md border border-gray-300 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap" data-cv-nav-jobs>
                 <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                 </svg>
-                <span>Jobs</span>
+                <span id="cv-nav-jobs-label"><?php echo e($navJobsLabel); ?></span>
             </a>
-            <!-- Variant context: Related Job (or Jobs) + View CV + Preview when editing a variant (replaces Jobs, Templates, Edit CV) -->
-            <div id="cv-nav-variant-context" class="hidden" data-cv-nav-variant-context>
-                <a id="cv-nav-variant-job-link" href="#" class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-50 rounded-md border border-gray-300 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap">
-                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                    </svg>
-                    <span id="cv-nav-variant-job-label">Related Job</span>
-                </a>
-                <a id="cv-nav-variant-view-cv" href="#" target="_blank" rel="noopener" class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-blue-700 bg-blue-50 rounded-md border border-blue-200 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap">
-                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                    <span>View CV</span>
-                </a>
-                <a id="cv-nav-variant-preview-pdf" href="#" target="_blank" rel="noopener" class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-green-700 bg-green-50 rounded-md border border-green-200 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap">
-                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                    <span>Preview & PDF</span>
-                </a>
-            </div>
-            
-            <?php if (!$isPreviewPage): ?>
-            <!-- Job context: View CV / Edit CV when viewing a job (replaces Templates + Edit CV) -->
-            <div id="cv-nav-job-context" class="hidden" data-cv-nav-job-context>
-                <a id="cv-nav-job-view-cv" href="#" target="_blank" rel="noopener" class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-blue-700 bg-blue-50 rounded-md border border-blue-200 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap">
-                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                    <span id="cv-nav-job-view-cv-label">View CV</span>
-                </a>
-                <a id="cv-nav-job-edit-cv" href="#" class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 whitespace-nowrap">
-                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                    <span id="cv-nav-job-edit-cv-label">Edit CV</span>
-                </a>
-            </div>
-            <!-- Default content-editor actions (hidden when viewing a job or editing a variant); empty on content-editor since Preview takes us to templates -->
-            <div id="cv-nav-default-actions" class="flex items-center gap-2" data-cv-nav-default>
-            </div>
+            <?php if (!empty($navShareUrl)): ?>
+            <button type="button" id="cv-nav-copy-link" class="copy-cv-link-btn flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-50 rounded-md border border-gray-300 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap" data-cv-url="<?php echo e($navShareUrl); ?>" aria-label="Copy CV link">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                <span class="copy-cv-link-label">Copy Link</span>
+            </button>
             <?php endif; ?>
         </div>
     </div>
@@ -199,7 +178,7 @@ foreach ($cvVariants as $variant) {
 <?php
 $variantToJobMap = [];
 $variantNameMap = [];
-if (!$isPreviewPage && !empty($cvVariants)) {
+if ($pageContext === 'editor' && !empty($cvVariants)) {
     foreach ($cvVariants as $v) {
         if (!empty($v['id'])) {
             $variantNameMap[$v['id']] = $v['variant_name'] ?? 'Untitled';
@@ -209,32 +188,27 @@ if (!$isPreviewPage && !empty($cvVariants)) {
         }
     }
 }
-if (!$isPreviewPage): ?>
+if ($pageContext === 'editor'): ?>
 <script>window._cvNavVariantToJob = <?php echo json_encode($variantToJobMap); ?>; window._cvNavVariantNames = <?php echo json_encode($variantNameMap); ?>;</script>
 <script>
 (function() {
     var h = window.location.hash || '';
     if (h.indexOf('variant_id=') !== -1) {
-        var def = document.getElementById('cv-nav-default-actions');
-        var jobs = document.getElementById('cv-nav-jobs-link');
-        var vctx = document.getElementById('cv-nav-variant-context');
-        var viewingLabel = document.getElementById('cv-nav-viewing-label');
         var variantId = (h.match(/variant_id=([^&]+)/) || [])[1] || '';
+        if (!variantId) return;
         var relatedJobId = (window._cvNavVariantToJob && variantId) ? (window._cvNavVariantToJob[variantId] || '') : '';
-        if (def) def.classList.add('hidden');
-        if (jobs) jobs.classList.add('hidden');
-        if (vctx && variantId) {
-            var jl = document.getElementById('cv-nav-variant-job-link');
-            var jlb = document.getElementById('cv-nav-variant-job-label');
-            var vv = document.getElementById('cv-nav-variant-view-cv');
-            var vp = document.getElementById('cv-nav-variant-preview-pdf');
-            if (jl) { jl.href = relatedJobId ? '/content-editor.php#jobs&view=' + encodeURIComponent(relatedJobId) : '#jobs'; if (jlb) jlb.textContent = relatedJobId ? 'Related Job' : 'Jobs'; }
-            if (vv) vv.href = '/cv.php?variant_id=' + encodeURIComponent(variantId);
-            if (vp) vp.href = '/preview-cv.php?variant_id=' + encodeURIComponent(variantId);
-            vctx.classList.remove('hidden');
-            vctx.classList.add('flex', 'items-center', 'gap-2');
-        }
-        if (viewingLabel && variantId) {
+        var viewCv = document.getElementById('cv-nav-view-cv');
+        var previewPdf = document.getElementById('cv-nav-preview-pdf');
+        var jobsLink = document.getElementById('cv-nav-jobs-link');
+        var jobsLabel = document.getElementById('cv-nav-jobs-label');
+        var copyLink = document.getElementById('cv-nav-copy-link');
+        var viewingLabel = document.getElementById('cv-nav-viewing-label');
+        if (viewCv) viewCv.href = '/cv.php?variant_id=' + encodeURIComponent(variantId);
+        if (previewPdf) previewPdf.href = '/preview-cv.php?variant_id=' + encodeURIComponent(variantId);
+        if (jobsLink) jobsLink.href = relatedJobId ? '/content-editor.php#jobs&view=' + encodeURIComponent(relatedJobId) : '#jobs';
+        if (jobsLabel) jobsLabel.textContent = relatedJobId ? 'Related Job' : 'Jobs';
+        if (copyLink) copyLink.dataset.cvUrl = copyLink.dataset.cvUrl.split('?')[0] + '?variant_id=' + encodeURIComponent(variantId);
+        if (viewingLabel) {
             var name = (window._cvNavVariantNames && window._cvNavVariantNames[variantId]) || 'Untitled';
             viewingLabel.textContent = 'Viewing: ' + name;
             viewingLabel.classList.remove('hidden');
@@ -245,6 +219,36 @@ if (!$isPreviewPage): ?>
 <?php endif; ?>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Copy/Share CV link
+        document.querySelectorAll('.copy-cv-link-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var url = this.dataset.cvUrl;
+                if (!url) return;
+                var label = this.querySelector('.copy-cv-link-label');
+                var restore = function () {
+                    if (label) setTimeout(function () { label.textContent = 'Copy Link'; }, 2000);
+                };
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(url).then(function () {
+                        if (label) label.textContent = 'Copied!';
+                        restore();
+                    }).catch(function () { /* fallback below */ });
+                } else {
+                    var ta = document.createElement('textarea');
+                    ta.value = url;
+                    ta.style.position = 'fixed'; ta.style.opacity = '0';
+                    document.body.appendChild(ta);
+                    ta.select();
+                    try {
+                        document.execCommand('copy');
+                        if (label) label.textContent = 'Copied!';
+                        restore();
+                    } catch (e) {}
+                    document.body.removeChild(ta);
+                }
+            });
+        });
+
         // Toggle CV variant dropdown
         const dropdownBtn = document.getElementById('cv-variant-dropdown-btn');
         const dropdown = document.getElementById('cv-variant-dropdown');
@@ -299,83 +303,70 @@ if (!$isPreviewPage): ?>
             window.addEventListener('load', function() { setTimeout(wireLayoutPresetButtons, 50); });
         }
 
-        // Job view context: show View CV / Edit CV (or View Master CV / Edit Master CV) when viewing a job, hide Templates
-        var jobContext = document.getElementById('cv-nav-job-context');
-        var defaultActions = document.getElementById('cv-nav-default-actions');
-        var jobViewCv = document.getElementById('cv-nav-job-view-cv');
-        var jobEditCv = document.getElementById('cv-nav-job-edit-cv');
-        var jobViewCvLabel = document.getElementById('cv-nav-job-view-cv-label');
-        var jobEditCvLabel = document.getElementById('cv-nav-job-edit-cv-label');
-        if (jobContext && defaultActions && jobViewCv && jobEditCv) {
+        // Shared references to the unified action buttons (same five, same order, on every page)
+        var editCv = document.getElementById('cv-nav-edit-cv');
+        var editCvLabel = document.getElementById('cv-nav-edit-cv-label');
+        var viewCv = document.getElementById('cv-nav-view-cv');
+        var viewCvLabel = document.getElementById('cv-nav-view-cv-label');
+        var previewPdf = document.getElementById('cv-nav-preview-pdf');
+        var jobsLink = document.getElementById('cv-nav-jobs-link');
+        var jobsLabel = document.getElementById('cv-nav-jobs-label');
+        var copyLinkBtn = document.getElementById('cv-nav-copy-link');
+        var viewingLabel = document.getElementById('cv-nav-viewing-label');
+
+        // Job view context: viewing a specific job's detail inside the editor is not the main
+        // "editing" state, so Edit CV (normally hidden on this page) becomes relevant again.
+        if (editCv && viewCv) {
             document.addEventListener('contenteditor:jobviewshown', function(e) {
                 var linkedVariantId = (e.detail && e.detail.linkedVariantId) ? String(e.detail.linkedVariantId).trim() : '';
                 var hasVariant = !!linkedVariantId;
-                if (hasVariant) {
-                    jobViewCv.href = '/cv.php?variant_id=' + encodeURIComponent(linkedVariantId);
-                    jobEditCv.href = '/content-editor.php#work-experience&variant_id=' + encodeURIComponent(linkedVariantId);
-                    jobViewCvLabel.textContent = 'View CV';
-                    jobEditCvLabel.textContent = 'Edit CV';
-                } else {
-                    jobViewCv.href = '/cv.php';
-                    jobEditCv.href = '/content-editor.php#work-experience';
-                    jobViewCvLabel.textContent = 'View Master CV';
-                    jobEditCvLabel.textContent = 'Edit Master CV';
-                }
-                jobContext.classList.remove('hidden');
-                jobContext.classList.add('flex', 'items-center', 'gap-2');
-                defaultActions.classList.add('hidden');
+                var suffix = hasVariant ? '?variant_id=' + encodeURIComponent(linkedVariantId) : '';
+                var hashSuffix = hasVariant ? '&variant_id=' + encodeURIComponent(linkedVariantId) : '';
+                viewCv.href = '/cv.php' + suffix;
+                if (viewCvLabel) viewCvLabel.textContent = hasVariant ? 'View CV' : 'View Master CV';
+                editCv.href = '/content-editor.php#work-experience' + hashSuffix;
+                if (editCvLabel) editCvLabel.textContent = hasVariant ? 'Edit CV' : 'Edit Master CV';
+                editCv.classList.remove('hidden');
+                if (previewPdf) previewPdf.href = '/preview-cv.php' + suffix;
+                if (copyLinkBtn) copyLinkBtn.dataset.cvUrl = copyLinkBtn.dataset.cvUrl.split('?')[0] + suffix;
             });
             document.addEventListener('contenteditor:jobviewhidden', function() {
-                jobContext.classList.add('hidden');
-                jobContext.classList.remove('flex', 'items-center', 'gap-2');
-                defaultActions.classList.remove('hidden');
+                viewCv.href = '/cv.php';
+                if (viewCvLabel) viewCvLabel.textContent = 'View CV';
+                editCv.classList.add('hidden');
+                if (previewPdf) previewPdf.href = '/preview-cv.php';
+                if (copyLinkBtn) copyLinkBtn.dataset.cvUrl = copyLinkBtn.dataset.cvUrl.split('?')[0];
             });
         }
 
-        // Variant edit context: Related Job + View CV + Preview when editing a variant (replaces Jobs, Templates, Edit CV)
-        var variantContext = document.getElementById('cv-nav-variant-context');
-        var jobsLink = document.getElementById('cv-nav-jobs-link');
-        var variantJobLink = document.getElementById('cv-nav-variant-job-link');
-        var variantJobLabel = document.getElementById('cv-nav-variant-job-label');
-        var variantViewCv = document.getElementById('cv-nav-variant-view-cv');
-        var variantPreviewPdf = document.getElementById('cv-nav-variant-preview-pdf');
-        var viewingLabel = document.getElementById('cv-nav-viewing-label');
-        if (variantContext && jobsLink && defaultActions) {
+        // Variant edit context: editing a specific variant (not master) inside the editor -
+        // Edit CV stays hidden throughout (still "in the editor"), everything else follows the variant.
+        if (viewCv && jobsLink) {
             document.addEventListener('contenteditor:varianteditshown', function(e) {
                 var variantId = (e.detail && e.detail.variantId) ? String(e.detail.variantId).trim() : '';
                 var relatedJobId = (e.detail && e.detail.relatedJobId) ? String(e.detail.relatedJobId).trim() : '';
-                if (variantId) {
-                    if (viewingLabel) {
-                        var name = (window._cvNavVariantNames && window._cvNavVariantNames[variantId]) || 'Untitled';
-                        viewingLabel.textContent = 'Viewing: ' + name;
-                        viewingLabel.classList.remove('hidden');
-                    }
-                    if (relatedJobId && variantJobLink) {
-                        variantJobLink.href = '/content-editor.php#jobs&view=' + encodeURIComponent(relatedJobId);
-                        if (variantJobLabel) variantJobLabel.textContent = 'Related Job';
-                        variantJobLink.classList.remove('hidden');
-                    } else if (variantJobLink) {
-                        variantJobLink.href = '#jobs';
-                        if (variantJobLabel) variantJobLabel.textContent = 'Jobs';
-                        variantJobLink.classList.remove('hidden');
-                    }
-                    if (variantViewCv) variantViewCv.href = '/cv.php?variant_id=' + encodeURIComponent(variantId);
-                    if (variantPreviewPdf) variantPreviewPdf.href = '/preview-cv.php?variant_id=' + encodeURIComponent(variantId);
-                    variantContext.classList.remove('hidden');
-                    variantContext.classList.add('flex', 'items-center', 'gap-2');
-                    jobsLink.classList.add('hidden');
-                    defaultActions.classList.add('hidden');
+                if (!variantId) return;
+                if (viewingLabel) {
+                    var name = (window._cvNavVariantNames && window._cvNavVariantNames[variantId]) || 'Untitled';
+                    viewingLabel.textContent = 'Viewing: ' + name;
+                    viewingLabel.classList.remove('hidden');
                 }
+                viewCv.href = '/cv.php?variant_id=' + encodeURIComponent(variantId);
+                if (previewPdf) previewPdf.href = '/preview-cv.php?variant_id=' + encodeURIComponent(variantId);
+                jobsLink.href = relatedJobId ? '/content-editor.php#jobs&view=' + encodeURIComponent(relatedJobId) : '#jobs';
+                if (jobsLabel) jobsLabel.textContent = relatedJobId ? 'Related Job' : 'Jobs';
+                if (copyLinkBtn) copyLinkBtn.dataset.cvUrl = copyLinkBtn.dataset.cvUrl.split('?')[0] + '?variant_id=' + encodeURIComponent(variantId);
             });
             document.addEventListener('contenteditor:variantedithidden', function() {
                 if (viewingLabel) {
                     viewingLabel.classList.add('hidden');
                     viewingLabel.textContent = '';
                 }
-                variantContext.classList.add('hidden');
-                variantContext.classList.remove('flex', 'items-center', 'gap-2');
-                jobsLink.classList.remove('hidden');
-                defaultActions.classList.remove('hidden');
+                viewCv.href = '/cv.php';
+                if (previewPdf) previewPdf.href = '/preview-cv.php';
+                jobsLink.href = '#jobs';
+                if (jobsLabel) jobsLabel.textContent = 'Jobs';
+                if (copyLinkBtn) copyLinkBtn.dataset.cvUrl = copyLinkBtn.dataset.cvUrl.split('?')[0];
             });
         }
     });

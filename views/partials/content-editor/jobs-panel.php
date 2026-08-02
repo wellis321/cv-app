@@ -236,7 +236,12 @@ $stats = getJobApplicationStats($userId);
                 <p class="text-xs text-blue-700">This is a simple way to save jobs without installing the browser extension. Just paste the job URL below and click Save.</p>
             </div>
             <p class="text-sm text-gray-600 mb-4">Copy the link from the job page (browser address bar or the job listing), then paste it below. We can't read your other tabs for security reasons—so paste the URL here. Add title and deadline if you like, then save.</p>
-            <p class="text-xs text-gray-500 mb-4">💡 <strong>Want one-click save?</strong> Use the <a href="/save-job-token.php" target="_blank" rel="noopener" class="text-blue-600 hover:underline font-medium">browser extension</a>—then save from any job page without leaving it or copying URLs.</p>
+            <p class="text-xs text-gray-500 mb-4 flex items-start gap-1.5">
+                <svg class="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
+                </svg>
+                <span><strong>Want one-click save?</strong> Use the <a href="/save-job-token.php" target="_blank" rel="noopener" class="text-blue-600 hover:underline font-medium">browser extension</a>—then save from any job page without leaving it or copying URLs.</span>
+            </p>
             <form id="jobs-quick-add-form" class="space-y-4">
                 <input type="hidden" name="csrf_token" id="jobs-quick-add-csrf" value="">
                 <div>

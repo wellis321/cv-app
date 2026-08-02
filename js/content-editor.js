@@ -23,8 +23,8 @@
         if (hash) {
             const hashParts = hash.split('&');
             const sectionFromHash = hashParts[0];
-            // Allow CV sections, jobs, ai-tools, cv-variants, and custom sections
-            const validSections = ['jobs', 'ai-tools', 'cv-variants'];
+            // Allow CV sections, jobs, ai-tools, cv-variants, profile/appearance/visibility, and custom sections
+            const validSections = ['jobs', 'ai-tools', 'cv-variants', 'profile', 'appearance', 'visibility'];
             const isValidCvSection = data.sections && data.sections.some(s => s.id === sectionFromHash);
             const isCustomSection = sectionFromHash && sectionFromHash.startsWith('custom-');
             if (sectionFromHash && (isValidCvSection || validSections.includes(sectionFromHash) || isCustomSection)) {
@@ -53,7 +53,7 @@
             // Only manipulate hash if it's not a content-editor hash (doesn't start with #jobs, #ai-tools, #cv-variants, or section IDs)
             const hashValue = hash.substring(1);
             const isContentEditorHash = data.sections?.some(s => s.id === hashValue.split('&')[0]) ||
-                                       ['jobs', 'ai-tools', 'cv-variants'].includes(hashValue.split('&')[0]) ||
+                                       ['jobs', 'ai-tools', 'cv-variants', 'profile', 'appearance', 'visibility'].includes(hashValue.split('&')[0]) ||
                                        hashValue.split('&')[0].startsWith('custom-');
             if (!isContentEditorHash) {
                 window.history.replaceState(null, null, ' ');
@@ -165,53 +165,38 @@
         loadGuidance(sectionId);
     }
 
+    // Accent colour per section type - matches the colours hardcoded server-side in
+    // section-sidebar.php/_section-nav-item.php (bg-{c}-50, text-{c}-700, border-l-{c}-500,
+    // text-{c}-600 for the icon). Keep this map in sync with those PHP files.
+    const SIDEBAR_ACCENT_COLORS = {
+        jobs: 'green',
+        'ai-tools': 'purple',
+        'cv-variants': 'indigo'
+    };
+    const SIDEBAR_ALL_COLORS = ['blue', 'green', 'purple', 'indigo'];
+
     function updateSidebarActiveState(sectionId) {
+        const bgClasses = SIDEBAR_ALL_COLORS.map(c => `bg-${c}-100`);
+        const textClasses = SIDEBAR_ALL_COLORS.map(c => `text-${c}-700`);
+        const borderLClasses = SIDEBAR_ALL_COLORS.map(c => `border-l-${c}-500`);
+        const iconClasses = SIDEBAR_ALL_COLORS.map(c => `text-${c}-600`);
+
         document.querySelectorAll('.section-nav-item').forEach(item => {
             const itemSectionId = item.dataset.sectionId;
             const svg = item.querySelector('svg');
-            const path = svg ? svg.querySelector('path') : null;
-            
-            if (itemSectionId === sectionId) {
-                // Active section: colored background and text based on section type
-                if (sectionId === 'jobs') {
-                    item.classList.add('bg-green-50', 'text-green-700');
-                    item.classList.remove('text-gray-700', 'hover:bg-gray-50', 'bg-blue-50', 'text-blue-700', 'bg-purple-50', 'text-purple-700');
-                    if (svg) {
-                        svg.classList.remove('text-gray-400', 'text-blue-600', 'text-purple-600');
-                        svg.classList.add('text-green-600');
-                    }
-                } else if (sectionId === 'ai-tools') {
-                    item.classList.add('bg-purple-50', 'text-purple-700');
-                    item.classList.remove('text-gray-700', 'hover:bg-gray-50', 'bg-blue-50', 'text-blue-700', 'bg-green-50', 'text-green-700');
-                    if (svg) {
-                        svg.classList.remove('text-gray-400', 'text-blue-600', 'text-green-600');
-                        svg.classList.add('text-purple-600');
-                    }
-                } else {
-                    // CV sections: blue
-                    item.classList.add('bg-blue-50', 'text-blue-700');
-                    item.classList.remove('text-gray-700', 'hover:bg-gray-50', 'bg-green-50', 'text-green-700', 'bg-purple-50', 'text-purple-700');
-                    if (svg) {
-                        svg.classList.remove('text-gray-400', 'text-green-600', 'text-purple-600');
-                        svg.classList.add('text-blue-600');
-                    }
-                }
-                if (path) {
-                    // Right-pointing arrow for active section
-                    path.setAttribute('d', 'M9 5l7 7-7 7');
-                }
+            const isActive = itemSectionId === sectionId;
+            const color = SIDEBAR_ACCENT_COLORS[sectionId] || 'blue';
+
+            item.classList.remove(...bgClasses, ...textClasses, ...borderLClasses, 'bg-white', 'border-l-gray-300');
+            if (svg) svg.classList.remove('text-gray-400', ...iconClasses);
+
+            if (isActive) {
+                item.classList.remove('text-gray-700', 'hover:border-gray-400', 'hover:bg-gray-50', 'hover:shadow');
+                item.classList.add(`bg-${color}-100`, `text-${color}-700`, `border-l-${color}-500`);
+                if (svg) svg.classList.add(`text-${color}-600`);
             } else {
-                // Inactive section: gray text, down-pointing arrow
-                item.classList.remove('bg-blue-50', 'text-blue-700', 'bg-green-50', 'text-green-700', 'bg-purple-50', 'text-purple-700');
-                item.classList.add('text-gray-700', 'hover:bg-gray-50');
-                if (svg) {
-                    svg.classList.remove('text-blue-600', 'text-green-600', 'text-purple-600');
-                    svg.classList.add('text-gray-400');
-                }
-                if (path) {
-                    // Down-pointing arrow for inactive section
-                    path.setAttribute('d', 'M19 9l-7 7-7-7');
-                }
+                item.classList.add('text-gray-700', 'bg-white', 'border-l-gray-300', 'hover:border-gray-400', 'hover:bg-gray-50', 'hover:shadow');
+                if (svg) svg.classList.add('text-gray-400');
             }
         });
     }
@@ -421,7 +406,31 @@
                 if (sectionId === 'work-experience') {
                     setTimeout(() => {
                         initializeWorkExperienceReorder(contentArea);
+                        initWorkExperienceAutosave(contentArea);
+                        initWorkExperienceDisplayToggles(contentArea);
                     }, 150);
+                }
+                // Initialize profile photo upload/delete handlers
+                if (sectionId === 'profile') {
+                    setTimeout(() => {
+                        initProfilePhotoSection(contentArea);
+                    }, 100);
+                }
+                // Initialize visibility toggles and copy-URL button
+                if (sectionId === 'visibility') {
+                    setTimeout(() => {
+                        initVisibilityToggles(contentArea);
+                        initVisibilitySkillSelection(contentArea);
+                        initInPageScrollLinks(contentArea);
+                    }, 100);
+                }
+                // Initialize appearance: template select, header colour scheme, accent colour
+                if (sectionId === 'appearance') {
+                    setTimeout(() => {
+                        initAppearanceTemplateSelect(contentArea);
+                        initAppearanceColourScheme(contentArea);
+                        initAppearanceAccentColour(contentArea);
+                    }, 100);
                 }
                 // Initialize certifications reorder
                 if (sectionId === 'certifications') {
@@ -837,6 +846,15 @@
                 // Only reload if it's a create action (to show new entry in list)
                 // For updates, reload to refresh the form and responsibilities
                 if (form.dataset.formType === 'create' || form.dataset.formType === 'add' || form.dataset.formType === 'add_strength') {
+                    // Work experience: drop straight into edit mode for the new entry so the
+                    // "add responsibilities" step is visible immediately instead of returning to the list.
+                    if (sectionId === 'work-experience' && data.id) {
+                        const hash = window.location.hash.substring(1);
+                        const variantParam = hash.split('&').find(p => p.startsWith('variant_id='));
+                        let newHash = sectionId + '&edit=' + data.id;
+                        if (variantParam) newHash += '&' + variantParam;
+                        window.history.replaceState(null, '', '#' + newHash);
+                    }
                     setTimeout(() => {
                         loadSection(sectionId);
                     }, 500);
@@ -866,6 +884,600 @@
                 submitButton.textContent = originalText;
             }
         });
+    }
+
+    // Autosave the top-level work experience fields (company/position/dates/description) on blur
+    // while editing. Responsibilities already save per-action; without this, users who edit these
+    // fields and then go straight to adding responsibilities (which never touches this form) could
+    // navigate away and silently lose those edits, since only an explicit "Update" click saved them.
+    function initWorkExperienceAutosave(contentArea) {
+        const form = contentArea.querySelector('form[data-section-form][data-form-type="update"]');
+        if (!form) return;
+
+        const statusEl = contentArea.querySelector('#work-experience-autosave-status');
+        const fields = form.querySelectorAll(
+            '[name="company_name"], [name="position"], [name="start_date"], [name="end_date"], [name="description"], [name="hide_date"]'
+        );
+        if (!fields.length) return;
+
+        let inFlight = false;
+        let pendingResave = false;
+        let statusClearTimer = null;
+
+        function setStatus(text, isError) {
+            if (!statusEl) return;
+            if (statusClearTimer) {
+                clearTimeout(statusClearTimer);
+                statusClearTimer = null;
+            }
+            statusEl.textContent = text;
+            statusEl.classList.toggle('text-red-600', !!isError);
+            statusEl.classList.toggle('text-gray-500', !isError);
+            if (!isError && text) {
+                statusClearTimer = setTimeout(() => { statusEl.textContent = ''; }, 2500);
+            }
+        }
+
+        function save() {
+            const companyName = form.querySelector('[name="company_name"]');
+            const position = form.querySelector('[name="position"]');
+            const startDate = form.querySelector('[name="start_date"]');
+            if (!companyName || !position || !startDate || !companyName.value.trim() || !position.value.trim() || !startDate.value) {
+                // Required field currently empty (mid-edit) - skip silently, don't spam errors.
+                return;
+            }
+
+            if (inFlight) {
+                pendingResave = true;
+                return;
+            }
+
+            inFlight = true;
+            setStatus('Saving…', false);
+
+            const formData = new FormData(form);
+            const variantId = getHashParam(window.location.hash.substring(1), 'variant_id');
+            if (variantId && !formData.has('variant_id')) {
+                formData.append('variant_id', variantId);
+            }
+
+            fetch('/api/content-editor/save-section.php', {
+                method: 'POST',
+                body: formData,
+                credentials: 'include',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    setStatus('Saved', false);
+                    if (typeof window.contentEditorRefreshPreview === 'function') {
+                        window.contentEditorRefreshPreview();
+                    }
+                } else {
+                    setStatus(data.error || 'Failed to save changes', true);
+                }
+            })
+            .catch(() => {
+                setStatus('Failed to save changes', true);
+            })
+            .finally(() => {
+                inFlight = false;
+                if (pendingResave) {
+                    pendingResave = false;
+                    save();
+                }
+            });
+        }
+
+        fields.forEach(field => {
+            field.addEventListener('blur', save);
+            if (field.type === 'checkbox') {
+                field.addEventListener('change', save);
+            }
+        });
+    }
+
+    // "Show Key Responsibilities bullets" toggles at the top of the work-experience section —
+    // lets a user control online/PDF visibility without leaving the editor for preview-cv.php.
+    function initWorkExperienceDisplayToggles(contentArea) {
+        const wrap = contentArea.querySelector('#we-responsibilities-toggles');
+        if (!wrap) return;
+
+        const variantId = wrap.dataset.variantId || null;
+        const onlineCheckbox = wrap.querySelector('#we-show-responsibilities-online');
+        const pdfCheckbox = wrap.querySelector('#we-show-responsibilities-pdf');
+        const statusEl = wrap.querySelector('#we-responsibilities-toggle-status');
+        let statusClearTimer = null;
+
+        function setStatus(text, isError) {
+            if (!statusEl) return;
+            if (statusClearTimer) {
+                clearTimeout(statusClearTimer);
+                statusClearTimer = null;
+            }
+            statusEl.textContent = text;
+            statusEl.classList.toggle('text-red-600', !!isError);
+            statusEl.classList.toggle('text-gray-500', !isError);
+            if (!isError && text) {
+                statusClearTimer = setTimeout(() => { statusEl.textContent = ''; }, 2000);
+            }
+        }
+
+        function post(url, body) {
+            setStatus('Saving…', false);
+            fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(body)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success === true) {
+                    setStatus('Saved', false);
+                } else {
+                    setStatus(data.error || 'Failed to save', true);
+                }
+            })
+            .catch(() => setStatus('Failed to save', true));
+        }
+
+        if (onlineCheckbox) {
+            onlineCheckbox.addEventListener('change', () => {
+                const value = onlineCheckbox.checked;
+                if (variantId) {
+                    post('/api/variant-pdf-preferences.php', {
+                        variant_id: variantId,
+                        show_responsibilities_online: value,
+                        csrf_token: window.contentEditorData.csrfToken
+                    });
+                } else {
+                    post('/api/save-profile-sections-online.php', {
+                        show_responsibilities_online: value,
+                        csrf_token: window.contentEditorData.csrfToken
+                    });
+                }
+            });
+        }
+
+        // PDF toggle only exists (and only persists) in variant context - see work-experience-form.php.
+        if (pdfCheckbox && variantId) {
+            pdfCheckbox.addEventListener('change', () => {
+                post('/api/variant-pdf-preferences.php', {
+                    variant_id: variantId,
+                    show_responsibilities_in_pdf: pdfCheckbox.checked,
+                    csrf_token: window.contentEditorData.csrfToken
+                });
+            });
+        }
+    }
+
+    // Photo upload/delete for the Profile section - reuses the existing
+    // api/update-profile-photo.php endpoint unchanged (same one profile.php used).
+    function initProfilePhotoSection(contentArea) {
+        const section = contentArea.querySelector('#profile-photo-section');
+        if (!section) return;
+
+        const statusEl = contentArea.querySelector('#profile-photo-status');
+        const uploadInput = contentArea.querySelector('#profile-photo-upload');
+        const captureInput = contentArea.querySelector('#profile-photo-capture');
+        const deleteBtn = contentArea.querySelector('#profile-photo-delete');
+
+        function showStatus(message, type) {
+            if (!statusEl) return;
+            const colors = {
+                success: 'text-green-600 bg-green-50',
+                error: 'text-red-600 bg-red-50',
+                info: 'text-blue-600 bg-blue-50'
+            };
+            statusEl.innerHTML = `<p class="text-sm p-2 rounded ${colors[type] || colors.info}">${message}</p>`;
+        }
+
+        function handleUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (file.size > 5 * 1024 * 1024) {
+                showStatus('File too large. Maximum size is 5MB.', 'error');
+                return;
+            }
+            if (!file.type.match('image.*')) {
+                showStatus('Please select an image file.', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('photo', file);
+            formData.append(window.contentEditorData.csrfTokenName, window.contentEditorData.csrfToken);
+
+            showStatus('Uploading…', 'info');
+
+            fetch('/api/update-profile-photo.php', {
+                method: 'POST',
+                body: formData,
+                credentials: 'include'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Reload the section so the preview, delete button, and the
+                    // "Show photo on online CV" checkbox all reflect the new state.
+                    loadSection('profile');
+                } else {
+                    showStatus('Error: ' + (data.error || 'Upload failed'), 'error');
+                }
+            })
+            .catch(error => {
+                showStatus('Error uploading photo: ' + error.message, 'error');
+            });
+        }
+
+        function handleDelete() {
+            if (!confirm('Are you sure you want to delete your profile photo?')) return;
+
+            const formData = new FormData();
+            formData.append('action', 'delete');
+            formData.append(window.contentEditorData.csrfTokenName, window.contentEditorData.csrfToken);
+
+            fetch('/api/update-profile-photo.php', {
+                method: 'POST',
+                body: formData,
+                credentials: 'include'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadSection('profile');
+                } else {
+                    showStatus('Error: ' + (data.error || 'Delete failed'), 'error');
+                }
+            })
+            .catch(error => {
+                showStatus('Error deleting photo: ' + error.message, 'error');
+            });
+        }
+
+        if (uploadInput) uploadInput.addEventListener('change', handleUpload);
+        if (captureInput) captureInput.addEventListener('change', handleUpload);
+        if (deleteBtn) deleteBtn.addEventListener('click', handleDelete);
+    }
+
+    // In-page "jump to X" links (e.g. "Choose which skills appear in your PDF") must not
+    // change the URL hash - the SPA's hashchange handler treats any hash as a section ID
+    // and would try (and fail) to load a section called e.g. "visibility-skill-selection".
+    // Intercept the click and scroll manually instead.
+    function initInPageScrollLinks(contentArea) {
+        contentArea.querySelectorAll('[data-scroll-to]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                const target = contentArea.querySelector('#' + link.dataset.scrollTo);
+                if (!target) return;
+                e.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+    }
+
+    // "What's Included" toggle table for the Visibility section - each checkbox saves
+    // itself immediately via the existing merge-on-save preference endpoints.
+    function initVisibilityToggles(contentArea) {
+        const wrap = contentArea.querySelector('#visibility-toggles');
+        if (!wrap) return;
+
+        const variantId = wrap.dataset.variantId || null;
+        const statusEl = contentArea.querySelector('#visibility-toggle-status');
+        let statusClearTimer = null;
+
+        function setStatus(text, isError) {
+            if (!statusEl) return;
+            if (statusClearTimer) {
+                clearTimeout(statusClearTimer);
+                statusClearTimer = null;
+            }
+            statusEl.textContent = text;
+            statusEl.classList.toggle('text-red-600', !!isError);
+            statusEl.classList.toggle('text-gray-500', !isError);
+            if (!isError && text) {
+                statusClearTimer = setTimeout(() => { statusEl.textContent = ''; }, 2000);
+            }
+        }
+
+        function post(url, body) {
+            setStatus('Saving…', false);
+            fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(body)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success === true) {
+                    setStatus('Saved', false);
+                } else {
+                    setStatus(data.error || 'Failed to save', true);
+                }
+            })
+            .catch(() => setStatus('Failed to save', true));
+        }
+
+        wrap.querySelectorAll('[data-section-toggle]').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                const key = checkbox.dataset.key;
+                const kind = checkbox.dataset.kind;
+                const value = checkbox.checked;
+                const csrf = window.contentEditorData.csrfToken;
+
+                if (kind === 'online') {
+                    if (variantId) {
+                        post('/api/variant-pdf-preferences.php', { variant_id: variantId, sections_online: { [key]: value }, csrf_token: csrf });
+                    } else {
+                        post('/api/save-profile-sections-online.php', { sections_online: { [key]: value }, csrf_token: csrf });
+                    }
+                } else if (kind === 'pdf') {
+                    if (variantId) {
+                        post('/api/variant-pdf-preferences.php', { variant_id: variantId, sections: { [key]: value }, csrf_token: csrf });
+                    } else {
+                        post('/api/profile-pdf-preferences.php', { sections: { [key]: value }, csrf_token: csrf });
+                    }
+                } else if (kind === 'responsibilities-online') {
+                    if (variantId) {
+                        post('/api/variant-pdf-preferences.php', { variant_id: variantId, show_responsibilities_online: value, csrf_token: csrf });
+                    } else {
+                        post('/api/save-profile-sections-online.php', { show_responsibilities_online: value, csrf_token: csrf });
+                    }
+                } else if (kind === 'responsibilities-pdf') {
+                    if (variantId) {
+                        post('/api/variant-pdf-preferences.php', { variant_id: variantId, show_responsibilities_in_pdf: value, csrf_token: csrf });
+                    } else {
+                        post('/api/profile-pdf-preferences.php', { show_responsibilities_in_pdf: value, csrf_token: csrf });
+                    }
+                } else if (kind === 'include-photo-pdf') {
+                    if (variantId) {
+                        post('/api/variant-pdf-preferences.php', { variant_id: variantId, include_photo: value, csrf_token: csrf });
+                    } else {
+                        post('/api/profile-pdf-preferences.php', { include_photo: value, csrf_token: csrf });
+                    }
+                } else if (kind === 'include-qr-pdf') {
+                    if (variantId) {
+                        post('/api/variant-pdf-preferences.php', { variant_id: variantId, include_qr: value, csrf_token: csrf });
+                    } else {
+                        post('/api/profile-pdf-preferences.php', { include_qr: value, csrf_token: csrf });
+                    }
+                } else if (kind === 'photo-online') {
+                    // Master-profile-only setting - no per-variant override exists for this.
+                    post('/api/save-profile-sections-online.php', { show_photo_online: value, csrf_token: csrf });
+                }
+            });
+        });
+    }
+
+    // "Select Skills for PDF" checkbox list - which skills export for templates with a
+    // skill-count cap. Checkbox state is server-rendered; this just wires autosave.
+    function initVisibilitySkillSelection(contentArea) {
+        const wrap = contentArea.querySelector('#visibility-skill-selection');
+        if (!wrap) return;
+
+        const templateId = wrap.dataset.templateId;
+        if (!templateId) return;
+
+        const statusEl = contentArea.querySelector('#visibility-skill-status');
+        let statusClearTimer = null;
+        function setStatus(text, isError) {
+            if (!statusEl) return;
+            if (statusClearTimer) {
+                clearTimeout(statusClearTimer);
+                statusClearTimer = null;
+            }
+            statusEl.textContent = text;
+            statusEl.classList.toggle('text-red-600', !!isError);
+            statusEl.classList.toggle('text-gray-500', !isError);
+            if (!isError && text) {
+                statusClearTimer = setTimeout(() => { statusEl.textContent = ''; }, 2000);
+            }
+        }
+
+        let saveTimeout = null;
+        function save() {
+            if (saveTimeout) clearTimeout(saveTimeout);
+            setStatus('Saving…', false);
+            saveTimeout = setTimeout(() => {
+                saveTimeout = null;
+                const selectedIds = Array.from(wrap.querySelectorAll('.visibility-skill-checkbox:checked'))
+                    .map(cb => cb.dataset.skillId);
+                const formData = new FormData();
+                formData.append('template_id', templateId);
+                formData.append('selected_skill_ids', JSON.stringify(selectedIds));
+                formData.append(window.contentEditorData.csrfTokenName, window.contentEditorData.csrfToken);
+                fetch('/api/save-template-skill-selection.php', { method: 'POST', body: formData })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            setStatus('Saved', false);
+                        } else {
+                            console.error('Failed to save skill selection:', data.error);
+                            setStatus('Failed to save', true);
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Error saving skill selection:', err);
+                        setStatus('Failed to save', true);
+                    });
+            }, 300);
+        }
+
+        function updateCategoryToggleLabel(categoryEl) {
+            const toggle = categoryEl.querySelector('.visibility-skill-category-toggle');
+            if (!toggle) return;
+            const checkboxes = categoryEl.querySelectorAll('.visibility-skill-checkbox');
+            const allChecked = checkboxes.length > 0 && Array.from(checkboxes).every(cb => cb.checked);
+            toggle.textContent = allChecked ? 'Clear all' : 'Select all';
+        }
+
+        wrap.querySelectorAll('.visibility-skill-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                const categoryEl = checkbox.closest('[data-skill-category]');
+                if (categoryEl) updateCategoryToggleLabel(categoryEl);
+                save();
+            });
+        });
+
+        // "Select all" / "Clear all" per category, so a user with dozens of skills doesn't
+        // have to click every checkbox individually to include/exclude a whole group.
+        wrap.querySelectorAll('.visibility-skill-category-toggle').forEach(toggle => {
+            const categoryEl = toggle.closest('[data-skill-category]');
+            if (!categoryEl) return;
+            updateCategoryToggleLabel(categoryEl);
+            toggle.addEventListener('click', () => {
+                const checkboxes = categoryEl.querySelectorAll('.visibility-skill-checkbox');
+                const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+                checkboxes.forEach(cb => { cb.checked = !allChecked; });
+                updateCategoryToggleLabel(categoryEl);
+                save();
+            });
+        });
+    }
+
+    // Populates the Appearance section's template <select> using the module-scope
+    // helper exposed by content-editor.php's own <script type="module"> block.
+    function initAppearanceTemplateSelect(contentArea) {
+        const select = contentArea.querySelector('#appearance-template-select');
+        if (!select) return;
+
+        const currentTemplateId = select.dataset.currentTemplate || '';
+        let allowedTemplateIds = [];
+        try {
+            allowedTemplateIds = JSON.parse(select.dataset.allowedTemplateIds || '[]');
+        } catch (e) { /* ignore, treat as no restriction */ }
+
+        function populate() {
+            if (typeof window.populateAppearanceTemplateSelect === 'function') {
+                window.populateAppearanceTemplateSelect(select, currentTemplateId, allowedTemplateIds);
+            } else {
+                setTimeout(populate, 50);
+            }
+        }
+        populate();
+    }
+
+    // Header colour scheme swatches + custom pickers + live gradient preview,
+    // for the Appearance section's "Template & Header Colours" form (master CV only).
+    function initAppearanceColourScheme(contentArea) {
+        const fromColor = contentArea.querySelector('#cv_header_from_color');
+        const fromText = contentArea.querySelector('#cv_header_from_color_text');
+        const toColor = contentArea.querySelector('#cv_header_to_color');
+        const toText = contentArea.querySelector('#cv_header_to_color_text');
+        const preview = contentArea.querySelector('#appearance-color-preview');
+        if (!fromColor || !toColor) return;
+
+        function updatePreview() {
+            if (preview) {
+                preview.style.background = `linear-gradient(to right, ${fromColor.value}, ${toColor.value})`;
+            }
+            if (fromText) fromText.value = fromColor.value;
+            if (toText) toText.value = toColor.value;
+        }
+
+        fromColor.addEventListener('change', updatePreview);
+        toColor.addEventListener('change', updatePreview);
+        if (fromText) {
+            fromText.addEventListener('change', () => {
+                const value = fromText.value.trim();
+                if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
+                    fromColor.value = value;
+                    updatePreview();
+                }
+            });
+        }
+        if (toText) {
+            toText.addEventListener('change', () => {
+                const value = toText.value.trim();
+                if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
+                    toColor.value = value;
+                    updatePreview();
+                }
+            });
+        }
+        contentArea.querySelectorAll('[data-colour-scheme]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                fromColor.value = btn.dataset.from;
+                toColor.value = btn.dataset.to;
+                updatePreview();
+            });
+        });
+    }
+
+    // Accent colour preset/custom picker - instant-save via the profile/variant
+    // pdf-preferences endpoints (api/profile-pdf-preferences.php or variant-pdf-preferences.php).
+    function initAppearanceAccentColour(contentArea) {
+        const section = contentArea.querySelector('#appearance-accent-section');
+        if (!section) return;
+
+        const variantId = section.dataset.variantId || null;
+        const statusEl = contentArea.querySelector('#appearance-accent-status');
+        const presetRadios = section.querySelectorAll('input[name="colour-preset"]');
+        const customRow = contentArea.querySelector('#appearance-custom-accent-row');
+        const customColor = contentArea.querySelector('#appearance-custom-accent-color');
+        const customHex = contentArea.querySelector('#appearance-custom-accent-hex');
+        let statusClearTimer = null;
+
+        function setStatus(text, isError) {
+            if (!statusEl) return;
+            if (statusClearTimer) {
+                clearTimeout(statusClearTimer);
+                statusClearTimer = null;
+            }
+            statusEl.textContent = text;
+            statusEl.classList.toggle('text-red-600', !!isError);
+            statusEl.classList.toggle('text-gray-500', !isError);
+            if (!isError && text) {
+                statusClearTimer = setTimeout(() => { statusEl.textContent = ''; }, 2000);
+            }
+        }
+
+        function save(body) {
+            setStatus('Saving…', false);
+            const csrf = window.contentEditorData.csrfToken;
+            const url = variantId ? '/api/variant-pdf-preferences.php' : '/api/profile-pdf-preferences.php';
+            const payload = variantId ? { variant_id: variantId, ...body, csrf_token: csrf } : { ...body, csrf_token: csrf };
+            fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success === true) {
+                    setStatus('Saved', false);
+                } else {
+                    setStatus(data.error || 'Failed to save', true);
+                }
+            })
+            .catch(() => setStatus('Failed to save', true));
+        }
+
+        presetRadios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                if (customRow) customRow.classList.toggle('hidden', radio.value !== 'custom');
+                save({ colour_preset: radio.value });
+            });
+        });
+        if (customColor) {
+            customColor.addEventListener('input', () => {
+                if (customHex) customHex.value = customColor.value;
+                save({ custom_accent_hex: customColor.value });
+            });
+        }
+        if (customHex) {
+            customHex.addEventListener('change', () => {
+                const hex = customHex.value.trim();
+                if (/^#[0-9A-Fa-f]{6}$/.test(hex)) {
+                    if (customColor) customColor.value = hex;
+                    save({ custom_accent_hex: hex });
+                }
+            });
+        }
     }
 
     function loadSectionData(sectionId) {
@@ -1783,6 +2395,19 @@
         if (projectImageClear) {
             projectImageClear.addEventListener('click', clearProjectImage);
         }
+
+        // Reuse an image already uploaded on another of this user's projects - no upload,
+        // just point this project's hidden fields at the same stored file/responsive set.
+        document.querySelectorAll('.project-image-reuse-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (projectImageUrlInput) projectImageUrlInput.value = btn.dataset.imageUrl || '';
+                if (projectImagePathInput) projectImagePathInput.value = btn.dataset.imagePath || '';
+                if (projectImageResponsiveInput) projectImageResponsiveInput.value = btn.dataset.imageResponsive || '';
+                if (projectImageInput) projectImageInput.value = '';
+                setProjectImagePreview(btn.dataset.thumb || '');
+                if (projectImageStatus) projectImageStatus.classList.add('hidden');
+            });
+        });
     }
 
     function initializeWorkExperienceReorder(container) {
@@ -1918,8 +2543,8 @@
 
             if (isReordering) {
                 toggleBtn.textContent = 'Done reordering';
-                toggleBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-                toggleBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+                toggleBtn.classList.remove('bg-gray-50', 'text-gray-700', 'border-gray-300', 'hover:bg-gray-100', 'hover:border-gray-400', 'hover:text-gray-900', 'hover:shadow-sm');
+                toggleBtn.classList.add('bg-blue-600', 'text-white', 'border-blue-600', 'hover:bg-blue-700');
                 if (reorderInfo) reorderInfo.classList.remove('hidden');
                 items.forEach(function(item) {
                     item.setAttribute('draggable', 'true');
@@ -1933,9 +2558,9 @@
                     item.addEventListener('dragend', handleDragEnd);
                 });
             } else {
-                toggleBtn.textContent = 'Reorder experiences';
-                toggleBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
-                toggleBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                toggleBtn.textContent = 'Reorder';
+                toggleBtn.classList.remove('bg-blue-600', 'text-white', 'border-blue-600', 'hover:bg-blue-700');
+                toggleBtn.classList.add('bg-gray-50', 'text-gray-700', 'border-gray-300', 'hover:bg-gray-100', 'hover:border-gray-400', 'hover:text-gray-900', 'hover:shadow-sm');
                 if (reorderInfo) reorderInfo.classList.add('hidden');
                 items.forEach(function(item) {
                     item.setAttribute('draggable', 'false');
@@ -2332,7 +2957,7 @@
                             '<div class="drag-handle-sidebar hidden absolute left-0 top-0 bottom-0 flex items-center pl-1 cursor-move text-gray-400" style="z-index:1">' +
                             '<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M7 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM7 8a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM7 14a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 8a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM13 14a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></svg>' +
                             '</div>' +
-                            '<a href="#' + sectionId + '" class="section-nav-item flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium transition-colors text-gray-700 hover:bg-gray-50" data-section-id="' + sectionId + '">' +
+                            '<a href="#' + sectionId + '" class="section-nav-item flex items-center justify-between gap-2 px-3 py-2.5 border border-gray-300 border-l-4 border-l-gray-300 bg-white shadow-sm text-sm font-medium text-gray-700 transition-all hover:border-gray-400 hover:bg-gray-50 hover:shadow" data-section-id="' + sectionId + '">' +
                             '<div class="flex items-center min-w-0">' +
                             '<svg class="w-5 h-5 mr-2 flex-shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>' +
                             '<span class="truncate">' + escapedTitle + '</span>' +

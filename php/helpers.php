@@ -11,6 +11,7 @@ require_once __DIR__ . '/security.php';
 require_once __DIR__ . '/storage.php';
 require_once __DIR__ . '/utils.php';
 require_once __DIR__ . '/cv-data.php';
+require_once __DIR__ . '/profile-helpers.php';
 require_once __DIR__ . '/subscriptions.php';
 require_once __DIR__ . '/stripe.php';
 require_once __DIR__ . '/authorisation.php';
@@ -633,6 +634,63 @@ function getShowResponsibilitiesOnlineForCv($profile, $cvVariant = null) {
     }
 
     return true;
+}
+} // End function_exists check
+
+/**
+ * Get PDF-export preferences: per-section PDF inclusion, accent colour, photo/QR PDF
+ * defaults, and "include responsibilities in PDF". Precedence matches
+ * getSectionsOnlineForCv()/getShowResponsibilitiesOnlineForCv(): a CV variant's own
+ * pdf_preferences wins if present, else the profile-level pdf_preferences column.
+ * Intended as the one shared source of truth for cv.php, preview-cv.php, and
+ * content-editor.php's own live preview, instead of each computing this separately.
+ *
+ * Source of truth:
+ * - Variant: cv_variants.pdf_preferences
+ * - Else profile: profiles.pdf_preferences
+ */
+if (!function_exists('getPdfPreferencesForCv')) {
+function getPdfPreferencesForCv($profile, $cvVariant = null) {
+    $validSections = [
+        'profile', 'summary', 'work', 'education', 'areasOfExpertise', 'skills', 'projects',
+        'certifications', 'memberships', 'interests', 'qualificationEquivalence'
+    ];
+
+    $raw = null;
+    if ($cvVariant && !empty($cvVariant['pdf_preferences'])) {
+        $decoded = is_string($cvVariant['pdf_preferences'])
+            ? json_decode($cvVariant['pdf_preferences'], true)
+            : $cvVariant['pdf_preferences'];
+        if (is_array($decoded)) {
+            $raw = $decoded;
+        }
+    }
+    if ($raw === null && !empty($profile['pdf_preferences'])) {
+        $decoded = is_string($profile['pdf_preferences'])
+            ? json_decode($profile['pdf_preferences'], true)
+            : $profile['pdf_preferences'];
+        if (is_array($decoded)) {
+            $raw = $decoded;
+        }
+    }
+    if (!is_array($raw)) {
+        $raw = [];
+    }
+
+    $sections = [];
+    $rawSections = $raw['sections'] ?? [];
+    foreach ($validSections as $s) {
+        $sections[$s] = isset($rawSections[$s]) ? (bool) $rawSections[$s] : true;
+    }
+
+    return [
+        'sections' => $sections,
+        'colour_preset' => $raw['colour_preset'] ?? null,
+        'custom_accent_hex' => $raw['custom_accent_hex'] ?? null,
+        'include_photo' => isset($raw['include_photo']) ? (bool) $raw['include_photo'] : true,
+        'include_qr' => isset($raw['include_qr']) ? (bool) $raw['include_qr'] : false,
+        'show_responsibilities_in_pdf' => isset($raw['show_responsibilities_in_pdf']) ? (bool) $raw['show_responsibilities_in_pdf'] : true,
+    ];
 }
 } // End function_exists check
 

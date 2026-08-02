@@ -12,21 +12,12 @@
         </svg>
     </div>
     <a href="#<?php echo e($section['id']); ?>"
-       class="section-nav-item flex items-center justify-between px-3 py-2 rounded-md text-sm font-medium transition-colors <?php echo $currentSectionId === $section['id'] ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-gray-50'; ?>"
+       class="section-nav-item flex items-center justify-between gap-2 px-3 py-2.5 border border-l-4 shadow-sm text-sm font-medium transition-all <?php echo $currentSectionId === $section['id'] ? 'border-gray-300 border-l-blue-500 bg-blue-100 text-blue-700' : 'border-gray-300 border-l-gray-300 bg-white text-gray-700 hover:border-gray-400 hover:bg-gray-50 hover:shadow'; ?>"
        data-section-id="<?php echo e($section['id']); ?>">
-        <div class="flex items-center">
-            <?php if ($currentSectionId === $section['id']): ?>
-                <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                </svg>
-            <?php else: ?>
-                <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-            <?php endif; ?>
-            <span><?php echo e($section['name']); ?></span>
+        <div class="flex items-center min-w-0">
+            <span class="truncate"><?php echo e($section['name']); ?></span>
         </div>
-        <div class="flex items-center space-x-2">
+        <div class="flex items-center space-x-2 flex-shrink-0">
             <?php if ($section['count'] > 0): ?>
                 <span class="text-xs text-gray-500"><?php echo $section['count']; ?></span>
             <?php endif; ?>

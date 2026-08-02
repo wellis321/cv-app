@@ -277,7 +277,8 @@ $subscriptionContext = getUserSubscriptionContext($userId);
     <!-- CV Navigation Bar -->
     <?php partial('content-editor/cv-nav-bar', [
         'cvVariants' => $cvVariants,
-        'masterVariantId' => $masterVariantId
+        'masterVariantId' => $masterVariantId,
+        'isEditorPage' => true,
     ]); ?>
     
     <!-- Generate CV Modal -->
@@ -363,7 +364,41 @@ $subscriptionContext = getUserSubscriptionContext($userId);
     <script src="/js/content-editor.js?v=<?php echo time(); ?>"></script>
     <script src="/js/resizable-panes.js?v=<?php echo time(); ?>"></script>
     <script type="module">
-    import { getPreviewRenderer, getTemplateMeta } from '/templates/index.js?v=<?php echo time(); ?>';
+    import { getPreviewRenderer, getTemplateMeta, listTemplates, DEFAULT_TEMPLATE_ID } from '/templates/index.js?v=<?php echo time(); ?>';
+
+    // Populates the Appearance section's template <select> - mirrors preview-cv.php's
+    // own population logic so both stay in sync with the same template registry.
+    function populateAppearanceTemplateSelect(selectEl, currentTemplateId, allowedTemplateIdsList) {
+        const allowedTemplateIds = new Set(allowedTemplateIdsList || []);
+        let allTemplates;
+        try {
+            allTemplates = listTemplates();
+            if (!Array.isArray(allTemplates) || allTemplates.length === 0) {
+                allTemplates = [{ id: DEFAULT_TEMPLATE_ID || 'professional', name: 'Professional Blue' }];
+            }
+        } catch (error) {
+            allTemplates = [{ id: DEFAULT_TEMPLATE_ID || 'professional', name: 'Professional Blue' }];
+        }
+
+        let availableTemplates = allTemplates.filter((t) => allowedTemplateIds.size === 0 || allowedTemplateIds.has(t.id));
+        if (availableTemplates.length === 0) availableTemplates = allTemplates;
+
+        let selected = currentTemplateId;
+        if (!availableTemplates.some((t) => t.id === selected)) {
+            selected = availableTemplates[0]?.id || DEFAULT_TEMPLATE_ID;
+        }
+
+        selectEl.innerHTML = '';
+        availableTemplates.forEach((t) => {
+            const option = document.createElement('option');
+            option.value = t.id;
+            option.textContent = t.name;
+            if (t.id === selected) option.selected = true;
+            selectEl.appendChild(option);
+        });
+
+        return selected;
+    }
 
     function getHashParam(hash, name) {
         if (!hash || !hash.includes('&' + name + '=')) return null;
@@ -404,7 +439,7 @@ $subscriptionContext = getUserSubscriptionContext($userId);
                 return;
             }
 
-            const templateId = profile.template_preference || subscriptionContext?.defaultTemplateId || 'professional';
+            const templateId = profile.preferred_template_id || subscriptionContext?.defaultTemplateId || 'professional';
             const allowedIds = new Set(subscriptionContext?.allowedTemplateIds || ['professional', 'minimal', 'classic']);
             const finalTemplateId = allowedIds.has(templateId) ? templateId : 'professional';
 
@@ -447,6 +482,7 @@ $subscriptionContext = getUserSubscriptionContext($userId);
         if (btn) btn.addEventListener('click', refreshContentEditorPreview);
 
         window.contentEditorRefreshPreview = refreshContentEditorPreview;
+        window.populateAppearanceTemplateSelect = populateAppearanceTemplateSelect;
     });
     </script>
     <script>

@@ -77,22 +77,22 @@
                         <?php endif; ?>
                         <?php if (!$isAgencyPage): ?>
                             <div class="relative group inline-flex items-stretch rounded-md">
-                                <a href="/content-editor.php" class="inline-flex items-center px-1.5 py-1.5 md:px-2 md:py-2 rounded-l-md text-xs md:text-sm font-medium transition-colors whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-inset <?php echo $isCvPage ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?>">My CV</a>
+                                <span class="inline-flex items-center px-1.5 py-1.5 md:px-2 md:py-2 rounded-l-md text-xs md:text-sm font-medium whitespace-nowrap <?php echo $isCvPage ? 'bg-blue-100 text-blue-700' : 'text-gray-700'; ?>">CV</span>
                                 <button type="button" aria-haspopup="true" aria-expanded="false" class="inline-flex items-center px-0.5 py-1.5 md:px-1 md:py-2 rounded-r-md border-l border-gray-200 text-xs md:text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 <?php echo $isCvPage ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?>">
                                     <svg class="h-3 w-3 md:h-4 md:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                                 </button>
                                 <div role="menu" class="absolute right-0 top-full hidden min-w-[10rem] rounded-lg border border-gray-200 bg-white py-2 shadow-lg group-hover:block z-50">
-                                    <a href="/cv.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo $currentPage === 'cv.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
-                                        Online CV
+                                    <a href="/content-editor.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo $currentPage === 'content-editor.php' && strpos($_SERVER['REQUEST_URI'], '#jobs') === false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
+                                        Build CV
                                     </a>
                                     <a href="/preview-cv.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo $currentPage === 'preview-cv.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
                                         PDF CV
                                     </a>
+                                    <a href="/cv.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo $currentPage === 'cv.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
+                                        Online CV
+                                    </a>
                                     <a href="/content-editor.php#jobs" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo $currentPage === 'content-editor.php' && strpos($_SERVER['REQUEST_URI'], '#jobs') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
                                         Jobs
-                                    </a>
-                                    <a href="/save-job-token.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo $currentPage === 'save-job-token.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
-                                        Get save token
                                     </a>
                                 </div>
                             </div>
@@ -139,22 +139,22 @@
                         $isCvPage = in_array($currentPage, ['dashboard.php', 'preview-cv.php', 'cv.php', 'cv-variants.php', 'cv-quality.php', 'content-editor.php']) || strpos($_SERVER['REQUEST_URI'], '/cv-variants/') !== false;
                         ?>
                         <div class="relative group inline-flex items-stretch rounded-md">
-                            <a href="/content-editor.php" class="inline-flex items-center px-1.5 py-1.5 md:px-2 md:py-2 rounded-l-md text-xs md:text-sm font-medium transition-colors whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-inset <?php echo $isCvPage ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?>">My CV</a>
+                            <span class="inline-flex items-center px-1.5 py-1.5 md:px-2 md:py-2 rounded-l-md text-xs md:text-sm font-medium whitespace-nowrap <?php echo $isCvPage ? 'bg-blue-100 text-blue-700' : 'text-gray-700'; ?>">CV</span>
                             <button type="button" aria-haspopup="true" aria-expanded="false" class="inline-flex items-center px-0.5 py-1.5 md:px-1 md:py-2 rounded-r-md border-l border-gray-200 text-xs md:text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 <?php echo $isCvPage ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?>">
                                 <svg class="h-3 w-3 md:h-4 md:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                             </button>
                             <div role="menu" class="absolute right-0 top-full hidden min-w-[10rem] rounded-lg border border-gray-200 bg-white py-2 shadow-lg group-hover:block z-50">
-                                <a href="/cv.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo $currentPage === 'cv.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
-                                    Online CV
+                                <a href="/content-editor.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo $currentPage === 'content-editor.php' && strpos($_SERVER['REQUEST_URI'], '#jobs') === false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
+                                    Build CV
                                 </a>
                                 <a href="/preview-cv.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo $currentPage === 'preview-cv.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
                                     PDF CV
                                 </a>
+                                <a href="/cv.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo $currentPage === 'cv.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
+                                    Online CV
+                                </a>
                                 <a href="/content-editor.php#jobs" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo $currentPage === 'content-editor.php' && strpos($_SERVER['REQUEST_URI'], '#jobs') !== false ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
                                     Jobs
-                                </a>
-                                <a href="/save-job-token.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo $currentPage === 'save-job-token.php' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-blue-50 hover:text-blue-700'; ?> focus:outline-none focus:bg-blue-50">
-                                    Get save token
                                 </a>
                             </div>
                         </div>
@@ -486,27 +486,23 @@
                         $isCvPage = in_array($currentPage, ['dashboard.php', 'preview-cv.php', 'cv.php', 'cv-variants.php', 'cv-quality.php', 'content-editor.php']) || strpos($_SERVER['REQUEST_URI'], '/cv-variants/') !== false;
                         ?>
                         <div class="px-4 py-2 text-base font-semibold text-gray-900 border-t border-gray-200 mt-2 pt-4">
-                            My CV
+                            CV
                         </div>
-                        <a href="/content-editor.php" 
-                           class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'content-editor.php' && !$isAgencyPage ? 'text-blue-700 bg-blue-100' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            My CV
+                        <a href="/content-editor.php"
+                           class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo $currentPage === 'content-editor.php' && !$isAgencyPage && strpos($_SERVER['REQUEST_URI'], '#jobs') === false ? 'text-blue-700 bg-blue-100' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            Build CV
                         </a>
-                        <a href="/cv.php" 
-                           class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo $currentPage === 'cv.php' ? 'text-blue-700 bg-blue-100' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            Online CV
-                        </a>
-                        <a href="/preview-cv.php" 
+                        <a href="/preview-cv.php"
                            class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo $currentPage === 'preview-cv.php' ? 'text-blue-700 bg-blue-100' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
                             PDF CV
                         </a>
-                        <a href="/content-editor.php#jobs" 
+                        <a href="/cv.php"
+                           class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo $currentPage === 'cv.php' ? 'text-blue-700 bg-blue-100' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            Online CV
+                        </a>
+                        <a href="/content-editor.php#jobs"
                            class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo $currentPage === 'content-editor.php' && strpos($_SERVER['REQUEST_URI'], '#jobs') !== false ? 'text-blue-700 bg-blue-100' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
                             Jobs
-                        </a>
-                        <a href="/save-job-token.php" 
-                           class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo $currentPage === 'save-job-token.php' ? 'text-blue-700 bg-blue-100' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            Get save token
                         </a>
                         <?php if ($isAgencyPage): ?>
                             <div class="px-4 py-2 text-base font-semibold text-gray-900 border-t border-gray-200 mt-2 pt-4">
@@ -532,27 +528,23 @@
                         $isCvPage = in_array($currentPage, ['dashboard.php', 'preview-cv.php', 'cv.php', 'cv-variants.php', 'cv-quality.php', 'content-editor.php']) || strpos($_SERVER['REQUEST_URI'], '/cv-variants/') !== false;
                         ?>
                         <div class="px-4 py-2 text-base font-semibold text-gray-900 border-t border-gray-200 mt-2 pt-4">
-                            My CV
+                            CV
                         </div>
-                        <a href="/content-editor.php" 
-                           class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'content-editor.php' ? 'text-blue-700 bg-blue-100' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            My CV
+                        <a href="/content-editor.php"
+                           class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo $currentPage === 'content-editor.php' && strpos($_SERVER['REQUEST_URI'], '#jobs') === false ? 'text-blue-700 bg-blue-100' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            Build CV
                         </a>
-                        <a href="/cv.php" 
-                           class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo $currentPage === 'cv.php' ? 'text-blue-700 bg-blue-100' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            Online CV
-                        </a>
-                        <a href="/preview-cv.php" 
+                        <a href="/preview-cv.php"
                            class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo $currentPage === 'preview-cv.php' ? 'text-blue-700 bg-blue-100' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
                             PDF CV
                         </a>
-                        <a href="/content-editor.php#jobs" 
+                        <a href="/cv.php"
+                           class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo $currentPage === 'cv.php' ? 'text-blue-700 bg-blue-100' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            Online CV
+                        </a>
+                        <a href="/content-editor.php#jobs"
                            class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo $currentPage === 'content-editor.php' && strpos($_SERVER['REQUEST_URI'], '#jobs') !== false ? 'text-blue-700 bg-blue-100' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
                             Jobs
-                        </a>
-                        <a href="/save-job-token.php" 
-                           class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo $currentPage === 'save-job-token.php' ? 'text-blue-700 bg-blue-100' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-700'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            Get save token
                         </a>
                     <?php endif; ?>
                     <!-- Subscription link - available to all logged-in users -->

@@ -130,29 +130,32 @@ if ($sectionId === 'ai-tools') {
 }
 
 if ($sectionId === 'profile') {
-    require_once __DIR__ . '/../../php/cv-variants.php';
-    $profileRelatedJobId = null;
-    if ($variantId) {
-        $profileVariant = getCvVariant($variantId, $userId);
-        $profileRelatedJobId = !empty($profileVariant['job_application_id']) ? $profileVariant['job_application_id'] : null;
+    $partialPath = __DIR__ . '/../../views/partials/content-editor/profile-form.php';
+    if (file_exists($partialPath)) {
+        include $partialPath;
+    } else {
+        echo '<div class="bg-yellow-50 border border-yellow-200 rounded-md p-4"><p class="text-sm font-medium text-yellow-800">Profile form is not yet implemented.</p></div>';
     }
-    ?>
-    <div class="p-6">
-        <h2 class="text-xl font-semibold text-gray-900 mb-2">Personal Profile</h2>
-        <p class="text-gray-600 mb-4">Your name, contact details, photo, header colours, and CV visibility are edited on a separate page.</p>
-        <?php if ($profileRelatedJobId): ?>
-        <a href="/content-editor.php#jobs&view=<?php echo e($profileRelatedJobId); ?>" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 font-medium">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-            Related Job
-        </a>
-        <?php else: ?>
-        <a href="/profile.php" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 font-medium">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-            Edit profile
-        </a>
-        <?php endif; ?>
-    </div>
-    <?php
+    exit;
+}
+
+if ($sectionId === 'visibility') {
+    $partialPath = __DIR__ . '/../../views/partials/content-editor/visibility-form.php';
+    if (file_exists($partialPath)) {
+        include $partialPath;
+    } else {
+        echo '<div class="bg-yellow-50 border border-yellow-200 rounded-md p-4"><p class="text-sm font-medium text-yellow-800">Visibility form is not yet implemented.</p></div>';
+    }
+    exit;
+}
+
+if ($sectionId === 'appearance') {
+    $partialPath = __DIR__ . '/../../views/partials/content-editor/appearance-form.php';
+    if (file_exists($partialPath)) {
+        include $partialPath;
+    } else {
+        echo '<div class="bg-yellow-50 border border-yellow-200 rounded-md p-4"><p class="text-sm font-medium text-yellow-800">Appearance form is not yet implemented.</p></div>';
+    }
     exit;
 }
 

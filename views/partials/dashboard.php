@@ -75,6 +75,10 @@ unset($section);
 ?>
 
 <?php partial('header'); ?>
+<?php partial('content-editor/cv-nav-bar', [
+    'cvVariants' => getUserCvVariants($userId),
+    'masterVariantId' => getOrCreateMasterVariant($userId),
+]); ?>
 
 <div class="py-6">
     <!-- Error/Success Messages -->

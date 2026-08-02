@@ -67,6 +67,39 @@ $profileShowPhotoPdf = $profile['show_photo_pdf'] ?? 1;
 $profileShowQrCode = $profile['show_qr_code'] ?? ($profileShowPhotoCv ? 0 : 1);
 $profileShowQrCodePdfDefault = $profileShowPhotoPdf ? $profileShowQrCode : 1;
 
+// These settings are edited in the content editor (Appearance / Visibility sections).
+// This page just displays the resolved, DB-backed values - variant wins if set, else profile -
+// using the same shared precedence helpers those sections read/write.
+$previewCvVariant = $cvVariant ?? null;
+$resolvedPdfPrefs = getPdfPreferencesForCv($profile, $previewCvVariant);
+$resolvedTemplateId = $profile['preferred_template_id'] ?? 'minimal';
+if ($previewCvVariant && !empty($previewCvVariant['pdf_preferences'])) {
+    $decodedVariantPrefs = json_decode($previewCvVariant['pdf_preferences'], true);
+    if (is_array($decodedVariantPrefs) && !empty($decodedVariantPrefs['preferred_template_id'])) {
+        $resolvedTemplateId = $decodedVariantPrefs['preferred_template_id'];
+    }
+}
+$rawSectionsOnlineForPreview = null;
+if ($previewCvVariant && !empty($previewCvVariant['pdf_preferences'])) {
+    $decodedVariantSectionsOnline = json_decode($previewCvVariant['pdf_preferences'], true);
+    $rawSectionsOnlineForPreview = is_array($decodedVariantSectionsOnline) ? ($decodedVariantSectionsOnline['sections_online'] ?? null) : null;
+}
+if ($rawSectionsOnlineForPreview === null && !empty($profile['sections_online'])) {
+    $decodedProfileSectionsOnline = json_decode($profile['sections_online'], true);
+    $rawSectionsOnlineForPreview = is_array($decodedProfileSectionsOnline) ? $decodedProfileSectionsOnline : null;
+}
+$previewSectionKeys = ['profile', 'summary', 'work', 'education', 'areasOfExpertise', 'skills', 'projects', 'certifications', 'memberships', 'interests', 'qualificationEquivalence'];
+$resolvedSectionsOnline = [];
+foreach ($previewSectionKeys as $previewSectionKey) {
+    $resolvedSectionsOnline[$previewSectionKey] = isset($rawSectionsOnlineForPreview[$previewSectionKey]) ? (bool) $rawSectionsOnlineForPreview[$previewSectionKey] : true;
+}
+$resolvedShowResponsibilitiesOnline = getShowResponsibilitiesOnlineForCv($profile, $previewCvVariant);
+$resolvedIncludePhoto = $resolvedPdfPrefs['include_photo'];
+$resolvedIncludeQr = $resolvedPdfPrefs['include_qr'];
+$resolvedShowResponsibilitiesInPdf = $resolvedPdfPrefs['show_responsibilities_in_pdf'];
+$resolvedColourPreset = $resolvedPdfPrefs['colour_preset'] ?: 'default';
+$resolvedCustomAccentHex = $resolvedPdfPrefs['custom_accent_hex'] ?: '#2563eb';
+
 $subscriptionContext = getUserSubscriptionContext($userId);
 $subscriptionFrontendContext = buildSubscriptionFrontendContext($subscriptionContext);
 
@@ -127,225 +160,27 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                         </p>
                     <?php endif; ?>
 
-                    <!-- Collapsible: PDF Style (template selector) -->
-                    <details class="sidebar-section group border-b border-gray-200 pb-4 mb-4">
-                        <summary class="flex items-center justify-between cursor-pointer list-none py-1 text-sm font-medium text-gray-700 hover:text-gray-900 select-none">
-                            <span>PDF Style</span>
-                            <svg class="h-4 w-4 text-gray-500 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                        </summary>
-                    <div class="mt-3">
-                        <label for="template-select" class="block text-sm font-medium text-gray-700 mb-2">
-                            Template
-                        </label>
-                        <select id="template-select" class="w-full bg-white border-2 border-gray-300 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 cursor-pointer hover:border-blue-400 hover:bg-blue-50/50 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-offset-0 transition-colors">
-                            <option value="">Loading templates...</option>
-                        </select>
-                        <p class="mt-2 text-xs text-gray-500" id="template-description">
-                            Clean layout with blue accent lines and structured typography.
-                        </p>
-                        <?php if (!empty($subscriptionFrontendContext['allowedTemplateIds']) && count($subscriptionFrontendContext['allowedTemplateIds']) === 1): ?>
-                            <p class="mt-2 text-xs text-gray-500">
-                                Upgrade to unlock additional template designs and colour themes.
-                            </p>
-                        <?php endif; ?>
-                    </div>
-                    </details>
-
-                    <!-- Collapsible: Photo & QR -->
-                    <details class="sidebar-section group border-b border-gray-200 pb-4 mb-4">
-                        <summary class="flex items-center justify-between cursor-pointer list-none py-1 text-sm font-medium text-gray-700 hover:text-gray-900 select-none">
-                            <span>Photo & QR Code</span>
-                            <svg class="h-4 w-4 text-gray-500 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                        </summary>
-                    <div class="mt-3 space-y-4">
-                        <label class="flex items-center">
-                            <input type="checkbox"
-                                   id="include-photo"
-                                   class="mr-2"
-                                   <?php echo $profileShowPhotoPdf ? 'checked' : ''; ?>>
-                            <span>Include Profile Photo</span>
-                        </label>
-                        <p class="mt-2 text-xs text-gray-500">
-                            This sets the default when you first open the preview. You can still toggle the photo before generating the PDF.
-                        </p>
+                    <div class="border border-gray-300 bg-gray-50/70 p-2 mb-4">
+                        <nav class="space-y-1.5">
+                            <a href="/content-editor.php#appearance<?php echo $variantId ? '&variant_id=' . rawurlencode($variantId) : ''; ?>"
+                               class="section-nav-item flex items-center gap-2 px-3 py-2.5 border border-l-4 border-gray-300 border-l-gray-300 bg-white shadow-sm text-sm font-medium text-gray-700 transition-all hover:border-gray-400 hover:bg-gray-50 hover:shadow">
+                                <svg class="w-5 h-5 mr-2 flex-shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-4"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17h.01"></path>
+                                </svg>
+                                <span class="truncate">Appearance</span>
+                            </a>
+                            <a href="/content-editor.php#visibility<?php echo $variantId ? '&variant_id=' . rawurlencode($variantId) : ''; ?>"
+                               class="section-nav-item flex items-center gap-2 px-3 py-2.5 border border-l-4 border-gray-300 border-l-gray-300 bg-white shadow-sm text-sm font-medium text-gray-700 transition-all hover:border-gray-400 hover:bg-gray-50 hover:shadow">
+                                <svg class="w-5 h-5 mr-2 flex-shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                                <span class="truncate">Visibility</span>
+                            </a>
+                        </nav>
                     </div>
 
-                    <div class="mt-6">
-                        <label class="flex items-center">
-                            <input type="checkbox"
-                                   id="include-qr"
-                                   class="mr-2"
-                                   <?php echo $profileShowQrCodePdfDefault ? 'checked' : ''; ?>>
-                            <span>Include QR Code</span>
-                        </label>
-                        <p class="mt-2 text-xs text-gray-500">
-                            The QR code will appear in the header if the photo is hidden; otherwise it is placed at the bottom of the PDF.
-                        </p>
-                    </div>
-
-                    </details>
-
-                    <!-- Collapsible: Sections for PDF -->
-                    <details class="sidebar-section group border-b border-gray-200 pb-4 mb-4">
-                        <summary class="flex items-center justify-between cursor-pointer list-none py-1 text-sm font-medium text-gray-700 hover:text-gray-900 select-none">
-                            <span>Sections for PDF</span>
-                            <svg class="h-4 w-4 text-gray-500 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                        </summary>
-                        <p class="mt-2 text-xs text-gray-500 mb-3">Choose which sections appear in your exported PDF.</p>
-                    <div class="space-y-3 pl-0">
-                        <label class="flex items-center"><input type="checkbox" id="section-profile" checked class="mr-2"><span>Personal Profile</span></label>
-                        <label class="flex items-center"><input type="checkbox" id="section-summary" checked class="mr-2"><span>Professional Summary</span></label>
-                        <label class="flex items-center"><input type="checkbox" id="section-work" checked class="mr-2"><span>Work Experience</span></label>
-                        <label class="flex items-center"><input type="checkbox" id="section-education" checked class="mr-2"><span>Education</span></label>
-                        <label class="flex items-center"><input type="checkbox" id="section-areas-of-expertise" checked class="mr-2"><span>Areas of Expertise</span></label>
-                        <label class="flex items-center"><input type="checkbox" id="section-skills" checked class="mr-2"><span>Skills</span></label>
-                        <label class="flex items-center"><input type="checkbox" id="section-projects" checked class="mr-2"><span>Projects</span></label>
-                        <label class="flex items-center"><input type="checkbox" id="section-certifications" checked class="mr-2"><span>Certifications</span></label>
-                        <label class="flex items-center"><input type="checkbox" id="section-memberships" checked class="mr-2"><span>Professional Memberships</span></label>
-                        <label class="flex items-center"><input type="checkbox" id="section-interests" checked class="mr-2"><span>Interests & Activities</span></label>
-                        <label class="flex items-center"><input type="checkbox" id="section-qualifications" checked class="mr-2"><span>Professional Qualification Equivalence</span></label>
-                        <div class="mt-4 pt-3 border-t border-gray-100">
-                            <label class="flex items-center"><input type="checkbox" id="include-responsibilities-pdf" checked class="mr-2"><span>Include key responsibilities in PDF</span></label>
-                            <p class="mt-1 text-xs text-gray-500">Turn off to save space; job titles, companies, dates and descriptions will still appear.</p>
-                        </div>
-                    </div>
-                    </details>
-
-                    <!-- Collapsible: Sections for Online CV -->
-                    <details class="sidebar-section group border-b border-gray-200 pb-4 mb-4">
-                        <summary class="flex items-center justify-between cursor-pointer list-none py-1 text-sm font-medium text-gray-700 hover:text-gray-900 select-none">
-                            <span>Sections for Online CV</span>
-                            <svg class="h-4 w-4 text-gray-500 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                        </summary>
-                        <p class="mt-2 text-xs text-gray-500 mb-3">Choose which sections appear at <code class="text-xs">/cv/@<?php echo e($profile['username'] ?? 'username'); ?></code>.</p>
-                    <div class="space-y-3 pl-0">
-                        <label class="flex items-center"><input type="checkbox" id="section-online-profile" checked class="mr-2"><span>Personal Profile</span></label>
-                        <label class="flex items-center"><input type="checkbox" id="section-online-summary" checked class="mr-2"><span>Professional Summary</span></label>
-                        <label class="flex items-center"><input type="checkbox" id="section-online-work" checked class="mr-2"><span>Work Experience</span></label>
-                        <label class="flex items-center"><input type="checkbox" id="section-online-education" checked class="mr-2"><span>Education</span></label>
-                        <label class="flex items-center"><input type="checkbox" id="section-online-areas-of-expertise" checked class="mr-2"><span>Areas of Expertise</span></label>
-                        <label class="flex items-center"><input type="checkbox" id="section-online-skills" checked class="mr-2"><span>Skills</span></label>
-                        <label class="flex items-center"><input type="checkbox" id="section-online-projects" checked class="mr-2"><span>Projects</span></label>
-                        <label class="flex items-center"><input type="checkbox" id="section-online-certifications" checked class="mr-2"><span>Certifications</span></label>
-                        <label class="flex items-center"><input type="checkbox" id="section-online-memberships" checked class="mr-2"><span>Professional Memberships</span></label>
-                        <label class="flex items-center"><input type="checkbox" id="section-online-interests" checked class="mr-2"><span>Interests & Activities</span></label>
-                        <label class="flex items-center"><input type="checkbox" id="section-online-qualifications" checked class="mr-2"><span>Professional Qualification Equivalence</span></label>
-                        <div class="mt-4 pt-3 border-t border-gray-100">
-                            <label class="flex items-center"><input type="checkbox" id="include-responsibilities-online" checked class="mr-2"><span>Include key responsibilities on Online CV</span></label>
-                            <p class="mt-1 text-xs text-gray-500">Turn off to shorten the online CV. Work history and descriptions will still appear.</p>
-                        </div>
-                    </div>
-                    </details>
-
-                    <?php if (planPdfEnabled($subscriptionContext)): ?>
-                    <!-- Collapsible: PDF Footer -->
-                    <details class="sidebar-section group border-b border-gray-200 pb-4 mb-4">
-                        <summary class="flex items-center justify-between cursor-pointer list-none py-1 text-sm font-medium text-gray-700 hover:text-gray-900 select-none">
-                            <span>PDF Footer</span>
-                            <svg class="h-4 w-4 text-gray-500 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                        </summary>
-                    <div class="mt-3">
-                        <?php if (!subscriptionIsPaid($subscriptionContext)): ?>
-                        <p class="text-xs text-gray-600 mb-2">
-                            Your PDF includes our branding at the bottom (Simple CV Builder, credit line, and link). Upgrade to a Pro or Lifetime plan to remove the extended message—paid plans show only a simple copyright line and web address.
-                        </p>
-                        <a href="/subscription.php" class="inline-block mt-2 px-3 py-1.5 text-xs font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1">Upgrade to remove branding →</a>
-                        <?php else: ?>
-                        <p class="text-xs text-gray-500">
-                            Paid plans include a minimal footer (© <?php echo date('Y'); ?>, simple-cv-builder.com).
-                        </p>
-                        <?php endif; ?>
-                    </div>
-                    </details>
-                    <?php endif; ?>
-
-                    <?php if (!empty($subscriptionFrontendContext['templateCustomizationEnabled'])): ?>
-                    <!-- Collapsible: Customise Colours -->
-                    <details class="sidebar-section group border-b border-gray-200 pb-4 mb-4">
-                        <summary class="flex items-center justify-between cursor-pointer list-none py-1 text-sm font-medium text-gray-700 hover:text-gray-900 select-none">
-                            <span>Customise Colours</span>
-                            <svg class="h-4 w-4 text-gray-500 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                        </summary>
-                    <div class="mt-3" id="colour-customization-container">
-                        <p class="text-xs text-gray-500 mb-3">Choose a preset or pick a custom accent colour.</p>
-                        <div class="space-y-2 mb-3">
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="colour-preset" value="default" checked class="text-blue-600 focus:ring-blue-500">
-                                <span class="text-sm">Default (template colours)</span>
-                            </label>
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="colour-preset" value="conservative" class="text-blue-600 focus:ring-blue-500">
-                                <span class="text-sm">Conservative Navy</span>
-                                <span class="w-4 h-4 rounded-full border border-gray-300" style="background:#1e3a8a" title="#1e3a8a"></span>
-                            </label>
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="colour-preset" value="professional" class="text-blue-600 focus:ring-blue-500">
-                                <span class="text-sm">Professional Blue</span>
-                                <span class="w-4 h-4 rounded-full border border-gray-300" style="background:#2563eb" title="#2563eb"></span>
-                            </label>
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="colour-preset" value="teal" class="text-blue-600 focus:ring-blue-500">
-                                <span class="text-sm">Teal</span>
-                                <span class="w-4 h-4 rounded-full border border-gray-300" style="background:#0d9488" title="#0d9488"></span>
-                            </label>
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="colour-preset" value="purple" class="text-blue-600 focus:ring-blue-500">
-                                <span class="text-sm">Purple</span>
-                                <span class="w-4 h-4 rounded-full border border-gray-300" style="background:#7c3aed" title="#7c3aed"></span>
-                            </label>
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="colour-preset" value="rose" class="text-blue-600 focus:ring-blue-500">
-                                <span class="text-sm">Rose</span>
-                                <span class="w-4 h-4 rounded-full border border-gray-300" style="background:#e11d48" title="#e11d48"></span>
-                            </label>
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="colour-preset" value="custom" class="text-blue-600 focus:ring-blue-500">
-                                <span class="text-sm">Custom accent</span>
-                            </label>
-                        </div>
-                        <div id="custom-accent-row" class="hidden mt-2">
-                            <div class="flex items-center gap-2">
-                                <input type="color" id="custom-accent-color" value="#2563eb" class="h-8 w-12 rounded border border-gray-300 cursor-pointer">
-                                <input type="text" id="custom-accent-hex" value="#2563eb" class="flex-1 text-sm border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 py-1.5 px-2" maxlength="7" placeholder="#2563eb">
-                            </div>
-                        </div>
-                    </div>
-                    </details>
-                    <?php endif; ?>
-
-                    <!-- Skill Selection UI (shown when skills section is enabled) -->
-                    <details id="skill-selection-container" class="sidebar-section group border-b border-gray-200 pb-4 mb-4 hidden">
-                        <summary class="flex items-center justify-between cursor-pointer list-none py-1 text-sm font-medium text-gray-700 hover:text-gray-900 select-none">
-                            <span>Select Skills</span>
-                            <svg class="h-4 w-4 text-gray-500 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                        </summary>
-                    <div class="mt-3">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                            <span id="skill-section-title">Select Skills</span>
-                            <span id="skill-limit-badge" class="ml-2 text-xs text-gray-500 hidden"></span>
-                        </label>
-                        <p class="text-xs text-gray-500 mb-3" id="skill-selection-help">
-                            Select which skills to include in your PDF. Grouped by category; only selected skills appear in the export.
-                        </p>
-                        
-                        <!-- Skills Checkbox List (grouped by category) -->
-                        <div id="skills-checkbox-list" class="border border-gray-200 rounded-md p-3 max-h-72 overflow-y-auto space-y-4">
-                            <!-- Skills will be populated here -->
-                        </div>
-                        
-                        <!-- Grid Preview (for grid/column layouts) -->
-                        <div id="skills-grid-preview" class="mt-4 hidden">
-                            <p class="text-xs font-medium text-gray-700 mb-2">Preview Layout:</p>
-                            <div id="skills-grid-container" class="border border-gray-200 rounded-md p-3 bg-gray-50">
-                                <!-- Grid will be rendered here -->
-                            </div>
-                        </div>
-                    </div>
-                    </details>
-
-                    <a href="/cv.php<?php echo !empty($variantId) ? '?variant_id=' . rawurlencode($variantId) : ''; ?>" class="mt-4 block w-full text-center px-4 py-2.5 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 hover:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-colors">
-                        View Online CV →
-                    </a>
                 </div>
             </div>
 
@@ -362,7 +197,7 @@ $masterVariantId = getOrCreateMasterVariant($userId);
     </div>
 
         <script type="module">
-        import { DEFAULT_TEMPLATE_ID, getTemplateMeta, getPreviewRenderer, listTemplates } from '/templates/index.js?v=<?php echo time(); ?>';
+        import { DEFAULT_TEMPLATE_ID, getTemplateMeta, getPreviewRenderer } from '/templates/index.js?v=<?php echo time(); ?>';
 
         <?php
         // Helper to decode HTML entities recursively in arrays
@@ -392,15 +227,22 @@ $masterVariantId = getOrCreateMasterVariant($userId);
         const dateFormat = <?php echo json_encode($dateFormat, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
         const cvUrl = <?php echo json_encode($cvUrl, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
 
-        let selectedTemplate = SubscriptionContext?.defaultTemplateId || DEFAULT_TEMPLATE_ID;
+        const resolvedTemplateId = <?php echo json_encode($resolvedTemplateId, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
+        let selectedTemplate = resolvedTemplateId || SubscriptionContext?.defaultTemplateId || DEFAULT_TEMPLATE_ID;
 
-        function updateTemplateDescription(templateId) {
-            const template = getTemplateMeta(templateId);
-            const descEl = document.getElementById('template-description');
-            if (descEl) {
-                descEl.textContent = template && template.description ? template.description : '';
-            }
-        }
+        // "Sections for PDF" / "Sections for Online CV" panels, plus PDF Style (template select),
+        // Photo & QR Code, PDF Footer, and Customise Colours were all removed from this sidebar
+        // (they were disabled read-only mirrors of Appearance/Visibility, or in PDF Footer's case
+        // not a setting at all). getSections()/getSectionsOnline()/getCustomization() and the PDF/
+        // preview builders below read these resolved values directly instead of removed elements.
+        const resolvedPdfSections = <?php echo json_encode($resolvedPdfPrefs['sections'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
+        const resolvedOnlineSections = <?php echo json_encode($resolvedSectionsOnline, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
+        const resolvedShowResponsibilitiesInPdf = <?php echo json_encode($resolvedShowResponsibilitiesInPdf, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
+        const resolvedShowResponsibilitiesOnline = <?php echo json_encode($resolvedShowResponsibilitiesOnline, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
+        const resolvedIncludePhoto = <?php echo json_encode($resolvedIncludePhoto, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
+        const resolvedIncludeQr = <?php echo json_encode($resolvedIncludeQr, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
+        const resolvedColourPreset = <?php echo json_encode($resolvedColourPreset, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
+        const resolvedCustomAccentHex = <?php echo json_encode($resolvedCustomAccentHex, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
 
         function loadQRCodeLibrary() {
             return new Promise((resolve, reject) => {
@@ -451,39 +293,38 @@ $masterVariantId = getOrCreateMasterVariant($userId);
 
         function getSections() {
             return {
-                profile: document.getElementById('section-profile')?.checked ?? true,
-                summary: document.getElementById('section-summary')?.checked ?? true,
-                work: document.getElementById('section-work')?.checked ?? true,
-                education: document.getElementById('section-education')?.checked ?? true,
-                areasOfExpertise: document.getElementById('section-areas-of-expertise')?.checked ?? true,
-                skills: document.getElementById('section-skills')?.checked ?? true,
-                projects: document.getElementById('section-projects')?.checked ?? true,
-                certifications: document.getElementById('section-certifications')?.checked ?? true,
-                memberships: document.getElementById('section-memberships')?.checked ?? true,
-                interests: document.getElementById('section-interests')?.checked ?? true,
-                qualificationEquivalence: document.getElementById('section-qualifications')?.checked ?? true
+                profile: resolvedPdfSections.profile ?? true,
+                summary: resolvedPdfSections.summary ?? true,
+                work: resolvedPdfSections.work ?? true,
+                education: resolvedPdfSections.education ?? true,
+                areasOfExpertise: resolvedPdfSections.areasOfExpertise ?? true,
+                skills: resolvedPdfSections.skills ?? true,
+                projects: resolvedPdfSections.projects ?? true,
+                certifications: resolvedPdfSections.certifications ?? true,
+                memberships: resolvedPdfSections.memberships ?? true,
+                interests: resolvedPdfSections.interests ?? true,
+                qualificationEquivalence: resolvedPdfSections.qualificationEquivalence ?? true
             };
         }
 
         function getSectionsOnline() {
             return {
-                profile: document.getElementById('section-online-profile')?.checked ?? true,
-                summary: document.getElementById('section-online-summary')?.checked ?? true,
-                work: document.getElementById('section-online-work')?.checked ?? true,
-                education: document.getElementById('section-online-education')?.checked ?? true,
-                areasOfExpertise: document.getElementById('section-online-areas-of-expertise')?.checked ?? true,
-                skills: document.getElementById('section-online-skills')?.checked ?? true,
-                projects: document.getElementById('section-online-projects')?.checked ?? true,
-                certifications: document.getElementById('section-online-certifications')?.checked ?? true,
-                memberships: document.getElementById('section-online-memberships')?.checked ?? true,
-                interests: document.getElementById('section-online-interests')?.checked ?? true,
-                qualificationEquivalence: document.getElementById('section-online-qualifications')?.checked ?? true
+                profile: resolvedOnlineSections.profile ?? true,
+                summary: resolvedOnlineSections.summary ?? true,
+                work: resolvedOnlineSections.work ?? true,
+                education: resolvedOnlineSections.education ?? true,
+                areasOfExpertise: resolvedOnlineSections.areasOfExpertise ?? true,
+                skills: resolvedOnlineSections.skills ?? true,
+                projects: resolvedOnlineSections.projects ?? true,
+                certifications: resolvedOnlineSections.certifications ?? true,
+                memberships: resolvedOnlineSections.memberships ?? true,
+                interests: resolvedOnlineSections.interests ?? true,
+                qualificationEquivalence: resolvedOnlineSections.qualificationEquivalence ?? true
             };
         }
 
         function getSelectedTemplate() {
-            const templateSelect = document.getElementById('template-select');
-            const candidate = templateSelect && templateSelect.value ? templateSelect.value : selectedTemplate || DEFAULT_TEMPLATE_ID;
+            const candidate = selectedTemplate || DEFAULT_TEMPLATE_ID;
             if (allowedTemplateIds.size > 0 && !allowedTemplateIds.has(candidate)) {
                 return selectedTemplate;
             }
@@ -500,12 +341,10 @@ $masterVariantId = getOrCreateMasterVariant($userId);
         };
 
         function getCustomization() {
-            const container = document.getElementById('colour-customization-container');
-            if (!container) return {};
-            const preset = document.querySelector('input[name="colour-preset"]:checked')?.value || 'default';
+            const preset = resolvedColourPreset || 'default';
             if (preset === 'default') return {};
             if (preset === 'custom') {
-                const hex = document.getElementById('custom-accent-hex')?.value?.trim() || '#2563eb';
+                const hex = resolvedCustomAccentHex || '#2563eb';
                 const valid = /^#[0-9A-Fa-f]{6}$/.test(hex) ? hex : '#2563eb';
                 return { colors: { accent: valid, divider: valid, link: valid, header: valid } };
             }
@@ -562,7 +401,6 @@ $masterVariantId = getOrCreateMasterVariant($userId);
 
                 // Get selected sections and map to PDF template format
                 const sectionsObj = getSections();
-                const qualificationsCheckbox = document.getElementById('section-qualifications');
                 const sections = {
                     profile: sectionsObj.profile,
                     professionalSummary: sectionsObj.summary,
@@ -574,21 +412,21 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                     skills: sectionsObj.skills,
                     projects: sectionsObj.projects,
                     certifications: sectionsObj.certifications,
-                    qualificationEquivalence: qualificationsCheckbox ? qualificationsCheckbox.checked : false,
+                    qualificationEquivalence: sectionsObj.qualificationEquivalence,
                     memberships: sectionsObj.memberships,
                     interests: sectionsObj.interests
                 };
 
                 // Get include photo and QR code settings
-                const includePhoto = document.getElementById('include-photo')?.checked ?? true;
-                const includeQr = document.getElementById('include-qr')?.checked ?? true;
+                const includePhoto = resolvedIncludePhoto ?? true;
+                const includeQr = resolvedIncludeQr ?? true;
 
                 // Get selected template
                 const selectedTemplate = getSelectedTemplate();
 
                 // Prepare config (include colour customization for Pro users, free plan branding)
                 const customization = getCustomization();
-                const showResponsibilitiesInPdf = document.getElementById('include-responsibilities-pdf')?.checked ?? true;
+                const showResponsibilitiesInPdf = resolvedShowResponsibilitiesInPdf ?? true;
                 const config = {
                     sections: sections,
                     includePhoto: includePhoto,
@@ -726,9 +564,9 @@ $masterVariantId = getOrCreateMasterVariant($userId);
 
                 selectedTemplate = getSelectedTemplate();
                 const sections = getSections();
-                const includePhoto = document.getElementById('include-photo')?.checked ?? true;
-                const includeQr = document.getElementById('include-qr')?.checked ?? true;
-                const includeResponsibilitiesInPdf = document.getElementById('include-responsibilities-pdf')?.checked ?? true;
+                const includePhoto = resolvedIncludePhoto ?? true;
+                const includeQr = resolvedIncludeQr ?? true;
+                const includeResponsibilitiesInPdf = resolvedShowResponsibilitiesInPdf ?? true;
 
                 let templateMeta = getTemplateMeta(selectedTemplate);
                 const customization = getCustomization();
@@ -784,357 +622,7 @@ $masterVariantId = getOrCreateMasterVariant($userId);
             }
         }
 
-        const PREVIEW_STORAGE_KEY = 'preview-cv-prefs';
-        const SECTION_ID_MAP = {
-            'section-profile': 'profile',
-            'section-summary': 'summary',
-            'section-work': 'work',
-            'section-education': 'education',
-            'section-areas-of-expertise': 'areasOfExpertise',
-            'section-skills': 'skills',
-            'section-projects': 'projects',
-            'section-certifications': 'certifications',
-            'section-memberships': 'memberships',
-            'section-interests': 'interests',
-            'section-qualifications': 'qualificationEquivalence'
-        };
-        const SECTION_ONLINE_ID_MAP = {
-            'section-online-profile': 'profile',
-            'section-online-summary': 'summary',
-            'section-online-work': 'work',
-            'section-online-education': 'education',
-            'section-online-areas-of-expertise': 'areasOfExpertise',
-            'section-online-skills': 'skills',
-            'section-online-projects': 'projects',
-            'section-online-certifications': 'certifications',
-            'section-online-memberships': 'memberships',
-            'section-online-interests': 'interests',
-            'section-online-qualifications': 'qualificationEquivalence'
-        };
-
-        function loadPreviewPrefs() {
-            try {
-                const raw = localStorage.getItem(PREVIEW_STORAGE_KEY);
-                return raw ? JSON.parse(raw) : {};
-            } catch (e) {
-                return {};
-            }
-        }
-
-        function savePreviewPrefs(prefs) {
-            try {
-                const current = loadPreviewPrefs();
-                localStorage.setItem(PREVIEW_STORAGE_KEY, JSON.stringify({ ...current, ...prefs }));
-            } catch (e) { /* ignore */ }
-        }
-
-        async function fetchVariantPdfPrefs() {
-            if (!previewVariantId) return null;
-            try {
-                const res = await fetch('/api/variant-pdf-preferences.php?variant_id=' + encodeURIComponent(previewVariantId), { credentials: 'include' });
-                const data = await res.json();
-                return data.preferences || null;
-            } catch (e) {
-                console.warn('Could not load variant PDF preferences:', e);
-                return null;
-            }
-        }
-
-        let saveProfileSectionsTimeout = null;
-        function saveProfileSectionsOnline(sections) {
-            if (saveProfileSectionsTimeout) clearTimeout(saveProfileSectionsTimeout);
-            saveProfileSectionsTimeout = setTimeout(async () => {
-                saveProfileSectionsTimeout = null;
-                try {
-                    await fetch('/api/save-profile-sections-online.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            sections_online: sections,
-                            csrf_token: previewCsrfToken
-                        }),
-                        credentials: 'include'
-                    });
-                } catch (e) {
-                    console.warn('Could not save profile sections for online CV:', e);
-                }
-            }, 300);
-        }
-
-        let saveProfileOnlinePrefsTimeout = null;
-        function saveProfileOnlinePrefs(partial) {
-            if (saveProfileOnlinePrefsTimeout) clearTimeout(saveProfileOnlinePrefsTimeout);
-            saveProfileOnlinePrefsTimeout = setTimeout(async () => {
-                saveProfileOnlinePrefsTimeout = null;
-                const payload = {
-                    sections_online: getSectionsOnline(),
-                    csrf_token: previewCsrfToken
-                };
-                if (partial && partial.show_responsibilities_online !== undefined) {
-                    payload.show_responsibilities_online = partial.show_responsibilities_online;
-                }
-                try {
-                    await fetch('/api/save-profile-sections-online.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload),
-                        credentials: 'include'
-                    });
-                } catch (e) {
-                    console.warn('Could not save profile online preferences:', e);
-                }
-            }, 300);
-        }
-
-        let saveVariantPrefsTimeout = null;
-        function saveVariantPdfPrefs(partial) {
-            if (!previewVariantId) return;
-            if (saveVariantPrefsTimeout) clearTimeout(saveVariantPrefsTimeout);
-            saveVariantPrefsTimeout = setTimeout(async () => {
-                saveVariantPrefsTimeout = null;
-                const payload = {
-                    variant_id: previewVariantId,
-                    csrf_token: previewCsrfToken
-                };
-                if (partial.preferred_template_id !== undefined) payload.preferred_template_id = partial.preferred_template_id;
-                if (partial.sections !== undefined) payload.sections = partial.sections;
-                if (partial.colour_preset !== undefined) payload.colour_preset = partial.colour_preset;
-                if (partial.custom_accent_hex !== undefined) payload.custom_accent_hex = partial.custom_accent_hex;
-                if (partial.include_photo !== undefined) payload.include_photo = partial.include_photo;
-                if (partial.include_qr !== undefined) payload.include_qr = partial.include_qr;
-                if (partial.show_responsibilities_in_pdf !== undefined) payload.show_responsibilities_in_pdf = partial.show_responsibilities_in_pdf;
-                if (partial.show_responsibilities_online !== undefined) payload.show_responsibilities_online = partial.show_responsibilities_online;
-                if (partial.sections_online !== undefined) payload.sections_online = partial.sections_online;
-                try {
-                    await fetch('/api/variant-pdf-preferences.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload),
-                        credentials: 'include'
-                    });
-                } catch (e) {
-                    console.warn('Could not save variant PDF preferences:', e);
-                }
-            }, 300);
-        }
-
         document.addEventListener('DOMContentLoaded', async () => {
-            let prefs = loadPreviewPrefs();
-            let variantPrefs = null;
-            if (previewVariantId) {
-                variantPrefs = await fetchVariantPdfPrefs();
-                if (variantPrefs) {
-                    if (variantPrefs.preferred_template_id) selectedTemplate = variantPrefs.preferred_template_id;
-                    if (variantPrefs.include_photo !== null) prefs = { ...prefs, includePhoto: variantPrefs.include_photo };
-                    if (variantPrefs.include_qr !== null) prefs = { ...prefs, includeQr: variantPrefs.include_qr };
-                    if (variantPrefs.show_responsibilities_in_pdf !== undefined) prefs = { ...prefs, showResponsibilitiesInPdf: variantPrefs.show_responsibilities_in_pdf };
-                    if (variantPrefs.show_responsibilities_online !== undefined) prefs = { ...prefs, showResponsibilitiesOnline: variantPrefs.show_responsibilities_online };
-                    if (variantPrefs.colour_preset) prefs = { ...prefs, colourPreset: variantPrefs.colour_preset };
-                    if (variantPrefs.custom_accent_hex) prefs = { ...prefs, customAccentHex: variantPrefs.custom_accent_hex };
-                }
-            }
-            const includePhotoEl = document.getElementById('include-photo');
-            const includeQrEl = document.getElementById('include-qr');
-            if (includePhotoEl && prefs.includePhoto !== undefined) {
-                includePhotoEl.checked = !!prefs.includePhoto;
-            }
-            if (includeQrEl && prefs.includeQr !== undefined) {
-                includeQrEl.checked = !!prefs.includeQr;
-            }
-            const includeResponsibilitiesPdfEl = document.getElementById('include-responsibilities-pdf');
-            if (includeResponsibilitiesPdfEl && prefs.showResponsibilitiesInPdf !== undefined) {
-                includeResponsibilitiesPdfEl.checked = !!prefs.showResponsibilitiesInPdf;
-            }
-            const includeResponsibilitiesOnlineEl = document.getElementById('include-responsibilities-online');
-            if (includeResponsibilitiesOnlineEl) {
-                const fromProfile = (profileSectionsOnline && typeof profileSectionsOnline === 'object' && profileSectionsOnline.show_responsibilities_online !== undefined)
-                    ? !!profileSectionsOnline.show_responsibilities_online
-                    : true;
-                const desired = (prefs.showResponsibilitiesOnline !== undefined) ? !!prefs.showResponsibilitiesOnline : fromProfile;
-                includeResponsibilitiesOnlineEl.checked = desired;
-            }
-            const colourContainer = document.getElementById('colour-customization-container');
-            if (colourContainer && prefs.colourPreset) {
-                const presetRadio = colourContainer.querySelector(`input[name="colour-preset"][value="${prefs.colourPreset}"]`);
-                if (presetRadio) {
-                    presetRadio.checked = true;
-                    const customRow = document.getElementById('custom-accent-row');
-                    if (customRow) customRow.classList.toggle('hidden', prefs.colourPreset !== 'custom');
-                }
-                if (prefs.customAccentHex && /^#[0-9A-Fa-f]{6}$/.test(prefs.customAccentHex)) {
-                    const customColor = document.getElementById('custom-accent-color');
-                    const customHex = document.getElementById('custom-accent-hex');
-                    if (customColor) customColor.value = prefs.customAccentHex;
-                    if (customHex) customHex.value = prefs.customAccentHex;
-                }
-            }
-            if (variantPrefs?.sections) {
-                for (const [domId, apiKey] of Object.entries(SECTION_ID_MAP)) {
-                    const el = document.getElementById(domId);
-                    if (el && variantPrefs.sections[apiKey] !== undefined) {
-                        el.checked = !!variantPrefs.sections[apiKey];
-                    }
-                }
-            }
-            const sectionsOnlineSource = variantPrefs?.sections_online ?? profileSectionsOnline;
-            if (sectionsOnlineSource) {
-                for (const [domId, apiKey] of Object.entries(SECTION_ONLINE_ID_MAP)) {
-                    const el = document.getElementById(domId);
-                    if (el && sectionsOnlineSource[apiKey] !== undefined) {
-                        el.checked = !!sectionsOnlineSource[apiKey];
-                    }
-                }
-            }
-
-            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-            checkboxes.forEach((checkbox) => {
-                checkbox.addEventListener('change', () => {
-                    if (checkbox.id === 'include-photo') {
-                        savePreviewPrefs({ includePhoto: checkbox.checked });
-                        if (previewVariantId) saveVariantPdfPrefs({ include_photo: checkbox.checked });
-                    } else if (checkbox.id === 'include-qr') {
-                        savePreviewPrefs({ includeQr: checkbox.checked });
-                        if (previewVariantId) saveVariantPdfPrefs({ include_qr: checkbox.checked });
-                    } else if (checkbox.id === 'include-responsibilities-pdf') {
-                        if (previewVariantId) saveVariantPdfPrefs({ show_responsibilities_in_pdf: checkbox.checked });
-                    } else if (checkbox.id === 'include-responsibilities-online') {
-                        // Online CV preference: variant-level when viewing a variant, otherwise profile-level
-                        if (previewVariantId) {
-                            saveVariantPdfPrefs({ show_responsibilities_online: checkbox.checked });
-                        } else {
-                            saveProfileOnlinePrefs({ show_responsibilities_online: checkbox.checked });
-                        }
-                    } else if (SECTION_ID_MAP[checkbox.id]) {
-                        if (previewVariantId) {
-                            const apiSections = {};
-                            for (const [domId, apiKey] of Object.entries(SECTION_ID_MAP)) {
-                                const el = document.getElementById(domId);
-                                apiSections[apiKey] = el?.checked ?? true;
-                            }
-                            saveVariantPdfPrefs({ sections: apiSections });
-                        }
-                    } else if (SECTION_ONLINE_ID_MAP[checkbox.id]) {
-                        const apiSections = getSectionsOnline();
-                        if (previewVariantId) {
-                            saveVariantPdfPrefs({ sections_online: apiSections });
-                        } else {
-                            saveProfileSectionsOnline(apiSections);
-                        }
-                    }
-                    renderPreview();
-                });
-            });
-
-            const templateSelectEl = document.getElementById('template-select');
-            if (templateSelectEl) {
-                // Check if listTemplates is available
-                if (typeof listTemplates !== 'function') {
-                    console.error('listTemplates is not a function. Available:', typeof listTemplates, listTemplates);
-                    templateSelectEl.innerHTML = '<option value="professional">Professional Blue (default)</option>';
-                    selectedTemplate = DEFAULT_TEMPLATE_ID || 'professional';
-                    updateTemplateDescription(selectedTemplate);
-                } else {
-                    let allTemplates;
-                    try {
-                        allTemplates = listTemplates();
-                        if (!Array.isArray(allTemplates) || allTemplates.length === 0) {
-                            console.warn('listTemplates() returned invalid data, using fallback');
-                            allTemplates = [{ id: DEFAULT_TEMPLATE_ID || 'professional', name: 'Professional Blue', description: 'Clean layout with blue accent accents and structured typography.' }];
-                        }
-                    } catch (error) {
-                        console.error('Error calling listTemplates():', error);
-                        allTemplates = [{ id: DEFAULT_TEMPLATE_ID || 'professional', name: 'Professional Blue', description: 'Clean layout with blue accent accents and structured typography.' }];
-                    }
-                    
-                    let availableTemplates = allTemplates.filter((templateMeta) => {
-                    if (allowedTemplateIds.size === 0) {
-                        return true;
-                    }
-                    return allowedTemplateIds.has(templateMeta.id);
-                });
-
-                if (availableTemplates.length === 0) {
-                    availableTemplates = allTemplates;
-                }
-
-                templateSelectEl.innerHTML = '';
-
-                if (Array.isArray(availableTemplates) && availableTemplates.length > 0) {
-                    if (!availableTemplates.some((templateMeta) => templateMeta.id === selectedTemplate)) {
-                        selectedTemplate = availableTemplates[0]?.id || DEFAULT_TEMPLATE_ID;
-                    }
-
-                    availableTemplates.forEach((templateMeta) => {
-                        const option = document.createElement('option');
-                        option.value = templateMeta.id;
-                        option.textContent = templateMeta.name;
-                        if (templateMeta.id === selectedTemplate) {
-                            option.selected = true;
-                        }
-                        templateSelectEl.appendChild(option);
-                    });
-                } else {
-                    const fallbackOption = document.createElement('option');
-                    fallbackOption.value = DEFAULT_TEMPLATE_ID;
-                    fallbackOption.textContent = 'Professional Blue (default)';
-                    templateSelectEl.appendChild(fallbackOption);
-                    selectedTemplate = DEFAULT_TEMPLATE_ID;
-                }
-
-                selectedTemplate = templateSelectEl.value || DEFAULT_TEMPLATE_ID;
-                updateTemplateDescription(selectedTemplate);
-                templateSelectEl.addEventListener('change', (event) => {
-                    if (allowedTemplateIds.size > 0 && !allowedTemplateIds.has(event.target.value)) {
-                        event.target.value = selectedTemplate;
-                        alert('Upgrade to access this template.');
-                        return;
-                    }
-                    selectedTemplate = event.target.value || DEFAULT_TEMPLATE_ID;
-                    updateTemplateDescription(selectedTemplate);
-                    if (previewVariantId) saveVariantPdfPrefs({ preferred_template_id: selectedTemplate });
-                    renderPreview();
-                });
-                } // Close the else block for listTemplates check
-
-            // Colour customization – preset change, custom picker, preview updates
-            const colourContainer = document.getElementById('colour-customization-container');
-            if (colourContainer) {
-                const presetRadios = colourContainer.querySelectorAll('input[name="colour-preset"]');
-                const customRow = document.getElementById('custom-accent-row');
-                const customColor = document.getElementById('custom-accent-color');
-                const customHex = document.getElementById('custom-accent-hex');
-                presetRadios.forEach((radio) => {
-                    radio.addEventListener('change', () => {
-                        if (customRow) customRow.classList.toggle('hidden', radio.value !== 'custom');
-                        if (radio.value === 'custom' && customColor) customHex.value = customColor.value;
-                        savePreviewPrefs({ colourPreset: radio.value });
-                        if (previewVariantId) saveVariantPdfPrefs({ colour_preset: radio.value });
-                        renderPreview();
-                    });
-                });
-                if (customColor) {
-                    customColor.addEventListener('input', () => {
-                        customHex.value = customColor.value;
-                        savePreviewPrefs({ customAccentHex: customColor.value });
-                        if (previewVariantId) saveVariantPdfPrefs({ custom_accent_hex: customColor.value });
-                        if (document.querySelector('input[name="colour-preset"]:checked')?.value === 'custom') renderPreview();
-                    });
-                }
-                if (customHex) {
-                    customHex.addEventListener('input', () => {
-                        const hex = customHex.value.trim();
-                        if (/^#[0-9A-Fa-f]{6}$/.test(hex) && customColor) {
-                            customColor.value = hex;
-                            savePreviewPrefs({ customAccentHex: hex });
-                            if (previewVariantId) saveVariantPdfPrefs({ custom_accent_hex: hex });
-                        }
-                        if (document.querySelector('input[name="colour-preset"]:checked')?.value === 'custom') renderPreview();
-                    });
-                }
-            }
-            } else {
-                updateTemplateDescription(selectedTemplate);
-            }
 
             const pdfButton = document.getElementById('generate-pdf-button');
             if (pdfButton && !SubscriptionContext?.pdfEnabled) {
@@ -1161,7 +649,6 @@ $masterVariantId = getOrCreateMasterVariant($userId);
                         profile = newProfile;
                         currentSkillSelection = (cvData.skills || []).map(s => s.id);
                         await renderPreview();
-                        if (typeof renderSkillSelection === 'function') renderSkillSelection();
                     } catch (err) {
                         console.error('Update preview error:', err);
                         alert('Could not update preview. Please refresh the page.');
@@ -1176,263 +663,30 @@ $masterVariantId = getOrCreateMasterVariant($userId);
         });
 
         // Skill Selection Functions
+        // Which skills to include in the PDF is now edited on the Visibility page ("Select
+        // Skills"), not here. This page still needs to load the saved selection so the live
+        // preview and PDF export filter skills correctly - just no UI to change it.
         let currentSkillSelection = [];
-        let templateSkillConfig = null;
 
         async function loadSkillSelectionForTemplate(templateId) {
             if (!templateId || !cvData?.skills || cvData.skills.length === 0) {
-                document.getElementById('skill-selection-container')?.classList.add('hidden');
+                currentSkillSelection = [];
                 return;
             }
-
-            // Check if skills section is enabled
-            const skillsCheckbox = document.getElementById('section-skills');
-            if (!skillsCheckbox?.checked) {
-                document.getElementById('skill-selection-container')?.classList.add('hidden');
-                return;
-            }
-
             try {
-                // Get template config to check for skill settings
-                // For now, we'll check if template has skill limits by trying to get template metadata
-                // In a real implementation, you'd fetch template config from the database
-                templateSkillConfig = null; // Will be populated from template metadata/config
-
-                // Load saved skill selection
                 const response = await fetch(`/api/get-template-skill-selection.php?template_id=${encodeURIComponent(templateId)}`);
                 const data = await response.json();
-                
-                if (data.success) {
-                    currentSkillSelection = data.selected_skill_ids || [];
-                } else {
-                    currentSkillSelection = [];
-                }
-
-                // If no selection exists and template has max skills, select first N skills
-                if (currentSkillSelection.length === 0 && templateSkillConfig?.maxSkills) {
-                    currentSkillSelection = cvData.skills.slice(0, templateSkillConfig.maxSkills).map(s => s.id);
-                }
-
-                renderSkillSelection();
+                currentSkillSelection = data.success ? (data.selected_skill_ids || []) : [];
                 renderPreview();
             } catch (error) {
                 console.error('Error loading skill selection:', error);
                 currentSkillSelection = [];
-                renderSkillSelection();
                 renderPreview();
             }
         }
 
-        function renderSkillSelection() {
-            const container = document.getElementById('skill-selection-container');
-            const checkboxList = document.getElementById('skills-checkbox-list');
-            const gridPreview = document.getElementById('skills-grid-preview');
-            const gridContainer = document.getElementById('skills-grid-container');
-            const sectionTitle = document.getElementById('skill-section-title');
-            const limitBadge = document.getElementById('skill-limit-badge');
-
-            if (!container || !checkboxList || !cvData?.skills) {
-                return;
-            }
-
-            // Show container if skills section is enabled
-            const skillsCheckbox = document.getElementById('section-skills');
-            if (skillsCheckbox?.checked && cvData.skills.length > 0) {
-                container.classList.remove('hidden');
-            } else {
-                container.classList.add('hidden');
-                return;
-            }
-
-            // Update section title
-            if (sectionTitle && templateSkillConfig?.skillSectionTitle) {
-                sectionTitle.textContent = templateSkillConfig.skillSectionTitle;
-            } else {
-                sectionTitle.textContent = 'Select Skills';
-            }
-
-            // Update limit badge
-            if (limitBadge && templateSkillConfig?.maxSkills) {
-                limitBadge.textContent = `(Max ${templateSkillConfig.maxSkills})`;
-                limitBadge.classList.remove('hidden');
-            } else {
-                limitBadge.classList.add('hidden');
-            }
-
-            // Group skills by category
-            const byCategory = {};
-            cvData.skills.forEach(skill => {
-                const cat = (skill.category && String(skill.category).trim()) || 'Other';
-                if (!byCategory[cat]) byCategory[cat] = [];
-                byCategory[cat].push(skill);
-            });
-            const categoryOrder = Object.keys(byCategory).sort((a, b) =>
-                a === 'Other' ? 1 : b === 'Other' ? -1 : a.localeCompare(b)
-            );
-
-            // Render checkboxes grouped by category
-            checkboxList.innerHTML = '';
-            categoryOrder.forEach(cat => {
-                const skills = byCategory[cat];
-                const block = document.createElement('div');
-                block.className = 'space-y-1';
-                const header = document.createElement('div');
-                header.className = 'text-xs font-semibold text-gray-500 uppercase tracking-wide pb-1.5 mb-1.5 border-b border-gray-200';
-                header.textContent = cat;
-                block.appendChild(header);
-                skills.forEach(skill => {
-                    const isSelected = currentSkillSelection.includes(skill.id);
-                    const label = document.createElement('label');
-                    label.className = 'flex items-center cursor-pointer hover:bg-gray-50 px-2 py-1 rounded text-sm';
-                    label.innerHTML = `
-                        <input type="checkbox" 
-                               class="mr-2 skill-checkbox" 
-                               data-skill-id="${skill.id}"
-                               ${isSelected ? 'checked' : ''}
-                               ${templateSkillConfig?.maxSkills && currentSkillSelection.length >= templateSkillConfig.maxSkills && !isSelected ? 'disabled' : ''}>
-                        <span class="text-gray-700">${escapeHtml(skill.name)}${skill.level ? ` <span class="text-gray-400">(${escapeHtml(skill.level)})</span>` : ''}</span>
-                    `;
-                    block.appendChild(label);
-                });
-                checkboxList.appendChild(block);
-            });
-
-            // Add event listeners
-            checkboxList.querySelectorAll('.skill-checkbox').forEach(checkbox => {
-                checkbox.addEventListener('change', handleSkillSelectionChange);
-            });
-
-            // Render grid preview if layout is grid/columns
-            if (templateSkillConfig?.skillLayout === 'grid' || templateSkillConfig?.skillLayout === 'columns') {
-                renderGridPreview();
-                gridPreview.classList.remove('hidden');
-            } else {
-                gridPreview.classList.add('hidden');
-            }
-        }
-
-        function handleSkillSelectionChange(event) {
-            const skillId = event.target.dataset.skillId;
-            const isChecked = event.target.checked;
-
-            if (isChecked) {
-                // Check max skills limit
-                if (templateSkillConfig?.maxSkills && currentSkillSelection.length >= templateSkillConfig.maxSkills) {
-                    event.target.checked = false;
-                    alert(`Maximum ${templateSkillConfig.maxSkills} skills allowed for this template.`);
-                    return;
-                }
-                if (!currentSkillSelection.includes(skillId)) {
-                    currentSkillSelection.push(skillId);
-                }
-            } else {
-                currentSkillSelection = currentSkillSelection.filter(id => id !== skillId);
-            }
-
-            // Update disabled state of other checkboxes
-            updateCheckboxStates();
-            
-            // Update grid preview
-            if (templateSkillConfig?.skillLayout === 'grid' || templateSkillConfig?.skillLayout === 'columns') {
-                renderGridPreview();
-            }
-
-            // Save selection
-            saveSkillSelection();
-        }
-
-        function updateCheckboxStates() {
-            const checkboxes = document.querySelectorAll('.skill-checkbox');
-            const maxSkills = templateSkillConfig?.maxSkills;
-            
-            checkboxes.forEach(checkbox => {
-                const isChecked = checkbox.checked;
-                if (maxSkills && !isChecked && currentSkillSelection.length >= maxSkills) {
-                    checkbox.disabled = true;
-                } else {
-                    checkbox.disabled = false;
-                }
-            });
-        }
-
-        function renderGridPreview() {
-            const gridContainer = document.getElementById('skills-grid-container');
-            if (!gridContainer || !templateSkillConfig) return;
-
-            const selectedSkills = cvData.skills.filter(s => currentSkillSelection.includes(s.id));
-            const columns = templateSkillConfig.skillColumns || 4;
-            const rows = templateSkillConfig.skillRows || 3;
-            const maxItems = columns * rows;
-
-            gridContainer.innerHTML = '';
-            gridContainer.style.display = 'grid';
-            gridContainer.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
-            gridContainer.style.gap = '8px';
-
-            const skillsToShow = selectedSkills.slice(0, maxItems);
-            skillsToShow.forEach(skill => {
-                const skillBox = document.createElement('div');
-                skillBox.className = 'bg-white border border-gray-300 rounded p-2 text-xs text-center';
-                skillBox.textContent = skill.name;
-                gridContainer.appendChild(skillBox);
-            });
-
-            // Show placeholder boxes for remaining slots
-            const remainingSlots = maxItems - skillsToShow.length;
-            for (let i = 0; i < remainingSlots; i++) {
-                const placeholder = document.createElement('div');
-                placeholder.className = 'bg-gray-100 border border-gray-200 rounded p-2 text-xs text-center text-gray-400';
-                placeholder.textContent = '—';
-                gridContainer.appendChild(placeholder);
-            }
-        }
-
-        async function saveSkillSelection() {
-            const templateId = getSelectedTemplate();
-            if (!templateId) return;
-
-            try {
-                const formData = new FormData();
-                formData.append('template_id', templateId);
-                formData.append('selected_skill_ids', JSON.stringify(currentSkillSelection));
-                formData.append('<?php echo CSRF_TOKEN_NAME; ?>', '<?php echo csrfToken(); ?>');
-
-                const response = await fetch('/api/save-template-skill-selection.php', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const data = await response.json();
-                if (!data.success) {
-                    console.error('Failed to save skill selection:', data.error);
-                }
-            } catch (error) {
-                console.error('Error saving skill selection:', error);
-            }
-        }
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        // Watch for skills checkbox changes
-        document.getElementById('section-skills')?.addEventListener('change', function() {
-            if (this.checked) {
-                loadSkillSelectionForTemplate(getSelectedTemplate());
-            } else {
-                document.getElementById('skill-selection-container')?.classList.add('hidden');
-            }
-        });
-
-        // Watch for template changes
-        document.getElementById('template-select')?.addEventListener('change', function() {
-            loadSkillSelectionForTemplate(getSelectedTemplate());
-        });
-
         // Initial load
-        if (document.getElementById('section-skills')?.checked) {
+        if (resolvedPdfSections.skills) {
             setTimeout(() => loadSkillSelectionForTemplate(selectedTemplate), 100);
         }
 

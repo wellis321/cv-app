@@ -70,6 +70,15 @@ try {
         case 'qualification-equivalence':
             $result = handleQualificationEquivalence($action, $userId, $subscriptionContext);
             break;
+        case 'profile':
+            $result = handleProfile($action, $userId, $subscriptionContext);
+            break;
+        case 'visibility':
+            $result = handleVisibility($action, $userId, $subscriptionContext);
+            break;
+        case 'appearance':
+            $result = handleAppearance($action, $userId, $subscriptionContext);
+            break;
         default:
             http_response_code(400);
             echo json_encode(['success' => false, 'error' => 'Invalid section ID']);
@@ -1018,6 +1027,92 @@ function handleQualificationEquivalence($action, $userId, $subscriptionContext) 
         db()->delete('professional_qualification_equivalence', 'id = ? AND profile_id = ?', [$id, $userId]);
         return ['success' => true, 'message' => 'Qualification deleted successfully'];
     }
-    
+
     return ['success' => false, 'error' => 'Invalid action'];
+}
+
+function handleProfile($action, $userId, $subscriptionContext) {
+    if ($action !== 'update') {
+        return ['success' => false, 'error' => 'Invalid action'];
+    }
+
+    $result = validateProfileIdentityInput($_POST);
+    if (isset($result['error'])) {
+        return ['success' => false, 'error' => $result['error']];
+    }
+
+    $data = $result['data'];
+    $data['updated_at'] = date('Y-m-d H:i:s');
+    db()->update('profiles', $data, 'id = ?', [$userId]);
+
+    return ['success' => true, 'message' => 'Profile updated successfully'];
+}
+
+function handleVisibility($action, $userId, $subscriptionContext) {
+    if ($action !== 'update') {
+        return ['success' => false, 'error' => 'Invalid action'];
+    }
+
+    $resolved = resolveCvVisibility($userId, trim($_POST['cv_visibility'] ?? ''));
+    if ($resolved === null) {
+        return ['success' => false, 'error' => 'Invalid visibility value'];
+    }
+
+    db()->update('profiles', [
+        'cv_visibility' => $resolved,
+        'updated_at' => date('Y-m-d H:i:s')
+    ], 'id = ?', [$userId]);
+
+    return ['success' => true, 'message' => 'Visibility updated successfully', 'cv_visibility' => $resolved];
+}
+
+function handleAppearance($action, $userId, $subscriptionContext) {
+    if ($action !== 'update') {
+        return ['success' => false, 'error' => 'Invalid action'];
+    }
+
+    $templateId = trim($_POST['preferred_template_id'] ?? '');
+    $variantId = trim($_POST['variant_id'] ?? '');
+    $isVariantContext = !empty($variantId);
+
+    if ($isVariantContext) {
+        $variant = db()->fetchOne("SELECT id, pdf_preferences FROM cv_variants WHERE id = ? AND user_id = ?", [$variantId, $userId]);
+        if (!$variant) {
+            return ['success' => false, 'error' => 'Variant not found'];
+        }
+        if (empty($templateId)) {
+            return ['success' => false, 'error' => 'Template is required'];
+        }
+        // Header colours have no per-variant override - only template selection applies here.
+        $existing = [];
+        if (!empty($variant['pdf_preferences'])) {
+            $decoded = json_decode($variant['pdf_preferences'], true);
+            if (is_array($decoded)) {
+                $existing = $decoded;
+            }
+        }
+        $existing['preferred_template_id'] = $templateId;
+        db()->update('cv_variants', ['pdf_preferences' => json_encode($existing)], 'id = ? AND user_id = ?', [$variantId, $userId]);
+        return ['success' => true, 'message' => 'Appearance updated successfully'];
+    }
+
+    if (empty($templateId)) {
+        return ['success' => false, 'error' => 'Template is required'];
+    }
+
+    $data = ['preferred_template_id' => $templateId];
+
+    $headerFromColor = trim($_POST['cv_header_from_color'] ?? '');
+    if ($headerFromColor !== '' && preg_match('/^#[0-9A-Fa-f]{6}$/', $headerFromColor)) {
+        $data['cv_header_from_color'] = $headerFromColor;
+    }
+    $headerToColor = trim($_POST['cv_header_to_color'] ?? '');
+    if ($headerToColor !== '' && preg_match('/^#[0-9A-Fa-f]{6}$/', $headerToColor)) {
+        $data['cv_header_to_color'] = $headerToColor;
+    }
+
+    $data['updated_at'] = date('Y-m-d H:i:s');
+    db()->update('profiles', $data, 'id = ?', [$userId]);
+
+    return ['success' => true, 'message' => 'Appearance updated successfully'];
 }

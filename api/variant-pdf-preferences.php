@@ -93,14 +93,31 @@ if ($method === 'POST') {
         exit;
     }
 
+    $existing = [];
+    if (!empty($variant['pdf_preferences'])) {
+        $decoded = is_string($variant['pdf_preferences'])
+            ? json_decode($variant['pdf_preferences'], true)
+            : $variant['pdf_preferences'];
+        if (is_array($decoded)) $existing = $decoded;
+    }
+
     $prefs = [];
     if (isset($input['preferred_template_id']) && is_string($input['preferred_template_id'])) {
         $prefs['preferred_template_id'] = trim($input['preferred_template_id']);
     }
+    // sections/sections_online are merged onto whatever's already saved rather than
+    // overwritten wholesale, so flipping one section's toggle doesn't reset the rest.
     if (isset($input['sections']) && is_array($input['sections'])) {
+        $existingSections = is_array($existing['sections'] ?? null) ? $existing['sections'] : [];
         $prefs['sections'] = [];
         foreach ($validSections as $s) {
-            $prefs['sections'][$s] = isset($input['sections'][$s]) ? (bool) $input['sections'][$s] : true;
+            if (array_key_exists($s, $input['sections'])) {
+                $prefs['sections'][$s] = (bool) $input['sections'][$s];
+            } elseif (array_key_exists($s, $existingSections)) {
+                $prefs['sections'][$s] = (bool) $existingSections[$s];
+            } else {
+                $prefs['sections'][$s] = true;
+            }
         }
     }
     if (isset($input['colour_preset']) && is_string($input['colour_preset'])) {
@@ -122,18 +139,17 @@ if ($method === 'POST') {
         $prefs['show_responsibilities_online'] = (bool) $input['show_responsibilities_online'];
     }
     if (isset($input['sections_online']) && is_array($input['sections_online'])) {
+        $existingSectionsOnline = is_array($existing['sections_online'] ?? null) ? $existing['sections_online'] : [];
         $prefs['sections_online'] = [];
         foreach ($validSectionsOnline as $s) {
-            $prefs['sections_online'][$s] = isset($input['sections_online'][$s]) ? (bool) $input['sections_online'][$s] : true;
+            if (array_key_exists($s, $input['sections_online'])) {
+                $prefs['sections_online'][$s] = (bool) $input['sections_online'][$s];
+            } elseif (array_key_exists($s, $existingSectionsOnline)) {
+                $prefs['sections_online'][$s] = (bool) $existingSectionsOnline[$s];
+            } else {
+                $prefs['sections_online'][$s] = true;
+            }
         }
-    }
-
-    $existing = [];
-    if (!empty($variant['pdf_preferences'])) {
-        $decoded = is_string($variant['pdf_preferences'])
-            ? json_decode($variant['pdf_preferences'], true)
-            : $variant['pdf_preferences'];
-        if (is_array($decoded)) $existing = $decoded;
     }
 
     $merged = $existing;
