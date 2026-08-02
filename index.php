@@ -272,6 +272,13 @@ $oldLoginEmail = getFlash('old_login_email') ?: null;
 <body>
     <?php partial('header'); ?>
     <main id="main-content" role="main">
+        <?php if (isset($_GET['account_deleted'])): ?>
+            <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+                <div class="rounded-md bg-green-50 border border-green-200 p-4">
+                    <p class="text-sm font-medium text-green-800">Your account has been deleted. We're sorry to see you go.</p>
+                </div>
+            </div>
+        <?php endif; ?>
         <!-- Marketing page for non-logged in users -->
         <?php
         try {

@@ -197,6 +197,15 @@ function stripeCreateBillingPortalSession(string $userId): array {
 }
 
 /**
+ * Cancel a Stripe subscription immediately (not at period end).
+ * Used for self-service account deletion, where we can't leave a subscription
+ * running with nobody able to manage it afterward.
+ */
+function stripeCancelSubscription(string $subscriptionId): array {
+    return stripeRequest('DELETE', '/subscriptions/' . $subscriptionId);
+}
+
+/**
  * Update profile subscription fields based on Stripe data.
  */
 function stripeUpdateProfileSubscription(array $payload): void {

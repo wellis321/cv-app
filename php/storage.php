@@ -257,6 +257,40 @@ function deleteFile($path) {
 }
 
 /**
+ * Recursively delete a directory and everything under it.
+ */
+function deleteDirectoryRecursive($fullPath) {
+    if (!is_dir($fullPath)) {
+        return;
+    }
+    $items = scandir($fullPath);
+    foreach ($items as $item) {
+        if ($item === '.' || $item === '..') {
+            continue;
+        }
+        $itemPath = $fullPath . '/' . $item;
+        if (is_dir($itemPath)) {
+            deleteDirectoryRecursive($itemPath);
+        } else {
+            unlink($itemPath);
+        }
+    }
+    rmdir($fullPath);
+}
+
+/**
+ * Delete all uploaded files belonging to a user (profile photos, project images,
+ * job application attachments). Must be called before deleting the profiles row -
+ * once that row (and its cascading children) is gone, there's no DB record left
+ * to derive these storage paths from.
+ */
+function deleteUserStorage($userId) {
+    foreach (['profiles', 'projects', 'job-applications'] as $bucket) {
+        deleteDirectoryRecursive(STORAGE_PATH . '/' . $bucket . '/' . $userId);
+    }
+}
+
+/**
  * Get file URL
  */
 function getFileUrl($path) {
