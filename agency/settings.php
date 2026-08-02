@@ -8,6 +8,7 @@ require_once __DIR__ . '/../php/helpers.php';
 
 // Load encryption utilities
 require_once __DIR__ . '/../php/encryption.php';
+require_once __DIR__ . '/../php/authorisation.php';
 
 // Require authentication and admin access
 $org = requireOrganisationAccess('admin');
@@ -15,6 +16,7 @@ $org = requireOrganisationAccess('admin');
 $user = getCurrentUser();
 $error = getFlash('error');
 $success = getFlash('success');
+$isSuperAdmin = isSuperAdmin($user['id']);
 
 // Get full organisation details
 $organisation = getOrganisationById($org['organisation_id']);
@@ -315,6 +317,15 @@ if (isPost()) {
         $geminiKey = post('org_gemini_api_key');
         $grokKey = post('org_grok_api_key');
         $browserModel = post('org_browser_ai_model');
+
+        // Ollama's base URL is fetched server-side (see callOllama() in php/ai-service.php),
+        // so letting any org owner/admin set it to an arbitrary URL would be an SSRF hole
+        // (e.g. pointing the server at internal infrastructure or cloud metadata endpoints).
+        // Restricted to super admins, same as the personal ai-settings.php page.
+        if ($aiEnabled && $aiService === 'ollama' && !$isSuperAdmin) {
+            setFlash('error', 'Only super administrators can configure Local Ollama.');
+            redirect('/agency/settings.php');
+        }
 
         // Validate inputs based on selected service
         if ($aiEnabled && $aiService === 'ollama') {
@@ -1297,7 +1308,9 @@ $orgAiSettings = [
                                         <option value="anthropic" <?php echo $orgAiSettings['org_ai_service_preference'] === 'anthropic' ? 'selected' : ''; ?>>Anthropic Claude (Paid)</option>
                                         <option value="gemini" <?php echo $orgAiSettings['org_ai_service_preference'] === 'gemini' ? 'selected' : ''; ?>>Google Gemini (Paid)</option>
                                         <option value="grok" <?php echo $orgAiSettings['org_ai_service_preference'] === 'grok' ? 'selected' : ''; ?>>xAI Grok (Paid)</option>
-                                        <option value="ollama" <?php echo $orgAiSettings['org_ai_service_preference'] === 'ollama' ? 'selected' : ''; ?>>Local Ollama (Free)</option>
+                                        <?php if ($isSuperAdmin): ?>
+                                        <option value="ollama" <?php echo $orgAiSettings['org_ai_service_preference'] === 'ollama' ? 'selected' : ''; ?>>Local Ollama | Free (Admin Only)</option>
+                                        <?php endif; ?>
                                         <option value="browser" <?php echo $orgAiSettings['org_ai_service_preference'] === 'browser' ? 'selected' : ''; ?>>Browser-Based AI (Free)</option>
                                     </select>
                                 </div>
@@ -1362,7 +1375,8 @@ $orgAiSettings = [
                                     </div>
                                 </div>
 
-                                <!-- Ollama Configuration -->
+                                <!-- Ollama Configuration (super admin only - see SSRF note above) -->
+                                <?php if ($isSuperAdmin): ?>
                                 <div id="ollama-fields" style="display: <?php echo $orgAiSettings['org_ai_service_preference'] === 'ollama' ? 'block' : 'none'; ?>;" class="mt-4 space-y-4">
                                     <div>
                                         <label for="org_ollama_base_url" class="block text-base font-semibold text-gray-900 mb-3">Ollama Base URL</label>
@@ -1383,6 +1397,7 @@ $orgAiSettings = [
                                                class="block w-full rounded-lg border-2 border-gray-400 bg-white px-4 py-3 text-base font-medium text-gray-900 shadow-sm transition-colors focus:border-blue-600 focus:ring-4 focus:ring-blue-200 focus:outline-none">
                                     </div>
                                 </div>
+                                <?php endif; ?>
 
                                 <!-- Browser AI Configuration -->
                                 <div id="browser-fields" style="display: <?php echo $orgAiSettings['org_ai_service_preference'] === 'browser' ? 'block' : 'none'; ?>;" class="mt-4 space-y-4">
