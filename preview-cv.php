@@ -136,31 +136,31 @@ $masterVariantId = getOrCreateMasterVariant($userId);
         'variantId' => $variantId ?? null,
     ]); ?>
 
-    <div class="max-w-6xl mx-auto px-4 py-8">
+    <div class="max-w-6xl mx-auto px-4 py-5">
         <?php if (!empty($cvData['variant']['variant_name'])): ?>
         <p class="text-sm text-gray-500 mb-1">Viewing: <?php echo e($cvData['variant']['variant_name']); ?></p>
         <?php endif; ?>
-        <h1 class="text-3xl font-bold text-gray-900 mb-6">Preview & Generate PDF</h1>
+        <h1 class="text-2xl font-bold text-gray-900 mb-4">Preview & Generate PDF</h1>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Section Selection Panel: sticky on wrapper (no overflow); card scrolls when taller than viewport -->
             <div id="generate-pdf" class="lg:col-span-1 lg:sticky lg:top-24 lg:self-start scroll-mt-4">
-                <div class="bg-white shadow rounded-lg p-6 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
+                <div class="bg-white shadow rounded-lg p-4 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
                     <!-- Primary action: always visible -->
                     <button id="generate-pdf-button" onclick="generatePDF()" class="w-full bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 font-semibold text-sm mb-2">
                         Generate PDF
                     </button>
-                    <button type="button" id="update-preview-button" class="w-full bg-gray-100 text-gray-800 px-6 py-2 rounded-md border border-gray-300 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-medium mb-6">
+                    <button type="button" id="update-preview-button" class="w-full bg-gray-100 text-gray-800 px-6 py-2 rounded-md border border-gray-300 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-medium mb-3">
                         Update Preview
                     </button>
                     <?php if (!planPdfEnabled($subscriptionContext)): ?>
-                        <p class="mb-6 text-sm text-gray-500">
+                        <p class="mb-3 text-sm text-gray-500">
                             PDF downloads are available on Pro plans.
                             <a href="/subscription.php" class="text-blue-600 hover:text-blue-800 underline">Upgrade now</a>.
                         </p>
                     <?php endif; ?>
 
-                    <div class="border border-gray-300 bg-gray-50/70 p-2 mb-4">
+                    <div class="border border-gray-300 bg-gray-50/70 p-2">
                         <nav class="space-y-1.5">
                             <a href="/content-editor.php#appearance<?php echo $variantId ? '&variant_id=' . rawurlencode($variantId) : ''; ?>"
                                class="section-nav-item flex items-center gap-2 px-3 py-2.5 border border-l-4 border-gray-300 border-l-gray-300 bg-white shadow-sm text-sm font-medium text-gray-700 transition-all hover:border-gray-400 hover:bg-gray-50 hover:shadow">
@@ -186,9 +186,8 @@ $masterVariantId = getOrCreateMasterVariant($userId);
 
             <!-- Preview Panel -->
             <div class="lg:col-span-2">
-                <div class="bg-white shadow rounded-lg p-6">
-                    <h2 class="text-xl font-semibold mb-4">CV Preview</h2>
-                    <div id="cv-preview" class="border border-gray-200 p-8 bg-white min-h-[600px]">
+                <div class="bg-white shadow rounded-lg p-4">
+                    <div id="cv-preview" class="border border-gray-200 bg-white min-h-[400px]">
                         <!-- Preview will be rendered here -->
                     </div>
                 </div>

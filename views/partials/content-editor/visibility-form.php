@@ -77,10 +77,6 @@ if ($isVariantContext && !empty($cvVariant['pdf_preferences'])) {
 }
 ?>
 <div class="max-w-3xl mx-auto">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">Visibility</h1>
-    </div>
-
     <div class="bg-white shadow rounded-lg p-6 mb-6">
         <h2 class="text-xl font-semibold mb-4">Who Can View Your CV</h2>
 
