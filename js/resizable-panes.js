@@ -207,6 +207,29 @@
             requestAnimationFrame(function() { void mainContent.offsetWidth; window.dispatchEvent(new Event('resize')); });
         }
 
+        // Silent variants for programmatic/contextual collapsing (e.g. Jobs view, which has no
+        // use for the CV section nav) - deliberately skip saveCollapsed() so this doesn't
+        // overwrite the user's own manual preference for actual CV-section browsing.
+        function collapseLeftSilent() {
+            if (leftCollapsed) return;
+            leftCollapsed = true;
+            applyCollapsedState(leftSidebar, rightSidebar, resizeHandle1, resizeHandle2, leftToggleBtn, rightToggleBtn);
+            requestAnimationFrame(function() { void mainContent.offsetWidth; window.dispatchEvent(new Event('resize')); });
+        }
+        function expandLeftSilent() {
+            if (!leftCollapsed) return;
+            leftCollapsed = false;
+            var latest = getSavedWidths();
+            var w = (latest && latest.left) ? latest.left : DEFAULT_LEFT;
+            leftSidebar.style.width = w + 'px';
+            applyCollapsedState(leftSidebar, rightSidebar, resizeHandle1, resizeHandle2, leftToggleBtn, rightToggleBtn);
+            requestAnimationFrame(function() { void mainContent.offsetWidth; window.dispatchEvent(new Event('resize')); });
+        }
+        window.contentEditorLayout = window.contentEditorLayout || {};
+        window.contentEditorLayout.collapseLeftSilent = collapseLeftSilent;
+        window.contentEditorLayout.expandLeftSilent = expandLeftSilent;
+        window.contentEditorLayout.isLeftCollapsed = function() { return leftCollapsed; };
+
         resizeHandle1.addEventListener('dblclick', function(e) {
             e.preventDefault();
             if (leftCollapsed) {
@@ -319,7 +342,8 @@
             if (leftCollapsed && !rightCollapsed) return 'right-middle';
             return 'middle';
         }
-        window.contentEditorLayout = { setLayout: setLayout, getLayout: getLayout };
+        window.contentEditorLayout.setLayout = setLayout;
+        window.contentEditorLayout.getLayout = getLayout;
         try {
             window.dispatchEvent(new CustomEvent('contenteditorlayoutready'));
         } catch (e) {}

@@ -8,6 +8,7 @@
 
     const data = window.contentEditorData || {};
     let currentSectionId = data.currentSectionId || 'professional-summary';
+    let leftSidebarAutoCollapsedForJobs = false;
     let currentGuidance = null;
     let isLoadingSection = false;
     let formHandlersInitialized = false;
@@ -291,6 +292,21 @@
             var hasJobsView = contentArea.querySelector('[data-jobs-view-container]');
             if (mainElement) mainElement.classList.toggle('jobs-view-active', !!hasJobsView);
             contentArea.classList.toggle('jobs-view-active', !!hasJobsView);
+
+            // Jobs view has no use for the CV section nav - free up the width it takes.
+            // Only auto-expand it back on the way out if we're the ones who collapsed it,
+            // so a user who manually closed it for CV editing isn't overridden.
+            if (window.contentEditorLayout) {
+                if (hasJobsView) {
+                    if (!window.contentEditorLayout.isLeftCollapsed()) {
+                        window.contentEditorLayout.collapseLeftSilent();
+                        leftSidebarAutoCollapsedForJobs = true;
+                    }
+                } else if (leftSidebarAutoCollapsedForJobs) {
+                    window.contentEditorLayout.expandLeftSilent();
+                    leftSidebarAutoCollapsedForJobs = false;
+                }
+            }
 
             // Notify nav bar when job view is shown/hidden (for View CV / Edit CV buttons)
             if (hasJobsView) {
