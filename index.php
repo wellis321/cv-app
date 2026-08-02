@@ -70,6 +70,36 @@ if ($requestPath !== '/' && $requestPath !== '/index.php' && $requestPath !== ''
         require $phpFilePath;
         exit;
     }
+
+    // No file, directory, or route above matched - genuine 404 (mirrors Apache: .htaccess
+    // only forwards to index.php when no real file/directory exists at the request path).
+    // Without this, unmatched URLs fell through to the homepage with a 200 status (soft 404).
+    if (!is_dir($filePath)) {
+        http_response_code(404);
+        ?>
+        <!DOCTYPE html>
+        <html lang="en-GB">
+        <head>
+            <?php partial('head', [
+                'pageTitle' => 'Page Not Found | Simple CV Builder',
+                'metaNoindex' => true,
+            ]); ?>
+        </head>
+        <body class="bg-gray-50">
+            <?php partial('header'); ?>
+            <main id="main-content" role="main">
+                <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+                    <h1 class="text-4xl font-bold text-gray-900 mb-4">Page not found</h1>
+                    <p class="text-gray-600 mb-8">The page you're looking for doesn't exist or may have moved.</p>
+                    <a href="/" class="inline-flex items-center px-5 py-3 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700 transition-colors">Go to homepage</a>
+                </div>
+            </main>
+            <?php partial('footer'); ?>
+        </body>
+        </html>
+        <?php
+        exit;
+    }
 }
 
 // Site search (SearchAction structured data target: /?s={search_term_string})
