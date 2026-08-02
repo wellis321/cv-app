@@ -1564,20 +1564,34 @@
     }
 
     function showNotification(type, message) {
+        const color = type === 'success' ? 'green' : 'red';
         const notification = document.createElement('div');
         notification.className = `fixed top-20 left-1/2 transform -translate-x-1/2 z-50 max-w-md w-full`;
         notification.innerHTML = `
-            <div class="bg-${type === 'success' ? 'green' : 'red'}-50 border border-${type === 'success' ? 'green' : 'red'}-200 rounded-md p-4 shadow-lg">
-                <p class="text-sm font-medium text-${type === 'success' ? 'green' : 'red'}-800">${escapeHtml(message)}</p>
+            <div class="bg-${color}-50 border border-${color}-200 rounded-md p-4 shadow-lg flex items-start gap-3">
+                <p class="text-sm font-medium text-${color}-800 flex-1">${escapeHtml(message)}</p>
+                <button type="button" class="flex-shrink-0 text-${color}-500 hover:text-${color}-700" aria-label="Dismiss">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
             </div>
         `;
         document.body.appendChild(notification);
 
-        setTimeout(() => {
+        const dismiss = () => {
             notification.style.transition = 'opacity 0.3s';
             notification.style.opacity = '0';
             setTimeout(() => notification.remove(), 300);
-        }, 5000);
+        };
+        notification.querySelector('button').addEventListener('click', dismiss);
+
+        // Longer messages get more time; hovering pauses the timer so it doesn't
+        // disappear mid-read.
+        const duration = Math.max(5000, Math.min(12000, message.length * 60));
+        let dismissTimer = setTimeout(dismiss, duration);
+        notification.addEventListener('mouseenter', () => clearTimeout(dismissTimer));
+        notification.addEventListener('mouseleave', () => {
+            dismissTimer = setTimeout(dismiss, 3000);
+        });
     }
 
     function escapeHtml(text) {
