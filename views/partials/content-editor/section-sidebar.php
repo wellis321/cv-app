@@ -116,7 +116,7 @@ $profileComplete = !empty($profileRow['full_name']) && !empty($profileRow['usern
             <!-- Personal Profile / Visibility / Appearance – always fixed at top, never reorderable -->
             <div class="border border-gray-300 bg-gray-50/70 p-2 mb-3">
                 <nav class="space-y-1.5">
-                    <a href="/profile.php"
+                    <a href="#profile"
                        class="section-nav-item flex items-center justify-between gap-2 px-3 py-2.5 border border-l-4 border-gray-300 border-l-gray-300 bg-white shadow-sm text-sm font-medium text-gray-700 transition-all hover:border-gray-400 hover:bg-gray-50 hover:shadow"
                        data-section-id="profile">
                         <div class="flex items-center min-w-0">

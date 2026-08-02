@@ -6,7 +6,7 @@ $userId = isset($user) && is_array($user) && isset($user['id']) ? $user['id'] : 
 
 // Define CV sections
 $cvSections = [
-    ['id' => 'profile', 'name' => 'Personal Profile', 'path' => '/profile.php', 'description' => 'Your basic information and contact details'],
+    ['id' => 'profile', 'name' => 'Personal Profile', 'path' => '/content-editor.php#profile', 'description' => 'Your basic information and contact details'],
     ['id' => 'professional-summary', 'name' => 'Professional Summary', 'path' => '/content-editor.php#professional-summary', 'description' => 'Overview of your professional background'],
     ['id' => 'work-experience', 'name' => 'Work Experience', 'path' => '/content-editor.php#work-experience', 'description' => 'Your employment history'],
     ['id' => 'education', 'name' => 'Education', 'path' => '/content-editor.php#education', 'description' => 'Your educational qualifications'],

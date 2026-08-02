@@ -101,7 +101,7 @@
                         <?php endif; ?>
                         <div class="relative group inline-flex items-stretch">
                             <div class="inline-flex items-stretch rounded-md border border-gray-300 overflow-hidden">
-                                <a href="/profile.php" class="inline-flex items-center px-3 py-2 text-xs md:text-sm font-medium transition-colors whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-inset <?php echo $isProfile ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-800'; ?>">Profile</a>
+                                <a href="/profile.php" class="inline-flex items-center px-3 py-2 text-xs md:text-sm font-medium transition-colors whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-inset <?php echo $isProfile ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-800'; ?>">Account</a>
                                 <button type="button" aria-haspopup="true" aria-expanded="false" class="inline-flex items-center px-2 py-2 border-l border-gray-300 text-xs md:text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 <?php echo $isProfile || $currentPage === 'ai-settings.php' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-800'; ?>">
                                     <svg class="h-3 w-3 md:h-4 md:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                                 </button>
@@ -166,7 +166,7 @@
                         </div>
                         <div class="relative group inline-flex items-stretch">
                             <div class="inline-flex items-stretch rounded-md border border-gray-300 overflow-hidden">
-                                <a href="/profile.php" class="inline-flex items-center px-3 py-2 text-xs md:text-sm font-medium transition-colors whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-inset <?php echo $isProfile ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-800'; ?>">Profile</a>
+                                <a href="/profile.php" class="inline-flex items-center px-3 py-2 text-xs md:text-sm font-medium transition-colors whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-inset <?php echo $isProfile ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-800'; ?>">Account</a>
                                 <button type="button" aria-haspopup="true" aria-expanded="false" class="inline-flex items-center px-2 py-2 border-l border-gray-300 text-xs md:text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 <?php echo $isProfile || $currentPage === 'ai-settings.php' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-800'; ?>">
                                     <svg class="h-3 w-3 md:h-4 md:w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                                 </button>
@@ -561,11 +561,11 @@
                         Subscription
                     </a>
                     <div class="px-4 py-2 text-base font-semibold text-gray-900 border-t border-gray-200 mt-2 pt-4">
-                        Profile
+                        Account
                     </div>
-                    <a href="/profile.php" 
+                    <a href="/profile.php"
                        class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $currentPage === 'profile.php' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-800'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        Profile
+                        Account
                     </a>
                     <a href="/ai-settings.php" 
                        class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo $currentPage === 'ai-settings.php' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-800'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
