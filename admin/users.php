@@ -75,6 +75,47 @@ if (isPost() && post('action') === 'grant_lifetime') {
     redirect('/admin/users.php' . ($search ? '?search=' . urlencode($search) : ''));
 }
 
+// Handle delete user action
+if (isPost() && post('action') === 'delete_user') {
+    if (!verifyCsrfToken(post(CSRF_TOKEN_NAME))) {
+        setFlash('error', 'Invalid security token.');
+        redirect('/admin/users.php');
+    }
+    $targetUserId = sanitizeInput(post('user_id') ?? '');
+    if (empty($targetUserId)) {
+        setFlash('error', 'No user specified.');
+        redirect('/admin/users.php');
+    }
+    if ($targetUserId === $user['id']) {
+        setFlash('error', "You can't delete your own account.");
+        redirect('/admin/users.php');
+    }
+    $targetUser = db()->fetchOne("SELECT id, email, username, is_super_admin FROM profiles WHERE id = ?", [$targetUserId]);
+    if (!$targetUser) {
+        setFlash('error', 'User not found.');
+        redirect('/admin/users.php');
+    }
+    if (!empty($targetUser['is_super_admin'])) {
+        setFlash('error', "Can't delete another super admin from here - remove their super admin status first.");
+        redirect('/admin/users.php');
+    }
+
+    // Log before deleting - profiles.id is a foreign key from activity_log.target_user_id,
+    // so a NEW log row can't reference an id that no longer exists once the delete below runs.
+    logActivity('admin.user.deleted', $targetUserId, [
+        'email' => $targetUser['email'],
+        'username' => $targetUser['username'],
+    ], null);
+
+    // All CV content (work experience, education, CVs, cover letters, etc.) cascades via
+    // the profiles foreign keys; audit/log tables keep their rows with the reference nulled
+    // out instead (SET NULL), so this doesn't erase the admin trail of what happened.
+    db()->delete('profiles', 'id = ?', [$targetUserId]);
+
+    setFlash('success', 'User account deleted.');
+    redirect('/admin/users.php' . ($search ? '?search=' . urlencode($search) : ''));
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -260,6 +301,16 @@ if (isPost() && post('action') === 'grant_lifetime') {
                                                     <input type="hidden" name="user_id" value="<?php echo e($u['id']); ?>">
                                                     <button type="submit" class="text-purple-600 hover:text-purple-900 font-medium">
                                                         Grant Lifetime
+                                                    </button>
+                                                </form>
+                                            <?php endif; ?>
+                                            <?php if ($u['id'] !== $user['id'] && empty($u['is_super_admin'])): ?>
+                                                <form method="POST" class="inline" onsubmit="return confirm('Permanently delete <?php echo e(addslashes($u['email'])); ?> and all of their CV data? This cannot be undone.');">
+                                                    <input type="hidden" name="<?php echo CSRF_TOKEN_NAME; ?>" value="<?php echo csrfToken(); ?>">
+                                                    <input type="hidden" name="action" value="delete_user">
+                                                    <input type="hidden" name="user_id" value="<?php echo e($u['id']); ?>">
+                                                    <button type="submit" class="text-red-600 hover:text-red-900 font-medium">
+                                                        Delete
                                                     </button>
                                                 </form>
                                             <?php endif; ?>
