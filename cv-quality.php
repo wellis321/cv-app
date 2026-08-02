@@ -13,6 +13,7 @@ $error = getFlash('error');
 $success = getFlash('success');
 
 $variantId = $_GET['variant_id'] ?? null;
+$navVariantId = $variantId; // raw query value, before the master-CV fallback below overwrites $variantId
 $jobApplicationId = $_GET['job_application_id'] ?? null;
 
 // Get latest assessment or trigger new one
@@ -120,6 +121,11 @@ if (isPost() && isset($_POST['action']) && $_POST['action'] === 'assess') {
 </head>
 <body class="bg-gray-50">
     <?php partial('header'); ?>
+    <?php partial('content-editor/cv-nav-bar', [
+        'cvVariants' => getUserCvVariants($user['id']),
+        'masterVariantId' => getOrCreateMasterVariant($user['id']),
+        'variantId' => $navVariantId,
+    ]); ?>
 
     <main id="main-content" class="py-6">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">

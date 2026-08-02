@@ -185,7 +185,8 @@ export function render(container, { cvData, profile, sections, includePhoto, inc
             if (includeResponsibilitiesInPdf !== false && item.responsibility_categories && item.responsibility_categories.length > 0) {
                 item.responsibility_categories.forEach((cat) => {
                     if (cat.items && cat.items.length) {
-                        workHtml += `<div class="mb-3"><h4 class="font-semibold text-gray-800 mb-1 text-sm">${escapeHtml(cat.name)}:</h4><ul class="list-disc space-y-1 pl-5 text-sm text-gray-700">`;
+                        const heading = cat.name ? `<h4 class="font-semibold text-gray-800 mb-1 text-sm">${escapeHtml(cat.name)}:</h4>` : '';
+                        workHtml += `<div class="mb-3">${heading}<ul class="list-disc space-y-1 pl-5 text-sm text-gray-700">`;
                         cat.items.forEach((r) => { workHtml += `<li>${escapeHtml(r.content)}</li>`; });
                         workHtml += '</ul></div>';
                     }

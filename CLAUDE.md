@@ -188,3 +188,4 @@ db()->delete('table_name', 'id = ? AND profile_id = ?', [$id, $userId]);
 - **No automated tests**: Manual testing required
 - **Debugging**: Set `APP_ENV=development` in `.env` for error display
 - **Documentation**: See `docs/` for security audits, Stripe setup, production checklists
+- **Icons**: Never use emoji or Unicode dingbat characters (e.g. `&#8618;`, `↳`, `⚠️`) as UI icons — they render inconsistently across platforms (some show as colored emoji glyphs instead of plain symbols). Always use inline SVG icons matching the existing style used throughout the app (`viewBox="0 0 24 24"`, `stroke="currentColor"`, `stroke-linecap="round"`, `stroke-linejoin="round"`, `stroke-width="2"` — see `views/partials/content-editor/section-sidebar.php` for examples). Plain punctuation (e.g. `&mdash;` for an empty-state placeholder) is fine — this rule is about icons/symbols, not general typography.

@@ -52,8 +52,12 @@ if ($requestPath === '/sitemap.xml') {
 
 // Don't process as homepage if it's a specific file request
 if ($requestPath !== '/' && $requestPath !== '/index.php' && $requestPath !== '') {
-    // Check if the requested file exists
     $filePath = __DIR__ . $requestPath;
+    // PHP built-in server router: return false so the server serves real static files.
+    // Without this, GET /static/css/*.css falls through and this script wrongly outputs HTML as the "stylesheet".
+    if (file_exists($filePath) && is_file($filePath) && strtolower(pathinfo($filePath, PATHINFO_EXTENSION)) !== 'php') {
+        return false;
+    }
     $phpFilePath = __DIR__ . $requestPath . '.php';
     if (file_exists($filePath) && is_file($filePath) && pathinfo($filePath, PATHINFO_EXTENSION) === 'php') {
         // Serve the file directly

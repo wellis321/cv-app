@@ -239,6 +239,58 @@ function getSectionGuidance($sectionId) {
                 'Forgetting to link variants to jobs - Makes it harder to track which CV was used for which application',
                 'Not keeping Master CV updated - Outdated base CV affects all variants'
             ]
+        ],
+        'profile' => [
+            'title' => 'Personal Profile',
+            'description' => 'Your profile is the first thing employers see - your name, photo, contact details, and strapline set the tone for your whole CV.',
+            'tips' => [
+                'Use a professional headshot - a clear, friendly photo builds trust; avoid casual selfies or group photos',
+                'Keep your strapline punchy - one sentence saying who you are and what you do, not a mini-summary (that belongs in Professional Summary)',
+                'Double-check your phone number and location - these are often the first things a recruiter checks',
+                'Link to your actual LinkedIn profile, not your homepage or a search results page',
+                'Keep contact details current - update this whenever your email, phone, or location changes'
+            ],
+            'examples' => [],
+            'common_mistakes' => [
+                'Using a photo that\'s outdated, low-quality, or unprofessional',
+                'Writing a strapline that duplicates your Professional Summary',
+                'Leaving location blank - many employers filter by it',
+                'Linking to a broken or personal (non-professional) LinkedIn URL'
+            ]
+        ],
+        'visibility' => [
+            'title' => 'Visibility',
+            'description' => 'Control who can see your CV and what appears in each version - the online link and the exported PDF don\'t have to show the same thing.',
+            'tips' => [
+                'Public is best for job hunting - recruiters can open your link without logging in',
+                'Use Organisation Only if you\'re sharing internally, e.g. with a career coach or your employer\'s HR team',
+                'The Online CV and PDF can differ - e.g. hide your photo online but include it in a PDF you email directly',
+                'Turning a section off here removes it everywhere it\'s toggled off - check both the Online CV and PDF columns before saving',
+                'If a template limits how many skills fit, use Select Skills to choose your strongest ones rather than letting it cut the list off arbitrarily'
+            ],
+            'examples' => [],
+            'common_mistakes' => [
+                'Setting your CV to Private, then wondering why a shared link doesn\'t work',
+                'Forgetting the PDF and Online CV toggles are independent - turning one off doesn\'t turn off the other',
+                'Leaving photo or section settings mismatched between the Online and PDF versions'
+            ]
+        ],
+        'appearance' => [
+            'title' => 'Appearance',
+            'description' => 'Your template and colours affect how your CV reads at a glance - match the tone to the role and industry you\'re applying for.',
+            'tips' => [
+                'Choose a conservative template and colour for corporate, legal, or finance roles',
+                'A bolder colour or more modern template can work well for creative, marketing, or startup roles',
+                'Stick to one accent colour - it should highlight headings and links, not compete with your content',
+                'Check Preview & PDF after changing your template - it shows exactly what a downloaded CV looks like',
+                'High-contrast combinations (e.g. dark text on a light background) are easier to read and print more reliably'
+            ],
+            'examples' => [],
+            'common_mistakes' => [
+                'Picking a bright or unusual colour that looks unprofessional printed in black and white',
+                'Changing template without checking how existing content reflows in the new layout',
+                'Using low-contrast colour combinations that are hard to read on screen or in print'
+            ]
         ]
     ];
 

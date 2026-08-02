@@ -307,7 +307,9 @@ function buildWorkExperienceSection($settings, $colors, $spacing) {
         $html .= '<div class="mt-2 space-y-2">';
         $html .= '{% for cat in work.responsibility_categories %}';
         $html .= '<div>';
+        $html .= '{% if cat.name is defined and cat.name|length > 0 %}';
         $html .= '<h4 class="font-semibold text-sm" style="color: ' . htmlspecialchars($textColor) . ';">{{ cat.name|escape }}</h4>';
+        $html .= '{% endif %}';
         $html .= '{% if cat.items is defined and cat.items|length > 0 %}';
         $html .= '<ul class="list-disc list-inside ml-2 space-y-1">';
         $html .= '{% for item in cat.items %}';
