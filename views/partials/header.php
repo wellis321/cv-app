@@ -99,6 +99,7 @@
                                 </div>
                             </div>
                         <?php endif; ?>
+                        <a href="/dashboard.php" class="inline-flex items-center px-3 py-2 text-xs md:text-sm font-medium transition-colors whitespace-nowrap rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 <?php echo $isDashboard ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-800'; ?>">Dashboard</a>
                         <a href="/profile.php" class="inline-flex items-center px-3 py-2 text-xs md:text-sm font-medium transition-colors whitespace-nowrap rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 <?php echo $isProfile ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-800'; ?>">Account</a>
                         <?php if ($isAgencyPage): ?>
                             <div class="relative group">
@@ -152,6 +153,7 @@
                                 </a>
                             </div>
                         </div>
+                        <a href="/dashboard.php" class="inline-flex items-center px-3 py-2 text-xs md:text-sm font-medium transition-colors whitespace-nowrap rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 <?php echo $isDashboard ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-800'; ?>">Dashboard</a>
                         <a href="/profile.php" class="inline-flex items-center px-3 py-2 text-xs md:text-sm font-medium transition-colors whitespace-nowrap rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 <?php echo $isProfile ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-800'; ?>">Account</a>
                     <?php endif; ?>
                     <!-- Features link - available to all logged-in users -->
@@ -463,6 +465,10 @@
                         <?php
                         $isCvPage = in_array($currentPage, ['dashboard.php', 'preview-cv.php', 'cv.php', 'cv-variants.php', 'cv-quality.php', 'content-editor.php']) || strpos($_SERVER['REQUEST_URI'], '/cv-variants/') !== false;
                         ?>
+                        <a href="/dashboard.php"
+                           class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $isDashboard ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-800'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            Dashboard
+                        </a>
                         <div class="px-4 py-2 text-base font-semibold text-gray-900 border-t border-gray-200 mt-2 pt-4">
                             CV
                         </div>
@@ -505,6 +511,10 @@
                         <?php
                         $isCvPage = in_array($currentPage, ['dashboard.php', 'preview-cv.php', 'cv.php', 'cv-variants.php', 'cv-quality.php', 'content-editor.php']) || strpos($_SERVER['REQUEST_URI'], '/cv-variants/') !== false;
                         ?>
+                        <a href="/dashboard.php"
+                           class="block px-4 py-2 rounded-md text-base font-medium transition-colors <?php echo $isDashboard ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-800'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            Dashboard
+                        </a>
                         <div class="px-4 py-2 text-base font-semibold text-gray-900 border-t border-gray-200 mt-2 pt-4">
                             CV
                         </div>

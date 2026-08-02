@@ -209,7 +209,7 @@ if (isPost()) {
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                             Edit My CV
                         </a>
-                        <a href="/dashboard.php" class="px-4 py-2 text-gray-700 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50">Cancel</a>
+                        <button type="button" onclick="cancelAccountEdit()" class="px-4 py-2 text-gray-700 hover:text-gray-900 border border-gray-300 rounded-md hover:bg-gray-50">Cancel</button>
                         <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                             Save
                         </button>
@@ -494,6 +494,16 @@ if (isPost()) {
         function updateUsernamePreview(value) {
             const preview = document.getElementById('username-preview');
             if (preview) preview.textContent = value || 'username';
+        }
+
+        // "Cancel" discards edits by returning to wherever the user came from,
+        // rather than always jumping to the Dashboard regardless of context.
+        function cancelAccountEdit() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = '/dashboard.php';
+            }
         }
 
         // Delete account modal
