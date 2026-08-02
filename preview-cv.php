@@ -160,7 +160,7 @@ $masterVariantId = getOrCreateMasterVariant($userId);
         <?php endif; ?>
         <h1 class="text-2xl font-bold text-gray-900 mb-4">Preview & Generate PDF</h1>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
             <!-- Section Selection Panel: sticky on wrapper (no overflow); card scrolls when taller than viewport -->
             <div id="generate-pdf" class="lg:col-span-1 lg:sticky lg:top-24 lg:self-start scroll-mt-4">
                 <div class="bg-white shadow rounded-lg p-4 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
@@ -203,7 +203,7 @@ $masterVariantId = getOrCreateMasterVariant($userId);
             </div>
 
             <!-- Preview Panel -->
-            <div class="lg:col-span-2">
+            <div class="lg:col-span-4">
                 <div class="bg-white shadow rounded-lg p-4">
                     <div id="cv-preview" class="border border-gray-200 bg-white min-h-[400px]">
                         <!-- Preview will be rendered here -->
