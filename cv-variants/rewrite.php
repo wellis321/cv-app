@@ -190,7 +190,7 @@ $suggestedVariantName = suggestUniqueVariantName($user['id'], 'AI-Generated CV')
                         </div>
                         <p class="mt-2 text-sm text-gray-500">
                             <a href="/cv-prompt-settings.php" class="text-blue-600 hover:text-blue-800">Manage saved instructions</a> or 
-                            <a href="/resources/ai/prompt-best-practices.php" class="text-blue-600 hover:text-blue-800">learn best practices</a>
+                            <a href="/help/guides/ai-prompts.php" class="text-blue-600 hover:text-blue-800">learn best practices</a>
                         </p>
                     </div>
 
@@ -315,7 +315,7 @@ $suggestedVariantName = suggestUniqueVariantName($user['id'], 'AI-Generated CV')
                             <div class="ml-3">
                                 <p class="text-sm text-yellow-700">
                                     <strong>Cost Notice:</strong> You're using a paid AI service. This generation will incur API costs. 
-                                    <a href="/ai-settings.php" class="underline font-semibold">Switch to free options (Local Ollama or Browser-Based AI)</a> to avoid charges.
+                                    <a href="/ai-settings.php" class="underline font-semibold">Switch to a free option (Browser-Based AI)</a> to avoid charges.
                                 </p>
                             </div>
                         </div>

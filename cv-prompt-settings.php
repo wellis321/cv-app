@@ -81,7 +81,7 @@ $instructionsToEdit = !empty($currentInstructions) ? $currentInstructions : $def
                         <div class="mt-2 text-sm text-blue-700">
                             <p>You can customise the instructions that guide the AI when rewriting your CV. These instructions are merged with the default system instructions to ensure proper formatting and structure.</p>
                             <p class="mt-2">
-                                <a href="/resources/ai/prompt-best-practices.php" class="text-blue-600 hover:text-blue-800 underline">Learn best practices for writing effective prompts</a>
+                                <a href="/help/guides/ai-prompts.php" class="text-blue-600 hover:text-blue-800 underline">Learn best practices for writing effective prompts</a>
                             </p>
                         </div>
                     </div>
@@ -172,7 +172,7 @@ $instructionsToEdit = !empty($currentInstructions) ? $currentInstructions : $def
                     </li>
                 </ul>
                 <p class="mt-4 text-sm text-gray-600">
-                    <a href="/resources/ai/prompt-best-practices.php" class="text-blue-600 hover:text-blue-800 underline">Read the full guide for more detailed tips and examples</a>
+                    <a href="/help/guides/ai-prompts.php" class="text-blue-600 hover:text-blue-800 underline">Read the full guide for more detailed tips and examples</a>
                 </p>
             </div>
         </div>

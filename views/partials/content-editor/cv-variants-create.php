@@ -331,7 +331,7 @@ $preselectJobId = isset($_GET['job']) ? $_GET['job'] : null;
                     <div class="ml-3">
                         <p class="text-sm text-yellow-700">
                             <strong>Cost Notice:</strong> You're using a paid AI service. This generation will incur API costs. 
-                            <a href="/ai-settings.php" target="_blank" class="underline font-semibold">Switch to free options (Local Ollama or Browser-Based AI)</a> to avoid charges.
+                            <a href="/ai-settings.php" target="_blank" class="underline font-semibold">Switch to a free option (Browser-Based AI)</a> to avoid charges.
                         </p>
                     </div>
                 </div>

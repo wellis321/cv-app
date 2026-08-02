@@ -19,7 +19,6 @@ function getSiteSearchIndex() {
         ['title' => 'Entry-Level Healthcare Careers (UK)', 'description' => 'Healthcare careers you can start without a degree. Entry-level roles, training, salaries.', 'url' => '/blog/job-search/entry-level-healthcare-careers.php', 'category' => 'Job Search'],
         ['title' => 'AI Model Guide', 'description' => 'Choose the best AI model for CV rewriting, cover letters, and application questions. Works with Ollama and Browser AI.', 'url' => '/help/ai-models.php', 'category' => 'Help'],
         ['title' => 'Frequently Asked Questions', 'description' => 'How to create your CV, pricing, job tracking, AI cover letters, PDF export, and more.', 'url' => '/help/faq.php', 'category' => 'Help'],
-        ['title' => 'Setup Ollama with Llama 3', 'description' => 'Learn how to set up Ollama with Llama 3 on your computer to use local AI for CV rewriting and quality assessment.', 'url' => '/help/setup/ollama.php', 'category' => 'Help'],
         ['title' => 'Extension Setup Guide', 'description' => 'Complete guide for installing and configuring the Simple CV Builder browser extension to save jobs from any website.', 'url' => '/help/setup/extension.php', 'category' => 'Help'],
         ['title' => 'CV Prompt Best Practices', 'description' => 'Learn how to write effective prompts for AI CV rewriting to get better results.', 'url' => '/help/guides/ai-prompts.php', 'category' => 'Help'],
     ];

@@ -173,9 +173,6 @@
                             <a href="/help/faq.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo strpos($reqUri, '/help/faq') !== false ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-800'; ?> focus:outline-none focus:bg-blue-100">
                                 FAQ
                             </a>
-                            <a href="/help/setup/ollama.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo strpos($reqUri, '/help/setup/ollama') !== false ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-800'; ?> focus:outline-none focus:bg-blue-100">
-                                Ollama Setup
-                            </a>
                             <a href="/help/setup/extension.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo strpos($reqUri, '/help/setup/extension') !== false ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-800'; ?> focus:outline-none focus:bg-blue-100">
                                 Extension Setup
                             </a>
@@ -386,9 +383,6 @@
                             <a href="/help/faq.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo strpos($reqUri, '/help/faq') !== false ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-800'; ?> focus:outline-none focus:bg-blue-100">
                                 FAQ
                             </a>
-                            <a href="/help/setup/ollama.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo strpos($reqUri, '/help/setup/ollama') !== false ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-800'; ?> focus:outline-none focus:bg-blue-100">
-                                Ollama Setup
-                            </a>
                             <a href="/help/setup/extension.php" role="menuitem" class="block px-4 py-2 text-sm font-medium transition-colors <?php echo strpos($reqUri, '/help/setup/extension') !== false ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-800'; ?> focus:outline-none focus:bg-blue-100">
                                 Extension Setup
                             </a>
@@ -558,10 +552,6 @@
                        class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo strpos($reqUri, '/help/faq') !== false ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-800'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
                         FAQ
                     </a>
-                    <a href="/help/setup/ollama.php" 
-                       class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo strpos($reqUri, '/help/setup/ollama') !== false ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-800'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        Ollama Setup
-                    </a>
                     <a href="/help/setup/extension.php" 
                        class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo strpos($reqUri, '/help/setup/extension') !== false ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-800'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
                         Extension Setup
@@ -652,10 +642,6 @@
                     <a href="/help/faq.php" 
                        class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo strpos($reqUri, '/help/faq') !== false ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-800'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
                         FAQ
-                    </a>
-                    <a href="/help/setup/ollama.php" 
-                       class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo strpos($reqUri, '/help/setup/ollama') !== false ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-800'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        Ollama Setup
                     </a>
                     <a href="/help/setup/extension.php" 
                        class="block px-4 py-2 rounded-md text-base font-medium transition-colors pl-6 text-sm <?php echo strpos($reqUri, '/help/setup/extension') !== false ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-blue-100 hover:text-blue-800'; ?> focus:outline-none focus:ring-2 focus:ring-blue-500">

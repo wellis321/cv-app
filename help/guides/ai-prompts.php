@@ -198,15 +198,6 @@ $canonicalUrl = APP_URL . '/help/guides/ai-prompts.php';
                     
                     <div class="bg-white rounded-lg shadow p-6 space-y-4">
                         <div>
-                            <h3 class="font-semibold text-gray-900 mb-2">Ollama (Local Models)</h3>
-                            <ul class="list-disc list-inside text-sm text-gray-700 space-y-1">
-                                <li>Be more explicit and detailed in instructions</li>
-                                <li>Repeat important points for emphasis</li>
-                                <li>Use clear, simple language</li>
-                                <li>May require more specific examples</li>
-                            </ul>
-                        </div>
-                        <div>
                             <h3 class="font-semibold text-gray-900 mb-2">OpenAI (GPT Models)</h3>
                             <ul class="list-disc list-inside text-sm text-gray-700 space-y-1">
                                 <li>Can handle more nuanced instructions</li>
@@ -247,7 +238,6 @@ $canonicalUrl = APP_URL . '/help/guides/ai-prompts.php';
                 <section class="mt-12 pt-8 border-t border-gray-200">
                     <h2 class="text-lg font-semibold text-gray-900 mb-3">Related guides</h2>
                     <ul class="space-y-2 text-sm">
-                        <li><a href="/help/setup/ollama.php" class="text-blue-600 hover:text-blue-800 underline">Setup Ollama with Llama 3</a> — use local AI for CV rewriting</li>
                         <li><a href="/blog/" class="text-blue-600 hover:text-blue-800 underline">All blog articles</a> — job tips, career advice, extra income</li>
                     </ul>
                 </section>

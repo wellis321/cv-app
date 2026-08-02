@@ -319,7 +319,7 @@ if (isPost()) {
                     <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                         <p class="text-sm text-gray-700 mb-2">
                             <strong>Need setup instructions?</strong> 
-                            <a href="/resources/ai/setup-ollama.php" class="text-blue-600 hover:text-blue-800 underline font-medium">View complete setup guide for Local Ollama and Browser-Based AI →</a>
+                            <a href="/help/setup/ollama.php" class="text-blue-600 hover:text-blue-800 underline font-medium">View complete setup guide for Local Ollama and Browser-Based AI →</a>
                         </p>
                         <p class="text-sm text-gray-700">
                             For external API setup, see the configuration sections below when you select a service.
@@ -329,7 +329,7 @@ if (isPost()) {
                     <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                         <p class="text-sm text-gray-700 mb-2">
                             <strong>Need setup instructions?</strong> 
-                            <a href="/resources/ai/setup-ollama.php" class="text-blue-600 hover:text-blue-800 underline font-medium">View complete setup guide for Browser-Based AI →</a>
+                            <a href="/help/setup/ollama.php" class="text-blue-600 hover:text-blue-800 underline font-medium">View complete setup guide for Browser-Based AI →</a>
                         </p>
                         <p class="text-sm text-gray-700">
                             For external API setup, see the configuration sections below when you select a service.
@@ -463,7 +463,7 @@ if (isPost()) {
                             <p class="text-sm text-gray-700 mb-2">
                                 <strong>Need help setting up Local Ollama?</strong> Follow our complete step-by-step guide to install and configure Ollama on your computer.
                             </p>
-                            <a href="/resources/ai/setup-ollama.php" class="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 font-medium underline">
+                            <a href="/help/setup/ollama.php" class="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 font-medium underline">
                                 View Complete Ollama Setup Guide →
                             </a>
                         </div>
@@ -788,7 +788,7 @@ if (isPost()) {
                             <p class="text-sm text-gray-700 mb-2">
                                 <strong>Need help getting started?</strong> Check our complete setup guide for browser compatibility, requirements, and model selection.
                             </p>
-                            <a href="/resources/ai/setup-ollama.php#browser-based-ai" class="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 font-medium underline">
+                            <a href="/help/setup/ollama.php#browser-based-ai" class="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 font-medium underline">
                                 View Complete Browser-Based AI Setup Guide →
                             </a>
                         </div>

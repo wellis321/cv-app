@@ -168,8 +168,8 @@ if (isPost() && isset($_POST['action']) && $_POST['action'] === 'assess') {
                         </div>
                         <div class="ml-3">
                             <p class="text-sm text-yellow-700">
-                                <strong>Cost Notice:</strong> You're using a paid AI service. This assessment will incur API costs. 
-                                <a href="/ai-settings.php" class="underline font-semibold">Switch to free options (Local Ollama or Browser-Based AI)</a> to avoid charges.
+                                <strong>Cost Notice:</strong> You're using a paid AI service. This assessment will incur API costs.
+                                <a href="/ai-settings.php" class="underline font-semibold">Switch to a free option (Browser-Based AI)</a> to avoid charges.
                             </p>
                         </div>
                     </div>
@@ -179,9 +179,6 @@ if (isPost() && isset($_POST['action']) && $_POST['action'] === 'assess') {
                 <div class="bg-white rounded-lg border border-gray-200 p-4">
                     <div class="flex justify-between items-center mb-2">
                         <label class="block text-sm font-medium text-gray-700">Select CV to Assess</label>
-                        <a href="/resources/ai/setup-ollama.php" class="text-xs text-purple-600 hover:text-purple-700 underline">
-                            Setup Local AI
-                        </a>
                     </div>
                     <select id="variant-select" 
                             onchange="window.location.href='/cv-quality.php?variant_id=' + (this.value || '')"
