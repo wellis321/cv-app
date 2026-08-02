@@ -61,7 +61,6 @@ $colourPresetOptions = [
     </div>
 
     <div class="bg-white shadow rounded-lg p-6 mb-6">
-        <h2 class="text-xl font-semibold mb-4">Template &amp; Header Colours</h2>
         <form method="POST" data-section-form data-form-type="update">
             <input type="hidden" name="<?php echo CSRF_TOKEN_NAME; ?>" value="<?php echo csrfToken(); ?>">
             <input type="hidden" name="action" value="update">
@@ -71,7 +70,7 @@ $colourPresetOptions = [
             <?php endif; ?>
 
             <div class="mb-6">
-                <label for="appearance-template-select" class="block text-sm font-medium text-gray-700 mb-2">Template</label>
+                <label for="appearance-template-select" class="block text-sm font-medium text-gray-700 mb-2">Select your template</label>
                 <select id="appearance-template-select" name="preferred_template_id" data-current-template="<?php echo e($currentTemplateId); ?>" data-allowed-template-ids="<?php echo e(json_encode($subscriptionFrontendContext['allowedTemplateIds'] ?? [])); ?>" class="w-full bg-white border-2 border-gray-300 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 cursor-pointer hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500">
                     <option value="<?php echo e($currentTemplateId); ?>">Loading templates…</option>
                 </select>

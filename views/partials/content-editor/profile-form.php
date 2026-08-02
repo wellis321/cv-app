@@ -10,8 +10,14 @@ $photoUrl = $profile['photo_url'] ?? null;
 ?>
 <div class="max-w-3xl mx-auto">
     <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">Profile</h1>
-        <a href="/profile.php" class="text-sm text-gray-600 hover:text-gray-900">Username, password &amp; account settings &rarr;</a>
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Personal Profile</h1>
+            <p class="text-sm text-gray-500 mt-0.5">The identity details shown on your CV - name, contact info, and photo.</p>
+        </div>
+        <a href="/profile.php" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-50 border border-gray-300 hover:bg-gray-100 hover:text-gray-900 transition-colors whitespace-nowrap">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            Account Settings
+        </a>
     </div>
 
     <div class="bg-white shadow rounded-lg p-6 mb-6">
@@ -43,18 +49,18 @@ $photoUrl = $profile['photo_url'] ?? null;
             </div>
             <div class="flex-1">
                 <div class="flex gap-3 flex-wrap" id="profile-photo-buttons">
-                    <label class="cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 inline-flex items-center gap-2">
+                    <label class="cursor-pointer bg-white text-gray-700 border border-gray-300 px-4 py-2 hover:bg-gray-50 hover:border-gray-400 inline-flex items-center gap-2 text-sm font-medium transition-colors">
                         <input type="file" id="profile-photo-capture" accept="image/*" capture="user" class="hidden">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                         <span>Take Photo</span>
                     </label>
-                    <label class="cursor-pointer bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 inline-flex items-center gap-2">
+                    <label class="cursor-pointer bg-white text-gray-700 border border-gray-300 px-4 py-2 hover:bg-gray-50 hover:border-gray-400 inline-flex items-center gap-2 text-sm font-medium transition-colors">
                         <input type="file" id="profile-photo-upload" accept="image/*" class="hidden">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
                         <span>Upload Photo</span>
                     </label>
                     <?php if (!empty($photoUrl)): ?>
-                        <button type="button" id="profile-photo-delete" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 inline-flex items-center gap-2">
+                        <button type="button" id="profile-photo-delete" class="bg-white text-red-600 border border-red-300 px-4 py-2 hover:bg-red-50 hover:border-red-400 inline-flex items-center gap-2 text-sm font-medium transition-colors">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                             <span>Delete Photo</span>
                         </button>
