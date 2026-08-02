@@ -25,7 +25,7 @@ if (!$isVariantContext) {
     if ($editingId) {
         $editingInterest = db()->fetchOne("SELECT * FROM interests WHERE id = ? AND profile_id = ?", [$editingId, $userId]);
     }
-    $interests = db()->fetchAll("SELECT * FROM interests WHERE profile_id = ? ORDER BY name ASC", [$userId]);
+    $interests = db()->fetchAll("SELECT * FROM interests WHERE profile_id = ? ORDER BY sort_order ASC, name ASC", [$userId]);
 }
 
 $canAddInterest = planCanAddEntry($subscriptionContext, 'interests', $userId, count($interests));

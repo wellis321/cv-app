@@ -7,6 +7,11 @@
 require_once __DIR__ . '/database.php';
 require_once __DIR__ . '/security.php';
 
+// Sentinel name for the auto-created "ungrouped" responsibility category used when a user
+// adds bullet points without first creating a named category. Never display this literally —
+// treat it as an empty/absent category name everywhere it reaches a rendered CV.
+const RESPONSIBILITY_DEFAULT_CATEGORY_NAME = '__default__';
+
 /**
  * Load all CV data for a user
  */
@@ -77,7 +82,9 @@ function loadCvData($userId) {
         );
 
         foreach ($categories as &$category) {
-            $category['name'] = decodeHtmlEntities($category['name'] ?? '');
+            $category['name'] = $category['name'] === RESPONSIBILITY_DEFAULT_CATEGORY_NAME
+                ? ''
+                : decodeHtmlEntities($category['name'] ?? '');
             $category['items'] = db()->fetchAll(
                 "SELECT * FROM responsibility_items
                  WHERE category_id = ?
@@ -98,7 +105,7 @@ function loadCvData($userId) {
     $cvData['education'] = db()->fetchAll(
         "SELECT * FROM education
          WHERE profile_id = ?
-         ORDER BY start_date DESC",
+         ORDER BY sort_order ASC, start_date DESC",
         [$userId]
     );
     foreach ($cvData['education'] as &$edu) {
@@ -115,7 +122,7 @@ function loadCvData($userId) {
     $cvData['skills'] = db()->fetchAll(
         "SELECT * FROM skills
          WHERE profile_id = ?
-         ORDER BY category ASC, name ASC",
+         ORDER BY category ASC, sort_order ASC, name ASC",
         [$userId]
     );
     foreach ($cvData['skills'] as &$s) {
@@ -129,7 +136,7 @@ function loadCvData($userId) {
     $cvData['projects'] = db()->fetchAll(
         "SELECT * FROM projects
          WHERE profile_id = ?
-         ORDER BY start_date DESC",
+         ORDER BY sort_order ASC, start_date DESC",
         [$userId]
     );
     foreach ($cvData['projects'] as &$proj) {
@@ -163,7 +170,7 @@ function loadCvData($userId) {
     $cvData['memberships'] = db()->fetchAll(
         "SELECT * FROM professional_memberships
          WHERE profile_id = ?
-         ORDER BY start_date DESC",
+         ORDER BY sort_order ASC, start_date DESC",
         [$userId]
     );
     foreach ($cvData['memberships'] as &$mem) {
@@ -176,7 +183,7 @@ function loadCvData($userId) {
     $cvData['interests'] = db()->fetchAll(
         "SELECT * FROM interests
          WHERE profile_id = ?
-         ORDER BY name ASC",
+         ORDER BY sort_order ASC, name ASC",
         [$userId]
     );
     foreach ($cvData['interests'] as &$int) {
@@ -191,7 +198,7 @@ function loadCvData($userId) {
     $cvData['qualification_equivalence'] = db()->fetchAll(
         "SELECT * FROM professional_qualification_equivalence
          WHERE profile_id = ?
-         ORDER BY level ASC",
+         ORDER BY sort_order ASC, level ASC",
         [$userId]
     );
     foreach ($cvData['qualification_equivalence'] as &$qual) {

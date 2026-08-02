@@ -25,7 +25,7 @@ if (!$isVariantContext) {
     if ($editingId) {
         $editingMembership = db()->fetchOne("SELECT * FROM professional_memberships WHERE id = ? AND profile_id = ?", [$editingId, $userId]);
     }
-    $memberships = db()->fetchAll("SELECT * FROM professional_memberships WHERE profile_id = ? ORDER BY start_date DESC", [$userId]);
+    $memberships = db()->fetchAll("SELECT * FROM professional_memberships WHERE profile_id = ? ORDER BY sort_order ASC, start_date DESC", [$userId]);
 }
 
 $canAddMembership = planCanAddEntry($subscriptionContext, 'memberships', $userId, count($memberships));

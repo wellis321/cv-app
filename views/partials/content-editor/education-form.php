@@ -28,7 +28,7 @@ if (!$isVariantContext) {
     if ($editingId) {
         $editingEducation = db()->fetchOne("SELECT * FROM education WHERE id = ? AND profile_id = ?", [$editingId, $userId]);
     }
-    $educationEntries = db()->fetchAll("SELECT * FROM education WHERE profile_id = ? ORDER BY start_date DESC", [$userId]);
+    $educationEntries = db()->fetchAll("SELECT * FROM education WHERE profile_id = ? ORDER BY sort_order ASC, start_date DESC", [$userId]);
 }
 
 $canAddEducation = planCanAddEntry($subscriptionContext, 'education', $userId, count($educationEntries));

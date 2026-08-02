@@ -37,7 +37,7 @@ if (!$isVariantContext) {
             );
         }
     }
-    $qualifications = db()->fetchAll("SELECT * FROM professional_qualification_equivalence WHERE profile_id = ? ORDER BY created_at ASC", [$userId]);
+    $qualifications = db()->fetchAll("SELECT * FROM professional_qualification_equivalence WHERE profile_id = ? ORDER BY sort_order ASC, created_at ASC", [$userId]);
 }
 
 $canAddQual = planCanAddEntry($subscriptionContext, 'qualification_equivalence', $userId, count($qualifications));

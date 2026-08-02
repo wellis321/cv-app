@@ -25,33 +25,72 @@ if (!$isVariantContext) {
     if ($editingId) {
         $editingProject = db()->fetchOne("SELECT * FROM projects WHERE id = ? AND profile_id = ?", [$editingId, $userId]);
     }
-    $projects = db()->fetchAll("SELECT * FROM projects WHERE profile_id = ? ORDER BY start_date DESC", [$userId]);
+    $projects = db()->fetchAll("SELECT * FROM projects WHERE profile_id = ? ORDER BY sort_order ASC, start_date DESC", [$userId]);
 }
 
 $canAddProject = planCanAddEntry($subscriptionContext, 'projects', $userId, count($projects));
 
-// Prepare image preview data
+// Prepare image preview data - same resolution cv.php uses, so this preview matches what
+// actually renders on the public CV. (The old hand-rolled version here only checked for a
+// legacy 'url' key in image_responsive and built an invalid fallback URL, so the preview
+// was silently blank for any project using the current 'path'-based responsive format.)
 $initialImagePath = $editingProject['image_path'] ?? '';
 $initialImageUrl = $editingProject['image_url'] ?? '';
 $initialResponsive = $editingProject['image_responsive'] ?? null;
-$previewImageSrc = '';
 
+$fallbackImageUrl = '';
 if (!empty($initialImageUrl)) {
-    $previewImageSrc = $initialImageUrl;
+    $fallbackImageUrl = $initialImageUrl;
 } elseif (!empty($initialImagePath)) {
-    $previewImageSrc = '/api/storage-proxy?path=' . urlencode($initialImagePath);
+    $fallbackImageUrl = '/storage/' . ltrim($initialImagePath, '/');
 }
+$previewImageAttrs = getResponsiveImageAttributes($initialResponsive, $fallbackImageUrl, 'list');
+$previewImageSrc = $previewImageAttrs['src'] ?? '';
 
-// Use responsive image if available (prefer small or thumb for preview)
-if (!empty($initialResponsive)) {
-    $responsive = is_string($initialResponsive) ? json_decode($initialResponsive, true) : $initialResponsive;
-    if (is_array($responsive)) {
-        if (!empty($responsive['small']['url'])) {
-            $previewImageSrc = $responsive['small']['url'];
-        } elseif (!empty($responsive['thumb']['url'])) {
-            $previewImageSrc = $responsive['thumb']['url'];
-        }
+// Images already uploaded on this user's other projects - offered as a "reuse" gallery so
+// they don't have to re-upload the same logo/screenshot for every project that shares one.
+// Capped and shown as a single horizontally-scrolling row - with many projects this could
+// otherwise wrap into a huge grid that dwarfs the rest of the form.
+$previousProjectImages = [];
+$seenImageKeys = [];
+$maxPreviousImages = 30;
+foreach ($projects as $p) {
+    if (count($previousProjectImages) >= $maxPreviousImages) {
+        break;
     }
+    if ($editingProject && $p['id'] === $editingProject['id']) {
+        continue;
+    }
+    $pImagePath = $p['image_path'] ?? '';
+    $pImageUrl = $p['image_url'] ?? '';
+    $pResponsive = $p['image_responsive'] ?? null;
+    if (empty($pImagePath) && empty($pImageUrl)) {
+        continue;
+    }
+    $dedupeKey = $pImagePath ?: $pImageUrl;
+    if (isset($seenImageKeys[$dedupeKey])) {
+        continue;
+    }
+    $seenImageKeys[$dedupeKey] = true;
+
+    $pFallback = '';
+    if (!empty($pImageUrl)) {
+        $pFallback = $pImageUrl;
+    } elseif (!empty($pImagePath)) {
+        $pFallback = '/storage/' . ltrim($pImagePath, '/');
+    }
+    $pAttrs = getResponsiveImageAttributes($pResponsive, $pFallback, 'list');
+    if (empty($pAttrs['src'])) {
+        continue;
+    }
+
+    $previousProjectImages[] = [
+        'thumb' => $pAttrs['src'],
+        'title' => $p['title'] ?? '',
+        'image_url' => $pImageUrl,
+        'image_path' => $pImagePath,
+        'image_responsive' => is_string($pResponsive) ? $pResponsive : json_encode($pResponsive ?: []),
+    ];
 }
 ?>
 <div class="max-w-3xl mx-auto">
@@ -133,6 +172,25 @@ if (!empty($initialResponsive)) {
                     <input type="hidden" id="image_url" name="image_url" value="<?php echo $editingProject && !empty($editingProject['image_url']) ? e($editingProject['image_url']) : ''; ?>">
                     <input type="hidden" id="image_path" name="image_path" value="<?php echo $editingProject && !empty($editingProject['image_path']) ? e($editingProject['image_path']) : ''; ?>">
                     <input type="hidden" id="image_responsive" name="image_responsive" value="<?php echo $editingProject && !empty($editingProject['image_responsive']) ? e($editingProject['image_responsive']) : ''; ?>">
+
+                    <?php if (!empty($previousProjectImages)): ?>
+                        <div class="mt-4">
+                            <p class="text-xs font-medium text-gray-700 mb-2">Or reuse an image from another project</p>
+                            <div class="flex gap-2 overflow-x-auto pb-1">
+                                <?php foreach ($previousProjectImages as $prev): ?>
+                                    <button type="button"
+                                            class="project-image-reuse-btn w-14 h-14 rounded-md border border-gray-200 overflow-hidden hover:border-indigo-400 hover:ring-2 hover:ring-indigo-200 transition-all flex-shrink-0"
+                                            title="<?php echo e($prev['title'] ?: 'Reuse this image'); ?>"
+                                            data-image-url="<?php echo e($prev['image_url']); ?>"
+                                            data-image-path="<?php echo e($prev['image_path']); ?>"
+                                            data-image-responsive="<?php echo e($prev['image_responsive']); ?>"
+                                            data-thumb="<?php echo e($prev['thumb']); ?>">
+                                        <img src="<?php echo e($prev['thumb']); ?>" alt="<?php echo e($prev['title']); ?>" class="w-full h-full object-cover">
+                                    </button>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
             

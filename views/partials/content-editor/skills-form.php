@@ -25,7 +25,7 @@ if (!$isVariantContext) {
     if ($editingId) {
         $editingSkill = db()->fetchOne("SELECT * FROM skills WHERE id = ? AND profile_id = ?", [$editingId, $userId]);
     }
-    $skills = db()->fetchAll("SELECT * FROM skills WHERE profile_id = ? ORDER BY category ASC, name ASC", [$userId]);
+    $skills = db()->fetchAll("SELECT * FROM skills WHERE profile_id = ? ORDER BY category ASC, sort_order ASC, name ASC", [$userId]);
 }
 
 $canAddSkill = planCanAddEntry($subscriptionContext, 'skills', $userId, count($skills));

@@ -69,6 +69,16 @@ if (!$profile) {
     exit;
 }
 
+// CV nav bar (owner only) needs the variant list up front - fetched once here since
+// it's shared by both render paths below (custom Twig template vs built-in renderer).
+$isCvOwner = isLoggedIn() && getUserId() === $profileUserId;
+$navCvVariants = [];
+$navMasterVariantId = null;
+if ($isCvOwner) {
+    $navCvVariants = getUserCvVariants($profileUserId);
+    $navMasterVariantId = getOrCreateMasterVariant($profileUserId);
+}
+
 // Check CV visibility/access permissions
 $currentUserId = getUserId();
 $canView = false;
@@ -265,13 +275,13 @@ if ($activeTemplate) {
                 margin: 0.5em 0;
                 padding: 0.5em;
                 background: #f3f4f6;
-                border-radius: 0.25rem;
+                border-radius: 0;
                 font-size: inherit;
             }
             .cv-container .markdown-content code {
                 padding: 0.125em 0.25em;
                 background: #f3f4f6;
-                border-radius: 0.125rem;
+                border-radius: 0;
                 font-size: 0.875em;
             }
             /* Interests & Activities: same as body text, align with title */
@@ -313,51 +323,17 @@ if ($activeTemplate) {
     </head>
     <body class="bg-gray-100">
         <?php partial('header'); ?>
+        <?php if ($isCvOwner): ?>
+            <?php partial('content-editor/cv-nav-bar', [
+                'cvVariants' => $navCvVariants,
+                'masterVariantId' => $navMasterVariantId,
+                'isCvPage' => true,
+                'variantId' => $variantId ?? null,
+            ]); ?>
+        <?php endif; ?>
         <main id="main-content" role="main">
-            <?php if (isLoggedIn() && getUserId() === $profileUserId): ?>
-                <div class="no-print bg-white shadow-sm border-b">
-                    <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                        <div class="text-sm sm:text-base flex items-center gap-3 flex-wrap">
-                            <a href="/" class="text-blue-600 hover:text-blue-800">← Back to Dashboard</a>
-                            <?php if (!empty($cvVariant['variant_name'])): ?>
-                            <span class="text-gray-500">Viewing: <?php echo e($cvVariant['variant_name']); ?></span>
-                            <?php endif; ?>
-                        </div>
-                        <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 flex-wrap">
-                            <?php if (!empty($profile['username'])): ?>
-                                <button type="button" class="copy-cv-link-btn cv-toolbar-btn cv-toolbar-btn-secondary inline-flex items-center justify-center px-4 py-2 rounded-md text-sm sm:text-base transition-colors" data-cv-url="<?php echo e(APP_URL . '/cv/@' . $profile['username'] . (!empty($variantId) ? '?variant_id=' . rawurlencode($variantId) : '')); ?>" aria-label="Copy CV link">
-                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
-                                    <span class="copy-cv-link-label">Copy CV link</span>
-                                </button>
-                            <?php endif; ?>
-                            <?php if (!empty($variantId)): ?>
-                                <?php if (!empty($cvVariant['job_application_id'])): ?>
-                                <a href="/content-editor.php#jobs&view=<?php echo e($cvVariant['job_application_id']); ?>" class="cv-toolbar-btn cv-toolbar-btn-secondary inline-flex items-center justify-center px-4 py-2 rounded-md text-sm sm:text-base transition-colors">
-                                    Related Job
-                                </a>
-                                <?php endif; ?>
-                            <?php endif; ?>
-                            <a href="/cv-template-customizer.php" class="cv-toolbar-btn cv-toolbar-btn-secondary inline-flex items-center justify-center px-4 py-2 rounded-md text-sm sm:text-base transition-colors">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
-                                </svg>
-                                Customise Template
-                            </a>
-                            <?php if (!empty($variantId)): ?>
-                            <a href="/content-editor.php#work-experience&variant_id=<?php echo e($variantId); ?>" class="cv-toolbar-btn cv-toolbar-btn-secondary inline-flex items-center justify-center px-4 py-2 rounded-md text-sm sm:text-base transition-colors">
-                                Edit this variant
-                            </a>
-                            <?php endif; ?>
-                            <a href="/preview-cv.php<?php echo !empty($variantId) ? '?variant_id=' . e($variantId) : ''; ?>" class="cv-toolbar-btn cv-toolbar-btn-primary inline-flex items-center justify-center px-4 py-2 rounded-md text-sm sm:text-base transition-colors">
-                                Preview PDF
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            <?php endif; ?>
-            
             <div class="w-full px-4 sm:px-6 lg:px-8 py-8">
-                <div class="bg-white cv-container max-w-6xl mx-auto shadow-md rounded-xl overflow-hidden">
+                <div class="bg-white cv-container max-w-6xl mx-auto shadow-md overflow-hidden">
                     <?php echo $renderedContent; ?>
                 </div>
             </div>
@@ -423,6 +399,170 @@ if ($activeTemplate) {
     exit; // Stop here, don't render default template
 }
 
+// Which sections the user has toggled on/off for the online CV (Visibility section in the
+// editor). Needed here (not just further down for the body sections) because the header
+// block below also respects the 'profile' entry.
+$sectionsOnline = getSectionsOnlineForCv($profile, $cvVariant);
+
+// Phase 2 ("+" add-content) only applies to the master CV - several section types
+// (education, skills, projects, memberships, interests, qualification-equivalence) have
+// dedicated cv_variant_* tables for display but api/content-editor/save-section.php's
+// create/update handlers for them don't accept a variant_id, so a "create" call while
+// viewing a variant would silently land on the master profile instead. Simplest correct
+// scope: only offer inline "add" while looking at the master CV.
+$cvAllowInlineAdd = $isCvOwner && empty($cvVariant);
+$cvSectionAddLabels = [
+    'professional-summary' => 'Professional Summary',
+    'work-experience' => 'Work Experience',
+    'education' => 'Education',
+    'skills' => 'Skill',
+    'projects' => 'Project',
+    'certifications' => 'Certification',
+    'memberships' => 'Membership',
+    'interests' => 'Interest',
+    'qualification-equivalence' => 'Qualification Equivalence',
+];
+
+// Formats a stored date value (any parseable format) as YYYY-MM-DD for an <input type="date">.
+function cvFormatDateForInput($date) {
+    if (empty($date)) return '';
+    $ts = strtotime($date);
+    return $ts !== false ? date('Y-m-d', $ts) : '';
+}
+
+// Per-item edit/delete icon buttons for an existing list entry (work experience, education,
+// etc.) - only rendered when $cvAllowInlineAdd is true (master CV owner, Edit Mode). $editData
+// is embedded as JSON so the edit modal can be pre-filled without a extra round trip.
+function renderCvItemControls($cvSId, $itemId, $editData) {
+    $dataJson = htmlspecialchars(json_encode($editData), ENT_QUOTES, 'UTF-8');
+    ob_start();
+    ?>
+    <span class="cv-edit-item-controls no-print">
+        <?php echo renderCvDragHandle(); ?>
+        <button type="button" class="cv-item-edit-btn" data-section-key="<?php echo e($cvSId); ?>" data-item-id="<?php echo e($itemId); ?>" data-item="<?php echo $dataJson; ?>" title="Edit" aria-label="Edit">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+        </button>
+        <button type="button" class="cv-item-delete-btn" data-section-key="<?php echo e($cvSId); ?>" data-item-id="<?php echo e($itemId); ?>" title="Delete" aria-label="Delete">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        </button>
+    </span>
+    <?php
+    return ob_get_clean();
+}
+
+// "+ Add another X" link appended after an already-populated list section.
+function renderCvAddMoreButton($cvSId, $label) {
+    ob_start();
+    ?>
+    <button type="button" class="cv-section-add-more-btn no-print" data-section-key="<?php echo e($cvSId); ?>">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        <span>Add another <?php echo e($label); ?></span>
+    </button>
+    <?php
+    return ob_get_clean();
+}
+
+// Edit-only control for single-record sections (professional summary has no per-item id -
+// saving is always an upsert, so there's nothing to individually delete here).
+function renderCvEditOnlyControl($cvSId, $editData) {
+    $dataJson = htmlspecialchars(json_encode($editData), ENT_QUOTES, 'UTF-8');
+    ob_start();
+    ?>
+    <button type="button" class="cv-item-edit-btn cv-section-edit-only-btn no-print" data-section-key="<?php echo e($cvSId); ?>" data-item="<?php echo $dataJson; ?>" title="Edit" aria-label="Edit">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+        <span>Edit</span>
+    </button>
+    <?php
+    return ob_get_clean();
+}
+
+// Small grip icon used as the drag handle for reordering sections within their column.
+// 'profile' (the header) never gets one - it stays fixed at the top, matching the same
+// constraint already enforced by the content-editor sidebar's own reorder feature.
+function renderCvDragHandle($compact = false) {
+    $class = $compact ? 'cv-section-drag-handle cv-drag-handle-compact' : 'cv-section-drag-handle';
+    $iconClass = $compact ? 'w-3 h-3' : 'w-4 h-4';
+    return '<span class="' . $class . ' no-print" title="Drag to reorder" aria-hidden="true">'
+        . '<svg class="' . $iconClass . '" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg>'
+        . '</span>';
+}
+
+// Owner-only "Edit Mode": wraps a section's rendered HTML with a visibility toggle badge
+// and (when hidden) a dimmed/dashed presentation instead of omitting it entirely. Visitors
+// never receive hidden markup at all - $isCvOwner gates that below, this is not just a
+// display:none CSS trick for non-owners. When a toggleable section has no content at all,
+// owners viewing the master CV get a dashed "+" placeholder instead (see $cvAllowInlineAdd).
+function renderCvSectionWrapper($cvSId, $sectionHtml, $isCvOwner, $sectionsOnline, $allowAdd = false, $addLabel = null) {
+    $hasContent = trim((string) $sectionHtml) !== '';
+    $toggleable = array_key_exists($cvSId, $sectionsOnline);
+    if (!$hasContent) {
+        if ($allowAdd && $toggleable && $addLabel) {
+            ob_start();
+            ?>
+            <div class="cv-edit-section-empty cv-section-draggable" data-cv-section-key="<?php echo e($cvSId); ?>">
+                <div class="cv-section-drag-row no-print"><?php echo renderCvDragHandle(); ?></div>
+                <button type="button" class="cv-section-add-btn" data-section-key="<?php echo e($cvSId); ?>">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    <span>Add <?php echo e($addLabel); ?></span>
+                </button>
+            </div>
+            <?php
+            return ob_get_clean();
+        }
+        return '';
+    }
+    $visible = !$toggleable || !empty($sectionsOnline[$cvSId]);
+
+    if (!$toggleable) {
+        // Not covered by the online-visibility feature (e.g. a custom section) - always shown,
+        // but still gets a drag handle for the owner so it can be repositioned in Edit Mode.
+        if (!$isCvOwner) {
+            return $sectionHtml;
+        }
+        ob_start();
+        ?>
+        <div class="cv-edit-section cv-section-draggable" data-cv-section-key="<?php echo e($cvSId); ?>">
+            <div class="cv-section-drag-row no-print"><?php echo renderCvDragHandle(); ?></div>
+            <?php echo $sectionHtml; ?>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+    if (!$visible && !$isCvOwner) {
+        return '';
+    }
+    if (!$isCvOwner) {
+        return $sectionHtml;
+    }
+
+    ob_start();
+    ?>
+    <div class="cv-edit-section cv-section-draggable<?php echo $visible ? '' : ' cv-edit-section-hidden'; ?>" data-cv-section-key="<?php echo e($cvSId); ?>">
+        <div class="cv-section-visibility-row no-print">
+            <?php echo renderCvDragHandle(); ?>
+            <button type="button"
+                    class="cv-section-visibility-toggle"
+                    data-section-key="<?php echo e($cvSId); ?>"
+                    data-visible="<?php echo $visible ? '1' : '0'; ?>"
+                    aria-pressed="<?php echo $visible ? 'true' : 'false'; ?>"
+                    title="<?php echo $visible ? 'Hide this section from your CV' : 'Show this section on your CV'; ?>">
+                <svg class="cv-eye-icon cv-eye-open w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+                <svg class="cv-eye-icon cv-eye-closed w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"/>
+                </svg>
+                <span class="cv-section-visibility-label"><?php echo $visible ? 'Visible' : 'Hidden'; ?></span>
+            </button>
+        </div>
+        <?php echo $sectionHtml; ?>
+    </div>
+    <?php
+    return ob_get_clean();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -452,6 +592,150 @@ if ($activeTemplate) {
             vertical-align: middle;
             margin-right: 0.25em;
         }
+        /* Owner-only "Edit Mode": every section becomes its own demarcated card (border +
+           tinted background against the white CV page) so the different parts read as
+           distinct, separable pieces while editing - not just a "how does visibility work"
+           affordance. Hidden sections stay out of the DOM entirely for visitors; for the
+           owner they're always rendered - normally display:none (matches what a visitor
+           sees), revealed dimmed/dashed (layered on top of the same card look) only while
+           Edit Mode is active. */
+        body.cv-edit-mode-active .cv-edit-section {
+            padding: 0.85rem 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0;
+            background: #f9fafb;
+        }
+        .cv-edit-section-hidden { display: none; }
+        body.cv-edit-mode-active .cv-edit-section-hidden {
+            display: block;
+            opacity: 0.55;
+            border: 2px dashed #9ca3af;
+            border-radius: 0;
+            padding: 1rem;
+            background: rgba(156, 163, 175, 0.06);
+        }
+        .cv-section-visibility-row { display: none; margin-bottom: 0.5rem; }
+        body.cv-edit-mode-active .cv-section-visibility-row { display: flex; justify-content: space-between; align-items: center; }
+        .cv-section-drag-row { display: none; margin-bottom: 0.35rem; }
+        body.cv-edit-mode-active .cv-section-drag-row { display: flex; }
+        .cv-section-drag-handle {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            width: 1.5rem;
+            height: 1.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0;
+            background: #fff;
+            color: #9ca3af;
+            cursor: grab;
+            flex-shrink: 0;
+        }
+        body.cv-edit-mode-active .cv-section-drag-handle { display: flex; }
+        .cv-section-drag-handle:hover { color: #4f46e5; border-color: #a5b4fc; }
+        .cv-drag-handle-compact { width: 1.15rem; height: 1.15rem; border: none; background: transparent; }
+        /* Which edge lights up shows whether releasing here drops above or below the
+           hovered item - without this a drop always meant "before", so moving something
+           down past just one neighbour meant aiming at the item after it instead. */
+        .cv-item-draggable.cv-dragging { opacity: 0.4; }
+        .cv-item-draggable.cv-drag-over-before { box-shadow: 0 -3px 0 0 #6366f1; }
+        .cv-item-draggable.cv-drag-over-after { box-shadow: 0 3px 0 0 #6366f1; }
+        .cv-section-draggable.cv-dragging { opacity: 0.4; }
+        .cv-section-draggable.cv-drag-over-before { box-shadow: 0 -3px 0 0 #6366f1; }
+        .cv-section-draggable.cv-drag-over-after { box-shadow: 0 3px 0 0 #6366f1; }
+        .cv-section-visibility-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.25rem 0.65rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            border-radius: 0;
+            border: 1px solid #d1d5db;
+            background: #fff;
+            color: #374151;
+            cursor: pointer;
+        }
+        .cv-section-visibility-toggle:hover { background: #f9fafb; }
+        .cv-section-visibility-toggle[data-visible="0"] { color: #6b7280; background: #f9fafb; }
+        .cv-section-visibility-toggle .cv-eye-closed { display: none; }
+        .cv-section-visibility-toggle[data-visible="0"] .cv-eye-open { display: none; }
+        .cv-section-visibility-toggle[data-visible="0"] .cv-eye-closed { display: inline; }
+        /* Owner-only "+" placeholder for an empty section, shown only in Edit Mode. */
+        .cv-edit-section-empty { display: none; }
+        body.cv-edit-mode-active .cv-edit-section-empty { display: block; }
+        .cv-section-add-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1.1rem;
+            border: 2px dashed #c7d2fe;
+            border-radius: 0;
+            color: #4f46e5;
+            font-size: 0.875rem;
+            font-weight: 600;
+            background: rgba(79, 70, 229, 0.03);
+            cursor: pointer;
+        }
+        .cv-section-add-btn:hover { background: rgba(79, 70, 229, 0.08); border-color: #a5b4fc; }
+        /* Per-item edit/delete controls and "add another" - all owner+Edit Mode only. */
+        .cv-edit-item { position: relative; }
+        .cv-edit-item-controls {
+            display: none;
+            position: absolute;
+            top: 0.35rem;
+            right: 0.35rem;
+            gap: 0.25rem;
+            z-index: 2;
+        }
+        body.cv-edit-mode-active .cv-edit-item-controls { display: flex; }
+        .cv-edit-item-controls-inline { position: static; margin-left: 0.15rem; }
+        .cv-item-edit-btn, .cv-item-delete-btn {
+            width: 1.5rem;
+            height: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #d1d5db;
+            border-radius: 0;
+            background: #fff;
+            color: #374151;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .cv-item-edit-btn:hover { background: #eff6ff; border-color: #93c5fd; color: #2563eb; }
+        .cv-item-delete-btn:hover { background: #fef2f2; border-color: #fca5a5; color: #dc2626; }
+        .cv-section-edit-only-btn {
+            display: none;
+            width: auto;
+            height: auto;
+            padding: 0.2rem 0.6rem;
+            gap: 0.3rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            border-radius: 0;
+        }
+        body.cv-edit-mode-active .cv-section-edit-only-btn { display: inline-flex; }
+        .cv-section-add-more-btn {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            width: 100%;
+            margin-top: 0.5rem;
+            padding: 0.6rem;
+            border: 1.5px dashed #c7d2fe;
+            border-radius: 0;
+            color: #4f46e5;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: transparent;
+            cursor: pointer;
+        }
+        body.cv-edit-mode-active .cv-section-add-more-btn { display: flex; }
+        .cv-section-add-more-btn:hover { background: rgba(79, 70, 229, 0.05); border-color: #a5b4fc; }
         /* Ensure lists display with bullets/numbers (Tailwind preflight resets list-style) */
         .cv-container .markdown-content ul { list-style-type: disc; padding-left: 1.25em; }
         .cv-container .markdown-content ol { list-style-type: decimal; padding-left: 1.25em; }
@@ -468,13 +752,13 @@ if ($activeTemplate) {
             margin: 0.5em 0;
             padding: 0.5em;
             background: #f3f4f6;
-            border-radius: 0.25rem;
+            border-radius: 0;
             font-size: inherit;
         }
         .cv-container .markdown-content code {
             padding: 0.125em 0.25em;
             background: #f3f4f6;
-            border-radius: 0.125rem;
+            border-radius: 0;
             font-size: 0.875em;
         }
         /* Interests & Activities: render like normal body text, not code; align with title */
@@ -516,49 +800,42 @@ if ($activeTemplate) {
     </head>
 <body class="bg-gray-100">
     <?php partial('header'); ?>
-    <main id="main-content" role="main">
-    <!-- Header with actions (hidden on print) -->
-    <?php if (isLoggedIn() && getUserId() === $profileUserId): ?>
-        <div class="no-print bg-white shadow-sm border-b">
-            <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div class="text-sm sm:text-base flex items-center gap-3 flex-wrap">
-                    <a href="/" class="text-blue-600 hover:text-blue-800">← Back to Dashboard</a>
-                    <?php if (!empty($cvVariant['variant_name'])): ?>
-                    <span class="text-gray-500">Viewing: <?php echo e($cvVariant['variant_name']); ?></span>
-                    <?php endif; ?>
-                </div>
-                <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 flex-wrap">
-                    <?php if (!empty($profile['username'])): ?>
-                        <button type="button" class="copy-cv-link-btn cv-toolbar-btn cv-toolbar-btn-secondary inline-flex items-center justify-center px-4 py-2 rounded-md text-sm sm:text-base transition-colors" data-cv-url="<?php echo e(APP_URL . '/cv/@' . $profile['username'] . (!empty($variantId) ? '?variant_id=' . rawurlencode($variantId) : '')); ?>" aria-label="Copy CV link">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
-                            <span class="copy-cv-link-label">Copy CV link</span>
-                        </button>
-                    <?php endif; ?>
-                    <?php if (!empty($variantId)): ?>
-                        <?php if (!empty($cvVariant['job_application_id'])): ?>
-                        <a href="/content-editor.php#jobs&view=<?php echo e($cvVariant['job_application_id']); ?>" class="cv-toolbar-btn cv-toolbar-btn-secondary inline-flex items-center justify-center px-4 py-2 rounded-md text-sm sm:text-base transition-colors">
-                            Related Job
-                        </a>
-                        <?php endif; ?>
-                        <a href="/content-editor.php#work-experience&variant_id=<?php echo e($variantId); ?>" class="cv-toolbar-btn cv-toolbar-btn-secondary inline-flex items-center justify-center px-4 py-2 rounded-md text-sm sm:text-base transition-colors">
-                            Edit this variant
-                        </a>
-                    <?php else: ?>
-                    <a href="/profile.php" class="cv-toolbar-btn cv-toolbar-btn-secondary inline-flex items-center justify-center px-4 py-2 rounded-md text-sm sm:text-base transition-colors">
-                        Edit Profile
-                    </a>
-                    <?php endif; ?>
-                    <a href="/preview-cv.php<?php echo !empty($variantId) ? '?variant_id=' . e($variantId) : ''; ?>" class="cv-toolbar-btn cv-toolbar-btn-primary inline-flex items-center justify-center px-4 py-2 rounded-md text-sm sm:text-base transition-colors">
-                        Preview PDF
-                    </a>
+    <?php if ($isCvOwner): ?>
+        <?php partial('content-editor/cv-nav-bar', [
+            'cvVariants' => $navCvVariants,
+            'masterVariantId' => $navMasterVariantId,
+            'isCvPage' => true,
+            'variantId' => $variantId ?? null,
+        ]); ?>
+        <div class="w-full px-4 sm:px-6 lg:px-8 pt-6 no-print">
+            <div class="max-w-6xl mx-auto">
+                <div class="flex flex-wrap items-center justify-between gap-3 border border-gray-200 bg-white px-4 py-2.5 shadow-sm">
+                    <p id="cv-edit-mode-status" class="text-sm text-gray-600">You're viewing your CV as visitors see it.</p>
+                    <button type="button" id="cv-edit-mode-toggle" class="inline-flex items-center gap-2 border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-pressed="false">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                        <span>Edit Mode</span>
+                    </button>
                 </div>
             </div>
         </div>
+        <script>
+        window.cvEditModeData = {
+            csrfToken: <?php echo json_encode(csrfToken()); ?>,
+            csrfTokenName: <?php echo json_encode(CSRF_TOKEN_NAME); ?>,
+            variantId: <?php echo json_encode($variantId ?: null); ?>,
+            isVariant: <?php echo json_encode(!empty($cvVariant)); ?>,
+            saveOnlineUrl: <?php echo json_encode('/api/save-profile-sections-online.php'); ?>,
+            saveVariantUrl: <?php echo json_encode('/api/variant-pdf-preferences.php'); ?>
+        };
+        </script>
     <?php endif; ?>
-
+    <main id="main-content" role="main">
     <!-- CV Container - Full Width with Padding -->
     <div class="w-full px-4 sm:px-6 lg:px-8">
-        <div class="bg-white cv-container max-w-6xl mx-auto shadow-md rounded-xl overflow-hidden">
+        <div class="bg-white cv-container max-w-6xl mx-auto shadow-md overflow-hidden">
+            <?php
+            ob_start();
+            ?>
             <!-- CV Header with Gradient -->
             <div style="background: linear-gradient(to right, <?php echo e($profile['cv_header_from_color'] ?? '#4338ca'); ?>, <?php echo e($profile['cv_header_to_color'] ?? '#7e22ce'); ?>);" class="text-white p-6 sm:p-8">
                 <div class="flex flex-col gap-6 lg:flex-row lg:items-start">
@@ -619,13 +896,17 @@ if ($activeTemplate) {
                                  sizes="<?php echo e($photoImgAttrs['sizes']); ?>"
                              <?php endif; ?>
                              alt="<?php echo e($profile['full_name'] ?? 'Profile'); ?>"
-                             class="w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 rounded-full object-cover border-4 border-white/20 mx-auto lg:mx-0"
+                             class="w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 object-cover border-4 border-white/20 mx-auto lg:mx-0"
                              loading="lazy"
                              width="192"
                              height="192">
                     <?php endif; ?>
                 </div>
             </div>
+            <?php
+            $cvHeaderHtml = ob_get_clean();
+            echo renderCvSectionWrapper('profile', $cvHeaderHtml, $isCvOwner, $sectionsOnline);
+            ?>
 
             <!-- CV Content -->
             <div class="p-6 sm:p-8">
@@ -638,14 +919,6 @@ if ($activeTemplate) {
                 }
                 $cvLeftDefault  = ['certifications', 'education', 'skills', 'interests'];
                 $cvRightDefault = ['professional-summary', 'work-experience', 'projects', 'qualification-equivalence', 'memberships'];
-                if ($cvPageOrder) {
-                    $cvPagePos = array_flip($cvPageOrder);
-                    $cvSortFn  = function($a, $b) use ($cvPagePos) {
-                        return ($cvPagePos[$a] ?? 999) - ($cvPagePos[$b] ?? 999);
-                    };
-                    usort($cvLeftDefault, $cvSortFn);
-                    usort($cvRightDefault, $cvSortFn);
-                }
 
                 // Load custom sections for this profile
                 $cvCustomSections = db()->fetchAll(
@@ -665,18 +938,60 @@ if ($activeTemplate) {
                     $cvRightDefault[] = 'custom-' . $cs['id'];
                 }
 
+                // Which column (left/right) a section sits in on cv.php - separate from
+                // section_order (which only controls position within whichever column a
+                // section is already in) and from the content-editor sidebar's own reorder
+                // tool, which keeps its unrelated, unchanged Main/Sidebar split.
+                $cvColumnOverrides = [];
+                if (!empty($profile['cv_page_columns'])) {
+                    $decodedCols = json_decode($profile['cv_page_columns'], true);
+                    if (is_array($decodedCols)) $cvColumnOverrides = $decodedCols;
+                }
+                foreach ($cvColumnOverrides as $cvOverrideId => $cvOverrideCol) {
+                    if ($cvOverrideCol === 'left' && in_array($cvOverrideId, $cvRightDefault, true)) {
+                        $cvRightDefault = array_values(array_diff($cvRightDefault, [$cvOverrideId]));
+                        $cvLeftDefault[] = $cvOverrideId;
+                    } elseif ($cvOverrideCol === 'right' && in_array($cvOverrideId, $cvLeftDefault, true)) {
+                        $cvLeftDefault = array_values(array_diff($cvLeftDefault, [$cvOverrideId]));
+                        $cvRightDefault[] = $cvOverrideId;
+                    }
+                }
+
+                if ($cvPageOrder) {
+                    $cvPagePos = array_flip($cvPageOrder);
+                    $cvSortFn  = function($a, $b) use ($cvPagePos) {
+                        return ($cvPagePos[$a] ?? 999) - ($cvPagePos[$b] ?? 999);
+                    };
+                    usort($cvLeftDefault, $cvSortFn);
+                    usort($cvRightDefault, $cvSortFn);
+                }
+
+                // $sectionsOnline was already computed above (also used by the header block).
+                // getSectionsOnlineForCv() returns keys in the same naming as
+                // $cvLeftDefault/$cvRightDefault below (e.g. 'professional-summary',
+                // 'work-experience'), so no key mapping is needed here.
+
                 // Capture each section's rendered HTML so we can output in the right order
                 $cvSectionBlocks = [];
 
                 // --- certifications ---
                 ob_start(); ?>
                 <?php if (!empty($cvData['certifications'])): ?>
-                    <section>
+                    <section<?php echo $cvAllowInlineAdd ? ' data-cv-items-list="certifications"' : ''; ?>>
                         <h2 class="text-xl font-bold text-gray-900 mb-3 border-b-2 border-gray-300 pb-2">
                             Certifications
                         </h2>
                         <?php foreach ($cvData['certifications'] as $cert): ?>
-                            <div class="mb-3">
+                            <div class="mb-3 cv-edit-item<?php echo $cvAllowInlineAdd ? ' cv-item-draggable' : ''; ?>"<?php echo $cvAllowInlineAdd ? ' data-cv-item-id="' . e($cert['id']) . '"' : ''; ?>>
+                                <?php if ($cvAllowInlineAdd): ?>
+                                    <?php echo renderCvItemControls('certifications', $cert['id'], [
+                                        'id' => $cert['id'],
+                                        'name' => $cert['name'],
+                                        'issuer' => $cert['issuer'],
+                                        'date_obtained' => cvFormatDateForInput($cert['date_obtained'] ?? null),
+                                        'expiry_date' => cvFormatDateForInput($cert['expiry_date'] ?? null),
+                                    ]); ?>
+                                <?php endif; ?>
                                 <h3 class="font-semibold text-gray-900 text-sm"><?php echo e($cert['name']); ?></h3>
                                 <p class="text-gray-700 text-sm"><?php echo e($cert['issuer']); ?></p>
                                 <p class="text-gray-600 text-xs mt-1">
@@ -687,6 +1002,7 @@ if ($activeTemplate) {
                                 </p>
                             </div>
                         <?php endforeach; ?>
+                        <?php if ($cvAllowInlineAdd): ?><?php echo renderCvAddMoreButton('certifications', 'Certification'); ?><?php endif; ?>
                     </section>
                 <?php endif; ?>
                 <?php $cvSectionBlocks['certifications'] = ob_get_clean(); ?>
@@ -694,12 +1010,22 @@ if ($activeTemplate) {
                 <!-- Education -->
                 <?php ob_start(); ?>
                 <?php if (!empty($cvData['education'])): ?>
-                            <section>
+                            <section<?php echo $cvAllowInlineAdd ? ' data-cv-items-list="education"' : ''; ?>>
                                 <h2 class="text-xl font-bold text-gray-900 mb-3 border-b-2 border-gray-300 pb-2">
                                     Education
                                 </h2>
                                 <?php foreach ($cvData['education'] as $edu): ?>
-                                    <div class="mb-4">
+                                    <div class="mb-4 cv-edit-item<?php echo $cvAllowInlineAdd ? ' cv-item-draggable' : ''; ?>"<?php echo $cvAllowInlineAdd ? ' data-cv-item-id="' . e($edu['id']) . '"' : ''; ?>>
+                                        <?php if ($cvAllowInlineAdd): ?>
+                                            <?php echo renderCvItemControls('education', $edu['id'], [
+                                                'id' => $edu['id'],
+                                                'degree' => $edu['degree'],
+                                                'institution' => $edu['institution'],
+                                                'field_of_study' => $edu['field_of_study'] ?? '',
+                                                'start_date' => cvFormatDateForInput($edu['start_date'] ?? null),
+                                                'end_date' => cvFormatDateForInput($edu['end_date'] ?? null),
+                                            ]); ?>
+                                        <?php endif; ?>
                                         <p class="font-semibold text-gray-900 text-sm"><span class="text-gray-500 font-normal">Qual:</span> <?php echo e($edu['degree']); ?></p>
                                         <p class="text-gray-700 text-sm"><span class="text-gray-500 font-normal">Institution:</span> <?php echo e($edu['institution']); ?></p>
                                         <?php if (!empty($edu['field_of_study'])): ?>
@@ -721,6 +1047,7 @@ if ($activeTemplate) {
                                         <?php endif; ?>
                                     </div>
                                 <?php endforeach; ?>
+                                <?php if ($cvAllowInlineAdd): ?><?php echo renderCvAddMoreButton('education', 'Education'); ?><?php endif; ?>
                             </section>
                         <?php endif; ?>
                 <?php $cvSectionBlocks['education'] = ob_get_clean(); ?>
@@ -745,18 +1072,37 @@ if ($activeTemplate) {
                         <?php foreach ($skillsByCategory as $category => $skills): ?>
                             <div class="mb-3">
                                 <h3 class="font-semibold text-gray-800 text-sm mb-1"><?php echo e($category); ?>:</h3>
-                                <div class="flex flex-wrap gap-1.5">
+                                <div class="flex flex-wrap gap-1.5"<?php echo $cvAllowInlineAdd ? ' data-cv-items-list="skills"' : ''; ?>>
                                     <?php foreach ($skills as $skill): ?>
-                                        <span class="bg-gray-100 px-2 py-0.5 rounded text-gray-700 text-xs">
-                                            <?php echo e($skill['name']); ?>
-                                            <?php if (!empty($skill['level'])): ?>
-                                                <span class="text-gray-500">(<?php echo e($skill['level']); ?>)</span>
+                                        <span class="bg-gray-100 px-2 py-0.5 text-gray-700 text-xs inline-flex items-center gap-1<?php echo $cvAllowInlineAdd ? ' cv-item-draggable' : ''; ?>"<?php echo $cvAllowInlineAdd ? ' data-cv-item-id="' . e($skill['id']) . '"' : ''; ?>>
+                                            <?php if ($cvAllowInlineAdd): ?><?php echo renderCvDragHandle(true); ?><?php endif; ?>
+                                            <span>
+                                                <?php echo e($skill['name']); ?>
+                                                <?php if (!empty($skill['level'])): ?>
+                                                    <span class="text-gray-500">(<?php echo e($skill['level']); ?>)</span>
+                                                <?php endif; ?>
+                                            </span>
+                                            <?php if ($cvAllowInlineAdd): ?>
+                                                <span class="cv-edit-item-controls cv-edit-item-controls-inline no-print">
+                                                    <button type="button" class="cv-item-edit-btn" data-section-key="skills" data-item-id="<?php echo e($skill['id']); ?>" data-item="<?php echo htmlspecialchars(json_encode([
+                                                        'id' => $skill['id'],
+                                                        'name' => $skill['name'],
+                                                        'category' => $skill['category'] ?? '',
+                                                        'level' => $skill['level'] ?? '',
+                                                    ]), ENT_QUOTES, 'UTF-8'); ?>" title="Edit" aria-label="Edit">
+                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                                    </button>
+                                                    <button type="button" class="cv-item-delete-btn" data-section-key="skills" data-item-id="<?php echo e($skill['id']); ?>" title="Delete" aria-label="Delete">
+                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                                    </button>
+                                                </span>
                                             <?php endif; ?>
                                         </span>
                                     <?php endforeach; ?>
                                 </div>
                             </div>
                         <?php endforeach; ?>
+                        <?php if ($cvAllowInlineAdd): ?><?php echo renderCvAddMoreButton('skills', 'Skill'); ?><?php endif; ?>
                     </section>
                 <?php endif; ?>
                 <?php $cvSectionBlocks['skills'] = ob_get_clean(); ?>
@@ -768,9 +1114,16 @@ if ($activeTemplate) {
                         <h2 class="text-xl font-bold text-gray-900 mb-3 border-b-2 border-gray-300 pb-2">
                             Interests & Activities
                         </h2>
-                        <div class="space-y-3">
+                        <div class="space-y-3"<?php echo $cvAllowInlineAdd ? ' data-cv-items-list="interests"' : ''; ?>>
                             <?php foreach ($cvData['interests'] as $interest): ?>
-                                <div class="min-w-0 rounded-lg border border-gray-200 bg-white/70 p-4 shadow-sm">
+                                <div class="min-w-0 border border-gray-200 bg-white/70 p-4 shadow-sm cv-edit-item<?php echo $cvAllowInlineAdd ? ' cv-item-draggable' : ''; ?>"<?php echo $cvAllowInlineAdd ? ' data-cv-item-id="' . e($interest['id']) . '"' : ''; ?>>
+                                    <?php if ($cvAllowInlineAdd): ?>
+                                        <?php echo renderCvItemControls('interests', $interest['id'], [
+                                            'id' => $interest['id'],
+                                            'name' => $interest['name'],
+                                            'description' => $interest['description'] ?? '',
+                                        ]); ?>
+                                    <?php endif; ?>
                                     <h3 class="text-sm font-semibold text-gray-800">
                                         <?php echo e($interest['name']); ?>
                                     </h3>
@@ -782,6 +1135,7 @@ if ($activeTemplate) {
                                 </div>
                             <?php endforeach; ?>
                         </div>
+                        <?php if ($cvAllowInlineAdd): ?><?php echo renderCvAddMoreButton('interests', 'Interest'); ?><?php endif; ?>
                     </section>
                 <?php endif; ?>
                 <?php $cvSectionBlocks['interests'] = ob_get_clean(); ?>
@@ -790,9 +1144,14 @@ if ($activeTemplate) {
                 <!-- Professional Summary -->
                 <?php ob_start(); ?>
                 <?php if (!empty($cvData['professional_summary'])): ?>
-                    <section>
-                        <h2 class="text-xl font-bold text-gray-900 mb-3 border-b-2 border-gray-300 pb-2">
-                            Professional Summary
+                    <section class="cv-edit-item">
+                        <h2 class="text-xl font-bold text-gray-900 mb-3 border-b-2 border-gray-300 pb-2 flex items-center justify-between gap-2">
+                            <span>Professional Summary</span>
+                            <?php if ($cvAllowInlineAdd): ?>
+                                <?php echo renderCvEditOnlyControl('professional-summary', [
+                                    'description' => $cvData['professional_summary']['description'] ?? '',
+                                ]); ?>
+                            <?php endif; ?>
                         </h2>
                         <?php if (!empty($cvData['professional_summary']['description'])): ?>
                             <div class="text-gray-700 mb-3 text-sm leading-relaxed markdown-content"><?php echo renderMarkdown($cvData['professional_summary']['description'] ?? ''); ?></div>
@@ -812,12 +1171,22 @@ if ($activeTemplate) {
                 <!-- Work Experience -->
                 <?php ob_start(); ?>
                         <?php if (!empty($cvData['work_experience'])): ?>
-                            <section>
+                            <section<?php echo $cvAllowInlineAdd ? ' data-cv-items-list="work-experience"' : ''; ?>>
                                 <h2 class="text-xl font-bold text-gray-900 mb-3 border-b-2 border-gray-300 pb-2">
                                     Work Experience
                                 </h2>
                                 <?php foreach ($cvData['work_experience'] as $work): ?>
-                                    <div class="mb-6">
+                                    <div class="mb-6 cv-edit-item<?php echo $cvAllowInlineAdd ? ' cv-item-draggable' : ''; ?>"<?php echo $cvAllowInlineAdd ? ' data-cv-item-id="' . e($work['id']) . '"' : ''; ?>>
+                                        <?php if ($cvAllowInlineAdd): ?>
+                                            <?php echo renderCvItemControls('work-experience', $work['id'], [
+                                                'id' => $work['id'],
+                                                'position' => html_entity_decode($work['position'], ENT_QUOTES, 'UTF-8'),
+                                                'company_name' => html_entity_decode($work['company_name'], ENT_QUOTES, 'UTF-8'),
+                                                'start_date' => cvFormatDateForInput($work['start_date'] ?? null),
+                                                'end_date' => cvFormatDateForInput($work['end_date'] ?? null),
+                                                'description' => $work['description'] ?? '',
+                                            ]); ?>
+                                        <?php endif; ?>
                                         <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between mb-2">
                                             <div class="min-w-0">
                                                 <h3 class="text-lg font-semibold text-gray-900"><?php echo e(html_entity_decode($work['position'], ENT_QUOTES, 'UTF-8')); ?></h3>
@@ -847,7 +1216,7 @@ if ($activeTemplate) {
                                             <?php $toggleId = 'responsibilities-' . $work['id']; ?>
                                             <button
                                                 type="button"
-                                                class="inline-flex w-full sm:w-auto items-center justify-center rounded bg-indigo-100 px-3 py-1.5 text-sm font-medium text-indigo-700 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition"
+                                                class="inline-flex w-full sm:w-auto items-center justify-center bg-indigo-100 px-3 py-1.5 text-sm font-medium text-indigo-700 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition"
                                                 data-toggle="collapse"
                                                 data-target="<?php echo e($toggleId); ?>"
                                                 data-view-label="View Responsibilities"
@@ -865,7 +1234,9 @@ if ($activeTemplate) {
                                                 <?php foreach ($work['responsibility_categories'] as $category): ?>
                                                     <?php if (!empty($category['items'])): ?>
                                                         <div>
-                                                            <h4 class="font-semibold text-gray-800 mb-1 text-sm"><?php echo e($category['name']); ?></h4>
+                                                            <?php if (!empty($category['name'])): ?>
+                                                                <h4 class="font-semibold text-gray-800 mb-1 text-sm"><?php echo e($category['name']); ?></h4>
+                                                            <?php endif; ?>
                                                             <ul class="list-disc space-y-1 pl-5">
                                                                 <?php foreach ($category['items'] as $item): ?>
                                                                     <li><?php echo e($item['content']); ?></li>
@@ -881,6 +1252,7 @@ if ($activeTemplate) {
                                         <hr class="my-3 border-gray-200">
                                     <?php endif; ?>
                                 <?php endforeach; ?>
+                                <?php if ($cvAllowInlineAdd): ?><?php echo renderCvAddMoreButton('work-experience', 'Work Experience'); ?><?php endif; ?>
                             </section>
                         <?php endif; ?>
                 <?php $cvSectionBlocks['work-experience'] = ob_get_clean(); ?>
@@ -888,12 +1260,22 @@ if ($activeTemplate) {
                 <!-- Projects -->
                 <?php ob_start(); ?>
                 <?php if (!empty($cvData['projects'])): ?>
-                    <section>
+                    <section<?php echo $cvAllowInlineAdd ? ' data-cv-items-list="projects"' : ''; ?>>
                         <h2 class="text-xl font-bold text-gray-900 mb-3 border-b-2 border-gray-300 pb-2">
                             Projects
                         </h2>
                         <?php foreach ($cvData['projects'] as $project): ?>
-                            <div class="mb-4">
+                            <div class="mb-4 cv-edit-item<?php echo $cvAllowInlineAdd ? ' cv-item-draggable' : ''; ?>"<?php echo $cvAllowInlineAdd ? ' data-cv-item-id="' . e($project['id']) . '"' : ''; ?>>
+                                <?php if ($cvAllowInlineAdd): ?>
+                                    <?php echo renderCvItemControls('projects', $project['id'], [
+                                        'id' => $project['id'],
+                                        'title' => $project['title'],
+                                        'url' => isset($project['url']) ? html_entity_decode($project['url'], ENT_QUOTES, 'UTF-8') : '',
+                                        'start_date' => cvFormatDateForInput($project['start_date'] ?? null),
+                                        'end_date' => cvFormatDateForInput($project['end_date'] ?? null),
+                                        'description' => $project['description'] ?? '',
+                                    ]); ?>
+                                <?php endif; ?>
                                 <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between mb-1">
                                     <?php
                                     $projectUrl = !empty($project['url']) ? html_entity_decode($project['url'], ENT_QUOTES, 'UTF-8') : '';
@@ -930,7 +1312,7 @@ if ($activeTemplate) {
                                         if (!empty($projectImageUrlRaw)) {
                                             $projectImageUrl = $projectImageUrlRaw;
                                         } elseif (!empty($projectImagePath)) {
-                                            $projectImageUrl = '/api/storage-proxy?path=' . urlencode($projectImagePath);
+                                            $projectImageUrl = '/storage/' . ltrim($projectImagePath, '/');
                                         }
                                         
                                         // Get responsive image attributes (context: 'cv' for CV page)
@@ -948,7 +1330,7 @@ if ($activeTemplate) {
                                                                 sizes="<?php echo e($imgAttrs['sizes']); ?>"
                                                             <?php endif; ?>
                                                             alt="<?php echo e($project['title']); ?> - Project image"
-                                                            class="w-full rounded-md border border-gray-200"
+                                                            class="w-full border border-gray-200"
                                                             loading="lazy"
                                                             width="800"
                                                             height="600"
@@ -962,7 +1344,7 @@ if ($activeTemplate) {
                                                             sizes="<?php echo e($imgAttrs['sizes']); ?>"
                                                         <?php endif; ?>
                                                         alt="<?php echo e($project['title']); ?> - Project image"
-                                                        class="w-full rounded-md border border-gray-200"
+                                                        class="w-full border border-gray-200"
                                                         loading="lazy"
                                                         width="800"
                                                         height="600"
@@ -972,6 +1354,7 @@ if ($activeTemplate) {
                                         <?php endif; ?>
                                     </div>
                                 <?php endforeach; ?>
+                                <?php if ($cvAllowInlineAdd): ?><?php echo renderCvAddMoreButton('projects', 'Project'); ?><?php endif; ?>
                             </section>
                         <?php endif; ?>
                 <?php $cvSectionBlocks['projects'] = ob_get_clean(); ?>
@@ -979,12 +1362,19 @@ if ($activeTemplate) {
                 <!-- Professional Qualification Equivalence -->
                 <?php ob_start(); ?>
                 <?php if (!empty($cvData['qualification_equivalence'])): ?>
-                            <section>
+                            <section<?php echo $cvAllowInlineAdd ? ' data-cv-items-list="qualification-equivalence"' : ''; ?>>
                                 <h2 class="text-xl font-bold text-gray-900 mb-3 border-b-2 border-gray-300 pb-2">
                                     Professional Qualification Equivalence
                                 </h2>
                                 <?php foreach ($cvData['qualification_equivalence'] as $qual): ?>
-                                    <div class="mb-4">
+                                    <div class="mb-4 cv-edit-item<?php echo $cvAllowInlineAdd ? ' cv-item-draggable' : ''; ?>"<?php echo $cvAllowInlineAdd ? ' data-cv-item-id="' . e($qual['id']) . '"' : ''; ?>>
+                                        <?php if ($cvAllowInlineAdd): ?>
+                                            <?php echo renderCvItemControls('qualification-equivalence', $qual['id'], [
+                                                'id' => $qual['id'],
+                                                'level' => $qual['level'],
+                                                'description' => $qual['description'] ?? '',
+                                            ]); ?>
+                                        <?php endif; ?>
                                         <h3 class="font-semibold text-gray-900 text-sm mb-1"><?php echo e($qual['level']); ?></h3>
                                         <?php if (!empty($qual['description'])): ?>
                                             <div class="text-gray-700 text-sm leading-relaxed markdown-content"><?php echo renderMarkdown($qual['description'] ?? ''); ?></div>
@@ -993,7 +1383,7 @@ if ($activeTemplate) {
                                                 <?php $evidenceId = 'evidence-' . $qual['id']; ?>
                                                 <button
                                                     type="button"
-                                                    class="mt-2 inline-flex w-full sm:w-auto items-center justify-center rounded bg-indigo-100 px-3 py-1.5 text-sm font-medium text-indigo-700 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition"
+                                                    class="mt-2 inline-flex w-full sm:w-auto items-center justify-center bg-indigo-100 px-3 py-1.5 text-sm font-medium text-indigo-700 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition"
                                                     data-toggle="collapse"
                                                     data-target="<?php echo e($evidenceId); ?>"
                                                     data-view-label="View Supporting Evidence"
@@ -1006,7 +1396,7 @@ if ($activeTemplate) {
                                                     </svg>
                                                     <span class="toggle-label">View Supporting Evidence</span>
                                                 </button>
-                                                <div id="<?php echo e($evidenceId); ?>" class="mt-2 hidden rounded-md bg-gray-50 p-4 text-sm text-gray-700 print:block">
+                                                <div id="<?php echo e($evidenceId); ?>" class="mt-2 hidden bg-gray-50 p-4 text-sm text-gray-700 print:block">
                                                     <ul class="list-disc space-y-1 pl-5">
                                                         <?php foreach ($qual['evidence'] as $evidence): ?>
                                                             <li><?php echo e($evidence['content']); ?></li>
@@ -1016,6 +1406,7 @@ if ($activeTemplate) {
                                         <?php endif; ?>
                                     </div>
                                 <?php endforeach; ?>
+                                <?php if ($cvAllowInlineAdd): ?><?php echo renderCvAddMoreButton('qualification-equivalence', 'Qualification Equivalence'); ?><?php endif; ?>
                             </section>
                         <?php endif; ?>
                 <?php $cvSectionBlocks['qualification-equivalence'] = ob_get_clean(); ?>
@@ -1023,12 +1414,21 @@ if ($activeTemplate) {
                 <!-- Professional Memberships -->
                 <?php ob_start(); ?>
                 <?php if (!empty($cvData['memberships'])): ?>
-                            <section>
+                            <section<?php echo $cvAllowInlineAdd ? ' data-cv-items-list="memberships"' : ''; ?>>
                                 <h2 class="text-xl font-bold text-gray-900 mb-3 border-b-2 border-gray-300 pb-2">
                                     Professional Memberships
                                 </h2>
                                 <?php foreach ($cvData['memberships'] as $membership): ?>
-                                    <div class="mb-3">
+                                    <div class="mb-3 cv-edit-item<?php echo $cvAllowInlineAdd ? ' cv-item-draggable' : ''; ?>"<?php echo $cvAllowInlineAdd ? ' data-cv-item-id="' . e($membership['id']) . '"' : ''; ?>>
+                                        <?php if ($cvAllowInlineAdd): ?>
+                                            <?php echo renderCvItemControls('memberships', $membership['id'], [
+                                                'id' => $membership['id'],
+                                                'organisation' => $membership['organisation'],
+                                                'role' => $membership['role'] ?? '',
+                                                'start_date' => cvFormatDateForInput($membership['start_date'] ?? null),
+                                                'end_date' => cvFormatDateForInput($membership['end_date'] ?? null),
+                                            ]); ?>
+                                        <?php endif; ?>
                                         <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                                             <div class="min-w-0">
                                                 <h3 class="font-semibold text-gray-900 text-sm"><?php echo e($membership['organisation']); ?></h3>
@@ -1053,6 +1453,7 @@ if ($activeTemplate) {
                                         </div>
                                     </div>
                                 <?php endforeach; ?>
+                                <?php if ($cvAllowInlineAdd): ?><?php echo renderCvAddMoreButton('memberships', 'Membership'); ?><?php endif; ?>
                             </section>
                         <?php endif; ?>
                 <?php $cvSectionBlocks['memberships'] = ob_get_clean(); ?>
@@ -1094,12 +1495,16 @@ if ($activeTemplate) {
                 <!-- Render columns in user-defined order -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10">
                     <!-- Left Column (Narrower) -->
-                    <div class="lg:col-span-1 min-w-0 overflow-hidden space-y-6 order-2 lg:order-1">
-                        <?php foreach ($cvLeftDefault as $cvSId) echo $cvSectionBlocks[$cvSId] ?? ''; ?>
+                    <div id="cv-left-column" class="lg:col-span-1 min-w-0 overflow-hidden space-y-6 order-2 lg:order-1">
+                        <?php foreach ($cvLeftDefault as $cvSId): ?>
+                            <?php echo renderCvSectionWrapper($cvSId, $cvSectionBlocks[$cvSId] ?? '', $isCvOwner, $sectionsOnline, $cvAllowInlineAdd, $cvSectionAddLabels[$cvSId] ?? null); ?>
+                        <?php endforeach; ?>
                     </div>
                     <!-- Right Column (Wider) -->
-                    <div class="lg:col-span-2 min-w-0 space-y-6 order-1 lg:order-2">
-                        <?php foreach ($cvRightDefault as $cvSId) echo $cvSectionBlocks[$cvSId] ?? ''; ?>
+                    <div id="cv-right-column" class="lg:col-span-2 min-w-0 space-y-6 order-1 lg:order-2">
+                        <?php foreach ($cvRightDefault as $cvSId): ?>
+                            <?php echo renderCvSectionWrapper($cvSId, $cvSectionBlocks[$cvSId] ?? '', $isCvOwner, $sectionsOnline, $cvAllowInlineAdd, $cvSectionAddLabels[$cvSId] ?? null); ?>
+                        <?php endforeach; ?>
                     </div>
                 </div>
             </div>
@@ -1108,11 +1513,717 @@ if ($activeTemplate) {
     </main>
 
     <?php partial('footer'); ?>
-    
+
     <?php partial('auth-modals'); ?>
+
+    <?php if ($cvAllowInlineAdd): ?>
+    <div id="cv-add-modal-overlay" class="hidden no-print fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <div class="bg-white shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between px-5 py-4 border-b border-gray-200">
+                <h3 id="cv-add-modal-title" class="text-lg font-semibold text-gray-900">Add</h3>
+                <button type="button" id="cv-add-modal-close" class="text-gray-400 hover:text-gray-600" aria-label="Close">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <form id="cv-add-modal-form" class="px-5 py-4">
+                <div id="cv-add-modal-fields" class="space-y-4"></div>
+                <p id="cv-add-modal-error" class="hidden mt-3 text-sm text-red-600"></p>
+                <div class="flex items-center justify-between gap-2 mt-5 pt-4 border-t border-gray-200">
+                    <button type="button" id="cv-add-modal-delete" class="hidden px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 border border-red-200">Delete</button>
+                    <div class="flex items-center gap-2 ml-auto">
+                        <button type="button" id="cv-add-modal-cancel" class="px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 border border-gray-300">Cancel</button>
+                        <button type="submit" id="cv-add-modal-submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">Add</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <?php endif; ?>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // Owner-only "Edit Mode" - reveal hidden-but-populated sections dimmed/dashed and
+        // let the owner flip any section's online visibility without leaving the page.
+        if (window.cvEditModeData) {
+            (function () {
+                var data = window.cvEditModeData;
+                var STORAGE_KEY = 'cvEditModeActive';
+                var body = document.body;
+                var toggleBtn = document.getElementById('cv-edit-mode-toggle');
+                var statusEl = document.getElementById('cv-edit-mode-status');
+
+                // Maps the template section id used in the DOM/sections_online to the
+                // camelCase key the save endpoints expect (api/save-profile-sections-online.php,
+                // api/variant-pdf-preferences.php).
+                var SECTION_API_KEYS = {
+                    'profile': 'profile',
+                    'professional-summary': 'summary',
+                    'work-experience': 'work',
+                    'education': 'education',
+                    'skills': 'skills',
+                    'projects': 'projects',
+                    'certifications': 'certifications',
+                    'memberships': 'memberships',
+                    'interests': 'interests',
+                    'qualification-equivalence': 'qualificationEquivalence'
+                };
+
+                function showCvEditToast(message) {
+                    var toast = document.createElement('div');
+                    toast.textContent = message;
+                    toast.className = 'fixed bottom-4 right-4 z-50 bg-gray-900 text-white text-sm px-4 py-2 shadow-lg';
+                    document.body.appendChild(toast);
+                    setTimeout(function () { toast.remove(); }, 3000);
+                }
+
+                // Section drag-and-drop reordering. profiles.section_order has no per-variant
+                // override (same as the content-editor sidebar's own reorder tool), so this is
+                // enabled on both the master CV and any variant page - reordering here changes
+                // the section layout everywhere, matching how that setting already behaves.
+                var leftColumn = document.getElementById('cv-left-column');
+                var rightColumn = document.getElementById('cv-right-column');
+                var sectionReorder = (function () {
+                    var lists = [leftColumn, rightColumn].filter(Boolean);
+                    var dragSrc = null;
+                    var dragSrcOriginalParent = null;
+
+                    function onDragStart(e) {
+                        dragSrc = this;
+                        dragSrcOriginalParent = this.parentElement;
+                        e.dataTransfer.effectAllowed = 'move';
+                        e.dataTransfer.setData('text/plain', this.dataset.cvSectionKey || '');
+                        this.classList.add('cv-dragging');
+                    }
+                    function onDragOver(e) {
+                        e.preventDefault();
+                        e.dataTransfer.dropEffect = 'move';
+                        if (dragSrc === this) return;
+                        // Which half of the target the cursor is over decides whether the drop
+                        // inserts before or after it - without this, dropping "on" an item always
+                        // means "before it", so moving something down past just one neighbour
+                        // meant targeting the item after that neighbour instead. Confusing.
+                        var rect = this.getBoundingClientRect();
+                        var after = e.clientY > rect.top + rect.height / 2;
+                        this.classList.add('cv-drag-over');
+                        this.classList.toggle('cv-drag-over-after', after);
+                        this.classList.toggle('cv-drag-over-before', !after);
+                        this._cvInsertAfter = after;
+                    }
+                    function onDragLeave() {
+                        this.classList.remove('cv-drag-over', 'cv-drag-over-before', 'cv-drag-over-after');
+                    }
+                    function onDrop(e) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        this.classList.remove('cv-drag-over', 'cv-drag-over-before', 'cv-drag-over-after');
+                        // Unlike item reordering, sections are allowed to cross from one column
+                        // into the other - `lists` only ever contains the two known columns, so
+                        // there's nothing else a section could accidentally land in.
+                        if (dragSrc && dragSrc !== this) {
+                            var targetParent = this.parentElement;
+                            if (this._cvInsertAfter) {
+                                targetParent.insertBefore(dragSrc, this.nextSibling);
+                            } else {
+                                targetParent.insertBefore(dragSrc, this);
+                            }
+                            saveOrder();
+                            if (dragSrcOriginalParent !== targetParent) {
+                                saveColumn(dragSrc, targetParent);
+                            }
+                        }
+                    }
+                    function onDragEnd() {
+                        this.classList.remove('cv-dragging');
+                        lists.forEach(function (list) {
+                            list.querySelectorAll('.cv-section-draggable').forEach(function (el) {
+                                el.classList.remove('cv-drag-over', 'cv-drag-over-before', 'cv-drag-over-after');
+                            });
+                        });
+                    }
+
+                    function onColumnDragOver(e) {
+                        e.preventDefault();
+                        e.dataTransfer.dropEffect = 'move';
+                    }
+                    function onColumnDrop(e) {
+                        // Fires only when dropping on the column's own empty space, not on a
+                        // section (those call stopPropagation() so this never double-handles
+                        // it) - covers dropping below the last item, or into an empty column.
+                        if (e.target !== this) return;
+                        e.preventDefault();
+                        if (dragSrc) {
+                            var wasSameParent = dragSrcOriginalParent === this;
+                            this.appendChild(dragSrc);
+                            saveOrder();
+                            if (!wasSameParent) saveColumn(dragSrc, this);
+                        }
+                    }
+
+                    function enable() {
+                        lists.forEach(function (list) {
+                            list.addEventListener('dragover', onColumnDragOver);
+                            list.addEventListener('drop', onColumnDrop);
+                            list.querySelectorAll('.cv-section-draggable').forEach(function (el) {
+                                el.setAttribute('draggable', 'true');
+                                el.addEventListener('dragstart', onDragStart);
+                                el.addEventListener('dragover', onDragOver);
+                                el.addEventListener('dragleave', onDragLeave);
+                                el.addEventListener('drop', onDrop);
+                                el.addEventListener('dragend', onDragEnd);
+                            });
+                        });
+                    }
+                    function disable() {
+                        lists.forEach(function (list) {
+                            list.removeEventListener('dragover', onColumnDragOver);
+                            list.removeEventListener('drop', onColumnDrop);
+                            list.querySelectorAll('.cv-section-draggable').forEach(function (el) {
+                                el.setAttribute('draggable', 'false');
+                                el.classList.remove('cv-dragging', 'cv-drag-over');
+                                el.removeEventListener('dragstart', onDragStart);
+                                el.removeEventListener('dragover', onDragOver);
+                                el.removeEventListener('dragleave', onDragLeave);
+                                el.removeEventListener('drop', onDrop);
+                                el.removeEventListener('dragend', onDragEnd);
+                            });
+                        });
+                    }
+                    function saveOrder() {
+                        var order = [];
+                        lists.forEach(function (list) {
+                            list.querySelectorAll('.cv-section-draggable').forEach(function (el) {
+                                if (el.dataset.cvSectionKey) order.push(el.dataset.cvSectionKey);
+                            });
+                        });
+                        var body = new URLSearchParams();
+                        body.append('section_order', JSON.stringify(order));
+                        body.append(data.csrfTokenName, data.csrfToken);
+                        fetch('/api/save-section-order.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            body: body.toString()
+                        }).then(function (r) { return r.json(); }).then(function (res) {
+                            if (!res || !res.success) throw new Error('save failed');
+                        }).catch(function () {
+                            showCvEditToast('Could not save the new order. Please try again.');
+                        });
+                    }
+
+                    function saveColumn(el, targetParent) {
+                        var sectionKey = el.dataset.cvSectionKey;
+                        if (!sectionKey) return;
+                        var column = targetParent === leftColumn ? 'left' : 'right';
+                        var body = new URLSearchParams();
+                        body.append('section_id', sectionKey);
+                        body.append('column', column);
+                        body.append(data.csrfTokenName, data.csrfToken);
+                        fetch('/api/save-cv-page-column.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            body: body.toString()
+                        }).then(function (r) { return r.json(); }).then(function (res) {
+                            if (!res || !res.success) throw new Error('save failed');
+                        }).catch(function () {
+                            showCvEditToast('Could not save the new column. Please try again.');
+                        });
+                    }
+
+                    return { enable: enable, disable: disable };
+                })();
+
+                // Item-level drag-and-drop reordering within a section (e.g. dragging one job
+                // above another). Independent per list - skills get one list per category (a
+                // skill can't be dragged out of its category), every other section is one list
+                // for the whole section. Work Experience and Certifications already had their
+                // own dedicated reorder endpoints (predating this feature); the other five
+                // share the generic one built alongside this.
+                var ITEM_REORDER_ENDPOINTS = {
+                    'work-experience': { url: '/api/reorder-work-experience.php', useAction: true },
+                    'certifications': { url: '/api/reorder-certifications.php', useAction: true },
+                    'education': { url: '/api/reorder-section-items.php', useAction: false },
+                    'skills': { url: '/api/reorder-section-items.php', useAction: false },
+                    'projects': { url: '/api/reorder-section-items.php', useAction: false },
+                    'memberships': { url: '/api/reorder-section-items.php', useAction: false },
+                    'interests': { url: '/api/reorder-section-items.php', useAction: false },
+                    'qualification-equivalence': { url: '/api/reorder-section-items.php', useAction: false }
+                };
+
+                var itemReorder = (function () {
+                    var lists = Array.from(document.querySelectorAll('[data-cv-items-list]'));
+                    var dragSrc = null;
+
+                    function onDragStart(e) {
+                        dragSrc = this;
+                        e.stopPropagation();
+                        e.dataTransfer.effectAllowed = 'move';
+                        e.dataTransfer.setData('text/plain', this.dataset.cvItemId || '');
+                        this.classList.add('cv-dragging');
+                    }
+                    function onDragOver(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.dataTransfer.dropEffect = 'move';
+                        if (dragSrc === this) return;
+                        var rect = this.getBoundingClientRect();
+                        var after = e.clientY > rect.top + rect.height / 2;
+                        this.classList.add('cv-drag-over');
+                        this.classList.toggle('cv-drag-over-after', after);
+                        this.classList.toggle('cv-drag-over-before', !after);
+                        this._cvInsertAfter = after;
+                    }
+                    function onDragLeave() {
+                        this.classList.remove('cv-drag-over', 'cv-drag-over-before', 'cv-drag-over-after');
+                    }
+                    function onDrop(e) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        this.classList.remove('cv-drag-over', 'cv-drag-over-before', 'cv-drag-over-after');
+                        if (dragSrc && dragSrc !== this && dragSrc.parentElement === this.parentElement) {
+                            if (this._cvInsertAfter) {
+                                this.parentElement.insertBefore(dragSrc, this.nextSibling);
+                            } else {
+                                this.parentElement.insertBefore(dragSrc, this);
+                            }
+                            saveItemOrder(this.parentElement);
+                        }
+                    }
+                    function onDragEnd() {
+                        this.classList.remove('cv-dragging');
+                        lists.forEach(function (list) {
+                            list.querySelectorAll('.cv-item-draggable').forEach(function (el) {
+                                el.classList.remove('cv-drag-over', 'cv-drag-over-before', 'cv-drag-over-after');
+                            });
+                        });
+                    }
+
+                    function enable() {
+                        lists.forEach(function (list) {
+                            list.querySelectorAll('.cv-item-draggable').forEach(function (el) {
+                                el.setAttribute('draggable', 'true');
+                                el.addEventListener('dragstart', onDragStart);
+                                el.addEventListener('dragover', onDragOver);
+                                el.addEventListener('dragleave', onDragLeave);
+                                el.addEventListener('drop', onDrop);
+                                el.addEventListener('dragend', onDragEnd);
+                            });
+                        });
+                    }
+                    function disable() {
+                        lists.forEach(function (list) {
+                            list.querySelectorAll('.cv-item-draggable').forEach(function (el) {
+                                el.setAttribute('draggable', 'false');
+                                el.classList.remove('cv-dragging', 'cv-drag-over');
+                                el.removeEventListener('dragstart', onDragStart);
+                                el.removeEventListener('dragover', onDragOver);
+                                el.removeEventListener('dragleave', onDragLeave);
+                                el.removeEventListener('drop', onDrop);
+                                el.removeEventListener('dragend', onDragEnd);
+                            });
+                        });
+                    }
+
+                    function fixWorkExperienceSeparators(list) {
+                        // Work Experience renders a plain <hr> between (not around) items - after
+                        // a drag reorder those separators are still in their old DOM positions, so
+                        // rebuild them fresh between the now-reordered items.
+                        Array.from(list.querySelectorAll(':scope > hr')).forEach(function (hr) { hr.remove(); });
+                        var items = Array.from(list.querySelectorAll(':scope > .cv-item-draggable'));
+                        items.forEach(function (item, index) {
+                            if (index < items.length - 1) {
+                                var hr = document.createElement('hr');
+                                hr.className = 'my-3 border-gray-200';
+                                item.insertAdjacentElement('afterend', hr);
+                            }
+                        });
+                    }
+
+                    function saveItemOrder(list) {
+                        var sectionKey = list.dataset.cvItemsList;
+                        var config = ITEM_REORDER_ENDPOINTS[sectionKey];
+                        if (!config) return;
+
+                        if (sectionKey === 'work-experience') fixWorkExperienceSeparators(list);
+
+                        var orderedIds = Array.from(list.querySelectorAll(':scope > .cv-item-draggable'))
+                            .map(function (el) { return el.dataset.cvItemId; })
+                            .filter(Boolean);
+                        if (!orderedIds.length) return;
+
+                        var body = new URLSearchParams();
+                        body.append('ordered_ids', JSON.stringify(orderedIds));
+                        body.append(data.csrfTokenName, data.csrfToken);
+                        if (config.useAction) {
+                            body.append('action', 'reorder');
+                        } else {
+                            body.append('section_id', sectionKey);
+                        }
+
+                        fetch(config.url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            body: body.toString()
+                        }).then(function (r) { return r.json(); }).then(function (res) {
+                            if (!res || !res.success) throw new Error('save failed');
+                        }).catch(function () {
+                            showCvEditToast('Could not save the new order. Please try again.');
+                        });
+                    }
+
+                    return { enable: enable, disable: disable };
+                })();
+
+                function setEditMode(active) {
+                    body.classList.toggle('cv-edit-mode-active', active);
+                    if (toggleBtn) {
+                        toggleBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
+                        toggleBtn.classList.toggle('bg-blue-600', active);
+                        toggleBtn.classList.toggle('text-white', active);
+                        toggleBtn.classList.toggle('border-blue-600', active);
+                        toggleBtn.classList.toggle('hover:bg-blue-700', active);
+                        toggleBtn.classList.toggle('bg-white', !active);
+                        toggleBtn.classList.toggle('text-gray-700', !active);
+                        toggleBtn.classList.toggle('hover:bg-gray-50', !active);
+                    }
+                    if (statusEl) {
+                        statusEl.textContent = active
+                            ? 'Edit Mode: hidden sections show dimmed with a dashed outline. Drag the grip handle to reorder, or use the badge on any section to toggle its visibility.'
+                            : "You're viewing your CV as visitors see it.";
+                    }
+                    if (active) {
+                        sectionReorder.enable();
+                        itemReorder.enable();
+                    } else {
+                        sectionReorder.disable();
+                        itemReorder.disable();
+                    }
+                    try { sessionStorage.setItem(STORAGE_KEY, active ? '1' : '0'); } catch (e) {}
+                }
+
+                if (toggleBtn) {
+                    toggleBtn.addEventListener('click', function () {
+                        setEditMode(!body.classList.contains('cv-edit-mode-active'));
+                    });
+                }
+
+                var initialActive = false;
+                try { initialActive = sessionStorage.getItem(STORAGE_KEY) === '1'; } catch (e) {}
+                setEditMode(initialActive);
+
+                function applyToggleState(btn, wrapper, visible) {
+                    btn.setAttribute('data-visible', visible ? '1' : '0');
+                    btn.setAttribute('aria-pressed', visible ? 'true' : 'false');
+                    btn.title = visible ? 'Hide this section from your CV' : 'Show this section on your CV';
+                    var label = btn.querySelector('.cv-section-visibility-label');
+                    if (label) label.textContent = visible ? 'Visible' : 'Hidden';
+                    if (wrapper) wrapper.classList.toggle('cv-edit-section-hidden', !visible);
+                }
+
+                document.querySelectorAll('.cv-section-visibility-toggle').forEach(function (btn) {
+                    btn.addEventListener('click', function () {
+                        var sectionKey = btn.getAttribute('data-section-key');
+                        var apiKey = SECTION_API_KEYS[sectionKey];
+                        if (!apiKey) return;
+                        var currentlyVisible = btn.getAttribute('data-visible') === '1';
+                        var nextVisible = !currentlyVisible;
+                        var wrapper = btn.closest('.cv-edit-section');
+
+                        applyToggleState(btn, wrapper, nextVisible);
+
+                        var payload = { sections_online: {} };
+                        payload.sections_online[apiKey] = nextVisible;
+                        payload[data.csrfTokenName] = data.csrfToken;
+                        if (data.isVariant) payload.variant_id = data.variantId;
+
+                        var url = data.isVariant ? data.saveVariantUrl : data.saveOnlineUrl;
+
+                        fetch(url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        }).then(function (r) { return r.json(); }).then(function (res) {
+                            if (!res || !res.success) throw new Error('save failed');
+                        }).catch(function () {
+                            applyToggleState(btn, wrapper, currentlyVisible);
+                            showCvEditToast('Could not save that change. Please try again.');
+                        });
+                    });
+                });
+
+                // "+" add-content modal (master CV only - see $cvAllowInlineAdd in cv.php).
+                var addModalOverlay = document.getElementById('cv-add-modal-overlay');
+                if (addModalOverlay) {
+                    var ADD_SECTION_CONFIG = {
+                        'professional-summary': {
+                            addTitle: 'Add Professional Summary',
+                            editTitle: 'Edit Professional Summary',
+                            action: 'save',
+                            fields: [
+                                { name: 'description', label: 'Summary', type: 'textarea', rows: 5 }
+                            ]
+                        },
+                        'work-experience': {
+                            addTitle: 'Add Work Experience',
+                            editTitle: 'Edit Work Experience',
+                            action: 'create',
+                            fields: [
+                                { name: 'position', label: 'Position / Job Title', type: 'text', required: true },
+                                { name: 'company_name', label: 'Company', type: 'text', required: true },
+                                { name: 'start_date', label: 'Start Date', type: 'date', required: true },
+                                { name: 'end_date', label: 'End Date (leave blank if current)', type: 'date' },
+                                { name: 'description', label: 'Description', type: 'textarea' }
+                            ]
+                        },
+                        'education': {
+                            addTitle: 'Add Education',
+                            editTitle: 'Edit Education',
+                            action: 'create',
+                            fields: [
+                                { name: 'degree', label: 'Degree / Qualification', type: 'text', required: true },
+                                { name: 'institution', label: 'Institution', type: 'text', required: true },
+                                { name: 'field_of_study', label: 'Field of Study', type: 'text' },
+                                { name: 'start_date', label: 'Start Date', type: 'date', required: true },
+                                { name: 'end_date', label: 'End Date', type: 'date' }
+                            ]
+                        },
+                        'skills': {
+                            addTitle: 'Add Skill',
+                            editTitle: 'Edit Skill',
+                            action: 'create',
+                            fields: [
+                                { name: 'name', label: 'Skill Name', type: 'text', required: true },
+                                { name: 'category', label: 'Category', type: 'text', placeholder: 'e.g. Languages, Tools' },
+                                { name: 'level', label: 'Level', type: 'text', placeholder: 'e.g. Beginner, Advanced' }
+                            ]
+                        },
+                        'projects': {
+                            addTitle: 'Add Project',
+                            editTitle: 'Edit Project',
+                            action: 'create',
+                            fields: [
+                                { name: 'title', label: 'Project Title', type: 'text', required: true },
+                                { name: 'url', label: 'Project URL', type: 'text', placeholder: 'https://…' },
+                                { name: 'start_date', label: 'Start Date', type: 'date' },
+                                { name: 'end_date', label: 'End Date', type: 'date' },
+                                { name: 'description', label: 'Description', type: 'textarea' }
+                            ]
+                        },
+                        'certifications': {
+                            addTitle: 'Add Certification',
+                            editTitle: 'Edit Certification',
+                            action: 'create',
+                            fields: [
+                                { name: 'name', label: 'Certification Name', type: 'text', required: true },
+                                { name: 'issuer', label: 'Issuing Organisation', type: 'text', required: true },
+                                { name: 'date_obtained', label: 'Date Obtained', type: 'date' },
+                                { name: 'expiry_date', label: 'Expiry Date', type: 'date' }
+                            ]
+                        },
+                        'memberships': {
+                            addTitle: 'Add Professional Membership',
+                            editTitle: 'Edit Professional Membership',
+                            action: 'create',
+                            fields: [
+                                { name: 'organisation', label: 'Organisation', type: 'text', required: true },
+                                { name: 'role', label: 'Role', type: 'text' },
+                                { name: 'start_date', label: 'Start Date', type: 'date' },
+                                { name: 'end_date', label: 'End Date', type: 'date' }
+                            ]
+                        },
+                        'interests': {
+                            addTitle: 'Add Interest',
+                            editTitle: 'Edit Interest',
+                            action: 'create',
+                            fields: [
+                                { name: 'name', label: 'Interest', type: 'text', required: true },
+                                { name: 'description', label: 'Description', type: 'textarea' }
+                            ]
+                        },
+                        'qualification-equivalence': {
+                            addTitle: 'Add Qualification Equivalence',
+                            editTitle: 'Edit Qualification Equivalence',
+                            action: 'create',
+                            fields: [
+                                { name: 'level', label: 'Qualification Level', type: 'text', required: true },
+                                { name: 'description', label: 'Description', type: 'textarea' }
+                            ]
+                        }
+                    };
+
+                    var addModalTitle = document.getElementById('cv-add-modal-title');
+                    var addModalFields = document.getElementById('cv-add-modal-fields');
+                    var addModalError = document.getElementById('cv-add-modal-error');
+                    var addModalForm = document.getElementById('cv-add-modal-form');
+                    var addModalSubmit = document.getElementById('cv-add-modal-submit');
+                    var addModalDelete = document.getElementById('cv-add-modal-delete');
+                    var currentSectionKey = null;
+                    var currentMode = 'add'; // 'add' | 'edit'
+                    var currentItemId = null;
+
+                    function fieldHtml(f) {
+                        var fieldId = 'cv-add-field-' + f.name;
+                        var reqMark = f.required ? ' <span class="text-red-500">*</span>' : '';
+                        var reqAttr = f.required ? 'required' : '';
+                        var placeholder = f.placeholder || '';
+                        if (f.type === 'textarea') {
+                            return '<div><label for="' + fieldId + '" class="block text-sm font-medium text-gray-700 mb-1">' + f.label + reqMark + '</label>' +
+                                '<textarea id="' + fieldId + '" name="' + f.name + '" rows="' + (f.rows || 3) + '" ' + reqAttr + ' placeholder="' + placeholder + '" class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea></div>';
+                        }
+                        var inputType = f.type === 'date' ? 'date' : 'text';
+                        return '<div><label for="' + fieldId + '" class="block text-sm font-medium text-gray-700 mb-1">' + f.label + reqMark + '</label>' +
+                            '<input id="' + fieldId + '" name="' + f.name + '" type="' + inputType + '" ' + reqAttr + ' placeholder="' + placeholder + '" class="w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></div>';
+                    }
+
+                    function openItemModal(sectionKey, mode, itemId, prefill) {
+                        var config = ADD_SECTION_CONFIG[sectionKey];
+                        if (!config) return;
+                        currentSectionKey = sectionKey;
+                        currentMode = mode;
+                        currentItemId = itemId || null;
+                        addModalTitle.textContent = mode === 'edit' ? config.editTitle : config.addTitle;
+                        addModalFields.innerHTML = config.fields.map(fieldHtml).join('');
+                        if (prefill) {
+                            config.fields.forEach(function (f) {
+                                var el = document.getElementById('cv-add-field-' + f.name);
+                                if (el && prefill[f.name] !== undefined && prefill[f.name] !== null) {
+                                    el.value = prefill[f.name];
+                                }
+                            });
+                        }
+                        addModalError.classList.add('hidden');
+                        addModalError.textContent = '';
+                        addModalSubmit.disabled = false;
+                        addModalSubmit.textContent = mode === 'edit' ? 'Save' : 'Add';
+                        addModalDelete.classList.toggle('hidden', !(mode === 'edit' && currentItemId));
+                        addModalOverlay.classList.remove('hidden');
+                        var firstField = addModalFields.querySelector('input, textarea');
+                        if (firstField) firstField.focus();
+                    }
+
+                    function closeItemModal() {
+                        addModalOverlay.classList.add('hidden');
+                        currentSectionKey = null;
+                        currentItemId = null;
+                        currentMode = 'add';
+                    }
+
+                    document.querySelectorAll('.cv-section-add-btn, .cv-section-add-more-btn').forEach(function (btn) {
+                        btn.addEventListener('click', function () {
+                            openItemModal(btn.getAttribute('data-section-key'), 'add', null, null);
+                        });
+                    });
+
+                    document.querySelectorAll('.cv-item-edit-btn').forEach(function (btn) {
+                        btn.addEventListener('click', function () {
+                            var sectionKey = btn.getAttribute('data-section-key');
+                            var itemId = btn.getAttribute('data-item-id') || null;
+                            var prefill = null;
+                            try { prefill = JSON.parse(btn.getAttribute('data-item') || 'null'); } catch (err) { prefill = null; }
+                            openItemModal(sectionKey, 'edit', itemId, prefill);
+                        });
+                    });
+
+                    document.querySelectorAll('.cv-item-delete-btn').forEach(function (btn) {
+                        btn.addEventListener('click', function () {
+                            var sectionKey = btn.getAttribute('data-section-key');
+                            var itemId = btn.getAttribute('data-item-id');
+                            if (!sectionKey || !itemId) return;
+                            if (!window.confirm('Delete this entry? This cannot be undone.')) return;
+                            deleteCvItem(sectionKey, itemId, btn);
+                        });
+                    });
+
+                    function deleteCvItem(sectionKey, itemId, triggerBtn) {
+                        if (triggerBtn) triggerBtn.disabled = true;
+                        var formEl = new FormData();
+                        formEl.append('section_id', sectionKey);
+                        formEl.append('action', 'delete');
+                        formEl.append('id', itemId);
+                        formEl.append('entry_id', itemId);
+                        formEl.append(data.csrfTokenName, data.csrfToken);
+                        fetch('/api/content-editor/save-section.php', { method: 'POST', body: formEl })
+                            .then(function (r) { return r.json(); })
+                            .then(function (res) {
+                                if (res && res.success) {
+                                    try { sessionStorage.setItem(STORAGE_KEY, '1'); } catch (err) {}
+                                    window.location.reload();
+                                } else {
+                                    showCvEditToast((res && res.error) || 'Could not delete. Please try again.');
+                                    if (triggerBtn) triggerBtn.disabled = false;
+                                }
+                            })
+                            .catch(function () {
+                                showCvEditToast('Could not delete. Please try again.');
+                                if (triggerBtn) triggerBtn.disabled = false;
+                            });
+                    }
+
+                    addModalDelete.addEventListener('click', function () {
+                        if (!currentSectionKey || !currentItemId) return;
+                        if (!window.confirm('Delete this entry? This cannot be undone.')) return;
+                        addModalDelete.disabled = true;
+                        addModalDelete.textContent = 'Deleting…';
+                        deleteCvItem(currentSectionKey, currentItemId, addModalDelete);
+                    });
+
+                    document.getElementById('cv-add-modal-close').addEventListener('click', closeItemModal);
+                    document.getElementById('cv-add-modal-cancel').addEventListener('click', closeItemModal);
+                    addModalOverlay.addEventListener('click', function (e) {
+                        if (e.target === addModalOverlay) closeItemModal();
+                    });
+                    document.addEventListener('keydown', function (e) {
+                        if (e.key === 'Escape' && !addModalOverlay.classList.contains('hidden')) closeItemModal();
+                    });
+
+                    addModalForm.addEventListener('submit', function (e) {
+                        e.preventDefault();
+                        if (!currentSectionKey) return;
+                        var config = ADD_SECTION_CONFIG[currentSectionKey];
+                        addModalError.classList.add('hidden');
+
+                        var isEdit = currentMode === 'edit';
+                        // professional-summary always upserts via 'save'; every other section
+                        // uses 'create' for a new entry, 'update' (with its id) for an existing one.
+                        var action = config.action === 'save' ? 'save' : (isEdit ? 'update' : 'create');
+
+                        var formEl = new FormData();
+                        formEl.append('section_id', currentSectionKey);
+                        formEl.append('action', action);
+                        formEl.append(data.csrfTokenName, data.csrfToken);
+                        if (isEdit && currentItemId) {
+                            formEl.append('id', currentItemId);
+                        }
+                        config.fields.forEach(function (f) {
+                            var el = document.getElementById('cv-add-field-' + f.name);
+                            formEl.append(f.name, el ? el.value : '');
+                        });
+
+                        addModalSubmit.disabled = true;
+                        addModalSubmit.textContent = isEdit ? 'Saving…' : 'Adding…';
+
+                        fetch('/api/content-editor/save-section.php', { method: 'POST', body: formEl })
+                            .then(function (r) { return r.json(); })
+                            .then(function (res) {
+                                if (res && res.success) {
+                                    try { sessionStorage.setItem(STORAGE_KEY, '1'); } catch (err) {}
+                                    window.location.reload();
+                                } else {
+                                    addModalError.textContent = (res && res.error) || 'Could not save. Please try again.';
+                                    addModalError.classList.remove('hidden');
+                                    addModalSubmit.disabled = false;
+                                    addModalSubmit.textContent = isEdit ? 'Save' : 'Add';
+                                }
+                            })
+                            .catch(function () {
+                                addModalError.textContent = 'Could not save. Please try again.';
+                                addModalError.classList.remove('hidden');
+                                addModalSubmit.disabled = false;
+                                addModalSubmit.textContent = isEdit ? 'Save' : 'Add';
+                            });
+                    });
+                }
+            })();
+        }
+
         const toggleButtons = document.querySelectorAll('[data-toggle="collapse"]');
         toggleButtons.forEach(function (button) {
             button.addEventListener('click', function () {
