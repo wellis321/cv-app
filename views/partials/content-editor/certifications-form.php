@@ -35,10 +35,6 @@ $canAddCertification = planCanAddEntry($subscriptionContext, 'certifications', $
     
     <!-- Add/Edit Form -->
     <div class="bg-white shadow rounded-lg p-6 mb-6">
-        <h2 class="text-xl font-semibold mb-4">
-            <?php echo $editingCertification ? 'Edit Certification' : 'Add New Certification'; ?>
-        </h2>
-        
         <?php if (!$editingCertification && !$canAddCertification): ?>
             <div class="rounded-md bg-blue-50 border border-blue-200 p-4 text-sm text-blue-700">
                 <?php echo getPlanLimitMessage($subscriptionContext, 'certifications'); ?>

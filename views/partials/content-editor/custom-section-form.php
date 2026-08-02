@@ -68,9 +68,6 @@ $items = db()->fetchAll(
 
     <!-- Add / Edit Item Form -->
     <div class="bg-white shadow rounded-lg p-6 mb-6">
-        <h2 class="text-xl font-semibold mb-4">
-            <?php echo $editingItem ? 'Edit Item' : 'Add New Item'; ?>
-        </h2>
         <form method="POST"
               action="/api/content-editor/save-custom-item.php"
               data-section-form

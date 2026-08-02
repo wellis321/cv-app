@@ -121,17 +121,13 @@ if ($isVariantContext) {
                 <span>In PDF</span>
             </label>
         <?php else: ?>
-            <a href="/preview-cv.php" class="text-indigo-600 hover:text-indigo-800">PDF options &rarr;</a>
+            <a href="/content-editor.php#visibility" class="text-indigo-600 hover:text-indigo-800">PDF options &rarr;</a>
         <?php endif; ?>
         <span id="we-responsibilities-toggle-status" class="text-gray-500" aria-live="polite"></span>
     </div>
 
     <!-- Add/Edit Form -->
     <div class="bg-white shadow rounded-lg p-6 mb-6">
-        <h2 class="text-xl font-semibold mb-4">
-            <?php echo $editingExperience ? 'Edit Work Experience' : 'Add New Work Experience'; ?>
-        </h2>
-        
         <?php if (!$editingExperience && !$canAddWorkExperience): ?>
             <div class="rounded-md bg-blue-50 border border-blue-200 p-4 text-sm text-blue-700">
                 <?php echo getPlanLimitMessage($subscriptionContext, 'work_experience'); ?>

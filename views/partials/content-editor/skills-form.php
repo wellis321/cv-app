@@ -43,10 +43,6 @@ $canAddSkill = planCanAddEntry($subscriptionContext, 'skills', $userId, count($s
     
     <!-- Add/Edit Form -->
     <div class="bg-white shadow rounded-lg p-6 mb-6">
-        <h2 class="text-xl font-semibold mb-4">
-            <?php echo $editingSkill ? 'Edit Skill' : 'Add New Skill'; ?>
-        </h2>
-        
         <?php if (!$editingSkill && !$canAddSkill): ?>
             <div class="rounded-md bg-blue-50 border border-blue-200 p-4 text-sm text-blue-700">
                 <?php echo getPlanLimitMessage($subscriptionContext, 'skills'); ?>

@@ -43,10 +43,6 @@ $canAddInterest = planCanAddEntry($subscriptionContext, 'interests', $userId, co
     
     <!-- Add/Edit Form -->
     <div class="bg-white shadow rounded-lg p-6 mb-6">
-        <h2 class="text-xl font-semibold mb-4">
-            <?php echo $editingInterest ? 'Edit Interest' : 'Add New Interest'; ?>
-        </h2>
-        
         <?php if (!$editingInterest && !$canAddInterest): ?>
             <div class="rounded-md bg-blue-50 border border-blue-200 p-4 text-sm text-blue-700">
                 <?php echo getPlanLimitMessage($subscriptionContext, 'interests'); ?>

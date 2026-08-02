@@ -55,10 +55,6 @@ $canAddQual = planCanAddEntry($subscriptionContext, 'qualification_equivalence',
     
     <!-- Add/Edit Form -->
     <div class="bg-white shadow rounded-lg p-6 mb-6">
-        <h2 class="text-xl font-semibold mb-4">
-            <?php echo $editingQual ? 'Edit Qualification' : 'Add New Qualification'; ?>
-        </h2>
-        
         <?php if (!$editingQual && !$canAddQual): ?>
             <div class="rounded-md bg-blue-50 border border-blue-200 p-4 text-sm text-blue-700">
                 <?php echo getPlanLimitMessage($subscriptionContext, 'qualification_equivalence'); ?>
