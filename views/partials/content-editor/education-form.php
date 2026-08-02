@@ -70,19 +70,19 @@ $canAddEducation = planCanAddEntry($subscriptionContext, 'education', $userId, c
                 <div>
                     <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">Start Date *</label>
                     <input type="date" id="start_date" name="start_date" value="<?php echo $editingEducation ? date('Y-m-d', strtotime($editingEducation['start_date'])) : ''; ?>" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                
-                <div>
-                    <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
-                    <input type="date" id="end_date" name="end_date" value="<?php echo $editingEducation && $editingEducation['end_date'] ? date('Y-m-d', strtotime($editingEducation['end_date'])) : ''; ?>" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                    <p class="mt-1 text-xs text-gray-500">Leave blank if still studying</p>
                     <label class="mt-2 flex items-center">
                         <input type="checkbox" name="hide_date" value="1" <?php echo $editingEducation && !empty($editingEducation['hide_date']) ? 'checked' : ''; ?> class="mr-2">
                         <span class="text-sm text-gray-700">Hide date on CV</span>
                     </label>
                 </div>
+
+                <div>
+                    <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                    <input type="date" id="end_date" name="end_date" value="<?php echo $editingEducation && $editingEducation['end_date'] ? date('Y-m-d', strtotime($editingEducation['end_date'])) : ''; ?>" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                    <p class="mt-1 text-xs text-gray-500">Leave blank if still studying</p>
+                </div>
             </div>
-            
+
             <div class="mt-6">
                 <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md">
                     <?php echo $editingEducation ? 'Update Education' : 'Add Education'; ?>

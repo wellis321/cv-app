@@ -63,15 +63,15 @@ $canAddCertification = planCanAddEntry($subscriptionContext, 'certifications', $
                     <div>
                         <label for="date_obtained" class="block text-sm font-medium text-gray-700 mb-1">Date Obtained</label>
                         <input type="date" id="date_obtained" name="date_obtained" value="<?php echo $editingCertification && $editingCertification['date_obtained'] ? date('Y-m-d', strtotime($editingCertification['date_obtained'])) : ''; ?>" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-                    
-                    <div>
-                        <label for="expiry_date" class="block text-sm font-medium text-gray-700 mb-1">Expiry Date</label>
-                        <input type="date" id="expiry_date" name="expiry_date" value="<?php echo $editingCertification && $editingCertification['expiry_date'] ? date('Y-m-d', strtotime($editingCertification['expiry_date'])) : ''; ?>" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
                         <label class="mt-2 flex items-center">
                             <input type="checkbox" name="hide_date" value="1" <?php echo $editingCertification && !empty($editingCertification['hide_date']) ? 'checked' : ''; ?> class="mr-2 rounded border-gray-300">
                             <span class="text-sm text-gray-700">Hide date on CV</span>
                         </label>
+                    </div>
+
+                    <div>
+                        <label for="expiry_date" class="block text-sm font-medium text-gray-700 mb-1">Expiry Date</label>
+                        <input type="date" id="expiry_date" name="expiry_date" value="<?php echo $editingCertification && $editingCertification['expiry_date'] ? date('Y-m-d', strtotime($editingCertification['expiry_date'])) : ''; ?>" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
                     </div>
                 </div>
             </div>
