@@ -2842,15 +2842,15 @@
             isReordering = !isReordering;
             if (isReordering) {
                 toggleBtn.textContent = 'Done';
-                toggleBtn.classList.add('text-green-600', 'hover:text-green-800');
-                toggleBtn.classList.remove('text-blue-600', 'hover:text-blue-800');
+                toggleBtn.classList.add('text-green-700', 'bg-green-50', 'border-green-200', 'hover:bg-green-100', 'focus:ring-green-500');
+                toggleBtn.classList.remove('text-blue-700', 'bg-blue-50', 'border-blue-200', 'hover:bg-blue-100', 'focus:ring-blue-500');
                 if (reorderInfo) reorderInfo.classList.remove('hidden');
                 if (mainList)    mainList._enableReorder();
                 if (sidebarList) sidebarList._enableReorder();
             } else {
                 toggleBtn.textContent = 'Reorder';
-                toggleBtn.classList.remove('text-green-600', 'hover:text-green-800');
-                toggleBtn.classList.add('text-blue-600', 'hover:text-blue-800');
+                toggleBtn.classList.remove('text-green-700', 'bg-green-50', 'border-green-200', 'hover:bg-green-100', 'focus:ring-green-500');
+                toggleBtn.classList.add('text-blue-700', 'bg-blue-50', 'border-blue-200', 'hover:bg-blue-100', 'focus:ring-blue-500');
                 if (reorderInfo) reorderInfo.classList.add('hidden');
                 if (mainList)    mainList._disableReorder();
                 if (sidebarList) sidebarList._disableReorder();

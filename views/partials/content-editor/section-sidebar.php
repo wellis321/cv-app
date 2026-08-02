@@ -100,15 +100,15 @@ $profileComplete = !empty($profileRow['full_name']) && !empty($profileRow['usern
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-semibold text-gray-900">CV Sections</h2>
                 <button id="toggle-section-reorder-btn" type="button"
-                        class="text-xs text-blue-600 hover:text-blue-800 font-medium focus:outline-none">
+                        class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-200 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     Reorder
                 </button>
             </div>
             <!-- Reorder info bar (hidden by default) -->
-            <div id="section-reorder-info" class="hidden mb-3 p-2 bg-blue-50 border border-blue-200 rounded-md text-xs text-blue-700">
-                Drag to reorder within each group. Sections stay in their column on your CV.
+            <div id="section-reorder-info" class="hidden mb-3 p-2 bg-blue-50 border border-blue-200 text-xs text-blue-700">
+                Drag to reorder within each group.
                 <button id="save-section-order-btn" type="button"
-                        class="mt-2 w-full bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded text-xs font-medium">
+                        class="mt-2 w-full bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 text-xs font-medium">
                     Save order
                 </button>
             </div>
