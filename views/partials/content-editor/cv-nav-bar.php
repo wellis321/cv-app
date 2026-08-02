@@ -14,7 +14,7 @@ $previewVariantId = $variantId ?? null;
 $relatedJobId = null;
 
 // Unified action-button set, same order everywhere (most-used to least-used, left to
-// right): Edit CV, View CV, Preview & PDF, Jobs, Copy Link. Each page hides the one
+// right): Edit CV, View CV, Preview & PDF, Jobs, Share CV. Each page hides the one
 // button that duplicates where the user already is - nothing else about the set changes.
 $pageContext = $isEditorPage ? 'editor' : ($isCvPage ? 'cv' : ($isPreviewPage ? 'preview' : null));
 
@@ -167,9 +167,9 @@ foreach ($cvVariants as $variant) {
                 <span id="cv-nav-jobs-label"><?php echo e($navJobsLabel); ?></span>
             </a>
             <?php if (!empty($navShareUrl)): ?>
-            <button type="button" id="cv-nav-copy-link" class="copy-cv-link-btn flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-50 rounded-md border border-gray-300 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap" data-cv-url="<?php echo e($navShareUrl); ?>" aria-label="Copy CV link">
+            <button type="button" id="cv-nav-copy-link" class="copy-cv-link-btn flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-50 rounded-md border border-gray-300 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap" data-cv-url="<?php echo e($navShareUrl); ?>" aria-label="Share CV">
                 <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
-                <span class="copy-cv-link-label">Copy Link</span>
+                <span class="copy-cv-link-label">Share CV</span>
             </button>
             <?php endif; ?>
         </div>
@@ -226,7 +226,7 @@ if ($pageContext === 'editor'): ?>
                 if (!url) return;
                 var label = this.querySelector('.copy-cv-link-label');
                 var restore = function () {
-                    if (label) setTimeout(function () { label.textContent = 'Copy Link'; }, 2000);
+                    if (label) setTimeout(function () { label.textContent = 'Share CV'; }, 2000);
                 };
                 if (navigator.clipboard && navigator.clipboard.writeText) {
                     navigator.clipboard.writeText(url).then(function () {

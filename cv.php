@@ -371,7 +371,7 @@ if ($activeTemplate) {
                     navigator.clipboard.writeText(url).then(function () {
                         if (label) label.textContent = 'Copied!';
                         setTimeout(function () {
-                            if (label) label.textContent = 'Copy CV link';
+                            if (label) label.textContent = 'Share CV';
                         }, 2000);
                     }).catch(function () { /* fallback below */ });
                 } else {
@@ -384,7 +384,7 @@ if ($activeTemplate) {
                         document.execCommand('copy');
                         if (label) label.textContent = 'Copied!';
                         setTimeout(function () {
-                            if (label) label.textContent = 'Copy CV link';
+                            if (label) label.textContent = 'Share CV';
                         }, 2000);
                     } catch (e) {}
                     document.body.removeChild(ta);
@@ -2268,7 +2268,7 @@ function renderCvSectionWrapper($cvSId, $sectionHtml, $isCvOwner, $sectionsOnlin
                     navigator.clipboard.writeText(url).then(function () {
                         if (label) label.textContent = 'Copied!';
                         setTimeout(function () {
-                            if (label) label.textContent = 'Copy CV link';
+                            if (label) label.textContent = 'Share CV';
                         }, 2000);
                     }).catch(function () {});
                 } else {
@@ -2281,7 +2281,7 @@ function renderCvSectionWrapper($cvSId, $sectionHtml, $isCvOwner, $sectionsOnlin
                         document.execCommand('copy');
                         if (label) label.textContent = 'Copied!';
                         setTimeout(function () {
-                            if (label) label.textContent = 'Copy CV link';
+                            if (label) label.textContent = 'Share CV';
                         }, 2000);
                     } catch (e) {}
                     document.body.removeChild(ta);
