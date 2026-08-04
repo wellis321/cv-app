@@ -173,33 +173,36 @@
                 </ul>
             </div>
             
-            <div class="bg-white rounded-xl shadow-lg p-6 border border-blue-100">
+            <div class="bg-gray-50 rounded-xl shadow-lg p-6 border-2 border-gray-200 opacity-75">
                 <div class="flex justify-center mb-4">
-                    <div class="flex h-16 w-16 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+                    <div class="flex h-16 w-16 items-center justify-center rounded-lg bg-gray-200 text-gray-400">
                         <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                     </div>
                 </div>
-                <h3 class="text-xl font-semibold text-gray-900 text-center mb-3">CV Quality Assessment</h3>
-                <p class="text-base text-gray-600 text-center mb-4">
+                <div class="flex justify-center mb-1">
+                    <span class="text-xs font-medium text-gray-400 bg-gray-200 px-2 py-1 rounded">Temporarily Unavailable</span>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-500 text-center mb-3">CV Quality Assessment</h3>
+                <p class="text-base text-gray-500 text-center mb-4">
                     Get comprehensive AI-powered feedback on your CV. Receive scores for ATS compatibility, content quality, formatting, and keyword matching with specific improvement recommendations.
                 </p>
-                <ul class="space-y-2 text-sm text-gray-600">
+                <ul class="space-y-2 text-sm text-gray-500">
                     <li class="flex items-start">
-                        <svg class="h-5 w-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <svg class="h-5 w-5 text-gray-400 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                         </svg>
                         <span>ATS compatibility scoring</span>
                     </li>
                     <li class="flex items-start">
-                        <svg class="h-5 w-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <svg class="h-5 w-5 text-gray-400 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                         </svg>
                         <span>Actionable improvement suggestions</span>
                     </li>
                     <li class="flex items-start">
-                        <svg class="h-5 w-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <svg class="h-5 w-5 text-gray-400 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                         </svg>
                         <span>Strengths and weaknesses analysis</span>
