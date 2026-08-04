@@ -4,7 +4,7 @@
 
 <!-- Hero Section -->
 <div class="relative overflow-hidden bg-white">
-    <div class="pt-32 pb-16 sm:pt-36 sm:pb-20 md:pb-32 lg:pt-56 lg:pb-48">
+    <div class="pt-16 pb-16 sm:pt-20 sm:pb-20 lg:pt-28 lg:pb-28">
         <div class="relative mx-auto max-w-7xl px-4 sm:static sm:px-6 lg:px-8">
             <div class="sm:max-w-lg relative z-10">
                 <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
