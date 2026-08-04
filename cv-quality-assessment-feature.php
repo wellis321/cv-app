@@ -23,6 +23,12 @@ $img = function($id, $w = 800) { return 'https://images.unsplash.com/photo-' . $
     <?php partial('header'); ?>
 
     <main id="main-content">
+        <!-- Temporarily unavailable notice -->
+        <div class="bg-amber-50 border-b border-amber-200">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3 text-center">
+                <p class="text-sm font-medium text-amber-800">CV Quality Assessment is temporarily unavailable while we work on it. Everything else - CV building, job tracking, and AI cover letters - is unaffected.</p>
+            </div>
+        </div>
         <!-- Hero -->
         <section class="relative min-h-[50vh] flex flex-col justify-center bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-600 text-white overflow-hidden">
             <div class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20" style="background-image: url('https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1920&q=80');" aria-hidden="true"></div>
