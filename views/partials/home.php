@@ -27,37 +27,14 @@
             </div>
             <div>
                 <div class="mt-10">
-                    <!-- Decorative image grid -->
-                    <div aria-hidden="true" class="pointer-events-none hidden md:block lg:absolute lg:inset-y-0 lg:mx-auto lg:w-full lg:max-w-7xl">
-                        <div class="absolute transform md:top-0 md:left-1/2 md:translate-x-8 lg:top-1/2 lg:left-1/2 lg:translate-x-8 lg:-translate-y-1/2 z-0">
-                            <div class="flex items-center space-x-6 lg:space-x-8">
-                                <div class="grid flex-shrink-0 grid-cols-1 gap-y-6 lg:gap-y-8">
-                                    <div class="h-64 w-44 overflow-hidden rounded-lg bg-blue-100 shadow-lg">
-                                        <div class="h-full w-full bg-gradient-to-br from-blue-200 to-blue-300"></div>
-                                    </div>
-                                    <div class="h-64 w-44 overflow-hidden rounded-lg bg-blue-100 shadow-lg">
-                                        <div class="h-full w-full bg-gradient-to-br from-blue-300 to-blue-400"></div>
-                                    </div>
-                                </div>
-                                <div class="grid flex-shrink-0 grid-cols-1 gap-y-6 lg:gap-y-8">
-                                    <div class="h-64 w-44 overflow-hidden rounded-lg bg-blue-100 shadow-lg">
-                                        <div class="h-full w-full bg-gradient-to-br from-blue-400 to-blue-500"></div>
-                                    </div>
-                                    <div class="h-64 w-44 overflow-hidden rounded-lg bg-blue-100 shadow-lg">
-                                        <div class="h-full w-full bg-gradient-to-br from-blue-500 to-blue-600"></div>
-                                    </div>
-                                    <div class="h-64 w-44 overflow-hidden rounded-lg bg-blue-100 shadow-lg">
-                                        <div class="h-full w-full bg-gradient-to-br from-blue-600 to-blue-700"></div>
-                                    </div>
-                                </div>
-                                <div class="grid flex-shrink-0 grid-cols-1 gap-y-6 lg:gap-y-8">
-                                    <div class="h-64 w-44 overflow-hidden rounded-lg bg-blue-100 shadow-lg">
-                                        <div class="h-full w-full bg-gradient-to-br from-blue-700 to-blue-800"></div>
-                                    </div>
-                                    <div class="h-64 w-44 overflow-hidden rounded-lg bg-blue-100 shadow-lg">
-                                        <div class="h-full w-full bg-gradient-to-br from-blue-800 to-blue-900"></div>
-                                    </div>
-                                </div>
+                    <!-- Real product preview: an actual CV built with Simple CV Builder -->
+                    <div class="hidden md:block lg:absolute lg:inset-y-0 lg:mx-auto lg:w-full lg:max-w-7xl">
+                        <div class="absolute transform md:top-0 md:left-1/2 md:translate-x-8 lg:top-1/2 lg:left-1/2 lg:translate-x-16 lg:-translate-y-1/2 z-0">
+                            <div class="w-[380px] lg:w-[420px] rotate-2 overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-gray-900/10">
+                                <picture>
+                                    <source srcset="/static/images/home/example-cv-preview.webp" type="image/webp">
+                                    <img src="/static/images/home/example-cv-preview.png" alt="Example CV built with Simple CV Builder, showing a professional summary and work experience" class="h-auto w-full" width="900" height="700" loading="eager" fetchpriority="high">
+                                </picture>
                             </div>
                         </div>
                     </div>
